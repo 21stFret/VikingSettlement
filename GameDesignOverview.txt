@@ -1,0 +1,431 @@
+VIKING SETTLEMENT - ENHANCED RESOURCE SYSTEM DESIGN
+===================================================
+
+STREAMLINED ENHANCEMENT - COMBAT & EXPANSION FOCUS
+
+Core Systems (4 Total):
+1. Seasonal System - Rhythmic production modifiers
+2. Resource Discovery - Exploration-driven unlocks
+3. Research Tree - Long-term progression (design TBD)
+4. Production Chains - Efficiency optimization (design TBD)
+
+Removed: Trade, byproducts, storage caps
+New Focus: These systems should support combat/raiding gameplay
+
+===============================================================================
+1. SEASONAL SYSTEM (IMMEDIATE IMPLEMENTATION)
+===============================================================================
+
+Simple Four-Season Cycle
+-------------------------
+public class SeasonManager : MonoBehaviour
+{
+    public enum Season { Spring, Summer, Fall, Winter }
+
+    [Header("Season Settings")]
+    public float daysPerSeason = 30f;
+    public Season currentSeason = Season.Spring;
+
+    // Modifiers applied to production
+    public Dictionary<Season, SeasonModifiers> seasonEffects;
+}
+
+[System.Serializable]
+public class SeasonModifiers
+{
+    public float farmingMultiplier = 1f;
+    public float fishingMultiplier = 1f;
+    public float miningMultiplier = 1f;
+    public float woodcuttingMultiplier = 1f;
+    public float craftingMultiplier = 1f;
+    public float movementSpeedMultiplier = 1f;  // For raiders/workers
+}
+
+Season Effects (Suggested)
+---------------------------
+Spring:
+- Farming: +30%
+- Fishing: +20%
+- Perfect for expansion
+
+Summer:
+- All production: +10%
+- Movement speed: +20% (raid season!)
+- Best for military campaigns
+
+Fall:
+- Farming: +50% (harvest)
+- Woodcutting: +20%
+- Stockpile for winter
+
+Winter:
+- Farming: -80%
+- Mining: -30% (frozen ground)
+- Fishing: -50%
+- Movement: -30% (harder raids)
+- Combat focus, not production
+
+Integration with Combat
+-----------------------
+- Summer = Raid Season (faster movement, better weather)
+- Winter = Defense Season (enemies raid you, harder to counter-raid)
+- Creates natural pacing: Produce in spring/fall, raid in summer, defend in winter
+
+Files needed:
+- Assets/Scripts/SeasonManager.cs
+- Modify Building.cs:GetProductionSpeed() to apply season multiplier
+- Simple UI element showing current season + days remaining
+
+===============================================================================
+2. RESOURCE DISCOVERY (EXPLORATION-DRIVEN)
+===============================================================================
+
+Concept
+-------
+Map has resource nodes that must be discovered before you can gather them.
+
+Discovery Flow
+--------------
+1. See glowing/marked area on map (unexplored resource)
+2. Send villager or warrior to investigate
+3. Node is discovered → resource type unlocked
+4. Build appropriate gathering building near node
+5. Node provides bonus yield if building is close
+
+Node Types
+----------
+public class ResourceNode : MonoBehaviour
+{
+    public ResourceType resourceType;
+    public bool isDiscovered = false;
+    public float discoveryRadius = 5f;
+
+    [Header("Node Quality")]
+    public NodeQuality quality;  // Poor, Average, Rich
+
+    [Header("Bonus Effects")]
+    public float proximityBonus = 1.5f;  // Buildings within range get +50%
+    public float bonusRadius = 10f;
+}
+
+public enum NodeQuality
+{
+    Poor,      // 0.5× yield
+    Average,   // 1.0× yield
+    Rich,      // 2.0× yield
+    Legendary  // 3.0× yield (rare, 1-2 per map)
+}
+
+Starting vs Discovered Resources
+---------------------------------
+KNOWN AT START:
+- Wood (forests everywhere)
+- Stone (surface rocks)
+- Wheat (farmland)
+- Fish (rivers/coast)
+
+MUST DISCOVER:
+- Iron deposits (ore veins)
+- Coal/Fuel sources
+- Clay deposits
+- Rare materials (for advanced weapons/armor)
+
+Combat Integration
+------------------
+- Contested nodes - Enemy settlements near valuable nodes
+- Raid targets - Steal discovered node locations from enemies
+- Node defense - Enemies raid your rich iron mine
+- Expansion motivation - Need better weapons? Find rare ore deposits
+
+Files needed:
+- Assets/Scripts/ResourceNode.cs - Node behavior
+- Assets/Scripts/DiscoveryManager.cs - Tracks discovered resources
+- Modify BuildingData.cs - Add requiredDiscovery field
+- Visual prefabs for undiscovered/discovered nodes
+
+===============================================================================
+3. RESEARCH TREE (DESIGN DISCUSSION NEEDED)
+===============================================================================
+
+Research Building Options
+-------------------------
+OPTION A: Passive Research
+- Library/Mead Hall building
+- Generates research points automatically (no worker needed)
+- Rate based on settlement size/achievements
+
+OPTION B: Active Research
+- Scholars assigned to library
+- Research points generated like other resources
+- Scholars gain "research skill" over time
+
+OPTION C: Achievement-Based
+- Complete milestones to unlock techs
+- "Defeat 10 enemies" → unlock better weapons research
+- "Discover 5 iron nodes" → unlock advanced mining
+
+Research Categories (Rough Draft)
+----------------------------------
+
+MILITARY TREE (Fits your combat focus):
+
+Tier 1:
+├─ Basic Weapons Training: +10% warrior damage
+├─ Leather Armor: Unlock leather armor crafting
+└─ Shield Wall: Warriors take -20% damage
+
+Tier 2:
+├─ Iron Weapons: Better swords/axes (requires iron discovery)
+├─ Chainmail: Advanced armor
+├─ Raiding Tactics: +20% movement speed on raids
+└─ War Camp: Unlock barracks for faster training
+
+Tier 3:
+├─ Master Smithing: +50% weapon effectiveness
+├─ Berserker Rage: Special ability for elite warriors
+├─ Siege Equipment: Unlock catapults/rams
+└─ Naval Raiding: Ship-based raids (requires coast)
+
+ECONOMY TREE:
+
+Tier 1:
+├─ Better Tools: +15% all gathering
+├─ Crop Rotation: +20% farming
+└─ Deep Mining: +25% ore yields
+
+Tier 2:
+├─ Advanced Processing: Unlock multi-step chains
+├─ Efficient Crafting: Crafting buildings work 30% faster
+└─ Resource Surveying: Reveal all nodes on map
+
+Tier 3:
+├─ Industrial Scale: +50% all production
+├─ Master Crafters: Quality output tier (better gear)
+└─ Automation: Buildings need -1 worker
+
+EXPANSION TREE:
+
+Tier 1:
+├─ Exploration: +50% villager movement speed
+├─ Basic Construction: Buildings cost -10% resources
+└─ Population Growth: +20% birth rate
+
+Tier 2:
+├─ Advanced Buildings: Unlock tier-2 structures
+├─ Fortifications: Walls, towers, defenses
+└─ Territory Control: Claim larger area
+
+Tier 3:
+├─ Fast Construction: Buildings build 2× faster
+├─ Legendary Structures: Great Hall, Temple, etc.
+└─ Empire Management: Unlock multiple settlements (if ever needed)
+
+Questions for You:
+------------------
+1. How should research be generated? (Passive, active scholars, or achievement-based?)
+2. Should all techs be available or locked behind prerequisites?
+3. Should research cost resources too, or just research points?
+4. How does this tie into combat? (Should winning raids give research bonuses?)
+
+Files needed:
+- Assets/Scripts/ResearchData.cs - ScriptableObject for each tech
+- Assets/Scripts/ResearchManager.cs - Unlock tracking, bonus application
+- Assets/Scripts/UI/ResearchUI.cs - Tech tree visualization
+- Research building prefab
+
+===============================================================================
+4. PRODUCTION CHAINS (YOUR DESIGN)
+===============================================================================
+
+Current Implementation
+----------------------
+Simple 1-step:
+Raw Resource → Building → Finished Product
+(Iron → Blacksmith → Weapon)
+
+Potential Chain Structure
+--------------------------
+Multi-step option:
+Iron Ore → Smelter → Iron Bars
+         → Blacksmith → Weapon Parts
+         → Weaponsmith → Finished Weapons (better quality)
+
+OR keep it simple but add quality:
+Iron → Blacksmith → Weapons
+(Worker skill determines quality: Basic/Fine/Masterwork)
+
+Questions for You:
+------------------
+1. How deep should chains go? (2 steps? 3 steps?)
+2. Should chains be optional (faster but less efficient vs slower but better yield)?
+3. Should chains produce higher-tier outputs (Iron Sword vs Steel Sword)?
+4. How do chains integrate with combat? (Better weapons from chains = stronger warriors?)
+
+Combat-Focused Chain Example
+-----------------------------
+WEAPON PROGRESSION:
+
+Wood → Woodcutter → Logs
+    → Carpenter → Wooden Clubs (basic, tier 1)
+
+Iron Ore → Smelter → Iron Bars
+    → Blacksmith → Iron Swords (good, tier 2)
+
+Iron Bars + Rare Ore → Master Smith → Steel Weapons (excellent, tier 3)
+    → Runesmith (requires research) → Enchanted Weapons (legendary, tier 4)
+
+Higher tiers = warriors deal more damage, better raid success
+
+===============================================================================
+INTEGRATION: HOW THESE SUPPORT COMBAT/RAIDING
+===============================================================================
+
+Seasonal Raid Planning
+----------------------
+Spring (Days 1-30):
+- Build up production
+- Train new warriors
+- Stockpile resources
+
+Summer (Days 31-60):
+- RAID SEASON
+- +20% movement speed
+- Launch expeditions to enemy settlements
+- Capture resource nodes
+
+Fall (Days 61-90):
+- Harvest season
+- Process plunder from raids
+- Prepare for winter
+
+Winter (Days 91-120):
+- DEFENSE SEASON
+- Enemies raid you
+- Repair damage
+- Research new technologies
+
+Discovery-Driven Expansion
+---------------------------
+1. Scout discovers rich iron deposit
+2. Iron is near enemy territory
+3. Options:
+   a) Raid enemy, claim node
+   b) Build outpost near node, defend it
+   c) Trade/ally with enemy for access
+4. Rich iron → better weapons → stronger raids
+
+Research for Military Power
+----------------------------
+Early game: Basic warriors with wooden clubs
+↓
+Research "Iron Weapons" → Need iron discovery
+↓
+Explore map → Find iron node
+↓
+Build mine + smelter → Iron bars
+↓
+Build weapon chain → Iron swords
+↓
+Research "Raiding Tactics" → Faster raids
+↓
+Raid enemy settlements for rare materials
+↓
+Research "Master Smithing" → Legendary weapons
+
+Chain-Based Army Quality
+------------------------
+BASIC ARMY (1-step production):
+- Wood → Clubs
+- Fast to produce
+- Weak in combat
+
+ADVANCED ARMY (multi-step chains):
+- Iron Ore → Bars → Swords → Enchanted Swords
+- Slower to produce
+- Crushes enemies
+
+Player choice: Many weak raiders fast, or few elite warriors slowly?
+
+===============================================================================
+UPDATED FILE STRUCTURE
+===============================================================================
+
+New Files (Minimal)
+-------------------
+Assets/Scripts/
+├── SeasonManager.cs           ✓ (Simple, ~100 lines)
+├── ResourceNode.cs            ✓ (Node behavior, ~80 lines)
+├── DiscoveryManager.cs        ✓ (Track discoveries, ~60 lines)
+├── ResearchManager.cs         ⏸ (Design TBD, ~150 lines)
+├── ResearchData.cs            ⏸ (ScriptableObject template)
+│
+└── UI/
+    ├── SeasonUI.cs            ✓ (Simple indicator)
+    └── ResearchUI.cs          ⏸ (Tech tree display)
+
+Modified Files
+--------------
+Building.cs                    (Add season multiplier to GetProductionSpeed)
+BuildingData.cs                (Add requiredDiscovery field, chain definitions)
+ResourceManager.cs             (Track discovered resources)
+SettlementManager.cs           (Hook in SeasonManager, DiscoveryManager)
+
+===============================================================================
+IMPLEMENTATION ORDER (REVISED)
+===============================================================================
+
+Phase 1: Seasonal System (Days 1-3)
+- Implement SeasonManager
+- Add multipliers to production
+- Simple UI indicator
+- Test with existing buildings
+
+Phase 2: Discovery System (Days 4-7)
+- Create ResourceNode prefab
+- Implement DiscoveryManager
+- Lock iron/rare resources behind discovery
+- Add exploration mechanic (send villager to node)
+
+Phase 3: Chain Design (Days 8-10)
+- YOU design the chain structure
+- I implement based on your design
+- Focus on weapon/armor chains first (combat priority)
+
+Phase 4: Research Tree (Days 11-15)
+- Finalize research generation method
+- Implement tech tree structure
+- Create 15-20 technologies
+- UI for tech selection
+
+Phase 5: Integration & Balance (Days 16-20)
+- Connect all systems
+- Balance production rates with seasons
+- Tune research costs
+- Test combat with new weapons
+
+===============================================================================
+QUESTIONS BEFORE STARTING
+===============================================================================
+
+1. Seasonal pace: 30 days per season (120 day year)? Or faster/slower?
+
+2. Discovery: Should ALL iron/coal/rare materials require discovery, or just
+   rich nodes?
+
+3. Research generation: Which option?
+   - A) Passive (automatic based on settlement size)
+   - B) Active (scholars generate research points)
+   - C) Achievement-based (complete goals to unlock)
+
+4. Chains: Should I wait for your design, or start with a simple 2-step
+   example for weapons?
+
+5. Combat integration: Do you have existing combat code I should review?
+   Or should these systems assume combat will be added later?
+
+===============================================================================
+NEXT STEPS
+===============================================================================
+
+Ready to start with Phase 1 (Seasonal System) - it's the simplest and doesn't
+depend on other decisions.
