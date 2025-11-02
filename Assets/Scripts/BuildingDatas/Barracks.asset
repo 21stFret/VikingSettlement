@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1020731d720ae548ba6fa48f8df179c, type: 3}
+  m_Name: Barracks
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingData
+  buildingName: Barracks
+  buildingType: 10
+  buildingSprite: {fileID: 21300000, guid: 57d8c36743bdcb042b300893e755e3c0, type: 3}
+  woodCost: 15
+  stoneCost: 10
+  ironCost: 5
+  constructionTime: 3
+  assignedJobType: 11
+  maxWorkers: 4
+  producedResource: 0
+  productionRate: 0
+  productionAmount: 0
