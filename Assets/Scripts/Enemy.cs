@@ -28,8 +28,7 @@ public class Enemy : TargetHealth
     private EnemyController _controller;
     private Material materialInstance;
     private Color originalColor;
-
-    public VillagerPersonalUI personalUI;
+    public EnemyPersonalUI personalUI;
 
     public enum EnemyType
     {
@@ -99,6 +98,7 @@ public class Enemy : TargetHealth
         Debug.Log($"{enemyName} has been defeated!");
 
         // Destroy after delay
+        personalUI.enabled = false;
         Destroy(gameObject, 5f);
     }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 public class TargetHealth : MonoBehaviour
 {
     public float maxHealth = 100f;
-    protected float currentHealth;
+    public float currentHealth;
     protected bool isDead = false;
     private float invincibilityDuration = 0.1f;
     private float lastDamageTime = -Mathf.Infinity;

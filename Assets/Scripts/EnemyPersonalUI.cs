@@ -1,25 +1,25 @@
-using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
+using System.Collections;
 
-public class VillagerPersonalUI : MonoBehaviour
+public class EnemyPersonalUI : MonoBehaviour
 {
     public TMP_Text speechText;
     public GameObject healthBar;
     public Image healthFill;
     public GameObject moraleBar;
     public Image moraleFill;
-    private Villager _villager;
+    private Enemy _enemy;
     private CanvasGroup _canvasGroup;
     private bool _enabled = true;
 
     private void Awake()
     {
-        _villager = GetComponentInParent<Villager>(true);
-        _villager.personalUI = this;
-        transform.parent = null; // Detach from villager to avoid scaling issues
+        _enemy = GetComponentInParent<Enemy>(true);
+        _enemy.personalUI = this;
+        transform.parent = null; // Detach from enemy to avoid scaling issues
         _canvasGroup = GetComponent<CanvasGroup>();
         enabled = true;
     }
@@ -35,13 +35,12 @@ public class VillagerPersonalUI : MonoBehaviour
         {
             return;
         }
-        transform.position = _villager.transform.position + Vector3.up * 2.0f;
+        transform.position = _enemy.transform.position + Vector3.up * 2.0f;
     }
 
     public void UpdateBars(bool health, bool morale)
     {
         healthBar.SetActive(false);
-        moraleBar.SetActive(false);
         if (_canvasGroup.alpha == 0)
         {
             _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
@@ -49,7 +48,7 @@ public class VillagerPersonalUI : MonoBehaviour
                 _canvasGroup.alpha = 1;
             });
         }
-        if (_villager != null)
+        if (_enemy != null)
         {      
             // Update health bar
             if (health)
@@ -57,16 +56,7 @@ public class VillagerPersonalUI : MonoBehaviour
                 if (healthBar != null && healthFill != null)
                 {
                     healthBar.SetActive(true);
-                    healthFill.fillAmount = _villager.currentHealth / _villager.maxHealth;
-                }
-            }
-            if (morale)
-            {
-                // Update morale bar
-                if (moraleBar != null && moraleFill != null)
-                {
-                    moraleBar.SetActive(true);
-                    moraleFill.fillAmount = _villager.morale / _villager.maxMorale;
+                    healthFill.fillAmount = _enemy.currentHealth / _enemy.maxHealth;
                 }
             }
             StopAllCoroutines();
@@ -122,5 +112,4 @@ public class VillagerPersonalUI : MonoBehaviour
             });
         }
     }
-
 }

@@ -15,6 +15,7 @@ public class EquipableItem : MonoBehaviour
     [Header("Item Info")]
     public ItemType itemType;
     public string itemName;
-    public int damage;
+    public int strength;
     public ItemAttachment.AttachmentPoint attachPoint;
+    public bool isEquipped = false;
 }

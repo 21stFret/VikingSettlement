@@ -50,10 +50,11 @@ public class ItemAttachment : MonoBehaviour
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
-        CharacterController villager = GetComponent<CharacterController>();
-        if (villager != null)
+        CharacterController CC = GetComponent<CharacterController>();
+        if (CC != null)
         {
-            villager.shield = newShield.GetComponent<EquipableItem>();
+            CC.shield = newShield.GetComponent<EquipableItem>();
+            CC.shield.isEquipped = true;
         } 
     }
 
@@ -61,10 +62,10 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
-        CharacterController villager = GetComponent<CharacterController>();
-        if (villager != null)
+        CharacterController CC = GetComponent<CharacterController>();
+        if (CC != null)
         {
-            villager.weapon = newWeapon.GetComponent<EquipableItem>();
+            CC.weapon = newWeapon.GetComponent<EquipableItem>();
         }
     }
     

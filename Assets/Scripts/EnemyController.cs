@@ -57,9 +57,15 @@ public class EnemyController : CharacterController
         if (target != null && enemyData != null)
         {
             // Use enemy's damage stat instead of weapon damage
-            float damage = weapon != null ? weapon.damage : enemyData.GetDamage();
-            target.TakeDamage(damage);
-            Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {damage} damage!");
+            float damage = enemyData.GetDamage();
+            float weaponDamage = 0f;
+            if (weapon != null)
+            {
+                weaponDamage = weapon.strength;
+            }
+            float totalDamage = damage + weaponDamage;
+            Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
+            target.TakeDamage(totalDamage);
         }
     }
 

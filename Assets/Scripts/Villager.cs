@@ -12,7 +12,6 @@ public class Villager : TargetHealth
     public CombatStats combatStats = new CombatStats();
     
     [Header("Status")]
-    public float health = 100f;
     public float morale = 100f;
     public float maxMorale = 100f;
     
@@ -72,7 +71,7 @@ public class Villager : TargetHealth
             _settlementManager.RegisterVillager(this);
         }
 
-        health = maxHealth;
+        currentHealth = maxHealth;
         morale = maxMorale;
 
         // add random to speech timer so not all villagers speak at once
@@ -157,7 +156,7 @@ public class Villager : TargetHealth
         if (currentJob == JobType.None || assignedBuilding == null) return;
 
         // Improve skill over time
-        skills.ImproveSkill(currentJob, deltaTime * 0.01f * skillGainRate);
+        skills.ImproveSkill(currentJob);
     }
 
     public void MakeASpeechComment()
@@ -323,8 +322,12 @@ public class Villager : TargetHealth
     {
         float damageafter = Mathf.Max(0, amount - combatStats.defense);
         print($"Raw Damage was {amount} after defense {damageafter}");
+        if (_controller.shield != null)
+        {
+            damageafter -= _controller.shield.strength;
+        }
+        print($"Damage after shield was {damageafter}");
         base.TakeDamage(damageafter);
-        health = currentHealth;
         personalUI.UpdateBars(true, false);
         StopAllCoroutines();
         bloodEffect.Play();
@@ -340,7 +343,7 @@ public class Villager : TargetHealth
     
     public void Heal(float amount)
     {
-        health = Mathf.Min(maxHealth, health + amount);
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
     
     public void ChangeMorale(float amount)

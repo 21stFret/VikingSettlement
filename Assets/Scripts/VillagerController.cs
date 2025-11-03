@@ -52,7 +52,7 @@ public class VillagerController : CharacterController
         if (target != null && villagerData != null)
         {
             // Use villager's damage stat instead of weapon damage
-            float weaponDamage = weapon?.damage ?? 0f;
+            float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;
             float damage = weaponDamage + villagerDamage;
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");

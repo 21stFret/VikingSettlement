@@ -107,13 +107,13 @@ public class VillagerInfoPanel : MonoBehaviour
         
         // Health and Morale
         if (healthText != null)
-            healthText.text = $"Health: {currentVillager.health:F0}/{currentVillager.maxHealth:F0}";
+            healthText.text = $"Health: {currentVillager.currentHealth:F0}/{currentVillager.maxHealth:F0}";
         
         if (moraleText != null)
             moraleText.text = $"Morale: {currentVillager.morale:F0}/{currentVillager.maxMorale:F0}";
         
         if (healthBar != null)
-            healthBar.fillAmount = currentVillager.health / currentVillager.maxHealth;
+            healthBar.fillAmount = currentVillager.currentHealth / currentVillager.maxHealth;
         
         if (moraleBar != null)
             moraleBar.fillAmount = currentVillager.morale / currentVillager.maxMorale;

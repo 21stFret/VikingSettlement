@@ -3,6 +3,8 @@ using UnityEngine;
 [System.Serializable]
 public class VillagerSkills
 {
+    public float intelligence = 1f; //increases learning speed
+    public float learningRate = 1f; //multiplier for how fast skills improve
     public float farming = 1f;
     public float fishing = 1f;
     public float mining = 1f;
@@ -31,8 +33,10 @@ public class VillagerSkills
         }
     }
     
-    public void ImproveSkill(JobType jobType, float amount)
+    public void ImproveSkill(JobType jobType)
     {
+        float _localLearningRate = Mathf.Max(0.1f, learningRate * (intelligence / 10f));
+        float amount = 0.05f * _localLearningRate; // Base improvement amount
         switch (jobType)
         {
             case JobType.Farmer: farming += amount; break;
@@ -65,6 +69,7 @@ public class VillagerSkills
         inheritedSkills.crafting = (parent1.crafting + parent2.crafting) / 2f;
         inheritedSkills.combat = (parent1.combat + parent2.combat) / 2f;
         inheritedSkills.sailing = (parent1.sailing + parent2.sailing) / 2f;
+        inheritedSkills.intelligence = (parent1.intelligence + parent2.intelligence) / 2f;
         
         // Add small random variation (-10% to +10%)
         inheritedSkills.farming *= Random.Range(0.9f, 1.1f);

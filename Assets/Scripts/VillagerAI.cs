@@ -214,7 +214,12 @@ public class VillagerAI : MonoBehaviour
         GameObject _closestShield = null;
         foreach (var shield in hits)
         {
-            if(!shield.CompareTag("Shield")) continue;
+            if (!shield.CompareTag("Shield")) continue;                
+            if(shield.GetComponent<EquipableItem>().isEquipped)
+            {
+                // Already equipped by someone else
+                continue;
+            }
             float distance = Vector2.Distance(transform.position, shield.transform.position);
             if (distance < closestDistance)
             {
@@ -226,8 +231,9 @@ public class VillagerAI : MonoBehaviour
         {
             // Equip the closest shield
             controller.MoveTo(_closestShield.transform.position);
-            if(Vector2.Distance(transform.position, _closestShield.transform.position) < 0.2f)
+            if(Vector2.Distance(transform.position, _closestShield.transform.position) < 0.1f)
             {
+
                 controller.itemAttachment.EquipShield(_closestShield);
             }
         }
@@ -251,7 +257,7 @@ public class VillagerAI : MonoBehaviour
         }
 
         // Check health - flee if too low
-        float healthPercent = (villagerData.health / villagerData.maxHealth) * 100f;
+        float healthPercent = (villagerData.currentHealth / villagerData.maxHealth) * 100f;
         if (healthPercent < fleeHealthThreshold)
         {
             currentState = AIState.Fleeing;
@@ -270,6 +276,7 @@ public class VillagerAI : MonoBehaviour
         else if (distanceToThreat > combatEngageRange)
         {
             controller.MoveTo(currentThreat.position);
+
             /*
             // Move towards threat if combat job, otherwise flee
             if (IsCombatJob())
@@ -289,6 +296,9 @@ public class VillagerAI : MonoBehaviour
             currentThreat = null;
             currentState = AIState.Idle;
         }
+
+        // add skill exp for combat
+        villagerData.skills.ImproveSkill(JobType.Warrior);
     }
 
     private void HandleFleeingState()
@@ -361,12 +371,12 @@ public class VillagerAI : MonoBehaviour
             }
             else
             {
-                
+
                 // Non-combat villagers flee
-                float healthPercent = (villagerData.health / villagerData.maxHealth) * 100f;
+                float healthPercent = (villagerData.currentHealth / villagerData.maxHealth) * 100f;
                 if (healthPercent > fleeHealthThreshold)
                 {
-                    if (controller.shield == null)
+                    if (controller.shield == null && CanFindShield())
                     {
                         // If healthy will try to find shield first
                         currentState = AIState.PrepareCombat;
@@ -383,6 +393,22 @@ public class VillagerAI : MonoBehaviour
                 }
             }
         }
+    }
+    
+    private bool CanFindShield()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 5f);
+        foreach (var shield in hits)
+        {
+            if(shield.CompareTag("Shield"))
+            {
+                if(!shield.GetComponent<EquipableItem>().isEquipped)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private bool IsCombatJob()

@@ -152,7 +152,7 @@ public class Building : MonoBehaviour
         // Improve worker skills slightly on each completion
         foreach (var worker in assignedWorkers)
         {
-            worker.skills.ImproveSkill(data.assignedJobType, 0.1f);
+            worker.skills.ImproveSkill(data.assignedJobType);
         }
         
         Debug.Log($"{data.buildingName} produced {data.productionAmount} {data.producedResource}");
@@ -178,7 +178,7 @@ public class Building : MonoBehaviour
         // Improve worker skills on each completion
         foreach (var worker in assignedWorkers)
         {
-            worker.skills.ImproveSkill(data.assignedJobType, 0.15f); // Slightly more for crafting
+            worker.skills.ImproveSkill(data.assignedJobType);
         }
         
         Debug.Log($"{data.buildingName} crafted {data.craftingRecipe.outputAmount} {data.craftingRecipe.outputResource}");

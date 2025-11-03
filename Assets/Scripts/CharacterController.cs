@@ -27,6 +27,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] public float attackDelay = 1f;
 
     protected Rigidbody2D rb;
+    protected Collider2D characterCollider;
     protected Vector2 movement;
     protected Vector2 lastMoveDirection = Vector2.down;
     protected float cachedMoveX = 0f;
@@ -61,6 +62,7 @@ public class CharacterController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         itemAttachment = GetComponent<ItemAttachment>();
+        characterCollider = GetComponent<Collider2D>();
 
         if (animator == null)
         {
@@ -280,7 +282,7 @@ public class CharacterController : MonoBehaviour
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && weapon != null)
         {
-            target.TakeDamage(weapon.damage);
+            target.TakeDamage(weapon.strength);
         }
     }
 
@@ -355,6 +357,7 @@ public class CharacterController : MonoBehaviour
         {
             animator.SetBool(IsSprinting, isSprinting);
         }
+        moveSpeed = isSprinting ? moveSpeed * 1.5f : moveSpeed / 1.5f;
     }
 
     /// <summary>
@@ -368,6 +371,15 @@ public class CharacterController : MonoBehaviour
         }
         canMove = !isDead;
         movement = Vector2.zero;
+        characterCollider.enabled = !isDead;
+        if (weapon != null)
+        {
+            weapon.gameObject.SetActive(!isDead);
+        }
+        if (shield != null)
+        {
+            shield.gameObject.SetActive(!isDead);
+        }
     }
 
     #endregion
