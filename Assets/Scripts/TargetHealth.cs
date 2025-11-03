@@ -8,7 +8,7 @@ public class TargetHealth : MonoBehaviour
     private float invincibilityDuration = 0.1f;
     private float lastDamageTime = -Mathf.Infinity;
 
-    private void Awake()
+    public virtual void Awake()
     {
         currentHealth = maxHealth;
         isDead = false;
@@ -23,6 +23,8 @@ public class TargetHealth : MonoBehaviour
 
         lastDamageTime = Time.time;
         currentHealth -= damage;
+
+        Debug.Log($"{gameObject.name} took {damage} damage!");
         
         if (currentHealth <= 0)
         {
@@ -36,5 +38,10 @@ public class TargetHealth : MonoBehaviour
         // Logic for when the target dies
         //Destroy(gameObject);
         isDead = true;
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
     }
 }

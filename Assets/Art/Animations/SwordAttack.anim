@@ -330,7 +330,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: offset
-    path: Left Hand/Circle
+    path: Left Hand/Shield
     classID: 114
     script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
     flags: 0
@@ -363,7 +363,7 @@ AnimationClip:
     - time: 0.5
       value: {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
     attribute: m_Sprite
-    path: Left Hand/Circle
+    path: Left Hand/Shield
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -420,7 +420,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3418322800
+      path: 26984673
       attribute: 1493879504
       script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
       typeID: 114
@@ -438,7 +438,7 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     - serializedVersion: 2
-      path: 3418322800
+      path: 26984673
       attribute: 0
       script: {fileID: 0}
       typeID: 212
@@ -1421,7 +1421,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: offset
-    path: Left Hand/Circle
+    path: Left Hand/Shield
     classID: 114
     script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
     flags: 0
@@ -1473,7 +1473,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.5
-    functionName: 
+    functionName: StopAttacking
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

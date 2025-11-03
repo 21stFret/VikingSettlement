@@ -50,13 +50,13 @@ public class Villager : TargetHealth
     public float _speechMinCooldown = 5f;
     public float _speechMaxCooldown = 10f;
 
-    private VillagerController _controller;
+    private CharacterController _controller;
 
     private void Start()
     {
         _settlementManager = SettlementManager.Instance;
         _material = GetComponentInChildren<Renderer>().material;
-        _controller = GetComponent<VillagerController>();
+        _controller = GetComponent<CharacterController>();
 
         if (string.IsNullOrEmpty(villagerName))
         {
@@ -321,7 +321,9 @@ public class Villager : TargetHealth
 
     public override void TakeDamage(float amount)
     {
-        base.TakeDamage(amount);
+        float damageafter = Mathf.Max(0, amount - combatStats.defense);
+        print($"Raw Damage was {amount} after defense {damageafter}");
+        base.TakeDamage(damageafter);
         health = currentHealth;
         personalUI.UpdateBars(true, false);
         StopAllCoroutines();

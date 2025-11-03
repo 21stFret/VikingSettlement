@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 4492139621036096738}
   - component: {fileID: 8764698263912582825}
   - component: {fileID: 3703127985558776490}
-  - component: {fileID: 248989148750830542}
+  - component: {fileID: 3741062684954852216}
   - component: {fileID: 6265767561972848296}
   - component: {fileID: 6336476821366728448}
   - component: {fileID: 2656297003790825960}
@@ -221,7 +221,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3404058850103073681}
   - {fileID: 968923423218634153}
@@ -330,7 +330,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &248989148750830542
+--- !u!114 &3741062684954852216
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -339,9 +339,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 983789909891545685}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 053753da963c50d468f8da7b5b71af5f, type: 3}
+  m_Script: {fileID: 11500000, guid: 1eb3f55129f70db42b70a84f92aeccfd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VillagerController
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterController
   moveSpeed: 2
   stopDistance: 0.1
   canMove: 1
@@ -350,9 +350,11 @@ MonoBehaviour:
   flipSpriteOnDirection: 1
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1, y: 1}
-  spearAttackOffset: {x: 1, y: 1}
-  enemyLayer:
+  axeAttackSize: {x: 1, y: 1}
+  swordAttackOffset: {x: 1, y: 0}
+  spearAttackOffset: {x: 1, y: 0}
+  axeAttackOffset: {x: 1, y: 0}
+  attackTargetLayer:
     serializedVersion: 2
     m_Bits: 0
   attackDelay: 1
@@ -398,6 +400,10 @@ MonoBehaviour:
   shouldWander: 1
   workLocation: {fileID: 0}
   workRadius: 2
+  threatDetectionRange: 8
+  combatEngageRange: 6
+  fleeHealthThreshold: 30
+  threatCheckInterval: 0.5
 --- !u!61 &2656297003790825960
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -475,7 +481,7 @@ MonoBehaviour:
   health: 100
   morale: 100
   maxMorale: 100
-  gender: 1
+  gender: 0
   age: 20
   lifeExpectancy: 60
   currentLifeStage: 1
@@ -485,6 +491,7 @@ MonoBehaviour:
   parent1: {fileID: 0}
   parent2: {fileID: 0}
   agingTimer: 0
+  spriteVariant: 
   personalUI: {fileID: 0}
   bloodEffect: {fileID: 6444847126489216009}
   _speechMinCooldown: 5

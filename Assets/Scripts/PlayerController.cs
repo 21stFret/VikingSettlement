@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(VillagerController))]
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Input Settings")]
     [SerializeField] private bool useMouseMovement = false; // Toggle between WASD and click-to-move
-    
-    private VillagerController controller;
+
+    private CharacterController controller;
     private Vector2 moveInput;
     
     // Input System
@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     
     private void Awake()
     {
-        controller = GetComponent<VillagerController>();
+        controller = GetComponent<CharacterController>();
         
         // Setup Input System
         inputActions = new PlayerInputActions();
@@ -108,9 +108,9 @@ public class PlayerController : MonoBehaviour
     }
     
     /// <summary>
-    /// Get reference to the underlying VillagerController
+    /// Get reference to the underlying CharacterController
     /// </summary>
-    public VillagerController GetController()
+    public CharacterController GetController()
     {
         return controller;
     }

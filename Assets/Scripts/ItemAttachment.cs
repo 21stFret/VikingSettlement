@@ -8,9 +8,9 @@ public class ItemAttachment : MonoBehaviour
     public Transform backAttachment;
 
     [Header("Equipped Items")]
-    [SerializeField] private SpriteRenderer shield;
-    [SerializeField] private SpriteRenderer weapon;
-    
+    [SerializeField] private GameObject shield;
+    [SerializeField] private GameObject weapon;
+
     [Header("Settings")]
     [SerializeField] private AttachmentPoint shieldAttachPoint = AttachmentPoint.LeftHand;
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
@@ -30,10 +30,10 @@ public class ItemAttachment : MonoBehaviour
     {
         // Attach items to their points
         if (shield != null)
-            AttachItem(shield.transform, shieldAttachPoint);
+            EquipShield(shield);
         
         if (weapon != null)
-            AttachItem(weapon.transform, weaponAttachPoint);
+            EquipWeapon(weapon);
     }
 
     private void AttachItem(Transform item, AttachmentPoint point)
@@ -46,22 +46,25 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
-    public void EquipShield(SpriteRenderer newShield, AttachmentPoint point)
+    public void EquipShield(GameObject newShield)
     {
         shield = newShield;
-        shieldAttachPoint = point;
-        AttachItem(leftHandAttachment, point);
-    }
-    
-    public void EquipWeapon(SpriteRenderer newWeapon, AttachmentPoint point)
-    {
-        weapon = newWeapon;
-        weaponAttachPoint = point;
-        AttachItem(rightHandAttachment, point);
-        VillagerController villager = GetComponent<VillagerController>();
+        AttachItem(newShield.transform, shieldAttachPoint);
+        CharacterController villager = GetComponent<CharacterController>();
         if (villager != null)
         {
-            villager.weapon = rightHandAttachedItem;
+            villager.shield = newShield.GetComponent<EquipableItem>();
+        } 
+    }
+
+    public void EquipWeapon(GameObject newWeapon)
+    {
+        weapon = newWeapon;
+        AttachItem(newWeapon.transform, weaponAttachPoint);
+        CharacterController villager = GetComponent<CharacterController>();
+        if (villager != null)
+        {
+            villager.weapon = newWeapon.GetComponent<EquipableItem>();
         }
     }
     

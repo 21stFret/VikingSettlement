@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CuttableGrass : HittableObject
@@ -9,7 +10,7 @@ public class CuttableGrass : HittableObject
     private float growBackTimer = 5f;
     public ParticleSystem cutEffect;
 
-    private void Awake()
+    public override void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }

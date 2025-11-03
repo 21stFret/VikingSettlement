@@ -5,11 +5,12 @@ TagManager:
   serializedVersion: 3
   tags:
   - PlayerWeapon
+  - Shield
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Weapons
   - Water
   - UI
   - 
