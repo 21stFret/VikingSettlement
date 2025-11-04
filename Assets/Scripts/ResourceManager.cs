@@ -31,7 +31,7 @@ public class ResourceManager : MonoBehaviour
         resources[ResourceType.Wood] = 50f;
         resources[ResourceType.Stone] = 30f;
         resources[ResourceType.Wheat] = 20f;
-        resources[ResourceType.Fish] = 20f;
+        resources[ResourceType.Fish] = 1f;
         resources[ResourceType.Iron] = 10f;
     }
     

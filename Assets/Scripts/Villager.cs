@@ -60,6 +60,7 @@ public class Villager : TargetHealth
         if (string.IsNullOrEmpty(villagerName))
         {
             villagerName = VillagerNameGenerator.GenerateNorseName();
+            gameObject.name = villagerName;
         }
         
         // Set initial life stage based on age
@@ -89,28 +90,6 @@ public class Villager : TargetHealth
 
     private void Update()
     {
-        // Age the villager over time
-        agingTimer += Time.deltaTime;
-        if (agingTimer >= _settlementManager.ageingInterval) // Age once per real-time second (adjustable)
-        {
-            agingTimer = 0f;
-            Age(_settlementManager.ageingAmount); // Increase age by 0.1 years per second
-        }
-
-        // Handle reproduction timer
-        if (currentLifeStage == LifeStage.Mature)
-        {
-            reproductionTimer += Time.deltaTime;
-            if (reproductionTimer >= _settlementManager.reproductionInterval)
-            {
-                reproductionTimer = 0f;
-                timeSinceLastChild += 0.1f;
-
-                // Check for reproduction opportunity
-                TryReproduce();
-            }
-        }
-
         // Update speech timer
         _timeSinceLastSpoke += Time.deltaTime;
         if (_timeSinceLastSpoke >= _speechCooldown)
@@ -141,7 +120,7 @@ public class Villager : TargetHealth
         currentJob = JobType.None;
         assignedBuilding = null;
     }
-    
+
     public float GetSkillMultiplier(JobType job)
     {
         float baseSkill = skills.GetSkillForJob(job);
@@ -149,10 +128,40 @@ public class Villager : TargetHealth
         return baseSkill * moraleModifier;
     }
 
-    public void Work(float deltaTime)
+    public void UpdateLife(float deltaTime)
     {
-        // Only mature villagers can work
-        if (currentLifeStage != LifeStage.Mature) return;
+        if (currentLifeStage == LifeStage.Mature)
+        {
+            Work();
+        }
+
+        // Ageing
+        agingTimer += deltaTime;
+        if (agingTimer >= _settlementManager.ageingInterval) // Age once per real-time second (adjustable)
+        {
+            agingTimer = 0f;
+            Age(_settlementManager.ageingAmount); // Increase age by 0.1 years per second
+        }
+
+        
+        // Handle reproduction timer
+        if (currentLifeStage == LifeStage.Mature)
+        {
+            reproductionTimer += deltaTime;
+            if (reproductionTimer >= _settlementManager.reproductionInterval)
+            {
+                reproductionTimer = 0f;
+                timeSinceLastChild += 0.1f;
+
+                // Check for reproduction opportunity
+                TryReproduce();
+            }
+        }
+
+    }
+
+    public void Work()
+    {
         if (currentJob == JobType.None || assignedBuilding == null) return;
 
         // Improve skill over time
@@ -289,6 +298,7 @@ public class Villager : TargetHealth
         child.lifeExpectancy = Random.Range(50f, 70f); // Slight variation in lifespan
         child.gender = Random.value > 0.5f ? Gender.Male : Gender.Female;
         child.villagerName = VillagerNameGenerator.GenerateNorseName();
+        gameObject.name = villagerName;
 
         // Set parents
         child.parent1 = mother;
@@ -318,20 +328,53 @@ public class Villager : TargetHealth
 
     #region Health Management
 
-    public override void TakeDamage(float amount)
+    public override void TakeDamage(float amount, bool trueDamage = false)
     {
-        float damageafter = Mathf.Max(0, amount - combatStats.defense);
-        print($"Raw Damage was {amount} after defense {damageafter}");
-        if (_controller.shield != null)
+        float damageafter = amount;
+        if(!trueDamage)
         {
-            damageafter -= _controller.shield.strength;
+            damageafter = Mathf.Max(0, amount - combatStats.defense);
+            print($"Raw Damage was {amount} after defense {damageafter}");
+            if (_controller.shield != null)
+            {
+                damageafter -= _controller.shield.strength;
+                damageafter = Mathf.Max(damageafter, 0); // Prevent negative damage
+            }
+            print($"Damage after shield was {damageafter}");
         }
-        print($"Damage after shield was {damageafter}");
+
         base.TakeDamage(damageafter);
         personalUI.UpdateBars(true, false);
         StopAllCoroutines();
         bloodEffect.Play();
         StartCoroutine(FlashRedOnDamage());
+    }
+
+    public void HandleHunger(bool isHungry)
+    {
+        if (isHungry)
+        {
+            ReduceHealthAndMoraleDueToHunger();
+        }
+        else
+        {
+            HealFromFood(1f, 5f); // Heal 10 health and 15 morale when fed
+        }
+    }
+
+    private void ReduceHealthAndMoraleDueToHunger()
+    {
+        // Reduce health and morale due to hunger
+        TakeDamage(5f); // Lose 5 health due to hunger
+        ChangeMorale(-10f); // Lose 10 morale due to hunger
+        personalUI.ShowSpeech("I'm starving...", 2.0f);
+    }
+
+    private void HealFromFood(float healthAmount, float moraleAmount)
+    {
+        Heal(healthAmount);
+        ChangeMorale(moraleAmount);
+        personalUI.ShowSpeech("That was a good meal!", 2.0f);
     }
     
     private IEnumerator FlashRedOnDamage()

@@ -379,6 +379,9 @@ MonoBehaviour:
   weaponsLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  movementLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!61 &2656297003790825960
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -443,8 +446,8 @@ MonoBehaviour:
   currentJob: 0
   assignedBuilding: {fileID: 0}
   skills:
-    intelligence: 1
-    learningRate: 1
+    intelligence: 0.1
+    learningRate: 0.1
     farming: 5
     fishing: 3
     mining: 2
@@ -600,9 +603,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   attackDelay: 1
+  friendlyFire: 0
   weapon: {fileID: 0}
   shield: {fileID: 0}
   itemAttachment: {fileID: 0}
+  characterFaction: 2
+  combatMoveSpeed: 0
+  walkMoveSpeed: 0
 --- !u!114 &5493561719251364476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5916,6 +5923,7 @@ MonoBehaviour:
   itemName: Basic Sword
   strength: 1
   attachPoint: 0
+  isEquipped: 0
 --- !u!1 &5491280850419219948
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,6 +11,7 @@ public class EnemyController : CharacterController
     {
         base.Awake();
         enemyData = GetComponent<Enemy>();
+        characterFaction = Faction.Enemy;
     }
 
     protected override void Update()

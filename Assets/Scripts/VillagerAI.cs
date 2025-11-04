@@ -20,7 +20,7 @@ public class VillagerAI : MonoBehaviour
     [SerializeField] private float fleeHealthThreshold = 30f; // Health % below which to flee
     [SerializeField] private float threatCheckInterval = 0.5f;
     public LayerMask weaponsLayerMask;
-
+    public LayerMask movementLayerMask;
     private VillagerController controller;
     private Villager villagerData;
     private Transform currentThreat; // Current enemy target
@@ -150,12 +150,6 @@ public class VillagerAI : MonoBehaviour
             Vector2 randomPoint = GetRandomPointNearWork();
             controller.MoveTo(randomPoint);
         }
-        
-        // Perform work (handled by Villager.Work() method)
-        if (villagerData != null)
-        {
-            villagerData.Work(Time.deltaTime);
-        }
     }
     
     private void HandleMovingToWorkState()
@@ -172,6 +166,12 @@ public class VillagerAI : MonoBehaviour
     {
         Vector2 randomDirection = Random.insideUnitCircle.normalized;
         Vector2 wanderPoint = (Vector2)transform.position + randomDirection * Random.Range(1f, wanderRadius);
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, randomDirection, wanderRadius, movementLayerMask);
+        if (hit.collider != null)
+        {
+            print("Wander hit obstacle: " + hit.collider.name);
+            wanderPoint = hit.point - randomDirection; // Stop before obstacle
+        }
         controller.MoveTo(wanderPoint);
     }
     
@@ -362,6 +362,7 @@ public class VillagerAI : MonoBehaviour
         if (nearestEnemy != null)
         {
             currentThreat = nearestEnemy.transform;
+            controller.SetMoveSpeed(controller.combatMoveSpeed);
 
             // React based on job and personality
             if (IsCombatJob())
@@ -392,6 +393,12 @@ public class VillagerAI : MonoBehaviour
                     currentState = AIState.Fleeing;
                 }
             }
+        }
+        else
+        {
+            // No threats detected
+            currentThreat = null;
+            controller.SetMoveSpeed(controller.walkMoveSpeed);
         }
     }
     

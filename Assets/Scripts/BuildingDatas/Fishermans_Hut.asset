@@ -21,6 +21,12 @@ MonoBehaviour:
   constructionTime: 1
   assignedJobType: 4
   maxWorkers: 2
+  productionType: 0
   producedResource: 2
-  productionRate: 1.2
-  productionAmount: 8
+  productionRate: 2
+  productionAmount: 4
+  craftingRecipe:
+    inputResources: []
+    outputResource: 0
+    outputAmount: 1
+    craftingRate: 1

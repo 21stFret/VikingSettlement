@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Faction
+{
+    Player,
+    Enemy,
+    Neutral
+}
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 public class CharacterController : MonoBehaviour
@@ -25,6 +32,7 @@ public class CharacterController : MonoBehaviour
     [SerializeField] protected Vector2 axeAttackOffset = new Vector2(1f, 0f);
     [SerializeField] protected LayerMask attackTargetLayer;
     [SerializeField] public float attackDelay = 1f;
+    public bool friendlyFire = false;
 
     protected Rigidbody2D rb;
     protected Collider2D characterCollider;
@@ -57,6 +65,8 @@ public class CharacterController : MonoBehaviour
     public EquipableItem weapon;
     public EquipableItem shield;
     public ItemAttachment itemAttachment;
+
+    public Faction characterFaction = Faction.Neutral;
 
     protected virtual void Awake()
     {
@@ -263,10 +273,20 @@ public class CharacterController : MonoBehaviour
 
         foreach (var hit in hitObjects)
         {
-            if(hit.gameObject == this.gameObject) continue;
+            if (hit.gameObject == this.gameObject) continue;
+
+            if (!friendlyFire)
+            {
+                var hitController = hit.GetComponent<CharacterController>();
+                if (hitController != null && hitController.characterFaction == this.characterFaction)
+                {
+                    continue; // Skip friendly targets
+                }
+            }
+            
             if (!hitGameObjects.Contains(hit.gameObject))
             {
-                hitGameObjects.Add(hit.gameObject);
+                hitGameObjects.Add(hit.gameObject); // Mark this gameobject as hit
                 OnHitTarget(hit);
             }
         }

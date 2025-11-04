@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class SettlementManager : MonoBehaviour
 {
@@ -27,7 +28,9 @@ public class SettlementManager : MonoBehaviour
     public float ageingAmount = 0.1f; // How much villagers age each interval
     public float reproductionCooldown = 5f; // Minimum time between having children
     public float reproductionInterval = 0f; // Timer to track reproduction intervals
-    
+    public float gameTickInterval = 1f; // General game tick interval
+    private float gameTickTimer = 0f;
+
     private void Awake()
     {
         if (Instance == null)
@@ -39,17 +42,40 @@ public class SettlementManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void Start()
+    {
+        // Subscribe to meal time events
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.OnMealTime += HandleMealTime;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from events
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.OnMealTime -= HandleMealTime;
+        }
+    }
     
     private void Update()
     {
-        // Update all building production (continuous)
+                // Update all building production (continuous)
         UpdateBuildingProduction(Time.deltaTime);
+        gameTickTimer += Time.deltaTime;
+        if (gameTickTimer < gameTickInterval) return;
+
+
         
         // Update all villagers working
-        UpdateVillagers(Time.deltaTime);
-        
+        UpdateVillagers(gameTickTimer);
+
         // Update population statistics
         UpdatePopulationStats();
+        gameTickTimer = 0f; // Reset tick timer
     }
     
     private void UpdateBuildingProduction(float deltaTime)
@@ -64,7 +90,7 @@ public class SettlementManager : MonoBehaviour
     {
         foreach (Villager villager in allVillagers)
         {
-            villager.Work(deltaTime);
+            villager.UpdateLife(deltaTime);
         }
     }
     
@@ -103,8 +129,78 @@ public class SettlementManager : MonoBehaviour
         averageAge = allVillagers.Count > 0 ? totalAge / allVillagers.Count : 0f;
     }
     
+    #region Food Consumption
+
+    /// <summary>
+    /// Handles meal time event from DayNightManager
+    /// </summary>
+    private void HandleMealTime()
+    {
+        if (DayNightManager.Instance == null || ResourceManager.Instance == null)
+            return;
+
+        int villagerCount = allVillagers.Count;
+        float fishPerVillager = DayNightManager.Instance.fishPerVillagerPerDay;
+        float totalFishNeeded = villagerCount * fishPerVillager;
+
+        if (totalFishNeeded <= 0)
+        {
+            Debug.Log("No villagers to feed.");
+            return;
+        }
+
+        float availableFish = ResourceManager.Instance.GetResource(ResourceType.Fish);
+
+        if (availableFish >= totalFishNeeded)
+        {
+            // Enough fish - consume it
+            ResourceManager.Instance.SpendResource(ResourceType.Fish, totalFishNeeded);
+            Debug.Log($"Fed {villagerCount} villagers ({totalFishNeeded} fish consumed). Remaining fish: {ResourceManager.Instance.GetResource(ResourceType.Fish)}");
+            // All villagers are fed
+            foreach (var villager in allVillagers)
+            {
+                villager.HandleHunger(false);
+            }
+        }
+        else
+        {
+            // Not enough fish - villagers go hungry
+            Debug.LogWarning($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
+
+            // Consume what we have
+            if (availableFish > 0)
+            {
+                ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
+                int fedVillagers = Mathf.FloorToInt(availableFish / fishPerVillager);
+                Debug.LogWarning($"Only fed {fedVillagers}/{villagerCount} villagers. {villagerCount - fedVillagers} villagers went hungry!");
+            }
+            else
+            {
+                Debug.LogWarning($"No fish available! All {villagerCount} villagers went hungry!");
+            }
+
+            // Select random villagers to go hungry
+            List<Villager> hungryVillagers = new List<Villager>(allVillagers);
+            int villagersToFeed = Mathf.FloorToInt(availableFish / fishPerVillager);
+            hungryVillagers = hungryVillagers.OrderBy(v => Random.value).ToList(); // Randomize order
+            for (int i = 0; i < hungryVillagers.Count; i++)
+            {
+                if (i >= villagersToFeed)
+                {
+                    hungryVillagers[i].HandleHunger(true);
+                }
+                else
+                {
+                    hungryVillagers[i].HandleHunger(false);
+                }
+            }
+        }
+    }
+
+    #endregion
+
     #region Building Management
-    
+
     /// <summary>
     /// Register a building with the settlement manager
     /// </summary>

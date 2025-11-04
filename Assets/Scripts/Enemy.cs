@@ -63,9 +63,19 @@ public class Enemy : TargetHealth
         currentHealth = maxHealth;
     }
 
-    public override void TakeDamage(float amount)
+    public override void TakeDamage(float amount, bool trueDamage = false)
     {
-        base.TakeDamage(amount);
+        if (IsDead()) return;
+
+        float dam = amount;
+        
+        if (_controller.shield != null)
+        {
+            dam -= _controller.shield.strength;
+            dam = Mathf.Max(dam, 0); // Prevent negative damage
+        }
+        Debug.Log($"{enemyName} took {dam} damage");
+        base.TakeDamage(dam);
 
         // Visual feedback
         if (bloodEffect != null)

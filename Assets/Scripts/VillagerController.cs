@@ -5,10 +5,14 @@ public class VillagerController : CharacterController
 {
     private Villager villagerData;
 
+    public float combatMoveSpeed;
+    public float walkMoveSpeed;
+
     protected override void Awake()
     {
         base.Awake();
         villagerData = GetComponent<Villager>();
+        characterFaction = Faction.Player;
     }
 
     protected override void Update()

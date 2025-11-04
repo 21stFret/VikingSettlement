@@ -14,7 +14,7 @@ public class TargetHealth : MonoBehaviour
         isDead = false;
     }
 
-    public virtual void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage, bool trueDamage = false)
     {
         if (isDead) return;
 

@@ -267,13 +267,17 @@ public class EnemyAI : MonoBehaviour
 
     private Transform FindNearestVillager()
     {
-        // Find all villagers in the scene
-        Villager[] allVillagers = Object.FindObjectsByType<Villager>(FindObjectsSortMode.None);
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, enemyData.GetDetectionRange());
 
-        if (allVillagers.Length == 0) return null;
-
-        // Filter out dead villagers
-        var aliveVillagers = allVillagers.Where(v => v.currentLifeStage != LifeStage.Dead).ToList();
+        List<Villager> aliveVillagers = new List<Villager>();
+        foreach (var hit in hits)
+        {
+            var villager = hit.GetComponent<Villager>();
+            if (villager != null && villager.currentLifeStage != LifeStage.Dead)
+            {
+                aliveVillagers.Add(villager);
+            }
+        }
 
         if (aliveVillagers.Count == 0) return null;
 
@@ -281,6 +285,11 @@ public class EnemyAI : MonoBehaviour
         Transform nearest = null;
         float nearestDistance = Mathf.Infinity;
 
+        if (aliveVillagers.Count == 1)
+        {
+            return aliveVillagers[0].transform;
+        }
+            
         foreach (var villager in aliveVillagers)
         {
             float distance = Vector2.Distance(transform.position, villager.transform.position);

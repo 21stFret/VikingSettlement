@@ -56,6 +56,22 @@ PrefabInstance:
       propertyPath: endPos.y
       value: 2.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.x
+      value: -0.046722412
+      objectReference: {fileID: 0}
+    - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.y
+      value: -1.2051392
+      objectReference: {fileID: 0}
+    - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.x
+      value: 1.377945
+      objectReference: {fileID: 0}
+    - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.y
+      value: 1.3173676
+      objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.x
       value: -14.86
@@ -104,6 +120,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 9924e983da7a41e4b85556012a5633fb, type: 3}
+    - target: {fileID: 7744007204570274883, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.19
+      objectReference: {fileID: 0}
+    - target: {fileID: 7878001455495906647, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 00a83fbbe65dbc640862b0d1c7a00c2e, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
