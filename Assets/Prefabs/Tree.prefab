@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1061864396132977185}
   - component: {fileID: 2560827847345847391}
   - component: {fileID: 3065602709819538156}
+  - component: {fileID: 2558888784371129940}
   m_Layer: 0
   m_Name: Tree
   m_TagString: Untagged
@@ -143,7 +144,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6874241322035914047}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
   m_Name: 
@@ -225,3 +226,24 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: -0.03, y: 0.11}
   m_Radius: 0.2
+--- !u!114 &2558888784371129940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6874241322035914047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594702ce4c72e224aa6034175f17a57a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
+  sunPosition: {x: 0, y: 10}
+  sunHeight: 0.5
+  sunTransform: {fileID: 0}
+  shadowDarkness: 0.3
+  objectHeight: 1
+  shadowDistanceMultiplier: 1
+  maxShadowLength: 5
+  shadowSortingOrder: -1
+  autoUpdate: 1

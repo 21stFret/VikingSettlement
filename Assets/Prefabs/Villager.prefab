@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9131506057012301947}
   - component: {fileID: 7458284331567382445}
   - component: {fileID: 5433147033462006639}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0.030305386, a: 1}
+  m_Color: {r: 0.8207547, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -84,7 +84,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3302202495069278169}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Right Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 2984290080328239045}
   - component: {fileID: 7125476873186286731}
   - component: {fileID: 4771060005478159271}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Border (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -204,7 +204,8 @@ GameObject:
   - component: {fileID: 3306281021511002227}
   - component: {fileID: 6057599852231826267}
   - component: {fileID: 5493561719251364476}
-  m_Layer: 0
+  - component: {fileID: 3728299144202640379}
+  m_Layer: 6
   m_Name: Villager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -426,7 +427,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 0.52}
+  m_Size: {x: 0.67, y: 0.15}
   m_EdgeRadius: 0
 --- !u!114 &731802624662873023
 MonoBehaviour:
@@ -461,7 +462,7 @@ MonoBehaviour:
     defense: 1
   morale: 100
   maxMorale: 100
-  gender: 0
+  gender: 1
   age: 20
   lifeExpectancy: 60
   currentLifeStage: 1
@@ -483,7 +484,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 983789909891545685}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
   m_Name: 
@@ -608,8 +609,8 @@ MonoBehaviour:
   shield: {fileID: 0}
   itemAttachment: {fileID: 0}
   characterFaction: 2
-  combatMoveSpeed: 0
-  walkMoveSpeed: 0
+  combatMoveSpeed: 3
+  walkMoveSpeed: 2
 --- !u!114 &5493561719251364476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,6 +633,21 @@ MonoBehaviour:
   leftHandAttachedItem: {fileID: 0}
   rightHandAttachedItem: {fileID: 5482542687739913288}
   backAttachedItem: {fileID: 0}
+--- !u!114 &3728299144202640379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983789909891545685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594702ce4c72e224aa6034175f17a57a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
+  objectHeight: 1
+  shadowOffsetY: 0
+  shadowHorizontalMovement: 0
 --- !u!1 &2026245322358515182
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,7 +658,7 @@ GameObject:
   m_Component:
   - component: {fileID: 231632662132704204}
   - component: {fileID: 4134488129734435675}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Morale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -687,7 +703,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3404058850103073681}
   - component: {fileID: 8452135069986472533}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -704,8 +720,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1015, y: 0.4895, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.74, y: 0.32885155, z: 0.67181116}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6345320883715355994}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -778,7 +794,7 @@ GameObject:
   - component: {fileID: 4507967489300089741}
   - component: {fileID: 7800319532568939010}
   - component: {fileID: 4303552561151741721}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -853,7 +869,7 @@ GameObject:
   - component: {fileID: 2587573969935734655}
   - component: {fileID: 6926674788292774584}
   - component: {fileID: 3608094528090457353}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sword2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -959,7 +975,7 @@ GameObject:
   - component: {fileID: 9112454555519945253}
   - component: {fileID: 6444847126489216009}
   - component: {fileID: 7438599688224235745}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BloodEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5851,7 +5867,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 573125614495621071}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Left Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5883,7 +5899,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4586418531885319644}
   - component: {fileID: 5482542687739913288}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sword
   m_TagString: PlayerWeapon
   m_Icon: {fileID: 0}
@@ -5934,7 +5950,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3239079363659477450}
   - component: {fileID: 9075126643910675158}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5969,6 +5985,97 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5491280850419219948}
   m_CullTransparentMesh: 1
+--- !u!1 &5917801140059780017
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 176409312125779153}
+  - component: {fileID: 6964196781944425485}
+  - component: {fileID: 5947284774280373257}
+  - component: {fileID: 1108081674594653118}
+  m_Layer: 0
+  m_Name: Status Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &176409312125779153
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5917801140059780017}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 968923423218634153}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 5.26}
+  m_SizeDelta: {x: 12, y: 12}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6964196781944425485
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5917801140059780017}
+  m_CullTransparentMesh: 1
+--- !u!114 &5947284774280373257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5917801140059780017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: be4acf8587e70364398595d090840bbb, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1108081674594653118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5917801140059780017}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.8156863}
+  m_EffectDistance: {x: 0.5, y: -0.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6221064199744791070
 GameObject:
   m_ObjectHideFlags: 0
@@ -5980,7 +6087,7 @@ GameObject:
   - component: {fileID: 3889639590039793930}
   - component: {fileID: 3420459405483740822}
   - component: {fileID: 1958310547482883359}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Sword1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6086,7 +6193,7 @@ GameObject:
   - component: {fileID: 6233053930831124790}
   - component: {fileID: 6645218686775337965}
   - component: {fileID: 4922676402133806734}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Border (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6165,7 +6272,7 @@ GameObject:
   - component: {fileID: 2634817201950818272}
   - component: {fileID: 3800885191924336657}
   - component: {fileID: 2828650243486319021}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6187,6 +6294,7 @@ RectTransform:
   - {fileID: 1910951964984889056}
   - {fileID: 3239079363659477450}
   - {fileID: 231632662132704204}
+  - {fileID: 176409312125779153}
   m_Father: {fileID: 6345320883715355994}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -6274,6 +6382,7 @@ MonoBehaviour:
   healthFill: {fileID: 5433147033462006639}
   moraleBar: {fileID: 2026245322358515182}
   moraleFill: {fileID: 4303552561151741721}
+  statusEffectIcon: {fileID: 5947284774280373257}
 --- !u!225 &2828650243486319021
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -6297,7 +6406,7 @@ GameObject:
   - component: {fileID: 4110156890209175701}
   - component: {fileID: 994827219048450226}
   - component: {fileID: 6091153361603931089}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: stick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6403,7 +6512,7 @@ GameObject:
   - component: {fileID: 1910951964984889056}
   - component: {fileID: 1701147066867491304}
   - component: {fileID: 3848283848223700167}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

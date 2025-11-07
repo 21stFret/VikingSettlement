@@ -16,6 +16,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -2.51
       objectReference: {fileID: 0}
+    - target: {fileID: 1117938454853228133, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.83
+      objectReference: {fileID: 0}
+    - target: {fileID: 1117938454853228133, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.31
+      objectReference: {fileID: 0}
     - target: {fileID: 2749099188509307502, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Name
       value: Building (Fisherman Hut) Variant
@@ -38,7 +46,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2817626968212802827, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
-      value: 0.5
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 2817626968212802827, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.x
@@ -55,6 +63,14 @@ PrefabInstance:
     - target: {fileID: 3220032484281259198, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: endPos.y
       value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3677474262804914330, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: shadowOffsetY
+      value: 1.26
+      objectReference: {fileID: 0}
+    - target: {fileID: 3677474262804914330, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: shadowHorizontalMovement
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.x
@@ -74,11 +90,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -14.86
+      value: -29.33
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.06
+      value: 16.560001
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.z
@@ -90,15 +106,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 4621647562876464504, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -128,7 +144,12 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 00a83fbbe65dbc640862b0d1c7a00c2e, type: 2}
-    m_RemovedComponents: []
+    - target: {fileID: 7878001455495906647, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

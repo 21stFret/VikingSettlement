@@ -14,6 +14,7 @@ public class VillagerPersonalUI : MonoBehaviour
     private Villager _villager;
     private CanvasGroup _canvasGroup;
     private bool _enabled = true;
+    public Image statusEffectIcon;
 
     private void Awake()
     {
@@ -88,7 +89,32 @@ public class VillagerPersonalUI : MonoBehaviour
             speechText.text = message;
             speechText.gameObject.SetActive(true);
             StopAllCoroutines();
-            StartCoroutine(HideAfterDelay(duration));
+            StartCoroutine(HideAfterDelay(3f));
+        }
+    }
+
+    public void UpdateStatusEffectIcon(Sprite newIcon = null)
+    {
+        if (_canvasGroup.alpha == 0)
+        {
+            _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
+            {
+                _canvasGroup.alpha = 1;
+            });
+        }
+        if (statusEffectIcon != null)
+        {
+            if (newIcon != null)
+            {
+                statusEffectIcon.sprite = newIcon;
+                statusEffectIcon.gameObject.SetActive(true);
+            }
+            else
+            {
+                statusEffectIcon.gameObject.SetActive(false);
+            }
+            StopAllCoroutines();
+            StartCoroutine(HideAfterDelay(2f));
         }
     }
 

@@ -20,6 +20,7 @@ public class DayNightManager : MonoBehaviour
     [Header("Day/Night Settings")]
     [Tooltip("Length of a full day in seconds (real time)")]
     public float dayLengthInSeconds = 120f; // 2 minutes per day by default
+    public bool clockwise = true;
 
     [Tooltip("Time of day when meals are consumed (0-1, where 0.5 is noon)")]
     [Range(0f, 1f)]
@@ -55,8 +56,13 @@ public class DayNightManager : MonoBehaviour
     [Tooltip("X position offset for the sun's arc center")]
     public float sunArcCenterX = 0f;
 
+    [Tooltip("X position offset for the sun's start point on the circle")]
+    public float sunArcOffsetX = 0f;
+
     [Tooltip("Y position offset for the sun's arc center")]
     public float sunArcCenterY = 0f;
+
+    public float sunHeightTarget = 10f;
 
     [Header("Sunrise/Sunset Times")]
     [Tooltip("Time of day when the sun rises (0-1, where 0 is midnight and 1 is the next midnight)")]
@@ -210,15 +216,35 @@ public class DayNightManager : MonoBehaviour
 
         // Sun moves from left (sunrise) to right (sunset) in an arc
         // Angle goes from 180 degrees (left) to 0 degrees (right)
-        float angle = Mathf.Lerp(180f, 0f, dayProgress);
+        float angle = Mathf.Lerp(-180f, 0f, dayProgress);
         float angleRad = angle * Mathf.Deg2Rad;
 
+        float xValue = sunArcCenterX + Mathf.Cos(angleRad) * sunArcRadius;
+        float zValue = Mathf.Abs(Mathf.Sin(angleRad) * sunHeightTarget);
+        float yValue = sunArcCenterY + Mathf.Sin(angleRad) * sunArcRadius;
+
+
+        if(!clockwise)
+        {
+            xValue = sunArcCenterX - Mathf.Cos(angleRad) * sunArcRadius;
+            zValue = Mathf.Sin(angleRad) * sunHeightTarget;
+            yValue = sunArcCenterY + Mathf.Sin(angleRad) * sunArcRadius;
+        }
         // Calculate sun position
         Vector3 sunPosition = new Vector3(
-            sunArcCenterX + Mathf.Cos(angleRad) * sunArcRadius,
-            sunArcCenterY + Mathf.Sin(angleRad) * sunArcRadius,
-            sunLight.transform.position.z // Keep original Z
+            sunArcCenterX + xValue,
+            sunArcCenterY + yValue,
+            zValue
         );
+        
+        /*
+        // 2d sun doesn't are about y just x and z
+        Vector3 sunPosition = new Vector3(
+            sunArcCenterX + Mathf.Cos(angleRad) * sunArcRadius,
+            sunLight.transform.position.y,
+            Mathf.Sin(angleRad) * sunHeightTarget
+        );
+        */
 
         sunLight.transform.position = sunPosition;
 

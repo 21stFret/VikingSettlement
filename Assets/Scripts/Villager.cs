@@ -257,6 +257,7 @@ public class Villager : TargetHealth
             if (gender == Gender.Female)
             {
                 CreateChild(this, partner);
+                personalUI.UpdateStatusEffectIcon();
                 timeSinceLastChild = 0f;
                 partner.timeSinceLastChild = 0f;
                 childrenCount++;
