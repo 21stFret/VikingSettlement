@@ -15,6 +15,7 @@ public class DynamicShadow2D : MonoBehaviour
     public float objectHeight = 1f;
     public float shadowOffsetY = 0;
     public float shadowHorizontalMovement = 0;
+    public ShadowMaster shadowMaster;
     
     void OnEnable()
     {
@@ -29,6 +30,7 @@ public class DynamicShadow2D : MonoBehaviour
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        shadowMaster = ShadowMaster.Instance;
         CleanupDuplicateShadows();
         if (shadowObject == null)
         {
@@ -81,9 +83,10 @@ public class DynamicShadow2D : MonoBehaviour
         // Double-check we don't already have a shadow
         if (shadowObject != null)
             return;
-            
+
         // Create shadow object as child
-        shadowObject = new GameObject(gameObject.name + "_Shadow");
+        shadowObject = Instantiate(shadowMaster.shadowPrefab);
+        shadowObject.name = gameObject.name + "_Shadow";
         shadowObject.transform.SetParent(transform);
         shadowObject.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
         shadowObject.transform.localRotation = Quaternion.identity;
@@ -91,10 +94,20 @@ public class DynamicShadow2D : MonoBehaviour
         shadowObject.hideFlags = HideFlags.DontSave; // Don't save shadow to prevent duplicates
 
         // Add and configure sprite renderer
-        shadowRenderer = shadowObject.AddComponent<SpriteRenderer>();
+        shadowRenderer = shadowObject.GetComponent<SpriteRenderer>();
+        if(shadowRenderer==null)
+        {
+            shadowRenderer = shadowObject.AddComponent<SpriteRenderer>();
+        }
         shadowRenderer.sprite = spriteRenderer.sprite;
         shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
         shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+
+        SpriteSorting spriteSorting = GetComponent<SpriteSorting>();
+        if (spriteSorting != null)
+        {
+            spriteSorting.linkedSpriteRenderers.Add(shadowRenderer);
+        }
     }
 
     public void ApplyShadowFromMaster(Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float sunElevation)

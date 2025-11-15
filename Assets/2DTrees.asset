@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52dedb20e5b2364191fcce6dea8ee54, type: 3}
+  m_Name: 2DTrees
+  m_EditorClassIdentifier: Assembly-CSharp::PrefabPainterTemplate
+  prefabs:
+  - {fileID: 6874241322035914047, guid: 3a8e7d60107d1b44bae064d92810f5b7, type: 3}
+  - {fileID: 3462425840693711430, guid: 8b783140e167fd441abcd1731cb584cc, type: 3}
+  - {fileID: 3150691395822142098, guid: 7844861107028d744af802c8379d7429, type: 3}
+  - {fileID: 4254970493097016578, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+  - {fileID: 5266273242135625756, guid: 398271cdcfc882a4498a346bf1b2ad69, type: 3}
+  - {fileID: 3987069959858949544, guid: dd08966190b79814dbd2e23b8f95a5ca, type: 3}
+  - {fileID: 5973276305598886833, guid: 399cbd10d29b6174390f5fc0bf9582a1, type: 3}
+  minScale: 0.8
+  maxScale: 1.2
+  minRotation: 0
+  maxRotation: 0
+  paintLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  randomizeRotationY: 0
+  alignToNormal: 0
+  surfaceOffset: 0
+  minSpacing: 1
+  checkOverlap: 1
+  overlapCheckLayers:
+    serializedVersion: 2
+    m_Bits: 0

@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 3898664951875631419}
   - component: {fileID: 1277363409235331445}
   - component: {fileID: 2364201089908373342}
-  m_Layer: 0
+  - component: {fileID: 3354213915865988636}
+  m_Layer: 2
   m_Name: Cuttable Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,6 +53,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
+  linkedSpriteRenderers: []
 --- !u!212 &2792988793149822516
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -77,7 +79,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 76beb7c1c0b02cd429d3a95a087a8261, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -175,6 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   maxHealth: 1
+  currentHealth: 0
   cutGrassSprite: {fileID: 21300000, guid: b1535f6a0354cec4bb2bac5530b857c2, type: 3}
   longGrassSprite: {fileID: 21300000, guid: b7ecaa38f07c4be4d9c81ee0324337e9, type: 3}
   cutEffect: {fileID: 190912071508758126}
@@ -224,6 +227,31 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.59055394, y: 0.79055876}
   m_EdgeRadius: 0
+--- !u!114 &3354213915865988636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 916887797271299619}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fa14830c2cebb942b11ced84dbab634, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteShadersUltimate.InteractiveWindSSU
+  runtimeMaterial: {fileID: 0}
+  rotationFactor: 1.5
+  bendInSpeed: 8
+  bendOutSpeed: 8
+  stayBent: 1
+  minBendSpeed: 1
+  hyperPerformanceMode: 0
+  randomOffsetZ: 1
+  customMaterial: 0
+  inactiveShader: Sprites/Default
+  inactiveMaterial: {fileID: 0}
+  randomizeWiggle: 0
+  allowCustomLayer: 0
 --- !u!1 &4338377900863370021
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,6 +31,9 @@ public class SettlementManager : MonoBehaviour
     public float gameTickInterval = 1f; // General game tick interval
     private float gameTickTimer = 0f;
 
+    [Header("Food Consumption")]
+    public float fishPerVillagerPerDay = 1f;
+
     private void Awake()
     {
         if (Instance == null)
@@ -140,8 +143,7 @@ public class SettlementManager : MonoBehaviour
             return;
 
         int villagerCount = allVillagers.Count;
-        float fishPerVillager = DayNightManager.Instance.fishPerVillagerPerDay;
-        float totalFishNeeded = villagerCount * fishPerVillager;
+        float totalFishNeeded = villagerCount * fishPerVillagerPerDay;
 
         if (totalFishNeeded <= 0)
         {
@@ -171,7 +173,7 @@ public class SettlementManager : MonoBehaviour
             if (availableFish > 0)
             {
                 ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
-                int fedVillagers = Mathf.FloorToInt(availableFish / fishPerVillager);
+                int fedVillagers = Mathf.FloorToInt(availableFish / fishPerVillagerPerDay);
                 Debug.LogWarning($"Only fed {fedVillagers}/{villagerCount} villagers. {villagerCount - fedVillagers} villagers went hungry!");
             }
             else
@@ -181,7 +183,7 @@ public class SettlementManager : MonoBehaviour
 
             // Select random villagers to go hungry
             List<Villager> hungryVillagers = new List<Villager>(allVillagers);
-            int villagersToFeed = Mathf.FloorToInt(availableFish / fishPerVillager);
+            int villagersToFeed = Mathf.FloorToInt(availableFish / fishPerVillagerPerDay);
             hungryVillagers = hungryVillagers.OrderBy(v => Random.value).ToList(); // Randomize order
             for (int i = 0; i < hungryVillagers.Count; i++)
             {

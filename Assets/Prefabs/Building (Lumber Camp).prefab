@@ -78,7 +78,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -758993017
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 6ae88d34b90fc6a49ba28d99e44845ac, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 5401463362213027023}
   - component: {fileID: 2197139978305048829}
   - component: {fileID: 3677474262804914330}
+  - component: {fileID: 3221688203380133026}
   m_Layer: 0
   m_Name: Building (Lumber Camp)
   m_TagString: Untagged
@@ -238,6 +239,12 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
+  linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &5274734200186100861
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -417,6 +424,70 @@ MonoBehaviour:
   objectHeight: 1
   shadowOffsetY: 2.45
   shadowHorizontalMovement: -3.1
+  shadowMaster: {fileID: 0}
+--- !u!60 &3221688203380133026
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2749099188509307502}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.1}
+    oldSize: {x: 7, y: 11}
+    newSize: {x: 7, y: 11}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 2.75, y: -0.037499905}
+      - {x: 2.875, y: 1.9625001}
+      - {x: 2.875, y: 5.5875}
+      - {x: 2.125, y: 6.15}
+      - {x: 0.125, y: 7.8375}
+      - {x: -0.25, y: 7.8375}
+      - {x: -1.4375, y: 6.775}
+      - {x: -3, y: 5.5875}
+      - {x: -3, y: 1.9625001}
+      - {x: -2.8125, y: 1.8375001}
+      - {x: -2.8125, y: 0.025000095}
+      - {x: -2.6875, y: -0.099999905}
+      - {x: -2.3125, y: -0.099999905}
+      - {x: 0.1875, y: -0.037499905}
+      - {x: 0.1875, y: -0.099999905}
+      - {x: 2.625, y: -0.099999905}
+  m_UseDelaunayMesh: 0
 --- !u!1 &2954234407466621326
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +703,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
+  linkedSpriteRenderers: []
 --- !u!1001 &1570720423304030815
 PrefabInstance:
   m_ObjectHideFlags: 0

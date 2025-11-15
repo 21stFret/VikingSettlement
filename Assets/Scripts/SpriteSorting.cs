@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpriteSorting : MonoBehaviour
@@ -5,6 +6,7 @@ public class SpriteSorting : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private int sortingOrderBase = 5000; // Base value for calculations
     [SerializeField] private int offset = 0; // Manual adjustment if needed
+    public List<SpriteRenderer> linkedSpriteRenderers;
     
     private void Awake()
     {
@@ -23,6 +25,20 @@ public class SpriteSorting : MonoBehaviour
         if(gameObject.isStatic) return; // No need to update static objects
         // Lower Y position = higher sorting order (rendered on top)
         spriteRenderer.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
+
+        // Update linked sprite renderers
+        foreach (var linkedRenderer in linkedSpriteRenderers)
+        {
+            if (linkedRenderer != null)
+            {
+                linkedRenderer.sortingOrder = spriteRenderer.sortingOrder;
+            }
+            else
+            {
+                Debug.LogWarning("Linked SpriteRenderer is null in " + gameObject.name);
+                linkedSpriteRenderers.Remove(linkedRenderer);
+            }
+        }
     }
     
 

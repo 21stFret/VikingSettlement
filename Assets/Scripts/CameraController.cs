@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -24,6 +26,12 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float minZoom = 3f;
     [SerializeField] private float maxZoom = 10f;
     [SerializeField] private float zoomSpeed = 1f;
+
+    [Header("Look Through (Optional)")]
+    [SerializeField] private bool allowLookThrough = false;
+    [SerializeField] private float alphaLookThrough = 0.3f;
+    private List<Collider2D> lookThroughColliders = new List<Collider2D>();
+
     
     private Camera cam;
     private float targetZoom;
@@ -84,8 +92,69 @@ public class CameraController : MonoBehaviour
         {
             HandleZoom();
         }
+
+        // Handle look through (not implemented yet)
+        if (allowLookThrough)
+        {
+            HandleLookThrough();
+        }
     }
-    
+
+    private void HandleLookThrough()
+    {
+        if(cam == null || target == null) return;
+
+        if(lookThroughColliders.Count > 0)
+        {
+            // Reset alpha for all colliders
+            foreach (var col in lookThroughColliders)
+            {
+                if (col != null)
+                {
+                    SpriteRenderer sr = col.GetComponent<SpriteRenderer>();
+                    if (sr != null)
+                    {
+                        sr.DOKill();
+                        sr.DOFade(1f, 0.2f);
+                    }
+                }
+            }
+            lookThroughColliders.Clear();
+        }
+
+        // Calculate direction from camera to player
+        Vector2 direction = (target.position - cam.transform.position).normalized;
+        float distance = Vector2.Distance(cam.transform.position, target.position);
+        
+        // Cast ray from camera to player
+        RaycastHit2D[] hits = Physics2D.RaycastAll(cam.transform.position, direction, distance);
+        
+        if (hits.Length > 0)
+        {
+            foreach (var hit in hits)
+            {
+                if (hit.collider != null && hit.collider.gameObject != target.gameObject)
+                {
+                    lookThroughColliders.Add(hit.collider);
+                }
+            }
+        }
+
+        // Set alpha for currently hit colliders
+        foreach (var col in lookThroughColliders)
+        {
+            if (col != null)
+            {
+                SpriteRenderer sr = col.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.DOKill();
+                    sr.DOFade(alphaLookThrough, 0.2f);
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// Handle zoom with mouse scroll wheel
     /// </summary>

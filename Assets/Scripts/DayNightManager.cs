@@ -17,6 +17,8 @@ public class DayNightManager : MonoBehaviour
     [Tooltip("Global light for ambient lighting at night")]
     public Light2D ambientLight;
 
+    public GameObject dayNightDial;
+
     [Header("Day/Night Settings")]
     [Tooltip("Length of a full day in seconds (real time)")]
     public float dayLengthInSeconds = 120f; // 2 minutes per day by default
@@ -70,11 +72,6 @@ public class DayNightManager : MonoBehaviour
 
     [Tooltip("Time of day when the sun sets (0-1, where 0 is midnight and 1 is the next midnight)")]
     public float sunsetTime = 0.75f;  // Sunset at 6 PM
-
-
-    [Header("Resource Consumption")]
-    [Tooltip("Amount of fish consumed per villager per day")]
-    public float fishPerVillagerPerDay = 1f;
 
     [Header("Status (Read-only)")]
     [SerializeField] private float currentTimeOfDay = 0f; // 0 to 1
@@ -139,6 +136,12 @@ public class DayNightManager : MonoBehaviour
         // Advance time
         float timeIncrement = Time.deltaTime / dayLengthInSeconds;
         currentTimeOfDay += timeIncrement;
+
+        if (dayNightDial != null)
+        {
+            float dialRotation = currentTimeOfDay * 360f;
+            dayNightDial.transform.rotation = Quaternion.Euler(0f, 0f, -dialRotation);
+        }
 
         // Check if we've passed meal time
         if (!hasConsumedMealToday && currentTimeOfDay >= mealTime)
@@ -237,15 +240,6 @@ public class DayNightManager : MonoBehaviour
             zValue
         );
         
-        /*
-        // 2d sun doesn't are about y just x and z
-        Vector3 sunPosition = new Vector3(
-            sunArcCenterX + Mathf.Cos(angleRad) * sunArcRadius,
-            sunLight.transform.position.y,
-            Mathf.Sin(angleRad) * sunHeightTarget
-        );
-        */
-
         sunLight.transform.position = sunPosition;
 
         // Calculate sun intensity (brightest at noon, dimmer at dawn/dusk)
@@ -255,7 +249,6 @@ public class DayNightManager : MonoBehaviour
         // Calculate sun color (more orange/red at dawn/dusk, yellow/white at noon)
         float colorBlend = Mathf.Pow(intensityCurve, 0.5f); // Less aggressive transition
         sunLight.color = Color.Lerp(dawnDuskColor, sunColor, colorBlend);
-        sunLight.shadowIntensity = Mathf.Lerp(0.8f, 0f, intensityCurve + eveningMultiplier);
     }
 
     private void UpdateAmbientLight(float timeOfDay)

@@ -8,6 +8,9 @@ using System.Collections.Generic;
 [ExecuteInEditMode]
 public class ShadowMaster : MonoBehaviour
 {
+    // Singleton instance
+    public static ShadowMaster Instance;
+
     [Header("Sun Settings")]
     [Tooltip("The position of the sun in world space")]
     public Vector2 sunPosition = new Vector2(0, 10);
@@ -63,6 +66,23 @@ public class ShadowMaster : MonoBehaviour
     
     private List<DynamicShadow2D> shadows = new List<DynamicShadow2D>();
     private float detectionTimer = 0f;
+
+    public GameObject shadowPrefab;
+    public float shadowFadeSpeed = 1f;
+
+    void Awake()
+    {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            DestroyImmediate(this);
+            return;
+        }
+    }
     
     void OnEnable()
     {
@@ -74,6 +94,7 @@ public class ShadowMaster : MonoBehaviour
         // Update shadows when values change in inspector
         if (!Application.isPlaying)
         {
+            Instance = this;
             RefreshShadows();
             CalculateShadowProperties();
             ApplyToAllShadows();
@@ -121,7 +142,7 @@ public class ShadowMaster : MonoBehaviour
     {
         // Calculate sun elevation
         sunElevation = sunHeight;
-          
+        
         if(sunTransform != null)
         {
             sunPosition = sunTransform.position;
@@ -138,13 +159,21 @@ public class ShadowMaster : MonoBehaviour
         
         // Calculate base shadow color and alpha
         baseShadowColor = Color.Lerp(Color.black, Color.white, shadowDarkness);
-        baseShadowAlpha = Mathf.Lerp(shadowIntensity, 0.1f, sunElevation);
+
+        // Calculate target alpha based on sun elevation
+        float targetAlpha;
         
-        // Make shadow fully invisible if sun is at or below horizon
-        if (sunElevation <= minSunHeightForShadows)
+        if (sunElevation < minSunHeightForShadows)
         {
-            baseShadowAlpha = 0f;
+            targetAlpha = 0f; // No shadows below minimum height
         }
+        else
+        {
+            targetAlpha = Mathf.Lerp(shadowIntensity, 0.01f, sunElevation);
+        }
+        
+        // Smoothly fade to target alpha
+        baseShadowAlpha = Mathf.MoveTowards(baseShadowAlpha, targetAlpha, Time.deltaTime * shadowFadeSpeed);
     }
     
     /// <summary>
@@ -178,7 +207,7 @@ public class ShadowMaster : MonoBehaviour
     public void RefreshShadows()
     {
         shadows.Clear();
-        DynamicShadow2D[] foundShadows = FindObjectsOfType<DynamicShadow2D>();
+        DynamicShadow2D[] foundShadows = FindObjectsByType<DynamicShadow2D>(FindObjectsSortMode.None);
         
         foreach (DynamicShadow2D shadow in foundShadows)
         {
@@ -196,7 +225,7 @@ public class ShadowMaster : MonoBehaviour
     /// </summary>
     void CleanupOrphanedShadows()
     {
-        GameObject[] allObjects = FindObjectsOfType<GameObject>();
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         int cleanedCount = 0;
         
         foreach (GameObject obj in allObjects)
@@ -243,7 +272,7 @@ public class ShadowMaster : MonoBehaviour
     /// </summary>
     void CheckForNewShadows()
     {
-        DynamicShadow2D[] allShadows = FindObjectsOfType<DynamicShadow2D>();
+        DynamicShadow2D[] allShadows = FindObjectsByType<DynamicShadow2D>(FindObjectsSortMode.None);
         
         foreach (DynamicShadow2D shadow in allShadows)
         {
@@ -265,8 +294,9 @@ public class ShadowMaster : MonoBehaviour
     {
         if (shadow == null || shadows.Contains(shadow))
             return;
-        
+
         shadows.Add(shadow);
+        shadow.shadowMaster = this;
         //shadow.SetMasterControl(true);
     }
     
