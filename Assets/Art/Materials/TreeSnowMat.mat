@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - _ENABLEWIND_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_UV
   - _TEXTURELAYER2SHEETTOGGLE_ON
@@ -254,7 +255,7 @@ Material:
     - _EnableUVScroll: 0
     - _EnableVibrate: 0
     - _EnableWiggle: 0
-    - _EnableWind: 0
+    - _EnableWind: 1
     - _EnableWorldTiling: 0
     - _EnchantedBrightness: 1
     - _EnchantedContrast: 0.5

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 490618974392446098}
   - component: {fileID: 6863638502501355791}
   - component: {fileID: 2792988793149822516}
-  - component: {fileID: 3898664951875631419}
   - component: {fileID: 1277363409235331445}
   - component: {fileID: 2364201089908373342}
   - component: {fileID: 3354213915865988636}
@@ -112,58 +111,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3898664951875631419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 916887797271299619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
-  m_ShadowGroup: 0
-  m_Priority: 1
-  m_ComponentVersion: 5
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_AlphaCutoff: 0.1
-  m_ApplyToSortingLayers: 000000002b777586
-  m_ShapePath:
-  - {x: -0.2393496, y: -0.26924884, z: 0}
-  - {x: -0.28050974, y: 0.06376505, z: 0}
-  - {x: 0.30788875, y: 0.14608538, z: 0}
-  - {x: 0.39020896, y: -0.2898289, z: 0}
-  m_ShapePathHash: -2027846108
-  m_InstanceId: 0
-  m_ShadowShape2DComponent: {fileID: 0}
-  m_ShadowShape2DProvider:
-    rid: -2
-  m_ShadowCastingSource: 1
-  m_ShadowMesh:
-    m_Mesh: {fileID: 0}
-    m_LocalBounds:
-      m_Center: {x: 0.054849595, y: -0.07187176, z: 0}
-      m_Extent: {x: 0.33535933, y: 0.21795714, z: 0}
-    m_EdgeProcessing: 1
-    m_TrimEdge: 0.3
-    m_FlipX: 0
-    m_FlipY: 0
-    m_InitialTrim: 0
-  m_CastingOption: 2
-  m_PreviousTrimEdge: 0.3
-  m_PreviousEdgeProcessing: 1
-  m_PreviousShadowCastingSource: 1
-  m_PreviousShadowShape2DSource: {fileID: 2792988793149822516}
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!114 &1277363409235331445
 MonoBehaviour:
   m_ObjectHideFlags: 0

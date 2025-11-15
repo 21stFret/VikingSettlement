@@ -200,7 +200,6 @@ GameObject:
   - component: {fileID: 6336476821366728448}
   - component: {fileID: 2656297003790825960}
   - component: {fileID: 731802624662873023}
-  - component: {fileID: 7794467469471582985}
   - component: {fileID: 3306281021511002227}
   - component: {fileID: 6057599852231826267}
   - component: {fileID: 5493561719251364476}
@@ -247,6 +246,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
+  linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &8764698263912582825
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -477,59 +479,6 @@ MonoBehaviour:
   bloodEffect: {fileID: 6444847126489216009}
   _speechMinCooldown: 5
   _speechMaxCooldown: 10
---- !u!114 &7794467469471582985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 983789909891545685}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.ShadowCaster2D
-  m_ShadowGroup: 0
-  m_Priority: 0
-  m_ComponentVersion: 5
-  m_HasRenderer: 1
-  m_UseRendererSilhouette: 1
-  m_CastsShadows: 1
-  m_SelfShadows: 0
-  m_AlphaCutoff: 0.1
-  m_ApplyToSortingLayers: 000000002b777586
-  m_ShapePath:
-  - {x: -1.7999997, y: -1, z: 0}
-  - {x: -1.7999997, y: 3, z: 0}
-  - {x: 2.2, y: 3, z: 0}
-  - {x: 2.2, y: -1, z: 0}
-  m_ShapePathHash: 0
-  m_InstanceId: 0
-  m_ShadowShape2DComponent: {fileID: 0}
-  m_ShadowShape2DProvider:
-    rid: 7014998151640908182
-  m_ShadowCastingSource: 2
-  m_ShadowMesh:
-    m_Mesh: {fileID: 0}
-    m_LocalBounds:
-      m_Center: {x: 0, y: 0, z: 0}
-      m_Extent: {x: 0.30000305, y: 0.05999756, z: 0}
-    m_EdgeProcessing: 1
-    m_TrimEdge: 0.2
-    m_FlipX: 0
-    m_FlipY: 0
-    m_InitialTrim: 0
-  m_CastingOption: 1
-  m_PreviousTrimEdge: 0.2
-  m_PreviousEdgeProcessing: 1
-  m_PreviousShadowCastingSource: 2
-  m_PreviousShadowShape2DSource: {fileID: 0}
-  references:
-    version: 2
-    RefIds:
-    - rid: 7014998151640908182
-      type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
-      data: 
 --- !u!61 &3306281021511002227
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -648,6 +597,7 @@ MonoBehaviour:
   objectHeight: 1
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
+  shadowMaster: {fileID: 0}
 --- !u!1 &2026245322358515182
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,6 +914,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
+  linkedSpriteRenderers: []
 --- !u!1 &3485946201045113971
 GameObject:
   m_ObjectHideFlags: 0
@@ -6182,6 +6133,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
+  linkedSpriteRenderers: []
 --- !u!1 &6378286670569325329
 GameObject:
   m_ObjectHideFlags: 0
@@ -6501,6 +6453,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
+  linkedSpriteRenderers: []
 --- !u!1 &9201663787025108328
 GameObject:
   m_ObjectHideFlags: 0
