@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class Building : MonoBehaviour
 {
+    public string uniqueId;
     public BuildingData data;
     public Vector2Int gridPosition;
     public bool isConstructed = false;
@@ -10,7 +11,8 @@ public class Building : MonoBehaviour
     
     [Header("Production")]
     public float productionProgress = 0f; // 0 to 100
-    
+    public float adjustedProductionAmount = 0f; // Production amount after seasonal modifiers (for UI)
+
     [Header("Crafting Status")]
     public bool waitingForResources = false; // True if crafting building lacks input materials
     
@@ -18,6 +20,21 @@ public class Building : MonoBehaviour
     
     private void Start()
     {
+        if (string.IsNullOrEmpty(uniqueId))
+        {
+            uniqueId = System.Guid.NewGuid().ToString();
+        }
+
+        // Initialize gridPosition from world position if not already set
+        if (gridPosition == Vector2Int.zero)
+        {
+            // Convert world position to grid position (assuming 1 unit = 1 grid cell)
+            gridPosition = new Vector2Int(
+                Mathf.RoundToInt(transform.position.x),
+                Mathf.RoundToInt(transform.position.y)
+            );
+        }
+
         // Register with settlement manager
         if (SettlementManager.Instance != null)
         {
@@ -78,13 +95,17 @@ public class Building : MonoBehaviour
     private void UpdateResourceGathering(float deltaTime)
     {
         if (data.producedResource == ResourceType.None) return; // Building doesn't produce anything
-        
+
+        // Update adjusted production amount for UI display
+        float seasonalMultiplier = GetSeasonalMultiplier();
+        adjustedProductionAmount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(data.productionAmount * seasonalMultiplier));
+
         // Calculate total production speed based on workers and their skills
         float productionSpeed = GetProductionSpeed(data.productionRate);
-        
+
         // Increase progress bar
         productionProgress += productionSpeed * deltaTime;
-        
+
         // Check if production is complete
         if (productionProgress >= 100f)
         {
@@ -143,19 +164,44 @@ public class Building : MonoBehaviour
     /// </summary>
     private void CompleteResourceGathering()
     {
-        // Produce the resource
-        ResourceManager.Instance.AddResource(data.producedResource, data.productionAmount);
-        
+        // Use the pre-calculated adjusted amount (already set in UpdateResourceGathering)
+        int finalAmount = Mathf.RoundToInt(adjustedProductionAmount);
+        ResourceManager.Instance.AddResource(data.producedResource, finalAmount);
+
         // Reset progress (keep overflow for next cycle)
         productionProgress -= 100f;
-        
+
         // Improve worker skills slightly on each completion
         foreach (var worker in assignedWorkers)
         {
             worker.skills.ImproveSkill(data.assignedJobType);
         }
-        
-        Debug.Log($"{data.buildingName} produced {data.productionAmount} {data.producedResource}");
+
+        float seasonalMultiplier = GetSeasonalMultiplier();
+        if (seasonalMultiplier < 1.0f)
+        {
+            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource} (reduced by {SeasonManager.Instance?.GetCurrentSeason()})");
+        }
+        else if (seasonalMultiplier > 1.0f)
+        {
+            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource} (bonus from {SeasonManager.Instance?.GetCurrentSeason()})");
+        }
+        else
+        {
+            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource}");
+        }
+    }
+
+    /// <summary>
+    /// Get the current seasonal production multiplier for this building
+    /// </summary>
+    public float GetSeasonalMultiplier()
+    {
+        if (SeasonManager.Instance != null)
+        {
+            return SeasonManager.Instance.GetProductionMultiplier(data.buildingType);
+        }
+        return 1.0f;
     }
     
     /// <summary>

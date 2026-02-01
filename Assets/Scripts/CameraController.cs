@@ -32,7 +32,9 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float alphaLookThrough = 0.3f;
     private List<Collider2D> lookThroughColliders = new List<Collider2D>();
 
-    
+    [Header("Free Camera Mode")]
+    [SerializeField] private bool isFreeCameraMode = false;
+
     private Camera cam;
     private float targetZoom;
 
@@ -67,36 +69,40 @@ public class CameraController : MonoBehaviour
     
     private void LateUpdate()
     {
-        if (target == null) return;
-        
-        // Calculate desired position
-        Vector3 desiredPosition = target.position + offset;
-        
-        // Smoothly move towards target
-        Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
-        
-        // Apply bounds if enabled
-        if (useBounds)
+        // In free camera mode, don't follow target (camera is panned manually)
+        if (!isFreeCameraMode)
         {
-            smoothedPosition.x = Mathf.Clamp(smoothedPosition.x, minBounds.x, maxBounds.x);
-            smoothedPosition.y = Mathf.Clamp(smoothedPosition.y, minBounds.y, maxBounds.y);
+            if (target == null) return;
+
+            // Calculate desired position
+            Vector3 desiredPosition = target.position + offset;
+
+            // Smoothly move towards target
+            Vector3 smoothedPosition = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed);
+
+            // Apply bounds if enabled
+            if (useBounds)
+            {
+                smoothedPosition.x = Mathf.Clamp(smoothedPosition.x, minBounds.x, maxBounds.x);
+                smoothedPosition.y = Mathf.Clamp(smoothedPosition.y, minBounds.y, maxBounds.y);
+            }
+
+            // Keep the Z offset
+            smoothedPosition.z = offset.z;
+
+            transform.position = smoothedPosition;
+
+            // Handle look through (not implemented yet)
+            if (allowLookThrough)
+            {
+                HandleLookThrough();
+            }
         }
-        
-        // Keep the Z offset
-        smoothedPosition.z = offset.z;
-        
-        transform.position = smoothedPosition;
-        
-        // Handle zoom
+
+        // Handle zoom (always available)
         if (allowZoom && cam != null && cam.orthographic)
         {
             HandleZoom();
-        }
-
-        // Handle look through (not implemented yet)
-        if (allowLookThrough)
-        {
-            HandleLookThrough();
         }
     }
 
@@ -133,7 +139,7 @@ public class CameraController : MonoBehaviour
         {
             foreach (var hit in hits)
             {
-                if (hit.collider != null && hit.collider.gameObject != target.gameObject)
+                if (hit.collider != null && hit.collider.gameObject != target.gameObject && hit.collider.gameObject.layer != LayerMask.NameToLayer("Grass"))
                 {
                     lookThroughColliders.Add(hit.collider);
                 }
@@ -179,8 +185,21 @@ public class CameraController : MonoBehaviour
     {
         target = newTarget;
     }
-    
-    public void SetPlayerTarget()
+
+    /// <summary>
+    /// Set the player target (the villager the player controls)
+    /// Call this when player control transfers to a new villager
+    /// </summary>
+    public void SetPlayerTarget(Transform newPlayerTarget)
+    {
+        playerTarget = newPlayerTarget;
+        target = playerTarget;
+    }
+
+    /// <summary>
+    /// Return camera to follow the player target
+    /// </summary>
+    public void ReturnToPlayerTarget()
     {
         target = playerTarget;
     }
@@ -208,7 +227,42 @@ public class CameraController : MonoBehaviour
     {
         return target;
     }
-    
+
+    /// <summary>
+    /// Enable/disable free camera mode (for strategic pause)
+    /// When enabled, camera doesn't follow target and can be panned freely
+    /// </summary>
+    public void SetFreeCameraMode(bool enabled)
+    {
+        isFreeCameraMode = enabled;
+    }
+
+    /// <summary>
+    /// Check if camera is in free mode
+    /// </summary>
+    public bool IsFreeCameraMode()
+    {
+        return isFreeCameraMode;
+    }
+
+    /// <summary>
+    /// Pan the camera by the given delta (for strategic pause mode)
+    /// </summary>
+    public void PanCamera(Vector2 delta)
+    {
+        Vector3 newPosition = transform.position + new Vector3(delta.x, delta.y, 0);
+
+        // Apply bounds if enabled
+        if (useBounds)
+        {
+            newPosition.x = Mathf.Clamp(newPosition.x, minBounds.x, maxBounds.x);
+            newPosition.y = Mathf.Clamp(newPosition.y, minBounds.y, maxBounds.y);
+        }
+
+        newPosition.z = offset.z;
+        transform.position = newPosition;
+    }
+
     private void OnDrawGizmosSelected()
     {
         // Visualize bounds in editor

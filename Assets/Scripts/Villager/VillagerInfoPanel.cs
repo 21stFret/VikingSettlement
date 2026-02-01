@@ -50,6 +50,8 @@ public class VillagerInfoPanel : MonoBehaviour
     [SerializeField] private Color moraleColor = Color.yellow;
     
     private Villager currentVillager;
+
+    public Button closeButton;
     
     private void Start()
     {
@@ -66,6 +68,7 @@ public class VillagerInfoPanel : MonoBehaviour
         
         // Hide panel initially
         gameObject.SetActive(false);
+        closeButton.onClick.AddListener(Hide);
     }
     
     /// <summary>

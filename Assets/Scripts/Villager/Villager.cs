@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class Villager : TargetHealth
 {
+    public string uniqueId;
     public string villagerName;
     public JobType currentJob = JobType.None;
     public Building assignedBuilding;
@@ -14,6 +15,9 @@ public class Villager : TargetHealth
     [Header("Status")]
     public float morale = 100f;
     public float maxMorale = 100f;
+    public bool isHungry = false;
+    public bool isCold = false;
+    public bool isOnRaid = false;
     
     [Header("Life Cycle")]
     public Gender gender;
@@ -30,11 +34,19 @@ public class Villager : TargetHealth
     public Villager parent1;
     public Villager parent2;
 
+    [Header("Jarl Status")]
+    public bool isJarl = false;
+    public bool isOfJarlLineage = false;
+    public int generationsFromJarl = -1; // -1 if not in lineage, 0 = is Jarl, 1 = child of Jarl, etc.
+
     public float agingTimer = 0f;
     private float reproductionTimer = 0f;
 
     [Header("Appearance")]
     public string spriteVariant = ""; // e.g. "blue_villager", "red_villager"
+
+    [Header("Save/Load")]
+    [HideInInspector] public bool loadedFromSave = false; // Set by SettlementManager when loading
 
     private SettlementManager _settlementManager;
     public VillagerPersonalUI personalUI;
@@ -51,20 +63,31 @@ public class Villager : TargetHealth
 
     private CharacterController _controller;
 
+    public ItemAttachment itemAttachment;
+
     private void Start()
     {
+        if (string.IsNullOrEmpty(uniqueId))
+        {
+            uniqueId = System.Guid.NewGuid().ToString();
+        }
+
         _settlementManager = SettlementManager.Instance;
         _material = GetComponentInChildren<Renderer>().material;
         _controller = GetComponent<CharacterController>();
+        itemAttachment = GetComponent<ItemAttachment>();
 
         if (string.IsNullOrEmpty(villagerName))
         {
-            villagerName = VillagerNameGenerator.GenerateNorseName();
+            villagerName = VillagerNameGenerator.GenerateNorseName(gender);
             gameObject.name = villagerName;
         }
-        
-        // Set initial life stage based on age
-        UpdateLifeStage();
+
+        // Set initial life stage based on age (skip if loaded from save - it's already set)
+        if (!loadedFromSave)
+        {
+            UpdateLifeStage();
+        }
 
         // Register with settlement manager
         if (_settlementManager != null)
@@ -72,15 +95,31 @@ public class Villager : TargetHealth
             _settlementManager.RegisterVillager(this);
         }
 
-        currentHealth = maxHealth;
-        morale = maxMorale;
+        ApplySkillBonuses();
+
+        // Only set to max if not loaded from save
+        if (!loadedFromSave)
+        {
+            currentHealth = maxHealth;
+            morale = maxMorale;
+        }
+
+        // Subscribe to skill changes if we're the Jarl
+        if (isJarl && SkillTreeManager.Instance != null)
+        {
+            SkillTreeManager.Instance.OnSkillUnlocked += OnSkillTreeChanged;
+        }
 
         // add random to speech timer so not all villagers speak at once
         _timeSinceLastSpoke = Random.Range(0f, _speechCooldown);
 
+        // Only assign random sprite if not loaded from save
         if (string.IsNullOrEmpty(spriteVariant))
         {
-            AssignRandomSpriteVariant();
+            if (!loadedFromSave)
+            {
+                AssignRandomSpriteVariant();
+            }
         }
         else
         {
@@ -257,11 +296,12 @@ public class Villager : TargetHealth
             if (gender == Gender.Female)
             {
                 CreateChild(this, partner);
-                personalUI.UpdateStatusEffectIcon();
                 timeSinceLastChild = 0f;
                 partner.timeSinceLastChild = 0f;
                 childrenCount++;
                 partner.childrenCount++;
+                personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
+                partner.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
             }
         }
     }
@@ -298,7 +338,7 @@ public class Villager : TargetHealth
         child.age = 0f;
         child.lifeExpectancy = Random.Range(50f, 70f); // Slight variation in lifespan
         child.gender = Random.value > 0.5f ? Gender.Male : Gender.Female;
-        child.villagerName = VillagerNameGenerator.GenerateNorseName();
+        child.villagerName = VillagerNameGenerator.GenerateNorseName(child.gender);
         gameObject.name = villagerName;
 
         // Set parents
@@ -319,6 +359,21 @@ public class Villager : TargetHealth
         child.currentJob = JobType.None;
         child.assignedBuilding = null;
 
+        // Track Jarl lineage for inheritance
+        if (mother.isJarl || father.isJarl)
+        {
+            child.isOfJarlLineage = true;
+            child.generationsFromJarl = 1;
+        }
+        else if (mother.isOfJarlLineage || father.isOfJarlLineage)
+        {
+            child.isOfJarlLineage = true;
+            // Inherit the closest lineage distance + 1
+            int motherGen = mother.generationsFromJarl >= 0 ? mother.generationsFromJarl : int.MaxValue;
+            int fatherGen = father.generationsFromJarl >= 0 ? father.generationsFromJarl : int.MaxValue;
+            child.generationsFromJarl = Mathf.Min(motherGen, fatherGen) + 1;
+        }
+
         child.spriteVariant = InheritSpriteVariant(mother.spriteVariant, father.spriteVariant);
         child.ApplySpriteVariant();
 
@@ -329,31 +384,59 @@ public class Villager : TargetHealth
 
     #region Health Management
 
-    public override void TakeDamage(float amount, bool trueDamage = false)
+    /// <summary>
+    /// Apply defense and shield reduction to incoming damage.
+    /// </summary>
+    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
     {
-        float damageafter = amount;
-        if(!trueDamage)
+        float reduced = rawDamage;
+
+        // Apply defense stat
+        float totalDefense = combatStats.defense;
+
+        // Apply skill bonuses if this is the Jarl
+        if (isJarl && SkillTreeManager.Instance != null)
         {
-            damageafter = Mathf.Max(0, amount - combatStats.defense);
-            print($"Raw Damage was {amount} after defense {damageafter}");
-            if (_controller.shield != null)
-            {
-                damageafter -= _controller.shield.strength;
-                damageafter = Mathf.Max(damageafter, 0); // Prevent negative damage
-            }
-            print($"Damage after shield was {damageafter}");
+            totalDefense += SkillTreeManager.Instance.GetEffect(SkillEffectType.DefenseFlat);
+            float defensePercent = SkillTreeManager.Instance.GetEffect(SkillEffectType.DefensePercent);
+            totalDefense *= (1f + defensePercent / 100f);
         }
 
-        base.TakeDamage(damageafter);
-        personalUI.UpdateBars(true, false);
+        reduced -= totalDefense;
+
+        // Apply shield if equipped
+        if (_controller != null && _controller.shield != null)
+        {
+            reduced -= _controller.shield.strength;
+        }
+
+        return reduced;
+    }
+
+    /// <summary>
+    /// Visual feedback when taking damage.
+    /// </summary>
+    protected override void OnDamageTaken(float finalDamage, EquipableItem weapon)
+    {
+        if (personalUI != null)
+        {
+            personalUI.UpdateBars(true, false);
+        }
+
         StopAllCoroutines();
-        bloodEffect.Play();
+
+        if (bloodEffect != null)
+        {
+            bloodEffect.Play();
+        }
+
         StartCoroutine(FlashRedOnDamage());
     }
 
-    public void HandleHunger(bool isHungry)
+    public void HandleHunger(bool _isHungry)
     {
-        if (isHungry)
+        isHungry = _isHungry;
+        if (_isHungry)
         {
             ReduceHealthAndMoraleDueToHunger();
         }
@@ -368,7 +451,7 @@ public class Villager : TargetHealth
         // Reduce health and morale due to hunger
         int hungerDamage = Mathf.FloorToInt(currentHealth / 2);
         hungerDamage = Mathf.Max(hungerDamage, 5); // Ensure at least 5 damage
-        TakeDamage(hungerDamage); // Lose health due to hunger
+        TakeDamage(hungerDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
         ChangeMorale(-10f); // Lose 10 morale due to hunger
         personalUI.ShowSpeech("I'm starving...", 2.0f);
     }
@@ -399,8 +482,15 @@ public class Villager : TargetHealth
 
     public override void Die()
     {
+        if(isDead) return;
         base.Die();
         Debug.Log($"{villagerName} has died at age {age:F1}");
+
+        // If the Jarl is dying, trigger succession
+        if (isJarl && JarlManager.Instance != null)
+        {
+            JarlManager.Instance.OnCurrentJarlDied();
+        }
 
         // Handle villager death
         if (assignedBuilding != null)
@@ -499,6 +589,157 @@ public class Villager : TargetHealth
             return swapper != null ? swapper.GetRandomVariant() : parent1Variant;
         }
     }
+
+    #region Skill Bonuses
+
+    private float baseMaxHealth;
+
+    /// <summary>
+    /// Apply skill tree bonuses to stats (max health, etc.)
+    /// </summary>
+    public void ApplySkillBonuses()
+    {
+        // Store base max health if not already stored
+        if (baseMaxHealth == 0f)
+            baseMaxHealth = maxHealth;
+
+        if (!isJarl || SkillTreeManager.Instance == null)
+        {
+            maxHealth = baseMaxHealth;
+            return;
+        }
+
+        // Apply max health bonuses
+        float healthFlat = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthFlat);
+        float healthPercent = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthPercent);
+
+        maxHealth = (baseMaxHealth + healthFlat) * (1f + healthPercent / 100f);
+
+        // Ensure current health doesn't exceed new max
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+    }
+
+    private void OnSkillTreeChanged(SkillDefinitionSO skill)
+    {
+        ApplySkillBonuses();
+        if (personalUI != null)
+        {
+            personalUI.UpdateBars(true, false);
+        }
+    }
+
+    /// <summary>
+    /// Called when this villager becomes or stops being the Jarl
+    /// </summary>
+    public void OnJarlStatusChanged(bool becameJarl)
+    {
+        if (becameJarl && SkillTreeManager.Instance != null)
+        {
+            SkillTreeManager.Instance.OnSkillUnlocked += OnSkillTreeChanged;
+        }
+        else if (!becameJarl && SkillTreeManager.Instance != null)
+        {
+            SkillTreeManager.Instance.OnSkillUnlocked -= OnSkillTreeChanged;
+        }
+        ApplySkillBonuses();
+    }
+
+    #endregion
+
+    #region Succession Helpers
+
+    /// <summary>
+    /// Get all children of this villager from the settlement
+    /// </summary>
+    public System.Collections.Generic.List<Villager> GetChildren()
+    {
+        var children = new System.Collections.Generic.List<Villager>();
+        if (SettlementManager.Instance == null) return children;
+
+        foreach (var villager in SettlementManager.Instance.GetAllVillagers())
+        {
+            if (villager.parent1 == this || villager.parent2 == this)
+            {
+                children.Add(villager);
+            }
+        }
+        return children;
+    }
+
+    /// <summary>
+    /// Get all siblings (villagers sharing at least one parent)
+    /// </summary>
+    public System.Collections.Generic.List<Villager> GetSiblings()
+    {
+        var siblings = new System.Collections.Generic.List<Villager>();
+        if (SettlementManager.Instance == null) return siblings;
+
+        foreach (var villager in SettlementManager.Instance.GetAllVillagers())
+        {
+            if (villager == this) continue;
+
+            bool sharesParent = false;
+            if (parent1 != null && (villager.parent1 == parent1 || villager.parent2 == parent1))
+                sharesParent = true;
+            if (parent2 != null && (villager.parent1 == parent2 || villager.parent2 == parent2))
+                sharesParent = true;
+
+            if (sharesParent)
+            {
+                siblings.Add(villager);
+            }
+        }
+        return siblings;
+    }
+
+    /// <summary>
+    /// Calculate total skill score for succession ranking
+    /// </summary>
+    public float GetTotalSkillScore()
+    {
+        // Combat weighted higher for Jarl candidates
+        return skills.combat * 2f +
+               skills.farming +
+               skills.fishing +
+               skills.mining +
+               skills.woodcutting +
+               skills.crafting +
+               skills.sailing;
+    }
+
+    #endregion
+
+    #region Scene Change Support
+
+    /// <summary>
+    /// Reinitialize references after returning from a raid or scene change.
+    /// Called by VillagerSpawner when villagers are reintegrated.
+    /// </summary>
+    public void ReinitializeAfterSceneChange()
+    {
+        // Re-cache the settlement manager reference (it's a new instance in the new scene)
+        _settlementManager = SettlementManager.Instance;
+
+        // Re-cache material reference
+        var renderer = GetComponentInChildren<Renderer>();
+        if (renderer != null)
+        {
+            _material = renderer.material;
+        }
+
+        // Clear raid flag
+        isOnRaid = false;
+
+        // Update personal UI bars if it exists
+        if (personalUI != null)
+        {
+            personalUI.UpdateBars(true, true);
+        }
+
+        Debug.Log($"Villager {villagerName} reinitialized after scene change");
+    }
+
+    #endregion
 }
 
 public enum Gender

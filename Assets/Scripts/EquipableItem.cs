@@ -7,6 +7,7 @@ public class EquipableItem : MonoBehaviour
         Sword,
         Spear,
         Axe,
+        Hammer,
         Shield,
         Armor,
         Accessory
@@ -18,4 +19,8 @@ public class EquipableItem : MonoBehaviour
     public int strength;
     public ItemAttachment.AttachmentPoint attachPoint;
     public bool isEquipped = false;
+
+    [Header("Combat")]
+    [Tooltip("Time between attacks in seconds. Lower = faster attacks.")]
+    public float attackSpeed = 0.5f;
 }

@@ -1,30 +1,33 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
-using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Allows buildings to be clicked and selected
 /// </summary>
 [RequireComponent(typeof(Building))]
-public class BuildingSelector : MonoBehaviour
+public class BuildingSelector : MonoBehaviour, IClickable
 {
     [Header("Selection")]
     [SerializeField] private GameObject selectionIndicator; // Optional visual indicator
     [SerializeField] private BuildingInfoPanel infoPanelPrefab; // Reference to info panel
-    
+    [SerializeField] private int clickPriority = 0;
+
     private Building building;
     private bool isSelected = false;
     private static BuildingInfoPanel sharedInfoPanel;
     private Collider2D buildingCollider;
-    
+
+    // IClickable implementation
+    public Collider2D Collider => buildingCollider;
+    public int ClickPriority => clickPriority;
+    public bool IsClickable => building != null && building.isConstructed;
+
     private void Awake()
     {
         building = GetComponent<Building>();
         buildingCollider = GetComponent<Collider2D>();
     }
-    
+
     private void Start()
     {
         // Find or create the info panel
@@ -40,35 +43,23 @@ public class BuildingSelector : MonoBehaviour
 
         if (selectionIndicator != null)
             selectionIndicator.SetActive(false);
-            
+
+        // Register with MouseInputController (handles case where Instance isn't ready yet)
+        MouseInputController.RegisterClickable(this);
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        // Check for mouse click using new Input System
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            if(EventSystem.current != null && EventSystem.current.currentSelectedGameObject != null)
-            {
-                //print($"Clicked on {EventSystem.current.currentSelectedGameObject}, ignoring building selection.");
-                // Clicked on UI, ignore
-                return;
-            }
-            CheckClick();
-        }
+        // Unregister when destroyed
+        MouseInputController.UnregisterClickable(this);
     }
-    
-    private void CheckClick()
+
+    /// <summary>
+    /// Called by MouseInputController when this building is clicked
+    /// </summary>
+    public void OnClicked()
     {
-        // Get mouse position in world space
-        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-
-        // Check if mouse is over this building's collider
-        if (buildingCollider != null && buildingCollider.OverlapPoint(mousePosition))
-        {
-            SelectBuilding();
-        }
-
+        SelectBuilding();
     }
     
     /// <summary>
@@ -129,7 +120,7 @@ public class BuildingSelector : MonoBehaviour
         // Optionally reset camera target
         if (CameraController.Instance != null)
         {
-            CameraController.Instance.SetPlayerTarget();
+            CameraController.Instance.ReturnToPlayerTarget();
         }
     }
     

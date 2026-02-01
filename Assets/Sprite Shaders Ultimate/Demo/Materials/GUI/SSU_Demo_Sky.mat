@@ -13,8 +13,8 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - ETC1_EXTERNAL_ALPHA
-  - _ENABLECHECKERBOARD_ON
   - _ENABLERAINBOW_ON
+  - _ENABLEVIBRATE_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_SCREEN
   - _TEXTURELAYER1SHEETTOGGLE_ON
@@ -151,7 +151,7 @@ Material:
     - _CamouflageFade: 1
     - _CamouflageSmoothnessA: 0.2
     - _CamouflageSmoothnessB: 0.2
-    - _CheckerboardDarken: 0.5
+    - _CheckerboardDarken: 1
     - _CheckerboardTiling: 1
     - _ColorMask: 15
     - _ColorReplaceContrast: 1
@@ -185,7 +185,7 @@ Material:
     - _EnableBrightness: 0
     - _EnableBurn: 0
     - _EnableCamouflage: 0
-    - _EnableCheckerboard: 1
+    - _EnableCheckerboard: 0
     - _EnableColorReplace: 0
     - _EnableContrast: 0
     - _EnableCustomFade: 0
@@ -240,7 +240,7 @@ Material:
     - _EnableUVRotate: 0
     - _EnableUVScale: 0
     - _EnableUVScroll: 0
-    - _EnableVibrate: 0
+    - _EnableVibrate: 1
     - _EnableWiggle: 0
     - _EnableWind: 0
     - _EnableWorldTiling: 0
@@ -320,6 +320,7 @@ Material:
     - _PingPongGlowContrast: 1
     - _PingPongGlowFade: 1
     - _PingPongGlowFrequency: 3
+    - _PixelOutlineAlphaLimit: 0.5
     - _PixelOutlineFade: 1
     - _PixelOutlineOutlineOnlyToggle: 0
     - _PixelOutlineTextureToggle: 0
@@ -328,18 +329,18 @@ Material:
     - _PixelPerfectUV: 0
     - _PixelateFade: 1
     - _PixelatePixelDensity: 16
-    - _PixelatePixelsPerUnit: 100
+    - _PixelatePixelsPerUnit: 16
     - _PixelsPerUnit: 100
     - _PoisonDensity: 3
     - _PoisonFade: 1
     - _PoisonNoiseBrightness: 1
     - _PoisonRecolorFactor: 0.5
     - _PoisonShiftSpeed: 0.2
-    - _RainbowBrightness: 2
-    - _RainbowContrast: 1
+    - _RainbowBrightness: 0.84
+    - _RainbowContrast: 1.16
     - _RainbowDensity: 0.1
-    - _RainbowFade: 0.5
-    - _RainbowNoiseFactor: 1
+    - _RainbowFade: 0.34
+    - _RainbowNoiseFactor: 0
     - _RainbowSaturation: 1
     - _RainbowSpeed: -0.1
     - _RecolorRGBFade: 1
@@ -458,9 +459,9 @@ Material:
     - _UseUIAlphaClip: 0
     - _VertexTintFirst: 0
     - _VibrateFade: 1
-    - _VibrateFrequency: 100
-    - _VibrateOffset: 0.04
-    - _VibrateRotation: 4
+    - _VibrateFrequency: 15
+    - _VibrateOffset: 3
+    - _VibrateRotation: 20
     - _WiggleFade: 1
     - _WiggleFixedGroundToggle: 0
     - _WiggleFrequency: 2
@@ -569,7 +570,7 @@ Material:
     - _PoisonNoiseScale: {r: 0.2, g: 0.2, b: 0, a: 0}
     - _PoisonNoiseSpeed: {r: 0, g: -0.2, b: 0, a: 0}
     - _RainbowCenter: {r: 3, g: -100, b: 0, a: 0}
-    - _RainbowNoiseScale: {r: 0.2, g: 0.2, b: 0, a: 0}
+    - _RainbowNoiseScale: {r: 0, g: 0, b: 0, a: 0}
     - _RecolorRGBBlueTint: {r: 1, g: 1, b: 1, a: 0.5019608}
     - _RecolorRGBGreenTint: {r: 1, g: 1, b: 1, a: 0.5019608}
     - _RecolorRGBRedTint: {r: 1, g: 1, b: 1, a: 0.5019608}
@@ -621,3 +622,4 @@ Material:
     - _WorldTilingOffset: {r: 0, g: 0, b: 0, a: 0}
     - _WorldTilingScale: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 /// <summary>
 /// Manages the day/night cycle and triggers daily events like meal time
 /// </summary>
-public class DayNightManager : MonoBehaviour
+public class DayNightManager : MonoBehaviour, ISaveable
 {
     public static DayNightManager Instance { get; private set; }
 
@@ -133,6 +133,15 @@ public class DayNightManager : MonoBehaviour
         {
             GameTickManager.Instance.OnGameTick += OnTick;
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.OnGameTick -= OnTick;
+            GameTickManager.Instance.OnFastUpdate -= FastUpdate;
         }
     }
 
@@ -328,4 +337,28 @@ public class DayNightManager : MonoBehaviour
         currentTimeOfDay = Mathf.Clamp01(time);
         hasConsumedMealToday = currentTimeOfDay > mealTime;
     }
+
+    #region ISaveable
+
+    public void PopulateSaveData(SaveData data)
+    {
+        if (data.gameState == null)
+            data.gameState = new GameStateSave();
+
+        data.gameState.currentTimeOfDay = currentTimeOfDay;
+        data.gameState.currentDay = currentDay;
+    }
+
+    public void LoadSaveData(SaveData data)
+    {
+        if (data.gameState == null) return;
+
+        currentTimeOfDay = data.gameState.currentTimeOfDay;
+        currentDay = data.gameState.currentDay;
+        hasConsumedMealToday = currentTimeOfDay > mealTime;
+
+        UpdateLighting();
+    }
+
+    #endregion
 }

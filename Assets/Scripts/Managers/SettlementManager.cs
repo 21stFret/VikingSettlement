@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class SettlementManager : MonoBehaviour
+public class SettlementManager : MonoBehaviour, ISaveable
 {
     public static SettlementManager Instance { get; private set; }
     
@@ -60,16 +60,71 @@ public class SettlementManager : MonoBehaviour
             GameTickManager.Instance.OnGameTick += OnTick;
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
         }
+
+        // Subscribe to Jarl events for settlement-wide morale effects
+        if (JarlManager.Instance != null)
+        {
+            JarlManager.Instance.OnJarlDied += HandleJarlDeath;
+            JarlManager.Instance.OnJarlChanged += HandleJarlChanged;
+        }
     }
 
     private void OnDestroy()
     {
         // Unsubscribe from events
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.OnGameTick -= OnTick;
+            GameTickManager.Instance.OnFastUpdate -= FastUpdate;
+        }
         if (DayNightManager.Instance != null)
         {
             DayNightManager.Instance.OnMealTime -= HandleMealTime;
         }
+        if (JarlManager.Instance != null)
+        {
+            JarlManager.Instance.OnJarlDied -= HandleJarlDeath;
+            JarlManager.Instance.OnJarlChanged -= HandleJarlChanged;
+        }
     }
+
+    #region Jarl Events
+
+    /// <summary>
+    /// Handle the death of the Jarl - apply morale penalty
+    /// </summary>
+    private void HandleJarlDeath(Villager deadJarl)
+    {
+        Debug.Log($"The settlement mourns the death of Jarl {deadJarl.villagerName}...");
+
+        // Apply morale penalty to all villagers
+        foreach (var villager in allVillagers)
+        {
+            if (villager != deadJarl && !villager.IsDead())
+            {
+                villager.ChangeMorale(-20f);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handle new Jarl selection - apply morale bonus
+    /// </summary>
+    private void HandleJarlChanged(Villager newJarl)
+    {
+        Debug.Log($"The settlement celebrates {newJarl.villagerName} as the new Jarl!");
+
+        // Apply morale bonus for new leader
+        foreach (var villager in allVillagers)
+        {
+            if (!villager.IsDead())
+            {
+                villager.ChangeMorale(10f);
+            }
+        }
+    }
+
+    #endregion
     
     private void OnTick(float deltaTime)
     {        
@@ -90,7 +145,8 @@ public class SettlementManager : MonoBehaviour
 
     private void FastUpdate()
     {
-        UpdateBuildingProduction(Time.deltaTime);     
+        float scaledDeltaTime = Time.deltaTime * GameTickManager.Instance.TimeScale;
+        UpdateBuildingProduction(scaledDeltaTime);
     }
     
     private void UpdateBuildingProduction(float deltaTime)
@@ -451,6 +507,393 @@ public class SettlementManager : MonoBehaviour
         GUILayout.EndArea();
     }
     
+    #endregion
+
+    #region ISaveable
+
+    /// <summary>
+    /// Gets the name of an equipable item for saving.
+    /// Falls back to GameObject name (without Clone suffix) if itemName is empty.
+    /// </summary>
+    private string GetEquipableItemName(EquipableItem item)
+    {
+        if (item == null) return "";
+
+        // Use itemName if it's set
+        if (!string.IsNullOrEmpty(item.itemName))
+        {
+            return item.itemName;
+        }
+
+        // Fall back to GameObject name, stripping "(Clone)" suffix
+        string goName = item.gameObject.name;
+        if (goName.EndsWith("(Clone)"))
+        {
+            goName = goName.Substring(0, goName.Length - 7).Trim();
+        }
+        return goName;
+    }
+
+    public void PopulateSaveData(SaveData data)
+    {
+        // Save villagers
+        var villagerSaves = new List<VillagerSave>();
+        foreach (var v in allVillagers)
+        {
+            if (v == null || v.IsDead()) continue;
+
+            var vs = new VillagerSave
+            {
+                id = v.uniqueId,
+                villagerName = v.villagerName,
+                gender = (int)v.gender,
+                age = v.age,
+                lifeExpectancy = v.lifeExpectancy,
+                currentLifeStage = (int)v.currentLifeStage,
+                health = v.currentHealth,
+                maxHealth = v.maxHealth,
+                morale = v.morale,
+                maxMorale = v.maxMorale,
+                isHungry = v.isHungry,
+                isCold = v.isCold,
+                currentJob = (int)v.currentJob,
+                assignedBuildingId = v.assignedBuilding != null && v.assignedBuilding.data != null ? v.assignedBuilding.data.name : "",
+                skills = new VillagerSkillsSave
+                {
+                    farming = v.skills.farming,
+                    fishing = v.skills.fishing,
+                    mining = v.skills.mining,
+                    woodcutting = v.skills.woodcutting,
+                    crafting = v.skills.crafting,
+                    combat = v.skills.combat,
+                    sailing = v.skills.sailing,
+                    intelligence = v.skills.intelligence,
+                    learningRate = v.skills.learningRate
+                },
+                combatStats = new CombatStatsSave
+                {
+                    strength = v.combatStats.strength,
+                    defense = v.combatStats.defense
+                },
+                parent1Id = v.parent1 != null ? v.parent1.uniqueId : "",
+                parent2Id = v.parent2 != null ? v.parent2.uniqueId : "",
+                partnerId = v.partner != null ? v.partner.uniqueId : "",
+                childrenCount = v.childrenCount,
+                timeSinceLastChild = v.timeSinceLastChild,
+                isJarl = v.isJarl,
+                isOfJarlLineage = v.isOfJarlLineage,
+                generationsFromJarl = v.generationsFromJarl,
+                posX = v.transform.position.x,
+                posY = v.transform.position.y,
+                posZ = v.transform.position.z,
+                spriteVariant = v.spriteVariant,
+                weaponName = GetEquipableItemName(v.GetComponent<CharacterController>()?.weapon),
+                shieldName = GetEquipableItemName(v.GetComponent<CharacterController>()?.shield)
+            };
+
+            // Debug: Log weapon/shield being saved
+            if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
+            {
+                Debug.Log($"Saving {v.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
+            }
+
+            villagerSaves.Add(vs);
+        }
+        data.villagers = villagerSaves.ToArray();
+
+        // Save buildings
+        var buildingSaves = new List<BuildingSave>();
+        foreach (var b in allBuildings)
+        {
+            if (b == null) continue;
+
+            var bs = new BuildingSave
+            {
+                id = b.uniqueId,
+                buildingDataName = b.data != null ? b.data.name : "",
+                gridPositionX = b.gridPosition.x,
+                gridPositionY = b.gridPosition.y,
+                isConstructed = b.isConstructed,
+                constructionProgress = b.constructionProgress,
+                productionProgress = b.productionProgress,
+                assignedWorkerIds = new string[b.assignedWorkers.Count]
+            };
+
+            for (int i = 0; i < b.assignedWorkers.Count; i++)
+            {
+                bs.assignedWorkerIds[i] = b.assignedWorkers[i] != null ? b.assignedWorkers[i].uniqueId : "";
+            }
+
+            buildingSaves.Add(bs);
+        }
+        data.buildings = buildingSaves.ToArray();
+
+        // Save settlement stats
+        data.stats = new SettlementStatsSave
+        {
+            totalBirths = totalBirths,
+            totalDeaths = totalDeaths
+        };
+    }
+
+    public void LoadSaveData(SaveData data)
+    {
+        if (data.villagers == null) return;
+
+        // Get the villager prefab from VillagerSpawner
+        GameObject villagerPrefab = null;
+        Transform villagerParent = null;
+        if (VillagerSpawner.Instance != null)
+        {
+            villagerPrefab = VillagerSpawner.Instance.GetVillagerPrefab();
+            villagerParent = VillagerSpawner.Instance.GetVillagerParent();
+        }
+
+        if (villagerPrefab == null)
+        {
+            Debug.LogError("SettlementManager: Cannot load save - no villager prefab found!");
+            return;
+        }
+
+        // Destroy any existing villagers (shouldn't be any if VillagerSpawner skipped spawn)
+        foreach (var v in allVillagers.ToArray())
+        {
+            if (v != null)
+            {
+                Destroy(v.gameObject);
+            }
+        }
+        allVillagers.Clear();
+
+        // Create villagers from save data
+        var villagerLookup = new Dictionary<string, Villager>();
+        var loadedVillagers = new List<Villager>();
+
+        foreach (var vs in data.villagers)
+        {
+            Vector3 pos = new Vector3(vs.posX, vs.posY, vs.posZ);
+            GameObject villagerObj = Instantiate(villagerPrefab, pos, Quaternion.identity);
+
+            if (villagerParent != null)
+            {
+                villagerObj.transform.SetParent(villagerParent);
+            }
+
+            Villager v = villagerObj.GetComponent<Villager>();
+            if (v == null) continue;
+
+            // Mark as loaded from save to skip default initialization in Start()
+            v.loadedFromSave = true;
+
+            // Set uniqueId BEFORE Start() runs (Instantiate is synchronous, Start runs next frame)
+            v.uniqueId = vs.id;
+
+            // Set all other properties
+            v.villagerName = vs.villagerName;
+            v.gender = (Gender)vs.gender;
+            v.age = vs.age;
+            v.lifeExpectancy = vs.lifeExpectancy;
+            v.currentLifeStage = (LifeStage)vs.currentLifeStage;
+            v.currentHealth = vs.health;
+            v.maxHealth = vs.maxHealth;
+            v.morale = vs.morale;
+            v.maxMorale = vs.maxMorale;
+            v.isHungry = vs.isHungry;
+            v.isCold = vs.isCold;
+            v.currentJob = (JobType)vs.currentJob;
+
+            v.skills.farming = vs.skills.farming;
+            v.skills.fishing = vs.skills.fishing;
+            v.skills.mining = vs.skills.mining;
+            v.skills.woodcutting = vs.skills.woodcutting;
+            v.skills.crafting = vs.skills.crafting;
+            v.skills.combat = vs.skills.combat;
+            v.skills.sailing = vs.skills.sailing;
+            v.skills.intelligence = vs.skills.intelligence;
+            v.skills.learningRate = vs.skills.learningRate;
+
+            v.combatStats.strength = vs.combatStats.strength;
+            v.combatStats.defense = vs.combatStats.defense;
+
+            v.childrenCount = vs.childrenCount;
+            v.timeSinceLastChild = vs.timeSinceLastChild;
+            v.isJarl = vs.isJarl;
+            v.isOfJarlLineage = vs.isOfJarlLineage;
+            v.generationsFromJarl = vs.generationsFromJarl;
+            v.spriteVariant = vs.spriteVariant;
+
+            // Restore weapon and shield
+            ItemAttachment itemAttachment = v.GetComponent<ItemAttachment>();
+            if (itemAttachment != null && WeaponDatabase.Instance != null)
+            {
+                // Debug: Log what we're trying to load
+                if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
+                {
+                    Debug.Log($"Loading {vs.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
+                }
+
+                if (!string.IsNullOrEmpty(vs.weaponName))
+                {
+                    EquipableItem weaponPrefab = WeaponDatabase.Instance.GetWeaponByName(vs.weaponName);
+                    if (weaponPrefab != null)
+                    {
+                        GameObject weaponInstance = Instantiate(weaponPrefab.gameObject);
+                        itemAttachment.EquipWeapon(weaponInstance);
+                        Debug.Log($"  -> Weapon '{vs.weaponName}' equipped successfully");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"  -> Weapon '{vs.weaponName}' NOT FOUND in WeaponDatabase!");
+                    }
+                }
+                if (!string.IsNullOrEmpty(vs.shieldName))
+                {
+                    EquipableItem shieldPrefab = WeaponDatabase.Instance.GetShieldByName(vs.shieldName);
+                    if (shieldPrefab != null)
+                    {
+                        GameObject shieldInstance = Instantiate(shieldPrefab.gameObject);
+                        itemAttachment.EquipShield(shieldInstance);
+                        Debug.Log($"  -> Shield '{vs.shieldName}' equipped successfully");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"  -> Shield '{vs.shieldName}' NOT FOUND in WeaponDatabase!");
+                    }
+                }
+            }
+            else if (itemAttachment == null)
+            {
+                Debug.LogWarning($"Loading {vs.villagerName}: No ItemAttachment component!");
+            }
+            else if (WeaponDatabase.Instance == null)
+            {
+                Debug.LogWarning($"Loading {vs.villagerName}: WeaponDatabase.Instance is null!");
+            }
+
+            villagerObj.name = vs.villagerName;
+            villagerLookup[vs.id] = v;
+            loadedVillagers.Add(v);
+        }
+
+        // Build building lookup by data name (BuildingData SO name)
+        // If multiple buildings have the same type, they're stored in a list
+        var buildingsByName = new Dictionary<string, List<Building>>();
+        foreach (var b in allBuildings)
+        {
+            if (b != null && b.data != null)
+            {
+                string buildingName = b.data.name;
+                if (!buildingsByName.ContainsKey(buildingName))
+                {
+                    buildingsByName[buildingName] = new List<Building>();
+                }
+                buildingsByName[buildingName].Add(b);
+            }
+        }
+
+        // Resolve villager references (parent, partner)
+        foreach (var vs in data.villagers)
+        {
+            if (!villagerLookup.TryGetValue(vs.id, out Villager v)) continue;
+
+            v.parent1 = !string.IsNullOrEmpty(vs.parent1Id) && villagerLookup.ContainsKey(vs.parent1Id) ? villagerLookup[vs.parent1Id] : null;
+            v.parent2 = !string.IsNullOrEmpty(vs.parent2Id) && villagerLookup.ContainsKey(vs.parent2Id) ? villagerLookup[vs.parent2Id] : null;
+            v.partner = !string.IsNullOrEmpty(vs.partnerId) && villagerLookup.ContainsKey(vs.partnerId) ? villagerLookup[vs.partnerId] : null;
+
+            // Resolve assigned building by BuildingData name
+            if (!string.IsNullOrEmpty(vs.assignedBuildingId) && buildingsByName.TryGetValue(vs.assignedBuildingId, out List<Building> matchingBuildings))
+            {
+                // Find first building of this type that has capacity or already has this worker
+                Building assignedBuilding = null;
+                foreach (var b in matchingBuildings)
+                {
+                    if (b.CanAssignWorker() || b.assignedWorkers.Contains(v))
+                    {
+                        assignedBuilding = b;
+                        break;
+                    }
+                }
+                // Fallback to first building of this type if none have capacity
+                if (assignedBuilding == null && matchingBuildings.Count > 0)
+                {
+                    assignedBuilding = matchingBuildings[0];
+                }
+
+                if (assignedBuilding != null)
+                {
+                    v.assignedBuilding = assignedBuilding;
+                }
+            }
+        }
+
+        // Restore building workers from saved data - match by BuildingData name
+        if (data.buildings != null)
+        {
+            // Track which buildings we've already processed (for handling duplicates)
+            var processedBuildingIndices = new Dictionary<string, int>();
+
+            foreach (var bs in data.buildings)
+            {
+                if (string.IsNullOrEmpty(bs.buildingDataName)) continue;
+                if (!buildingsByName.TryGetValue(bs.buildingDataName, out List<Building> matchingBuildings)) continue;
+
+                // Get the next unprocessed building of this type
+                if (!processedBuildingIndices.ContainsKey(bs.buildingDataName))
+                {
+                    processedBuildingIndices[bs.buildingDataName] = 0;
+                }
+                int buildingIndex = processedBuildingIndices[bs.buildingDataName];
+                if (buildingIndex >= matchingBuildings.Count) continue;
+
+                Building b = matchingBuildings[buildingIndex];
+                processedBuildingIndices[bs.buildingDataName]++;
+
+                // Restore building state
+                b.isConstructed = bs.isConstructed;
+                b.constructionProgress = bs.constructionProgress;
+                b.productionProgress = bs.productionProgress;
+
+                // Restore assigned workers
+                b.assignedWorkers.Clear();
+                if (bs.assignedWorkerIds != null && bs.assignedWorkerIds.Length > 0)
+                {
+                    foreach (var workerId in bs.assignedWorkerIds)
+                    {
+                        if (!string.IsNullOrEmpty(workerId) && villagerLookup.ContainsKey(workerId))
+                        {
+                            Villager worker = villagerLookup[workerId];
+                            b.assignedWorkers.Add(worker);
+                            worker.assignedBuilding = b; // Ensure bi-directional link
+                        }
+                    }
+                }
+
+                Debug.Log($"Restored building '{bs.buildingDataName}' with {b.assignedWorkers.Count} workers");
+            }
+        }
+
+        // Restore stats
+        if (data.stats != null)
+        {
+            totalBirths = data.stats.totalBirths;
+            totalDeaths = data.stats.totalDeaths;
+        }
+
+        // Notify VillagerSpawner about loaded villagers
+        if (VillagerSpawner.Instance != null)
+        {
+            VillagerSpawner.Instance.OnVillagersLoadedFromSave(loadedVillagers);
+        }
+
+        // Refresh shadows to pick up newly spawned villagers
+        if (ShadowMaster.Instance != null)
+        {
+            ShadowMaster.Instance.RefreshShadows();
+        }
+
+        Debug.Log($"Loaded {loadedVillagers.Count} villagers from save");
+    }
+
     #endregion
 }
 

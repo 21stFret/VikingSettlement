@@ -43,6 +43,7 @@ public class ItemAttachment : MonoBehaviour
         {
             item.SetParent(attachPoint);
             item.localPosition = Vector3.zero;
+            item.localRotation = Quaternion.identity;
         }
     }
 
@@ -66,6 +67,28 @@ public class ItemAttachment : MonoBehaviour
         if (CC != null)
         {
             CC.weapon = newWeapon.GetComponent<EquipableItem>();
+        }
+    }
+
+    public void GiveRandomWeapon()
+    {
+        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetRandomWeapon();
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipWeapon(weaponInstance);
+        }
+    }
+
+    public void GiveRandomShield()
+    {
+        // This is a placeholder implementation. Replace with actual shield selection logic.
+        EquipableItem randomShield = WeaponDatabase.Instance.GetRandomShield();
+        if (randomShield != null)
+        {
+            GameObject shieldInstance = Instantiate(randomShield.gameObject);
+            EquipShield(shieldInstance);
         }
     }
     

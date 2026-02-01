@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: be4acf8587e70364398595d090840bbb
+guid: 4c53168398dcdaf46a6393ccafaf236e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6787095142432257793
-    second: VikingLove_0
-  - first:
-      213: -5431492657724007761
-    second: VikingLove_1
-  - first:
-      213: 8284794435116553551
-    second: VikingLove_2
+      213: 3434525654026980407
+    second: SadIcon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -53,7 +47,7 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 1
-  spriteExtrude: 0
+  spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
@@ -106,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: VikingLove_0
+      name: SadIcon_0
       rect:
         serializedVersion: 2
         x: 0
         y: 1
-        width: 9
-        height: 8
+        width: 16
+        height: 14
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -121,52 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ff8cb827de46fc1a0800000000000000
-      internalID: -6787095142432257793
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: VikingLove_1
-      rect:
-        serializedVersion: 2
-        x: 8
-        y: 0
-        width: 9
-        height: 12
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: faad73084367f94b0800000000000000
-      internalID: -5431492657724007761
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: VikingLove_2
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 1
-        width: 9
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: f45514ed4a089f270800000000000000
-      internalID: 8284794435116553551
+      spriteID: 73c8e3ca2e2e9af20800000000000000
+      internalID: 3434525654026980407
       vertices: []
       indices: 
       edges: []
@@ -185,9 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      VikingLove_0: -6787095142432257793
-      VikingLove_1: -5431492657724007761
-      VikingLove_2: 8284794435116553551
+      SadIcon_0: 3434525654026980407
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

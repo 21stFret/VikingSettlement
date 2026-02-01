@@ -3,105 +3,127 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using Unity.VisualScripting;
+public enum VillagerStatusEffect
+{
+    Love,
+    Injured,
+    Cold,
+    Happy,
+    Angry,
+    None
+}
 
 public class VillagerPersonalUI : MonoBehaviour
 {
     public TMP_Text speechText;
-    public GameObject healthBar;
+    public CanvasGroup textCanvas;
+    public CanvasGroup healthBar;
     public Image healthFill;
-    public GameObject moraleBar;
+    public CanvasGroup moraleBar;
     public Image moraleFill;
     private Villager _villager;
-    private CanvasGroup _canvasGroup;
     private bool _enabled = true;
+    public CanvasGroup statusImageCanvas;
     public Image statusEffectIcon;
+    public Sprite[] satusEffectIcons;
+    private Coroutine speechCoroutine;
+    private Coroutine statusEffectCoroutine;
+    private Coroutine healthbarCoroutine;
+    private Coroutine moraleCoroutine;
 
     private void Awake()
     {
         _villager = GetComponentInParent<Villager>(true);
         _villager.personalUI = this;
-        transform.SetParent(null);
-        _canvasGroup = GetComponent<CanvasGroup>();
         enabled = true;
     }
 
     void Start()
     {
         UpdateBars(true, true);
-    }
-
-    void Update()
-    {
-        if (!_enabled)
-        {
-            return;
-        }
-        transform.position = _villager.transform.position + Vector3.up * 2.0f;
+        statusImageCanvas.alpha = 0;
+        textCanvas.alpha = 0;
     }
 
     public void UpdateBars(bool health, bool morale)
     {
-        healthBar.SetActive(false);
-        moraleBar.SetActive(false);
-        if (_canvasGroup.alpha == 0)
+        if (health)
         {
-            _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
-            {
-                _canvasGroup.alpha = 1;
-            });
+            UpdateHealthBar();
         }
-        if (_villager != null)
-        {      
-            // Update health bar
-            if (health)
+        if (morale)
+        {
+            UpdateMoraleBar();
+        }
+    }
+
+    public void UpdateHealthBar()
+    {
+        if (healthBar != null && healthFill != null)
+        {
+            healthFill.fillAmount = _villager.currentHealth / _villager.maxHealth;
+            if(healthbarCoroutine != null)
             {
-                if (healthBar != null && healthFill != null)
-                {
-                    healthBar.SetActive(true);
-                    healthFill.fillAmount = _villager.currentHealth / _villager.maxHealth;
-                }
+                StopCoroutine(healthbarCoroutine);
             }
-            if (morale)
+            healthbarCoroutine = StartCoroutine(HideAfterDelay(3f, healthBar));
+        }
+    }
+
+    public void UpdateMoraleBar()
+    {
+        if (moraleBar != null && moraleFill != null)
+        {
+            moraleFill.fillAmount = _villager.morale / _villager.maxMorale;
+            if (moraleCoroutine != null)
             {
-                // Update morale bar
-                if (moraleBar != null && moraleFill != null)
-                {
-                    moraleBar.SetActive(true);
-                    moraleFill.fillAmount = _villager.morale / _villager.maxMorale;
-                }
+                StopCoroutine(moraleCoroutine);
             }
-            StopAllCoroutines();
-            StartCoroutine(HideAfterDelay(3f));
+            moraleCoroutine = StartCoroutine(HideAfterDelay(3f, moraleBar));
         }
     }
 
     public void ShowSpeech(string message, float duration = 2.0f)
     {
-        if (_canvasGroup.alpha == 0)
-        {
-            _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
-            {
-                _canvasGroup.alpha = 1;
-            });
-        }
         if (speechText != null)
         {
+            if (speechCoroutine != null)
+            {
+                StopCoroutine(speechCoroutine);
+            }
             speechText.text = message;
             speechText.gameObject.SetActive(true);
-            StopAllCoroutines();
-            StartCoroutine(HideAfterDelay(3f));
+            speechCoroutine = StartCoroutine(HideAfterDelay(duration, textCanvas));
         }
     }
 
-    public void UpdateStatusEffectIcon(Sprite newIcon = null)
+    public void UpdateStatusEffectIcon(VillagerStatusEffect effect)
     {
-        if (_canvasGroup.alpha == 0)
+        Sprite newIcon = null;
+        switch (effect)
         {
-            _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
-            {
-                _canvasGroup.alpha = 1;
-            });
+            case VillagerStatusEffect.Love:
+                newIcon = satusEffectIcons[0];
+                break;
+            case VillagerStatusEffect.Injured:
+                newIcon = satusEffectIcons[1];
+                break;
+            case VillagerStatusEffect.Cold:
+                newIcon = satusEffectIcons[2];
+                break;
+            case VillagerStatusEffect.Happy:
+                newIcon = satusEffectIcons[3];
+                break;
+            case VillagerStatusEffect.Angry:
+                newIcon = satusEffectIcons[4];
+                break;
+            case VillagerStatusEffect.None:
+            default:
+                newIcon = null;
+                break;
         }
+
         if (statusEffectIcon != null)
         {
             if (newIcon != null)
@@ -113,40 +135,28 @@ public class VillagerPersonalUI : MonoBehaviour
             {
                 statusEffectIcon.gameObject.SetActive(false);
             }
-            StopAllCoroutines();
-            StartCoroutine(HideAfterDelay(2f));
+            if (statusEffectCoroutine != null)
+            {
+                StopCoroutine(statusEffectCoroutine);
+            }
+            statusEffectCoroutine = StartCoroutine(HideAfterDelay(2f, statusImageCanvas));
         }
     }
 
-    private IEnumerator HideAfterDelay(float delay)
+    private IEnumerator HideAfterDelay(float delay, CanvasGroup _canvasGroup)
     {
+        _canvasGroup.DOFade(1, 0.1f);
         yield return new WaitForSeconds(delay);
-        if (_canvasGroup != null)
-        {
-            _canvasGroup.DOFade(0, 0.5f).OnComplete(() =>
-            {
-                speechText.gameObject.SetActive(false);
-                healthBar.SetActive(false);
-                moraleBar.SetActive(false);
-                _canvasGroup.alpha = 0;
-            });
-        }
-
+        _canvasGroup.DOFade(0, 0.5f);
     }
 
     public void Hide()
     {
         _enabled = false;
-        if (_canvasGroup != null)
-        {
-            _canvasGroup.DOFade(0, 0.5f).OnComplete(() =>
-            {
-                speechText.gameObject.SetActive(false);
-                healthBar.SetActive(false);
-                moraleBar.SetActive(false);
-                _canvasGroup.alpha = 0;
-            });
-        }
+        textCanvas.DOFade(0, 0.5f);
+        healthBar.DOFade(0, 0.5f);
+        moraleBar.DOFade(0, 0.5f);
+        statusImageCanvas.DOFade(0, 0.5f);
     }
 
 }

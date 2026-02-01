@@ -21,6 +21,9 @@ public class Enemy : TargetHealth
     public int goldReward = 10;
     public float lootChance = 0.3f;
 
+    [Header("XP")]
+    public int xpReward = 25;
+
     [Header("References")]
     [SerializeField] private ParticleSystem bloodEffect;
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -36,7 +39,8 @@ public class Enemy : TargetHealth
         Warrior,
         Berserker,
         Archer,
-        Wolf
+        Wolf,
+        Draugr
     }
 
     public override void Awake()
@@ -63,31 +67,38 @@ public class Enemy : TargetHealth
         currentHealth = maxHealth;
     }
 
-    public override void TakeDamage(float amount, bool trueDamage = false)
+    /// <summary>
+    /// Apply shield reduction to incoming damage.
+    /// </summary>
+    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
     {
-        if (IsDead()) return;
+        float reduced = rawDamage;
 
-        float dam = amount;
-        
-        if (_controller.shield != null)
+        // Apply shield if equipped
+        if (_controller != null && _controller.shield != null)
         {
-            dam -= _controller.shield.strength;
-            dam = Mathf.Max(dam, 0); // Prevent negative damage
+            reduced -= _controller.shield.strength;
         }
-        Debug.Log($"{enemyName} took {dam} damage");
-        base.TakeDamage(dam);
 
-        // Visual feedback
+        return reduced;
+    }
+
+    /// <summary>
+    /// Visual feedback when taking damage.
+    /// </summary>
+    protected override void OnDamageTaken(float finalDamage, EquipableItem weapon)
+    {
         if (bloodEffect != null)
         {
             bloodEffect.Play();
         }
 
-        personalUI.UpdateBars(true, false);
+        if (personalUI != null)
+        {
+            personalUI.UpdateBars(true, false);
+        }
 
         StartCoroutine(FlashRedOnDamage());
-
-        Debug.Log($"{enemyName} took {amount} damage");
     }
 
     public override void Die()
@@ -97,6 +108,12 @@ public class Enemy : TargetHealth
         if (_controller != null)
         {
             _controller.SetDead(true);
+        }
+
+        // Grant XP to player
+        if (SkillTreeManager.Instance != null && xpReward > 0)
+        {
+            SkillTreeManager.Instance.AddXP(xpReward);
         }
 
         // Drop loot

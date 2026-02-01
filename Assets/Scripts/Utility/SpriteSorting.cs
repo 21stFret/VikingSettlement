@@ -43,6 +43,10 @@ public class SpriteSorting : MonoBehaviour
             }
         }
     }
-    
+
+    void OnDisable()
+    {
+        linkedSpriteRenderers.Clear();
+    }
 
 }

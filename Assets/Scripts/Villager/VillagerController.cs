@@ -28,6 +28,19 @@ public class VillagerController : CharacterController
         base.Update();
     }
 
+    protected override void FlipSprite(bool faceRight)
+    {
+        base.FlipSprite(faceRight);
+        if (villagerData != null)
+        {
+            var personalUI = villagerData.personalUI.textCanvas.transform;
+            personalUI.localScale = new Vector3(
+                faceRight ? -1f : 1f,
+                personalUI.localScale.y,
+                personalUI.localScale.z);
+        }
+    }
+
     /// <summary>
     /// Override movement to check if villager is alive
     /// </summary>
@@ -60,9 +73,8 @@ public class VillagerController : CharacterController
             float villagerDamage = villagerData.combatStats.strength;
             float damage = weaponDamage + villagerDamage;
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
-            
-            target.TakeDamage(damage);
 
+            target.TakeDamage(damage, weapon);
         }
     }
 }

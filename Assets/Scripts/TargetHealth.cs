@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class TargetHealth : MonoBehaviour
 {
@@ -8,13 +9,22 @@ public class TargetHealth : MonoBehaviour
     private float invincibilityDuration = 0.1f;
     private float lastDamageTime = -Mathf.Infinity;
 
+    // Events
+    public event Action OnDeath;
+
     public virtual void Awake()
     {
         currentHealth = maxHealth;
         isDead = false;
     }
 
-    public virtual void TakeDamage(float damage, bool trueDamage = false)
+    /// <summary>
+    /// Main entry point for taking damage. Handles invincibility, damage reduction, and death.
+    /// </summary>
+    /// <param name="damage">Raw incoming damage</param>
+    /// <param name="weapon">Weapon used (can be null)</param>
+    /// <param name="trueDamage">If true, bypasses all damage reduction</param>
+    public virtual void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false)
     {
         if (isDead) return;
 
@@ -22,26 +32,60 @@ public class TargetHealth : MonoBehaviour
         if (Time.time - lastDamageTime < invincibilityDuration) return;
 
         lastDamageTime = Time.time;
-        currentHealth -= damage;
 
-        Debug.Log($"{gameObject.name} took {damage} damage!");
-        
+        // Calculate final damage after reductions (unless trueDamage)
+        float finalDamage = trueDamage ? damage : CalculateFinalDamage(damage, weapon);
+        finalDamage = Mathf.Max(0f, finalDamage); // Never negative
+
+        currentHealth -= finalDamage;
+
+        OnDamageTaken(finalDamage, weapon);
+
+        Debug.Log($"{gameObject.name} took {finalDamage} damage (raw: {damage}, trueDamage: {trueDamage})");
+
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
+    /// <summary>
+    /// Calculate final damage after applying defense, shields, etc.
+    /// Override in subclasses to add damage reduction.
+    /// </summary>
+    protected virtual float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    {
+        return rawDamage;
+    }
+
+    /// <summary>
+    /// Called after damage is applied. Override for visual feedback, UI updates, etc.
+    /// </summary>
+    protected virtual void OnDamageTaken(float finalDamage, EquipableItem weapon)
+    {
+        // Base implementation does nothing - override in subclasses
+    }
+
     public virtual void Die()
     {
         if (isDead) return;
-        // Logic for when the target dies
-        //Destroy(gameObject);
         isDead = true;
+
+        // Fire death event
+        OnDeath?.Invoke();
     }
 
     public bool IsDead()
     {
         return isDead;
+    }
+
+    /// <summary>
+    /// Heal the target by the specified amount.
+    /// </summary>
+    public virtual void Heal(float amount)
+    {
+        if (isDead || amount <= 0) return;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
 }

@@ -5,23 +5,30 @@ using UnityEngine;
 
 public class DoTweenMove : MonoBehaviour
 {
-    public float moveSpeed;
+    public float moveDuration;
     public Ease ease;
     public Vector3 endPos;
     public LoopType loopType;
     public int loopCount;
     public bool isLocal;
+    public bool isAnchored;
 
     private void Start()
     {
+        RectTransform _transform = GetComponent<RectTransform>();
         //print("started tween movement");
+        if(isAnchored)
+        {
+            _transform.DOAnchorPos(endPos, moveDuration).SetLoops(loopCount, loopType).SetEase(ease);
+            return;
+        }
         if (isLocal)
         {
-            transform.DOLocalMove(endPos, moveSpeed).SetLoops(loopCount, loopType).SetEase(ease);
+            transform.DOLocalMove(endPos, moveDuration).SetLoops(loopCount, loopType).SetEase(ease);
         }
         else
         {
-            transform.DOMove(endPos, moveSpeed).SetLoops(loopCount, loopType).SetEase(ease);
+            transform.DOMove(endPos, moveDuration).SetLoops(loopCount, loopType).SetEase(ease);
         }
 
     }

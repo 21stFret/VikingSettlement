@@ -35,14 +35,24 @@ public class GameTickManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
+        // Scene-local singleton - don't persist across scenes
+        // This allows UI buttons wired in the scene to work properly on reload
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            Destroy(Instance.gameObject);
         }
-        else
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        // Clear instance when destroyed to prevent stale references
+        if (Instance == this)
         {
-            Destroy(gameObject);
+            // Clear event subscribers to prevent memory leaks
+            OnGameTick = null;
+            OnFastUpdate = null;
+            Instance = null;
         }
     }
 

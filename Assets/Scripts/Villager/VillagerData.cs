@@ -134,14 +134,3 @@ public enum VillagerState
     Training,
     Fighting
 }
-
-public enum SkillType
-{
-    Farming,
-    Fishing,
-    Mining,
-    Woodcutting,
-    Crafting,
-    Combat,
-    Sailing
-}

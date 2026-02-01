@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Manages seasonal changes and their visual effects
 /// </summary>
-public class SeasonManager : MonoBehaviour
+public class SeasonManager : MonoBehaviour, ISaveable
 {
     public static SeasonManager Instance { get; private set; }
 
@@ -65,6 +65,38 @@ public class SeasonManager : MonoBehaviour
     [Tooltip("Multiplier for ambient light during winter")]
     public float winterAmbientMultiplier = 0.8f;
 
+    [Header("Production Multipliers - Summer")]
+    [Tooltip("Farm production in summer (1.0 = 100%)")]
+    public float summerFarmMultiplier = 1.0f;
+    [Tooltip("Fishing production in summer")]
+    public float summerFishingMultiplier = 0.8f;
+    [Tooltip("Lumber production in summer")]
+    public float summerLumberMultiplier = 1.0f;
+
+    [Header("Production Multipliers - Winter")]
+    [Tooltip("Farm production in winter (crops struggle)")]
+    public float winterFarmMultiplier = 0.25f;
+    [Tooltip("Fishing production in winter (ice fishing)")]
+    public float winterFishingMultiplier = 1.2f;
+    [Tooltip("Lumber production in winter (harder in snow)")]
+    public float winterLumberMultiplier = 0.6f;
+
+    [Header("Warmth System (Winter)")]
+    [Tooltip("Wood consumed per villager per day in winter")]
+    public float woodPerVillagerPerDay = 0.5f;
+    [Tooltip("Morale penalty per day when settlement is cold")]
+    public float coldMoralePenalty = 10f;
+    [Tooltip("Morale bonus per day when settlement is warm")]
+    public float warmthMoraleBonus = 5f;
+    [Tooltip("Health damage per day when settlement is cold (0 to disable)")]
+    public float coldHealthDamage = 0f;
+    [Tooltip("Current warmth status")]
+    [SerializeField] private bool isSettlementWarm = true;
+    [Tooltip("Wood consumed today")]
+    [SerializeField] private float woodConsumedToday = 0f;
+    [Tooltip("Wood needed today")]
+    [SerializeField] private float woodNeededToday = 0f;
+
     [Tooltip("Sun color tint during winter")]
     public Color winterSunTint = new Color(0.9f, 0.95f, 1f);
 
@@ -73,6 +105,7 @@ public class SeasonManager : MonoBehaviour
 
     // Events
     public event Action<Season> OnSeasonChanged;
+    public event Action<bool> OnWarmthChanged; // true = warm, false = cold
 
     // Private variables for animation
     private float sunBeamAnimationTime = 0f;
@@ -157,10 +190,131 @@ public class SeasonManager : MonoBehaviour
 
         Debug.Log($"Days until season change: {daysUntilSeasonChange}");
 
+        // Handle winter warmth/firewood consumption
+        if (currentSeason == Season.Winter)
+        {
+            ConsumeFirewood();
+        }
+        else
+        {
+            // Always warm in summer
+            SetWarmthStatus(true);
+        }
+
         // Check if it's time to change seasons
         if (daysUntilSeasonChange <= 0)
         {
             ChangeSeason();
+        }
+    }
+
+    /// <summary>
+    /// Consume firewood to keep the settlement warm during winter
+    /// </summary>
+    private void ConsumeFirewood()
+    {
+        if (SettlementManager.Instance == null || ResourceManager.Instance == null)
+        {
+            SetWarmthStatus(true);
+            return;
+        }
+
+        // Calculate wood needed based on population
+        int villagerCount = SettlementManager.Instance.GetPopulation();
+        woodNeededToday = villagerCount * woodPerVillagerPerDay;
+
+        // Try to consume wood
+        float availableWood = ResourceManager.Instance.GetResource(ResourceType.Wood);
+
+        if (availableWood >= woodNeededToday)
+        {
+            // Enough wood - stay warm
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodNeededToday);
+            woodConsumedToday = woodNeededToday;
+            SetWarmthStatus(true);
+            ApplyWarmEffects();
+            Debug.Log($"Winter heating: Consumed {woodNeededToday:F1} wood for {villagerCount} villagers. Settlement is warm.");
+        }
+        else
+        {
+            // Not enough wood - consume what we have but settlement is cold
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, availableWood);
+            woodConsumedToday = availableWood;
+            SetWarmthStatus(false);
+            ApplyColdEffects();
+            Debug.LogWarning($"Winter heating: Only {availableWood:F1} wood available, needed {woodNeededToday:F1}. Settlement is COLD!");
+        }
+    }
+
+    private void ApplyWarmEffects()
+    {
+        if (SettlementManager.Instance == null) return;
+
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        foreach (var villager in villagers)
+        {
+            if (villager == null || villager.IsDead()) continue;
+
+            // Remove cold status
+            villager.isCold = false;
+            villager.ChangeMorale(warmthMoraleBonus); 
+        }
+
+        Debug.Log("Settlement is warm. No negative effects applied.");
+    }
+
+    /// <summary>
+    /// Apply negative effects when settlement is cold
+    /// </summary>
+    private void ApplyColdEffects()
+    {
+        if (SettlementManager.Instance == null) return;
+
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        float villagersEffected = 0;
+        float percentageCold = 0f;
+        if (woodNeededToday > 0)
+        {
+            percentageCold = 1f - (woodConsumedToday / woodNeededToday);
+        }
+        villagersEffected = villagers.Count * percentageCold;
+
+        for(int i = 0; i < (int)villagersEffected; i++)
+        {
+            var villager = villagers[i];
+            if (villager == null || villager.IsDead()) continue;
+
+            // Apply morale penalty
+            if (coldMoralePenalty > 0)
+            {
+                villager.ChangeMorale(-coldMoralePenalty);
+            }
+
+            // Apply health damage if enabled (true damage - cold bypasses armor)
+            if (coldHealthDamage > 0)
+            {
+                villager.TakeDamage(coldHealthDamage, null, true);
+            }
+
+            villager.personalUI.ShowSpeech("I'm freezing!", 2.0f);
+            villager.isCold = true;
+            villager.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Cold);
+        }
+
+        Debug.Log($"Cold effects applied: -{coldMoralePenalty} morale{(coldHealthDamage > 0 ? $", -{coldHealthDamage} health" : "")} to all villagers");
+    }
+
+    /// <summary>
+    /// Update warmth status and fire event if changed
+    /// </summary>
+    private void SetWarmthStatus(bool isWarm)
+    {
+        if (isSettlementWarm != isWarm)
+        {
+            isSettlementWarm = isWarm;
+            OnWarmthChanged?.Invoke(isWarm);
         }
     }
 
@@ -461,9 +615,139 @@ public class SeasonManager : MonoBehaviour
 
     /// <summary>
     /// Get the current solar year
-    /// </summary>    
+    /// </summary>
     public int GetCurrentSolarYear()
     {
         return currentSolarYear;
     }
+
+    /// <summary>
+    /// Get the production multiplier for a building type based on current season
+    /// </summary>
+    public float GetProductionMultiplier(BuildingType buildingType)
+    {
+        switch (buildingType)
+        {
+            case BuildingType.Farm:
+                return currentSeason == Season.Summer ? summerFarmMultiplier : winterFarmMultiplier;
+
+            case BuildingType.FishermansHut:
+                return currentSeason == Season.Summer ? summerFishingMultiplier : winterFishingMultiplier;
+
+            case BuildingType.LumberCamp:
+                return currentSeason == Season.Summer ? summerLumberMultiplier : winterLumberMultiplier;
+
+            // Indoor/underground work is unaffected by seasons
+            case BuildingType.Sawmill:
+            case BuildingType.Quarry:
+            case BuildingType.Mine:
+            case BuildingType.Blacksmith:
+            case BuildingType.CarpenterWorkshop:
+            case BuildingType.WeaversHut:
+            case BuildingType.Tannery:
+            case BuildingType.Barracks:
+            case BuildingType.ArcheryRange:
+            case BuildingType.TradingPost:
+            case BuildingType.HealersHut:
+            case BuildingType.ShamansHut:
+            case BuildingType.MeadHall:
+            case BuildingType.Longhouse:
+            case BuildingType.Shipyard:
+            default:
+                return 1.0f;
+        }
+    }
+
+    /// <summary>
+    /// Get a description of the seasonal effect for a building (for UI tooltips)
+    /// </summary>
+    public string GetSeasonalEffectDescription(BuildingType buildingType)
+    {
+        float multiplier = GetProductionMultiplier(buildingType);
+
+        if (Mathf.Approximately(multiplier, 1.0f))
+            return "";
+
+        int percentage = Mathf.RoundToInt(multiplier * 100f);
+        string seasonName = currentSeason.ToString();
+
+        if (multiplier < 1.0f)
+            return $"{seasonName}: {percentage}% production (reduced)";
+        else
+            return $"{seasonName}: {percentage}% production (bonus)";
+    }
+
+    #region Warmth System API
+
+    /// <summary>
+    /// Check if the settlement is currently warm
+    /// </summary>
+    public bool IsSettlementWarm()
+    {
+        return isSettlementWarm;
+    }
+
+    /// <summary>
+    /// Get the amount of wood needed per day in winter
+    /// </summary>
+    public float GetWoodNeededPerDay()
+    {
+        if (currentSeason != Season.Winter) return 0f;
+
+        if (SettlementManager.Instance != null)
+        {
+            return SettlementManager.Instance.GetPopulation() * woodPerVillagerPerDay;
+        }
+        return woodNeededToday;
+    }
+
+    /// <summary>
+    /// Get how much wood was consumed today
+    /// </summary>
+    public float GetWoodConsumedToday()
+    {
+        return woodConsumedToday;
+    }
+
+    /// <summary>
+    /// Get warmth status description for UI
+    /// </summary>
+    public string GetWarmthStatusText()
+    {
+        if (currentSeason != Season.Winter)
+            return "Warm (Summer)";
+
+        if (isSettlementWarm)
+            return "Warm (Heated)";
+        else
+            return "COLD - Need more firewood!";
+    }
+
+    #endregion
+
+    #region ISaveable
+
+    public void PopulateSaveData(SaveData data)
+    {
+        if (data.gameState == null)
+            data.gameState = new GameStateSave();
+
+        data.gameState.currentSeason = (int)currentSeason;
+        data.gameState.daysUntilSeasonChange = daysUntilSeasonChange;
+        data.gameState.currentSolarYear = currentSolarYear;
+    }
+
+    public void LoadSaveData(SaveData data)
+    {
+        if (data.gameState == null) return;
+
+        currentSeason = (Season)data.gameState.currentSeason;
+        daysUntilSeasonChange = data.gameState.daysUntilSeasonChange;
+        currentSolarYear = data.gameState.currentSolarYear;
+
+        // Always apply effects on load - scene may have initialized with wrong visuals
+        ApplySeasonEffects(currentSeason);
+    }
+
+    #endregion
 }

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3065602709819538156}
   - component: {fileID: 2558888784371129940}
   - component: {fileID: 4928647447076060361}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -53,6 +53,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

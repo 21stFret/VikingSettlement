@@ -8,6 +8,10 @@ public class VillagerAI : MonoBehaviour
     [SerializeField] private float idleTimeMin = 2f;
     [SerializeField] private float idleTimeMax = 5f;
     [SerializeField] private float wanderRadius = 5f;
+
+    [Header("Village Boundary")]
+    [SerializeField] private Transform villageCentre;
+    [SerializeField] private float maxDistanceFromCentre = 20f;
     
     [Header("Work Behavior")]
     [SerializeField] private bool shouldWander = true;
@@ -21,6 +25,13 @@ public class VillagerAI : MonoBehaviour
     [SerializeField] private float threatCheckInterval = 0.5f;
     public LayerMask weaponsLayerMask;
     public LayerMask movementLayerMask;
+
+    [Header("Raid Behavior")]
+    [SerializeField] private bool isInRaidMode = false;
+    [SerializeField] private Transform followTarget; // Player-controlled villager to follow
+    [SerializeField] private float followDistance = 2f; // How close to stay to the leader
+    [SerializeField] private float maxFollowDistance = 8f; // Start following if further than this
+
     private VillagerController controller;
     private Villager villagerData;
     private Transform currentThreat; // Current enemy target
@@ -38,7 +49,8 @@ public class VillagerAI : MonoBehaviour
         MovingToWork,
         PrepareCombat,
         Combat,
-        Fleeing
+        Fleeing,
+        Following // New state for raid mode
     }
     
     private void Awake()
@@ -92,18 +104,29 @@ public class VillagerAI : MonoBehaviour
             case AIState.Fleeing:
                 HandleFleeingState();
                 break;
+
+            case AIState.Following:
+                HandleFollowingState();
+                break;
         }
     }
     
     private void HandleIdleState()
     {
+        // In raid mode, immediately switch to following if we have a target
+        if (isInRaidMode && followTarget != null)
+        {
+            currentState = AIState.Following;
+            return;
+        }
+
         idleTimer += Time.deltaTime;
-        
+
         if (idleTimer >= nextIdleTime)
         {
             idleTimer = 0f;
             nextIdleTime = Random.Range(idleTimeMin, idleTimeMax);
-            
+
             // Decide next action
             if (villagerData != null && villagerData.assignedBuilding != null)
             {
@@ -164,15 +187,42 @@ public class VillagerAI : MonoBehaviour
     
     private void WanderToRandomPoint()
     {
-        Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        Vector2 wanderPoint = (Vector2)transform.position + randomDirection * Random.Range(1f, wanderRadius);
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, randomDirection, wanderRadius, movementLayerMask);
-        if (hit.collider != null)
+        for (int i = 0; i < 8; i++)
         {
-            print("Wander hit obstacle: " + hit.collider.name);
-            wanderPoint = hit.point - randomDirection; // Stop before obstacle
+            Vector2 randomDirection = Random.insideUnitCircle.normalized;
+            float distance = Random.Range(2f, wanderRadius);
+            Vector2 wanderPoint = (Vector2)transform.position + randomDirection * distance;
+
+            // Check if point is within village boundary
+            if (villageCentre != null)
+            {
+                float distanceFromCentre = Vector2.Distance(wanderPoint, villageCentre.position);
+                if (distanceFromCentre > maxDistanceFromCentre)
+                {
+                    continue;
+                }
+            }
+
+            // Check if path is clear
+            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, randomDirection, distance, movementLayerMask);
+            bool isClear = true;
+            foreach (var hit in hits)
+            {
+                if (hit.collider != null && !hit.collider.isTrigger)
+                {
+                    isClear = false;
+                    break;
+                }
+            }
+            if (isClear)
+            {
+                controller.MoveTo(wanderPoint);
+                return;
+            }
         }
-        controller.MoveTo(wanderPoint);
+
+        // Couldn't find clear path, stay idle
+        currentState = AIState.Idle;
     }
     
     private void MoveToWorkLocation()
@@ -188,8 +238,22 @@ public class VillagerAI : MonoBehaviour
     {
         if (workLocation == null) return transform.position;
 
-        Vector2 randomOffset = Random.insideUnitCircle * workRadius;
-        return (Vector2)workLocation.position + randomOffset;
+        for (int i = 0; i < 8; i++)
+        {
+            Vector2 randomOffset = Random.insideUnitCircle * workRadius;
+            Vector2 targetPoint = (Vector2)workLocation.position + randomOffset;
+            Vector2 direction = (targetPoint - (Vector2)transform.position).normalized;
+            float distance = Vector2.Distance(transform.position, targetPoint);
+
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, distance, movementLayerMask);
+            if (hit.collider == null)
+            {
+                return targetPoint;
+            }
+        }
+
+        // Couldn't find clear path, stay in place
+        return transform.position;
     }
 
     private void HandlePrepareForCombat()
@@ -243,7 +307,7 @@ public class VillagerAI : MonoBehaviour
     {
         if (currentThreat == null || villagerData == null)
         {
-            currentState = AIState.Idle;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
             return;
         }
 
@@ -252,13 +316,14 @@ public class VillagerAI : MonoBehaviour
         if (enemy == null || enemy.IsDead())
         {
             currentThreat = null;
-            currentState = AIState.Idle;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
             return;
         }
 
-        // Check health - flee if too low
+        // Check health - flee if too low (lower threshold in raid mode)
         float healthPercent = (villagerData.currentHealth / villagerData.maxHealth) * 100f;
-        if (healthPercent < fleeHealthThreshold)
+        float fleeThreshold = isInRaidMode ? 15f : fleeHealthThreshold;
+        if (healthPercent < fleeThreshold)
         {
             currentState = AIState.Fleeing;
             return;
@@ -294,7 +359,7 @@ public class VillagerAI : MonoBehaviour
         if (distanceToThreat > threatDetectionRange * 1.5f)
         {
             currentThreat = null;
-            currentState = AIState.Idle;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
         }
 
         // add skill exp for combat
@@ -305,7 +370,7 @@ public class VillagerAI : MonoBehaviour
     {
         if (currentThreat == null)
         {
-            currentState = AIState.Idle;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
             return;
         }
 
@@ -314,13 +379,35 @@ public class VillagerAI : MonoBehaviour
         if (enemy == null || enemy.IsDead())
         {
             currentThreat = null;
-            currentState = AIState.Idle;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
             return;
         }
 
-        // Run away from threat
+        // Run away from threat, checking for obstacles
         Vector2 directionAway = ((Vector2)transform.position - (Vector2)currentThreat.position).normalized;
         Vector2 fleePoint = (Vector2)transform.position + directionAway * wanderRadius;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, directionAway, wanderRadius, movementLayerMask);
+        if (hit.collider != null)
+        {
+            // Can't flee directly, try to the sides
+            Vector2 leftDir = new Vector2(-directionAway.y, directionAway.x);
+            Vector2 rightDir = new Vector2(directionAway.y, -directionAway.x);
+
+            if (!Physics2D.Raycast(transform.position, leftDir, wanderRadius, movementLayerMask))
+            {
+                fleePoint = (Vector2)transform.position + leftDir * wanderRadius;
+            }
+            else if (!Physics2D.Raycast(transform.position, rightDir, wanderRadius, movementLayerMask))
+            {
+                fleePoint = (Vector2)transform.position + rightDir * wanderRadius;
+            }
+            else
+            {
+                // Cornered, stop before hitting obstacle
+                fleePoint = hit.point - directionAway * 0.5f;
+            }
+        }
         controller.MoveTo(fleePoint);
 
         // Check if we're far enough to stop fleeing
@@ -328,7 +415,57 @@ public class VillagerAI : MonoBehaviour
         if (distanceToThreat > threatDetectionRange * 2f)
         {
             currentThreat = null;
+            currentState = isInRaidMode ? AIState.Following : AIState.Idle;
+        }
+    }
+
+    private void HandleFollowingState()
+    {
+        if (followTarget == null)
+        {
+            // No target to follow, just idle
             currentState = AIState.Idle;
+            return;
+        }
+
+        float distanceToLeader = Vector2.Distance(transform.position, followTarget.position);
+
+        // If too far from leader, move closer
+        if (distanceToLeader > followDistance)
+        {
+            // Move towards leader but stop at follow distance
+            Vector2 directionToLeader = ((Vector2)followTarget.position - (Vector2)transform.position).normalized;
+            Vector2 targetPos = (Vector2)followTarget.position - directionToLeader * (followDistance * 0.5f);
+            float distanceToTarget = Vector2.Distance(transform.position, targetPos);
+
+            // Check for obstacles
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToLeader, distanceToTarget, movementLayerMask);
+            if (hit.collider == null)
+            {
+                controller.MoveTo(targetPos);
+            }
+            else
+            {
+                // Try to go around obstacle
+                Vector2 leftDir = new Vector2(-directionToLeader.y, directionToLeader.x);
+                if (!Physics2D.Raycast(transform.position, leftDir, 2f, movementLayerMask))
+                {
+                    controller.MoveTo((Vector2)transform.position + leftDir * 2f);
+                }
+                else
+                {
+                    Vector2 rightDir = new Vector2(directionToLeader.y, -directionToLeader.x);
+                    controller.MoveTo((Vector2)transform.position + rightDir * 2f);
+                }
+            }
+        }
+        else
+        {
+            // Close enough, stop moving
+            if (controller.ReturnIsMoving())
+            {
+                controller.Stop();
+            }
         }
     }
 
@@ -364,7 +501,23 @@ public class VillagerAI : MonoBehaviour
             currentThreat = nearestEnemy.transform;
             controller.SetMoveSpeed(controller.combatMoveSpeed);
 
-            // React based on job and personality
+            // In raid mode, always be aggressive
+            if (isInRaidMode)
+            {
+                float healthPercent = (villagerData.currentHealth / villagerData.maxHealth) * 100f;
+                // Only flee in raid mode if critically low health (15%)
+                if (healthPercent < 15f)
+                {
+                    currentState = AIState.Fleeing;
+                }
+                else
+                {
+                    currentState = AIState.Combat;
+                }
+                return;
+            }
+
+            // React based on job and personality (normal mode)
             if (IsCombatJob())
             {
                 // Combat villagers engage
@@ -372,7 +525,6 @@ public class VillagerAI : MonoBehaviour
             }
             else
             {
-
                 // Non-combat villagers flee
                 float healthPercent = (villagerData.currentHealth / villagerData.maxHealth) * 100f;
                 if (healthPercent > fleeHealthThreshold)
@@ -399,6 +551,12 @@ public class VillagerAI : MonoBehaviour
             // No threats detected
             currentThreat = null;
             controller.SetMoveSpeed(controller.walkMoveSpeed);
+
+            // In raid mode, go back to following when no threats
+            if (isInRaidMode && currentState == AIState.Combat)
+            {
+                currentState = AIState.Following;
+            }
         }
     }
     
@@ -439,6 +597,44 @@ public class VillagerAI : MonoBehaviour
             currentState = AIState.Idle;
         }
     }
+
+    /// <summary>
+    /// Enable raid mode - villager will follow the target and be more aggressive in combat
+    /// </summary>
+    public void SetRaidMode(bool enabled, Transform target = null)
+    {
+        isInRaidMode = enabled;
+        followTarget = target;
+
+        if (enabled)
+        {
+            // Enable AI and start following
+            enableAI = true;
+            currentState = target != null ? AIState.Following : AIState.Idle;
+        }
+        else
+        {
+            // Disable raid mode, return to normal behavior
+            followTarget = null;
+            currentState = AIState.Idle;
+        }
+    }
+
+    /// <summary>
+    /// Update the follow target (e.g., if leader changes)
+    /// </summary>
+    public void SetFollowTarget(Transform target)
+    {
+        followTarget = target;
+    }
+
+    /// <summary>
+    /// Check if currently in raid mode
+    /// </summary>
+    public bool IsInRaidMode()
+    {
+        return isInRaidMode;
+    }
     
     /// <summary>
     /// Set whether the villager should wander when idle
@@ -458,7 +654,16 @@ public class VillagerAI : MonoBehaviour
         currentState = AIState.MovingToWork;
         MoveToWorkLocation();
     }
-    
+
+    /// <summary>
+    /// Set the village centre and boundary for wandering
+    /// </summary>
+    public void SetVillageCentre(Transform centre, float maxDistance = 20f)
+    {
+        villageCentre = centre;
+        maxDistanceFromCentre = maxDistance;
+    }
+
     private void OnDrawGizmosSelected()
     {
         // Draw wander radius
@@ -485,6 +690,13 @@ public class VillagerAI : MonoBehaviour
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, currentThreat.position);
+        }
+
+        // Draw village boundary
+        if (villageCentre != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(villageCentre.position, maxDistanceFromCentre);
         }
     }
 }

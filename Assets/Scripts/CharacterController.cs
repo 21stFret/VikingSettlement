@@ -14,7 +14,7 @@ public enum Faction
 public class CharacterController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] protected float moveSpeed = 2f;
+    protected float moveSpeed = 2f;
     [SerializeField] protected float stopDistance = 0.1f;
     public bool canMove = true;
 
@@ -68,6 +68,9 @@ public class CharacterController : MonoBehaviour
 
     public Faction characterFaction = Faction.Neutral;
 
+    // Cache of valid animator parameter hashes to avoid errors
+    private HashSet<int> validAnimatorParams;
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -79,6 +82,9 @@ public class CharacterController : MonoBehaviour
             animator = GetComponent<Animator>();
         }
 
+        // Cache valid animator parameters
+        CacheAnimatorParameters();
+
         if (spriteRenderer == null)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
@@ -87,6 +93,32 @@ public class CharacterController : MonoBehaviour
         // Configure Rigidbody2D for top-down movement
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    }
+
+    /// <summary>
+    /// Cache valid animator parameters to avoid errors when setting triggers
+    /// </summary>
+    private void CacheAnimatorParameters()
+    {
+        validAnimatorParams = new HashSet<int>();
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            foreach (var param in animator.parameters)
+            {
+                validAnimatorParams.Add(param.nameHash);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Safely set an animator trigger - does nothing if parameter doesn't exist
+    /// </summary>
+    protected void SafeSetTrigger(int triggerHash)
+    {
+        if (animator != null && validAnimatorParams != null && validAnimatorParams.Contains(triggerHash))
+        {
+            animator.SetTrigger(triggerHash);
+        }
     }
 
     protected virtual void Update()
@@ -107,8 +139,25 @@ public class CharacterController : MonoBehaviour
     {
         if (canMove)
         {
-            rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+            float effectiveSpeed = GetEffectiveMoveSpeed();
+            rb.MovePosition(rb.position + movement * effectiveSpeed * Time.fixedDeltaTime);
         }
+    }
+
+    /// <summary>
+    /// Get move speed with skill bonuses applied.
+    /// </summary>
+    protected float GetEffectiveMoveSpeed()
+    {
+        float speed = moveSpeed;
+
+        if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+        {
+            float speedBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.MoveSpeedPercent);
+            speed *= (1f + speedBonus / 100f);
+        }
+
+        return speed;
     }
 
     protected virtual void LateUpdate()
@@ -202,11 +251,41 @@ public class CharacterController : MonoBehaviour
     #region Combat
 
     /// <summary>
+    /// Get the current attack delay (uses weapon's attackSpeed if equipped, otherwise default)
+    /// Applies skill tree attack speed bonuses.
+    /// </summary>
+    public float GetAttackDelay()
+    {
+        float baseDelay = weapon != null ? weapon.attackSpeed : attackDelay;
+
+        // Apply attack speed skill bonus (reduces delay)
+        if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+        {
+            float speedBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.AttackSpeedPercent);
+            if (speedBonus > 0)
+            {
+                baseDelay *= (1f - speedBonus / 100f);
+                baseDelay = Mathf.Max(0.1f, baseDelay); // Minimum delay cap
+            }
+        }
+
+        return baseDelay;
+    }
+
+    /// <summary>
+    /// Check if attack is ready (cooldown has passed)
+    /// </summary>
+    public bool CanAttack()
+    {
+        return Time.time - lastAttackTime >= GetAttackDelay();
+    }
+
+    /// <summary>
     /// Perform an attack
     /// </summary>
     public virtual void Attack()
     {
-        if (Time.time - lastAttackTime < attackDelay) return;
+        if (!CanAttack()) return;
 
         lastAttackTime = Time.time;
 
@@ -216,29 +295,26 @@ public class CharacterController : MonoBehaviour
 
             if (weapon == null)
             {
-                if (animator != null)
-                {
-                    animator.SetTrigger(AttackTrigger);
-                }
+                SafeSetTrigger(AttackTrigger);
             }
             else
             {
                 // Trigger appropriate attack animation based on weapon type
                 if (weapon.itemType == EquipableItem.ItemType.Sword)
                 {
-                    if (animator != null) animator.SetTrigger(SwordAttackTrigger);
+                    SafeSetTrigger(SwordAttackTrigger);
                     currentHitboxSize = swordAttackSize;
                     currentHitboxOffset = swordAttackOffset;
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Spear)
                 {
-                    if (animator != null) animator.SetTrigger(SpearAttackTrigger);
+                    SafeSetTrigger(SpearAttackTrigger);
                     currentHitboxSize = spearAttackSize;
                     currentHitboxOffset = spearAttackOffset;
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Axe)
                 {
-                    if (animator != null) animator.SetTrigger(AxeAttackTrigger);
+                    SafeSetTrigger(AxeAttackTrigger);
                     currentHitboxSize = axeAttackSize;
                     currentHitboxOffset = axeAttackOffset;
                 }
@@ -302,7 +378,40 @@ public class CharacterController : MonoBehaviour
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && weapon != null)
         {
-            target.TakeDamage(weapon.strength);
+            float damage = weapon.strength;
+
+            // Apply skill bonuses for player faction
+            if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+            {
+                // Damage bonus
+                float damageBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.DamagePercent);
+                damage *= (1f + damageBonus / 100f);
+
+                // Critical hit
+                float critChance = SkillTreeManager.Instance.GetEffect(SkillEffectType.CriticalChance);
+                if (critChance > 0 && UnityEngine.Random.value * 100f < critChance)
+                {
+                    damage *= 2f;
+                    Debug.Log("Critical hit!");
+                }
+            }
+
+            target.TakeDamage(damage, weapon);
+
+            // Life steal
+            if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+            {
+                float lifeSteal = SkillTreeManager.Instance.GetEffect(SkillEffectType.LifeSteal);
+                if (lifeSteal > 0)
+                {
+                    float healAmount = damage * (lifeSteal / 100f);
+                    var selfHealth = GetComponent<TargetHealth>();
+                    if (selfHealth != null)
+                    {
+                        selfHealth.Heal(healAmount);
+                    }
+                }
+            }
         }
     }
 
@@ -385,10 +494,7 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     public virtual void SetDead(bool isDead)
     {
-        if (animator != null)
-        {
-            animator.SetTrigger(IsDead);
-        }
+        SafeSetTrigger(IsDead);
         canMove = !isDead;
         movement = Vector2.zero;
         characterCollider.enabled = !isDead;
