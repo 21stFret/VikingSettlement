@@ -16,17 +16,25 @@ public class TorchFlicker : MonoBehaviour
     [SerializeField] private bool flickerRadius = true;
     [SerializeField] private float minRadius = 0.9f;
     [SerializeField] private float maxRadius = 1.1f;
-    
+
+    [Header("Position Flicker (Optional)")]
+    [SerializeField] private bool flickerPosition = true;
+    [SerializeField] private float positionAmount = 0.05f; // Max distance from center
+    [SerializeField] private float positionSpeed = 3f;
+
     [Header("Smoothness")]
     [SerializeField] private float smoothness = 0.1f; // Lower = more erratic
-    
+
     private Light2D torchLight;
     private float baseIntensity;
     private float baseRadius;
+    private Vector3 baseLocalPosition;
     private float intensityVelocity;
     private float radiusVelocity;
+    private Vector2 positionVelocity;
     private float targetIntensity;
     private float targetRadius;
+    private Vector2 targetPositionOffset;
     private float noiseOffset;
     
     private void Awake()
@@ -34,7 +42,8 @@ public class TorchFlicker : MonoBehaviour
         torchLight = GetComponent<Light2D>();
         baseIntensity = torchLight.intensity;
         baseRadius = torchLight.pointLightOuterRadius;
-        
+        baseLocalPosition = transform.localPosition;
+
         // Random offset so multiple torches don't flicker in sync
         noiseOffset = Random.Range(0f, 100f);
     }
@@ -63,12 +72,43 @@ public class TorchFlicker : MonoBehaviour
         {
             float radiusNoise = Mathf.PerlinNoise(Time.time * flickerSpeed + noiseOffset + 50f, 0f);
             targetRadius = Mathf.Lerp(minRadius, maxRadius, radiusNoise) * baseRadius;
-            
+
             torchLight.pointLightOuterRadius = Mathf.SmoothDamp(
                 torchLight.pointLightOuterRadius,
                 targetRadius,
                 ref radiusVelocity,
                 smoothness
+            );
+        }
+
+        // Flicker position if enabled
+        if (flickerPosition)
+        {
+            float xNoise = Mathf.PerlinNoise(Time.time * positionSpeed + noiseOffset + 100f, 0f);
+            float yNoise = Mathf.PerlinNoise(Time.time * positionSpeed + noiseOffset + 150f, 0f);
+
+            // Convert from 0-1 to -1 to 1 range
+            targetPositionOffset = new Vector2(
+                (xNoise - 0.5f) * 2f * positionAmount,
+                (yNoise - 0.5f) * 2f * positionAmount
+            );
+
+            Vector2 currentOffset = new Vector2(
+                transform.localPosition.x - baseLocalPosition.x,
+                transform.localPosition.y - baseLocalPosition.y
+            );
+
+            Vector2 newOffset = Vector2.SmoothDamp(
+                currentOffset,
+                targetPositionOffset,
+                ref positionVelocity,
+                smoothness
+            );
+
+            transform.localPosition = new Vector3(
+                baseLocalPosition.x + newOffset.x,
+                baseLocalPosition.y + newOffset.y,
+                baseLocalPosition.z
             );
         }
     }

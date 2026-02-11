@@ -1,9 +1,10 @@
 using UnityEngine;
-using System.Collections.Generic;   
+using UnityEngine.Rendering.Universal;
+using System.Collections.Generic;
 
 /// <summary>
-/// Creates a dynamic 2D shadow for sprites based on a sun position.
-/// The shadow darkens the sprite and scales/positions it based on the sun's angle and object height.
+/// Creates dynamic 2D shadows for sprites based on sun position and nearby fire/torch lights.
+/// Sun shadows come from ShadowMaster, fire shadows come from ShadowCastingLight components.
 /// </summary>
 [ExecuteInEditMode]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -16,7 +17,22 @@ public class DynamicShadow2D : MonoBehaviour
     public float shadowOffsetY = 0;
     public float shadowHorizontalMovement = 0;
     public ShadowMaster shadowMaster;
-    
+
+    [Header("Day/Night Blending")]
+    [Tooltip("Sun elevation threshold below which fire shadows are at full intensity")]
+    [Range(0f, 1f)]
+    public float nightThreshold = 0.4f;
+    [Tooltip("Sun elevation threshold above which fire shadows are at minimum intensity")]
+    [Range(0f, 1f)]
+    public float dayThreshold = 0.6f;
+
+    // Runtime data for auto-registered lights (from ShadowCastingLight)
+    private List<ShadowCastingLight> autoLights = new List<ShadowCastingLight>();
+    private List<GameObject> autoShadowObjects = new List<GameObject>();
+    private List<SpriteRenderer> autoShadowRenderers = new List<SpriteRenderer>();
+
+    private float nightBlendFactor = 0f;
+
     void OnEnable()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -26,7 +42,7 @@ public class DynamicShadow2D : MonoBehaviour
             CreateShadow();
         }
     }
-    
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -38,22 +54,22 @@ public class DynamicShadow2D : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Removes any duplicate shadow objects that may have been created
-    /// </summary>
     void CleanupDuplicateShadows()
     {
-        // Find all children with "_Shadow" in the name
         Transform[] children = GetComponentsInChildren<Transform>(true);
         int shadowCount = 0;
-        
+
         foreach (Transform child in children)
         {
             if (child != transform && child.name.Contains("_Shadow"))
             {
+                if (child.name.Contains("_AutoShadow_"))
+                {
+                    continue;
+                }
+
                 shadowCount++;
-                
-                // Keep the first shadow we find, destroy the rest
+
                 if (shadowCount == 1 && shadowObject == null)
                 {
                     shadowObject = child.gameObject;
@@ -61,10 +77,9 @@ public class DynamicShadow2D : MonoBehaviour
                 }
                 else
                 {
-                    // Destroy duplicate shadows
                     if (Application.isPlaying)
                     {
-                        //Destroy(child.gameObject);
+                        Destroy(child.gameObject);
                     }
                     else
                     {
@@ -75,12 +90,8 @@ public class DynamicShadow2D : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Creates the shadow game object and renderer
-    /// </summary>
     void CreateShadow()
     {
-        // Double-check we don't already have a shadow
         if (shadowObject != null)
             return;
 
@@ -93,16 +104,15 @@ public class DynamicShadow2D : MonoBehaviour
                 return;
             }
         }
-        // Create shadow object as child
+
         shadowObject = Instantiate(shadowMaster.shadowPrefab);
         shadowObject.name = gameObject.name + "_Shadow";
         shadowObject.transform.SetParent(transform);
         shadowObject.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
         shadowObject.transform.localRotation = Quaternion.identity;
         shadowObject.transform.localScale = Vector3.one;
-        shadowObject.hideFlags = HideFlags.DontSave; // Don't save shadow to prevent duplicates
+        shadowObject.hideFlags = HideFlags.DontSave;
 
-        // Add and configure sprite renderer
         shadowRenderer = shadowObject.GetComponent<SpriteRenderer>();
         shadowRenderer.sprite = spriteRenderer.sprite;
         shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
@@ -115,85 +125,226 @@ public class DynamicShadow2D : MonoBehaviour
         }
     }
 
-    public void ApplyShadowFromMaster(Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float sunElevation, float xScale)
-    {
-        UpdateShadow(shadowColor, shadowRotation, shadowDistanceMultiplier, sunElevation, xScale);
-    }
-    
     /// <summary>
-    /// Updates the shadow's position, scale, and color based on sun position and object height
+    /// Called by ShadowCastingLight when this object enters its range
     /// </summary>
-    public void UpdateShadow(Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float sunElevation, float xScale)
+    public void RegisterAutoLight(ShadowCastingLight light)
     {
-        if (shadowRenderer == null || spriteRenderer == null)
-            return;
+        if (light == null || autoLights.Contains(light)) return;
 
-        // Update sprite if it changed
-        if (shadowRenderer.sprite != spriteRenderer.sprite)
+        autoLights.Add(light);
+        CreateAutoShadowForLight(autoLights.Count - 1);
+    }
+
+    /// <summary>
+    /// Called by ShadowCastingLight when this object exits its range
+    /// </summary>
+    public void UnregisterAutoLight(ShadowCastingLight light)
+    {
+        int index = autoLights.IndexOf(light);
+        if (index < 0) return;
+
+        if (index < autoShadowObjects.Count && autoShadowObjects[index] != null)
         {
-            shadowRenderer.sprite = spriteRenderer.sprite;
+            if (Application.isPlaying)
+                Destroy(autoShadowObjects[index]);
+            else
+                DestroyImmediate(autoShadowObjects[index]);
         }
 
-        shadowObject.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+        autoLights.RemoveAt(index);
+        if (index < autoShadowObjects.Count) autoShadowObjects.RemoveAt(index);
+        if (index < autoShadowRenderers.Count) autoShadowRenderers.RemoveAt(index);
+    }
 
-        //position adjustment based on horizontal movement
-        // lerp position between -shadowHorizontalMovement to shadowHorizontalMovement based on sun angle
+    void CreateAutoShadowForLight(int index)
+    {
+        if (shadowMaster == null) return;
+
+        GameObject autoShadow = Instantiate(shadowMaster.shadowPrefab);
+        autoShadow.name = gameObject.name + "_AutoShadow_" + index;
+        autoShadow.transform.SetParent(transform);
+        autoShadow.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+        autoShadow.transform.localRotation = Quaternion.identity;
+        autoShadow.transform.localScale = Vector3.one;
+        autoShadow.hideFlags = HideFlags.DontSave;
+
+        SpriteRenderer autoRenderer = autoShadow.GetComponent<SpriteRenderer>();
+        autoRenderer.sprite = spriteRenderer.sprite;
+        autoRenderer.sortingOrder = spriteRenderer.sortingOrder - 10 - index;
+        autoRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+
+        SpriteSorting spriteSorting = GetComponent<SpriteSorting>();
+        if (spriteSorting != null)
+        {
+            spriteSorting.linkedSpriteRenderers.Add(autoRenderer);
+        }
+
+        autoShadowObjects.Add(autoShadow);
+        autoShadowRenderers.Add(autoRenderer);
+    }
+
+    public void ApplyShadowFromMaster(Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float sunElevation, float xScale)
+    {
+        // Ensure shadow exists (may not have been created if ShadowMaster wasn't ready in OnEnable)
+        if (shadowObject == null)
+        {
+            CreateShadow();
+        }
+
+        // Calculate night blend factor (0 = day, 1 = night)
+        if (sunElevation >= dayThreshold)
+        {
+            nightBlendFactor = 0f;
+        }
+        else if (sunElevation <= nightThreshold)
+        {
+            nightBlendFactor = 1f;
+        }
+        else
+        {
+            nightBlendFactor = 1f - Mathf.InverseLerp(nightThreshold, dayThreshold, sunElevation);
+        }
+
+        // Update main sun shadow
+        UpdateShadow(shadowObject, shadowRenderer, shadowColor, shadowRotation, shadowDistanceMultiplier, sunElevation, xScale);
+
+        // Update auto-registered light shadows
+        UpdateAutoLightShadows(shadowDistanceMultiplier);
+    }
+
+    void UpdateAutoLightShadows(float shadowDistanceMultiplier)
+    {
+        for (int i = 0; i < autoLights.Count; i++)
+        {
+            var light = autoLights[i];
+            if (light == null) continue;
+            if (i >= autoShadowObjects.Count || autoShadowObjects[i] == null) continue;
+
+            Vector2 objectPosition = transform.position;
+            Vector2 lightPosition = light.transform.position;
+            float distance = Vector2.Distance(objectPosition, lightPosition);
+
+            Vector2 directionToLight = (lightPosition - objectPosition).normalized;
+            Vector2 shadowDirection = -directionToLight;
+
+            float rotation = Mathf.Atan2(shadowDirection.y, shadowDirection.x) * Mathf.Rad2Deg - 90f;
+            Quaternion shadowRotation = Quaternion.Euler(0f, 0f, rotation);
+
+            float lightElevation = light.GetLightHeight();
+            float scaleReduction = (1f - lightElevation) * 0.3f;
+            float xScale = Mathf.Max(1f - scaleReduction, 0.1f);
+
+            Color shadowColor = CalculateAutoLightShadowColor(light, distance);
+
+            UpdateShadow(autoShadowObjects[i], autoShadowRenderers[i], shadowColor, shadowRotation, shadowDistanceMultiplier, lightElevation, xScale);
+        }
+    }
+
+    Color CalculateAutoLightShadowColor(ShadowCastingLight light, float distance)
+    {
+        float intensity = light.GetShadowIntensity();
+
+        Light2D light2D = light.GetLight();
+        if (light2D != null)
+        {
+            intensity *= light2D.intensity;
+        }
+
+        // Fade based on distance - stronger when close, fades at edge
+        float radius = light.GetRadius();
+        float distanceFade = 1f - Mathf.Clamp01(distance / radius);
+        intensity *= distanceFade;
+
+        // Apply day/night blend - fire shadows always visible but stronger at night
+        // nightBlendFactor: 0 = day, 1 = night
+        // Lerp from light's daytime intensity to full intensity based on night blend
+        float daytimeIntensity = light.GetDaytimeIntensity();
+        float dayNightMultiplier = Mathf.Lerp(daytimeIntensity, 1f, nightBlendFactor);
+        intensity *= dayNightMultiplier;
+
+        Color shadowColor = Color.black;
+        shadowColor.a = Mathf.Clamp01(intensity);
+
+        return shadowColor;
+    }
+
+    void UpdateShadow(GameObject shadowObj, SpriteRenderer shadowRend, Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float lightElevation, float xScale)
+    {
+        if (shadowRend == null || spriteRenderer == null || shadowObj == null)
+            return;
+
+        if (shadowRend.sprite != spriteRenderer.sprite)
+        {
+            shadowRend.sprite = spriteRenderer.sprite;
+        }
+
+        shadowObj.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+
         float sunAngle = shadowRotation.eulerAngles.z;
-
-        // Normalize angle to -180 to 180 range for smooth lerping
         if (sunAngle > 180f)
             sunAngle -= 360f;
 
-        // Convert to 0-1 range: -180 = 0, 180 = 1
         float dividedAngle = (sunAngle + 180f) / 360f;
-
         float horizontalPosition = Mathf.Lerp(-shadowHorizontalMovement, shadowHorizontalMovement, dividedAngle);
-        shadowObject.transform.localPosition += new Vector3(horizontalPosition, 0f, 0f);
+        shadowObj.transform.localPosition += new Vector3(horizontalPosition, 0f, 0f);
 
-        shadowObject.transform.rotation = shadowRotation;
+        shadowObj.transform.rotation = shadowRotation;
 
         float shadowLength = shadowDistanceMultiplier * objectHeight;
-
-        float scaleY = Mathf.Lerp(shadowLength, 0.3f, sunElevation);
-        shadowObject.transform.localScale = new Vector3(
-            transform.localScale.x * xScale,  // Apply x-scale shrinking
+        float scaleY = Mathf.Lerp(shadowLength, 0.3f, lightElevation);
+        shadowObj.transform.localScale = new Vector3(
+            transform.localScale.x * xScale,
             transform.localScale.y * scaleY,
             transform.localScale.z
         );
 
+        shadowRend.color = shadowColor;
 
-
-        shadowRenderer.color = shadowColor;
-        
-        // Match flip settings
-        shadowRenderer.flipX = spriteRenderer.flipX;
-        shadowRenderer.flipY = spriteRenderer.flipY;
-
+        shadowRend.flipX = spriteRenderer.flipX;
+        shadowRend.flipY = spriteRenderer.flipY;
     }
-    
+
     void OnDestroy()
     {
-        // Clean up shadow object
         if (shadowObject != null)
         {
             if (Application.isPlaying)
             {
-                //Destroy(shadowObject);
+                Destroy(shadowObject);
             }
             else
             {
                 DestroyImmediate(shadowObject);
             }
         }
+
+        foreach (var shadow in autoShadowObjects)
+        {
+            if (shadow != null)
+            {
+                if (Application.isPlaying)
+                    Destroy(shadow);
+                else
+                    DestroyImmediate(shadow);
+            }
+        }
+        autoShadowObjects.Clear();
+        autoShadowRenderers.Clear();
+        autoLights.Clear();
     }
-    
+
     void OnDisable()
     {
-        // Hide shadow when component is disabled
         if (shadowObject != null)
         {
             shadowObject.SetActive(false);
         }
+
+        foreach (var shadow in autoShadowObjects)
+        {
+            if (shadow != null)
+                shadow.SetActive(false);
+        }
     }
-    
 }

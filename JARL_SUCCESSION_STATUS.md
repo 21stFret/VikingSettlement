@@ -545,3 +545,126 @@ private string GetEquipableItemName(EquipableItem item)
 1. ~~**Shield not loading from save** - Possible WeaponDatabase issue~~ ✅ FIXED
 2. **No in-game save UI** - Main menu handles save/load, but no pause menu save option yet
 3. **No "Return to Menu" button wired** - `GameManager.ReturnToMainMenu()` exists but not exposed in UI
+
+---
+
+## Recent Updates (February 11, 2026)
+
+### 2D Dynamic Shadow System - Multi-Light Support
+
+**Problem:** Shadow system only supported sun shadows. Needed fires/torches to cast shadows away from the light source, with proper day/night blending.
+
+**Solution:** Created trigger-based light detection system with automatic shadow registration.
+
+**New Files:**
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `ShadowCastingLight.cs` | `Assets/Scripts/2D Dynamic Shadows/` | Attach to Light2D (fires/torches). Uses CircleCollider2D trigger to detect nearby shadow casters. Auto-syncs radius to Light2D.pointLightOuterRadius |
+
+**Modified Files:**
+
+| File | Changes |
+|------|---------|
+| `DynamicShadow2D.cs` | Added `RegisterAutoLight()` / `UnregisterAutoLight()` for trigger-based registration; Added day/night blend factor (`nightThreshold`, `dayThreshold`); Fire shadows only visible at night; Creates separate shadow object per light source |
+| `ShadowMaster.cs` | Fixed timing issue - shadows disappearing in play mode; `OnEnable` no longer calls `RefreshShadows`; `CleanupOrphanedShadows` only runs in editor mode |
+| `TorchFlicker.cs` | Added position flickering (`flickerPosition`, `positionAmount`, `positionSpeed`) so shadows react to torch movement |
+
+**How It Works:**
+1. `ShadowCastingLight` uses `OnTriggerEnter2D`/`OnTriggerExit2D` to detect objects with `DynamicShadow2D`
+2. When object enters range, `RegisterAutoLight()` creates a new shadow object for that light
+3. Shadow direction calculated from object position to light position
+4. Shadow intensity fades based on distance to light
+5. Fire shadows blend out during day (`dayThreshold`), blend in at night (`nightThreshold`)
+
+**Unity Setup:**
+1. Add `ShadowCastingLight` component to any Light2D (fire, torch, etc.)
+2. Set `lightHeight` (0-1, lower = longer shadows)
+3. Set `shadowIntensity` (0-1)
+4. Collider radius auto-syncs to Light2D outer radius
+
+---
+
+### Weather Manager System
+
+**Problem:** Needed persistent weather effects across scenes with random weather changes.
+
+**New Files:**
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `WeatherManager.cs` | `Assets/Scripts/Managers/` | Singleton with DontDestroyOnLoad; Spawns weather prefabs; Random weather on scene load; Sun dimming during storms |
+
+**Features:**
+- **Weather Types:** Clear, Sunny (sun beams + dust), Rain, Snow, Storm (rain + lightning)
+- **Scene Persistence:** Spawns fresh effects each scene, picks random weather on load
+- **Duration:** Weather lasts 0.5-1 in-game days, then changes randomly
+- **Sun Dimming:** Sun intensity reduced during Rain/Storm via `stormSunIntensityMultiplier`
+- **Gradual Fade:** Particle effects use `StopEmitting` behavior for smooth transitions
+- **Inspector Testing:** `[InspectorButton]` for Apply/Stop weather in editor
+
+**Modified Files:**
+
+| File | Changes |
+|------|---------|
+| `LightningController.cs` | Removed `active = false` from Start() - WeatherManager controls it; Fixed thunder sound check from `< 0` to `> 0` |
+
+**Weather Manager API:**
+```csharp
+WeatherManager.Instance.SetWeather(WeatherType.Storm);
+WeatherManager.Instance.EnableRain(true);
+WeatherManager.Instance.SetRainIntensity(100f);
+WeatherManager.Instance.GetCurrentWeather();
+```
+
+**Unity Setup:**
+1. Create `WeatherManager` GameObject (root level for DontDestroyOnLoad)
+2. Assign prefabs: rainPrefab, snowPrefab, sunBeamsPrefab, sunDustPrefab, firefliesPrefab, lightningPrefab
+3. Add scene names to `excludedScenes` list (e.g., "MainMenu")
+4. Weather auto-starts on scene load
+
+---
+
+## Demo Progress Checklist
+
+### Visual Systems
+- [x] Day/Night cycle with sun movement
+- [x] Dynamic 2D shadows from sun (ShadowMaster)
+- [x] Dynamic 2D shadows from fires/torches (ShadowCastingLight)
+- [x] Day/night shadow blending (fire shadows at night only)
+- [x] Weather system (rain, snow, storm, sunny)
+- [x] Lightning with thunder sounds
+- [x] Sun beams with drift animation
+- [x] Sun dust particles
+- [x] Fireflies (night effect)
+- [x] Torch flicker with position movement
+- [x] Seasonal visual effects
+
+### Core Systems
+- [x] Villager AI and pathfinding
+- [x] Building construction and production
+- [x] Resource gathering and management
+- [x] Combat system with damage/defense
+- [x] Jarl succession system
+- [x] Save/Load system
+- [x] Skill tree (persists through succession)
+- [x] Mission/Quest system
+- [x] Raid system
+
+### UI
+- [x] Resource display
+- [x] Villager info panel
+- [x] Building placement
+- [x] Mission tracker
+- [x] Succession UI (Canvas-based) - verify working
+- [x] Skill tree UI
+- [x] Main menu save/load UI (slot selection, autosave, delete confirmation)
+- [x] Return to main menu button
+
+### Polish Needed
+- [ ] Visual Jarl indicator (crown/aura)
+- [ ] Game over screen
+- [ ] Tutorial/intro sequence
+- [x] Audio manager (importing from other project)
+- [ ] Sound effects for actions
+- [ ] Background music system

@@ -91,7 +91,8 @@ public class ShadowMaster : MonoBehaviour
     
     void OnEnable()
     {
-        RefreshShadows();
+        Instance = this;
+        // Don't refresh here - wait for Start when all objects are initialized
     }
     
     void OnValidate()
@@ -239,16 +240,19 @@ public class ShadowMaster : MonoBehaviour
     {
         shadows.Clear();
         DynamicShadow2D[] foundShadows = FindObjectsByType<DynamicShadow2D>(FindObjectsSortMode.None);
-        
+
         foreach (DynamicShadow2D shadow in foundShadows)
         {
             RegisterShadow(shadow);
         }
-        
+
         Debug.Log($"ShadowMaster: Found and registered {shadows.Count} shadows");
-        
-        // Clean up any orphaned shadow objects in the scene
-        CleanupOrphanedShadows();
+
+        // Only clean up orphaned shadows in editor mode - in play mode, let them be created first
+        if (!Application.isPlaying)
+        {
+            CleanupOrphanedShadows();
+        }
     }
     
     /// <summary>

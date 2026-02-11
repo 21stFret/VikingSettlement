@@ -50,7 +50,8 @@ public class VillagerAI : MonoBehaviour
         PrepareCombat,
         Combat,
         Fleeing,
-        Following // New state for raid mode
+        Following,
+        MovingToPosition // For cutscene movement
     }
     
     private void Awake()
@@ -627,6 +628,36 @@ public class VillagerAI : MonoBehaviour
     {
         followTarget = target;
     }
+
+    // Cutscene support
+    private bool isInCutscene = false;
+    private Vector3 cutsceneTargetPosition;
+
+    /// <summary>
+    /// Set a target position for cutscene movement. AI will move to this position.
+    /// </summary>
+    public void SetCutsceneTarget(Vector3 position)
+    {
+        isInCutscene = true;
+        cutsceneTargetPosition = position;
+        enableAI = true;
+        currentState = AIState.MovingToPosition;
+        controller.MoveTo(position);
+    }
+
+    /// <summary>
+    /// Clear cutscene target and return to normal AI behavior
+    /// </summary>
+    public void ClearCutsceneTarget()
+    {
+        isInCutscene = false;
+        currentState = AIState.Idle;
+    }
+
+    /// <summary>
+    /// Check if this villager is currently in a cutscene
+    /// </summary>
+    public bool IsInCutscene => isInCutscene;
 
     /// <summary>
     /// Check if currently in raid mode

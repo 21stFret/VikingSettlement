@@ -81,8 +81,12 @@ public class DayNightManager : MonoBehaviour, ISaveable
     // Events
     public event Action OnMealTime;
     public event Action OnNewDay;
+    public event Action<bool> OnDayNightChanged;
+    public event Action<bool> OnDawnEveningChanged;
+
 
     public float eveningMultiplier = 1f;
+    private bool wasDaytime = true;
 
     private void Awake()
     {
@@ -190,6 +194,22 @@ public class DayNightManager : MonoBehaviour, ISaveable
         // Calculate if sun is above horizon (between sunrise and sunset)
         bool isSunUp = currentTimeOfDay >= sunriseTime && currentTimeOfDay <= sunsetTime;
 
+        // Check for day/night transition
+        if (isSunUp != wasDaytime)
+        {
+            wasDaytime = isSunUp;
+            OnDayNightChanged?.Invoke(isSunUp);
+        }
+
+        // Check for dawn/dusk transitions
+        bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f; // Within 5% of sunrise time
+        bool isDusk = Mathf.Abs(currentTimeOfDay - sunsetTime) < 0.05f;   // Within 5% of sunset time
+
+        if (isDawn || isDusk)
+        {
+            OnDawnEveningChanged?.Invoke(isDawn);
+        }
+
         // Update sun light
         if (sunLight != null)
         {
@@ -202,7 +222,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
             else
             {
                 // Sun is down - disable
-                RiseSetSun(false);                
+                RiseSetSun(false);
             }
         }
 
@@ -274,21 +294,23 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void UpdateAmbientLight(float timeOfDay)
     {
-        if (timeOfDay < 0.5f)
-        {
-            ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity,
-            Mathf.Clamp01(timeOfDay)+eveningMultiplier);
-            ambientLight.color = Color.Lerp(ambientNightColor, ambientDayColor,
-            Mathf.Clamp01(timeOfDay )+eveningMultiplier);
-        }
-        else
-        {
-            ambientLight.intensity = Mathf.Lerp(ambientDayIntensity, ambientNightIntensity,
-            Mathf.Clamp01((timeOfDay - 0.5f) )+eveningMultiplier);
-            ambientLight.color = Color.Lerp(ambientDayColor, ambientNightColor,
-            Mathf.Clamp01((timeOfDay - 0.5f))+eveningMultiplier);  
-        }
-     
+        // Use a sine wave for smooth day/night transitions
+        // At midnight (0.0): sin(0) = 0 -> night
+        // At noon (0.5): sin(PI) = 0, but we want day, so shift by PI/2
+        // sin((timeOfDay - 0.25) * 2 * PI) peaks at 0.5 (noon) and troughs at 0/1 (midnight)
+
+        // This gives us: -1 at midnight, +1 at noon
+        float cycleValue = Mathf.Sin((timeOfDay - 0.25f) * 2f * Mathf.PI);
+
+        // Convert from -1..1 to 0..1 range
+        float dayBlend = (cycleValue + 1f) * 0.5f;
+
+        // Apply evening multiplier as an offset (clamped)
+        dayBlend = Mathf.Clamp01(dayBlend + eveningMultiplier);
+
+        // Smoothly interpolate intensity and color
+        ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend);
+        ambientLight.color = Color.Lerp(ambientNightColor, ambientDayColor, dayBlend);
     }
 
     private void TriggerMealTime()
@@ -336,6 +358,27 @@ public class DayNightManager : MonoBehaviour, ISaveable
     {
         currentTimeOfDay = Mathf.Clamp01(time);
         hasConsumedMealToday = currentTimeOfDay > mealTime;
+    }
+
+    /// <summary>
+    /// Returns true if the sun is currently above the horizon
+    /// </summary>
+    public bool IsDaytime()
+    {
+        return currentTimeOfDay >= sunriseTime && currentTimeOfDay <= sunsetTime;
+    }
+
+    /// <summary>
+    /// Returns sun elevation as 0-1 value (0 = horizon, 1 = noon peak)
+    /// Useful for shadow systems and weather effects
+    /// </summary>
+    public float GetSunElevation()
+    {
+        if (!IsDaytime()) return 0f;
+
+        float dayProgress = (currentTimeOfDay - sunriseTime) / (sunsetTime - sunriseTime);
+        // Sine curve peaks at 0.5 (noon)
+        return Mathf.Sin(dayProgress * Mathf.PI);
     }
 
     #region ISaveable

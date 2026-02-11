@@ -3,6 +3,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance { get; private set; }
+
     [Header("Input Settings")]
     [SerializeField] private bool useMouseMovement = false; // Toggle between WASD and click-to-move
     public float playerMoveSpeed = 3f;
@@ -21,6 +23,17 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         // Setup Input System
         inputActions = new PlayerInputActions();
 
