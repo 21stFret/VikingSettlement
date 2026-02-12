@@ -178,6 +178,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
+  linkedSpriteRenderers: []
 --- !u!1 &2801617620002479652
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,6 +227,7 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
+  linkedSpriteRenderers: []
 --- !u!212 &3799605139110233738
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -295,6 +297,7 @@ GameObject:
   - component: {fileID: 3232090399770117487}
   - component: {fileID: 2895941971283957897}
   - component: {fileID: 5885499859672603991}
+  - component: {fileID: 6444534556949095902}
   m_Layer: 0
   m_Name: Sprite Light 2D
   m_TagString: Untagged
@@ -358,7 +361,7 @@ MonoBehaviour:
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.5
-  m_PointLightOuterRadius: 5
+  m_PointLightOuterRadius: 3.5
   m_ShapeLightParametricSides: 5
   m_ShapeLightParametricAngleOffset: 0
   m_ShapeLightParametricRadius: 1
@@ -387,4 +390,22 @@ MonoBehaviour:
   flickerRadius: 1
   minRadius: 0.9
   maxRadius: 1.1
+  flickerPosition: 1
+  positionAmount: 0.05
+  positionSpeed: 3
   smoothness: 0.1
+--- !u!114 &6444534556949095902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5487801056219183206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76d5fedb241b530499ca396a3efb9819, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShadowCastingLight
+  lightHeight: 0.496
+  shadowIntensity: 0.41
+  daytimeIntensity: 0.1

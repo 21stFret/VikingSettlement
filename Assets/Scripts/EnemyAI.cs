@@ -19,6 +19,9 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float pursuitRange = 15f; // How far to chase before giving up
     [SerializeField] private float loseTargetTime = 3f; // Time before losing interest
 
+    [Header("Movement")]
+    [SerializeField] private LayerMask obstacleLayerMask; // Layer for obstacles to avoid
+
     private EnemyController controller;
     private Enemy enemyData;
     private Transform currentTarget;
@@ -306,11 +309,45 @@ public class EnemyAI : MonoBehaviour
 
     private void WanderToRandomPoint()
     {
-        Vector2 randomDirection = Random.insideUnitCircle.normalized;
-        Vector2 wanderPoint = spawnPoint + randomDirection * Random.Range(1f, wanderRadius);
+        for (int i = 0; i < 8; i++)
+        {
+            Vector2 randomDirection = Random.insideUnitCircle.normalized;
+            float distance = Random.Range(1f, wanderRadius);
+            Vector2 wanderPoint = spawnPoint + randomDirection * distance;
 
-        controller.SetMoveSpeed(enemyData.moveSpeed);
-        controller.MoveTo(wanderPoint);
+            // Check if destination is walkable
+            if (!IsPointWalkable(wanderPoint))
+            {
+                continue;
+            }
+
+            // Check if path is clear
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, randomDirection, distance, obstacleLayerMask);
+            if (hit.collider != null && !hit.collider.isTrigger && hit.collider.gameObject != gameObject)
+            {
+                continue; // Path blocked
+            }
+
+            controller.SetMoveSpeed(enemyData.moveSpeed);
+            controller.MoveTo(wanderPoint);
+            return;
+        }
+
+        // Couldn't find clear path, stay idle
+        currentState = AIState.Idle;
+    }
+
+    /// <summary>
+    /// Check if a point is walkable (not inside an obstacle)
+    /// </summary>
+    private bool IsPointWalkable(Vector2 point)
+    {
+        Collider2D overlap = Physics2D.OverlapCircle(point, 0.3f, obstacleLayerMask);
+        if (overlap != null && !overlap.isTrigger && overlap.gameObject != gameObject)
+        {
+            return false;
+        }
+        return true;
     }
 
     /// <summary>

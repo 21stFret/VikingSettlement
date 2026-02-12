@@ -18,6 +18,11 @@ public class CharacterController : MonoBehaviour
     [SerializeField] protected float stopDistance = 0.1f;
     public bool canMove = true;
 
+    [Header("Obstacle Avoidance")]
+    public LayerMask obstacleLayer;
+    [SerializeField] protected float obstacleCheckDistance = 0.8f;
+    [SerializeField] protected float stuckTimeout = 3f; // Give up after this long
+
     [Header("Animation")]
     [SerializeField] protected Animator animator;
     [SerializeField] protected SpriteRenderer spriteRenderer;
@@ -44,6 +49,10 @@ public class CharacterController : MonoBehaviour
     protected bool isMovingToTarget = false;
     protected float lastAttackTime = 0f;
     protected bool isAttacking = false;
+
+    // Stuck detection
+    protected Vector2 lastPosition;
+    protected float stuckTimer = 0f;
 
     protected Vector2 currentHitboxPos;
     protected Vector2 currentHitboxSize;
@@ -84,6 +93,9 @@ public class CharacterController : MonoBehaviour
 
         // Cache valid animator parameters
         CacheAnimatorParameters();
+
+        // Initialize stuck detection
+        lastPosition = transform.position;
 
         if (spriteRenderer == null)
         {
@@ -174,6 +186,8 @@ public class CharacterController : MonoBehaviour
     {
         targetPosition = destination;
         isMovingToTarget = true;
+        stuckTimer = 0f;
+        lastPosition = rb != null ? rb.position : (Vector2)transform.position;
     }
 
     /// <summary>
@@ -184,6 +198,7 @@ public class CharacterController : MonoBehaviour
         targetPosition = null;
         isMovingToTarget = false;
         movement = Vector2.zero;
+        stuckTimer = 0f;
     }
 
     /// <summary>
@@ -242,8 +257,60 @@ public class CharacterController : MonoBehaviour
             return;
         }
 
-        Vector2 direction = (targetPos - currentPos).normalized;
-        movement = direction;
+        // Check if stuck (not making progress)
+        float movedDistance = Vector2.Distance(currentPos, lastPosition);
+        if (movedDistance < 0.01f)
+        {
+            stuckTimer += Time.deltaTime;
+            if (stuckTimer >= stuckTimeout)
+            {
+                Stop();
+                return;
+            }
+        }
+        else
+        {
+            stuckTimer = 0f;
+        }
+        lastPosition = currentPos;
+
+        // Get direction to target
+        Vector2 moveDir = (targetPos - currentPos).normalized;
+
+        // Check for obstacle directly ahead
+        RaycastHit2D hit = Physics2D.Raycast(currentPos, moveDir, obstacleCheckDistance, obstacleLayer);
+        if (hit.collider != null && hit.collider.gameObject != gameObject)
+        {
+            // Obstacle ahead - try to go around
+            Vector2 leftDir = new Vector2(-moveDir.y, moveDir.x); // Perpendicular left
+            Vector2 rightDir = new Vector2(moveDir.y, -moveDir.x); // Perpendicular right
+
+            // Check which side is clearer
+            RaycastHit2D leftHit = Physics2D.Raycast(currentPos, leftDir, obstacleCheckDistance, obstacleLayer);
+            RaycastHit2D rightHit = Physics2D.Raycast(currentPos, rightDir, obstacleCheckDistance, obstacleLayer);
+
+            bool leftClear = leftHit.collider == null || leftHit.collider.gameObject == gameObject;
+            bool rightClear = rightHit.collider == null || rightHit.collider.gameObject == gameObject;
+
+            if (leftClear && !rightClear)
+            {
+                moveDir = (moveDir + leftDir).normalized;
+            }
+            else if (rightClear && !leftClear)
+            {
+                moveDir = (moveDir + rightDir).normalized;
+            }
+            else if (leftClear && rightClear)
+            {
+                // Both clear, pick one based on which is closer to target direction
+                float leftDot = Vector2.Dot(leftDir, (targetPos - currentPos).normalized);
+                float rightDot = Vector2.Dot(rightDir, (targetPos - currentPos).normalized);
+                moveDir = (moveDir + (leftDot > rightDot ? leftDir : rightDir)).normalized;
+            }
+            // If both blocked, just keep trying forward
+        }
+
+        movement = moveDir;
     }
 
     #endregion
@@ -528,6 +595,10 @@ public class CharacterController : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireCube(currentHitboxPos, currentHitboxSize);
         }
+
+        // Visualize obstacle check distance
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Orange
+        Gizmos.DrawWireSphere(transform.position, obstacleCheckDistance);
     }
 
     #endregion

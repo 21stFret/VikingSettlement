@@ -306,7 +306,12 @@ public class DayNightManager : MonoBehaviour, ISaveable
         float dayBlend = (cycleValue + 1f) * 0.5f;
 
         // Apply evening multiplier as an offset (clamped)
-        dayBlend = Mathf.Clamp01(dayBlend + eveningMultiplier);
+        dayBlend = Mathf.Clamp01(dayBlend);
+
+        if(dayBlend < 0.2f)
+        {
+            dayBlend = 0.2f;
+        }
 
         // Smoothly interpolate intensity and color
         ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend);

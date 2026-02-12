@@ -12,13 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a772f3b21bb30d44a329f3c551b1087, type: 3}
   m_Name: OpeningCutScene
   m_EditorClassIdentifier: Assembly-CSharp::Cutscenes.CutsceneSO
-  cutsceneId: 
-  displayName: 
+  cutsceneId: 1
+  displayName: Demo
   disablePlayerControl: 1
-  pauseGame: 0
+  pauseGame: 1
   hideUI: 1
   resumeAutoWeather: 1
-  actions: []
+  actions:
+  - rid: 2464580862522687597
+  - rid: 2464580862522687598
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 2464580862522687597
+      type: {class: WaitAction, ns: Cutscenes, asm: Assembly-CSharp}
+      data:
+        actionName: 
+        waitForCompletion: 1
+        duration: 1
+    - rid: 2464580862522687598
+      type: {class: ActorMoveAction, ns: Cutscenes, asm: Assembly-CSharp}
+      data:
+        actionName: player move to point
+        waitForCompletion: 1
+        actor:
+          referenceType: 2
+          identifier: 
+        targetPosition: {x: 0, y: 0, z: 0}
+        useNavigation: 1
+        arrivalThreshold: 0.5

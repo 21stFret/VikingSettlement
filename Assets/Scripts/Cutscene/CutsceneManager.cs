@@ -22,8 +22,24 @@ namespace Cutscenes
         public Canvas gameUICanvas;
 
         [Tooltip("Letterbox bars for cinematic feel (optional)")]
-        public GameObject letterboxTop;
-        public GameObject letterboxBottom;
+        public RectTransform letterboxTop;
+        public RectTransform letterboxBottom;
+
+        [Header("Letterbox Animation")]
+        [Tooltip("How far off-screen the letterbox bars start")]
+        public float letterboxOffscreenOffset = 100f;
+        [Tooltip("How long the letterbox takes to slide in/out")]
+        public float letterboxAnimDuration = 0.5f;
+
+        [Header("Testing")]
+        [Tooltip("Cutscene to play when testing")]
+        public CutsceneSO testCutscene;
+
+        [InspectorButton("PlayTestCutscene", ButtonWidth = 150)]
+        public bool playTestButton;
+
+        [InspectorButton("StopCurrentCutscene", ButtonWidth = 150)]
+        public bool stopButton;
 
         // Events
         public event Action<CutsceneSO> OnCutsceneStarted;
@@ -38,7 +54,14 @@ namespace Cutscenes
         private List<CutsceneAction> runningActions = new List<CutsceneAction>();
         private HashSet<Villager> overriddenVillagers = new HashSet<Villager>();
         private bool wasPlayerControlEnabled;
-        private bool wasGamePaused;
+        private bool wasGameClockPaused;
+
+        // Letterbox animation
+        private Vector2 letterboxTopTarget;
+        private Vector2 letterboxBottomTarget;
+        private Vector2 letterboxTopHidden;
+        private Vector2 letterboxBottomHidden;
+        private Coroutine letterboxCoroutine;
 
         private void Awake()
         {
@@ -50,6 +73,14 @@ namespace Cutscenes
             {
                 Destroy(gameObject);
             }
+        }
+
+        void Start()
+        {
+            letterboxTopTarget = letterboxTop.anchoredPosition;
+            letterboxBottomTarget = letterboxBottom.anchoredPosition;
+            letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
+            letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
         }
 
         private void Update()
@@ -215,11 +246,11 @@ namespace Cutscenes
                 PlayerController.Instance.enabled = false;
             }
 
-            // Pause game
-            if (currentCutscene.pauseGame)
+            // Pause game clock (not Time.timeScale - we want animations to continue)
+            if (currentCutscene.pauseGameClock && GameTickManager.Instance != null)
             {
-                wasGamePaused = Time.timeScale == 0f;
-                Time.timeScale = 0f;
+                wasGameClockPaused = GameTickManager.Instance.IsPaused;
+                GameTickManager.Instance.SetPaused(true);
             }
 
             // Hide UI
@@ -228,7 +259,7 @@ namespace Cutscenes
                 gameUICanvas.enabled = false;
             }
 
-            // Show letterbox
+            // Show letterbox with animation
             ShowLetterbox(true);
         }
 
@@ -242,10 +273,10 @@ namespace Cutscenes
                 PlayerController.Instance.enabled = wasPlayerControlEnabled;
             }
 
-            // Restore pause state
-            if (currentCutscene.pauseGame && !wasGamePaused)
+            // Restore game clock pause state
+            if (currentCutscene.pauseGameClock && GameTickManager.Instance != null && !wasGameClockPaused)
             {
-                Time.timeScale = 1f;
+                GameTickManager.Instance.SetPaused(false);
             }
 
             // Show UI
@@ -254,7 +285,7 @@ namespace Cutscenes
                 gameUICanvas.enabled = true;
             }
 
-            // Hide letterbox
+            // Hide letterbox with animation
             ShowLetterbox(false);
 
             // Resume auto weather
@@ -280,8 +311,82 @@ namespace Cutscenes
 
         private void ShowLetterbox(bool show)
         {
-            if (letterboxTop != null) letterboxTop.SetActive(show);
-            if (letterboxBottom != null) letterboxBottom.SetActive(show);
+            if (letterboxTop == null && letterboxBottom == null) return;
+
+            // Stop any existing animation
+            if (letterboxCoroutine != null)
+            {
+                StopCoroutine(letterboxCoroutine);
+            }
+
+            letterboxCoroutine = StartCoroutine(AnimateLetterbox(show));
+        }
+
+        private IEnumerator AnimateLetterbox(bool show)
+        {
+            // Set starting positions and activate
+            if (show)
+            {
+                if (letterboxTop != null)
+                {
+                    letterboxTop.gameObject.SetActive(true);
+                    letterboxTop.anchoredPosition = letterboxTopHidden;
+                }
+                if (letterboxBottom != null)
+                {
+                    letterboxBottom.gameObject.SetActive(true);
+                    letterboxBottom.anchoredPosition = letterboxBottomHidden;
+                }
+            }
+
+            // Animate
+            float elapsed = 0f;
+            while (elapsed < letterboxAnimDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / letterboxAnimDuration);
+
+                if (show)
+                {
+                    // Slide in
+                    if (letterboxTop != null)
+                        letterboxTop.anchoredPosition = Vector2.Lerp(letterboxTopHidden, letterboxTopTarget, t);
+                    if (letterboxBottom != null)
+                        letterboxBottom.anchoredPosition = Vector2.Lerp(letterboxBottomHidden, letterboxBottomTarget, t);
+                }
+                else
+                {
+                    // Slide out
+                    if (letterboxTop != null)
+                        letterboxTop.anchoredPosition = Vector2.Lerp(letterboxTopTarget, letterboxTopHidden, t);
+                    if (letterboxBottom != null)
+                        letterboxBottom.anchoredPosition = Vector2.Lerp(letterboxBottomTarget, letterboxBottomHidden, t);
+                }
+
+                yield return null;
+            }
+
+            // Ensure final positions and deactivate if hiding
+            if (show)
+            {
+                if (letterboxTop != null) letterboxTop.anchoredPosition = letterboxTopTarget;
+                if (letterboxBottom != null) letterboxBottom.anchoredPosition = letterboxBottomTarget;
+            }
+            else
+            {
+                if (letterboxTop != null)
+                {
+                    letterboxTop.anchoredPosition = letterboxTopHidden;
+                    letterboxTop.gameObject.SetActive(false);
+                }
+                if (letterboxBottom != null)
+                {
+                    letterboxBottom.anchoredPosition = letterboxBottomHidden;
+                    letterboxBottom.gameObject.SetActive(false);
+                }
+            }
+
+            letterboxCoroutine = null;
         }
 
         /// <summary>
@@ -304,5 +409,39 @@ namespace Cutscenes
         /// Get the current cutscene ID
         /// </summary>
         public string CurrentCutsceneId => currentCutsceneId;
+
+        #region Testing
+
+        private void PlayTestCutscene()
+        {
+            if (testCutscene == null)
+            {
+                Debug.LogWarning("CutsceneManager: No test cutscene assigned!");
+                return;
+            }
+
+            if (isPlaying)
+            {
+                Debug.Log("CutsceneManager: Stopping current cutscene first...");
+                StopCutscene();
+            }
+
+            Debug.Log($"CutsceneManager: Playing test cutscene '{testCutscene.displayName}'");
+            PlayCutscene(testCutscene);
+        }
+
+        private void StopCurrentCutscene()
+        {
+            if (!isPlaying)
+            {
+                Debug.Log("CutsceneManager: No cutscene is playing");
+                return;
+            }
+
+            Debug.Log("CutsceneManager: Stopping cutscene...");
+            StopCutscene();
+        }
+
+        #endregion
     }
 }

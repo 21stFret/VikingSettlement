@@ -204,26 +204,42 @@ public class VillagerAI : MonoBehaviour
                 }
             }
 
+            // Check if destination point is walkable (not inside an obstacle)
+            if (!IsPointWalkable(wanderPoint))
+            {
+                continue;
+            }
+
             // Check if path is clear
-            RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position, randomDirection, distance, movementLayerMask);
-            bool isClear = true;
-            foreach (var hit in hits)
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, randomDirection, distance, movementLayerMask);
+            if (hit.collider != null && !hit.collider.isTrigger)
             {
-                if (hit.collider != null && !hit.collider.isTrigger)
-                {
-                    isClear = false;
-                    break;
-                }
+                continue; // Path blocked
             }
-            if (isClear)
-            {
-                controller.MoveTo(wanderPoint);
-                return;
-            }
+
+            controller.MoveTo(wanderPoint);
+            return;
         }
 
         // Couldn't find clear path, stay idle
         currentState = AIState.Idle;
+    }
+
+    /// <summary>
+    /// Check if a point is walkable (not inside an obstacle)
+    /// </summary>
+    private bool IsPointWalkable(Vector2 point)
+    {
+        // Check if point is inside any obstacle
+        Collider2D[] overlaps = Physics2D.OverlapCircleAll(point, 1f, controller.obstacleLayer);
+        foreach (var overlap in overlaps)
+        {
+            if (overlap != null && !overlap.isTrigger && overlap.gameObject != gameObject)
+            {
+                return false;
+            }
+        }
+        return true;
     }
     
     private void MoveToWorkLocation()
@@ -243,11 +259,18 @@ public class VillagerAI : MonoBehaviour
         {
             Vector2 randomOffset = Random.insideUnitCircle * workRadius;
             Vector2 targetPoint = (Vector2)workLocation.position + randomOffset;
+
+            // Check if destination is walkable
+            if (!IsPointWalkable(targetPoint))
+            {
+                continue;
+            }
+
             Vector2 direction = (targetPoint - (Vector2)transform.position).normalized;
             float distance = Vector2.Distance(transform.position, targetPoint);
 
             RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, distance, movementLayerMask);
-            if (hit.collider == null)
+            if (hit.collider == null || hit.collider.isTrigger)
             {
                 return targetPoint;
             }

@@ -5339,6 +5339,7 @@ MonoBehaviour:
   strength: 1
   attachPoint: 1
   isEquipped: 0
+  attackSpeed: 0.5
 --- !u!1 &3103111803092741179
 GameObject:
   m_ObjectHideFlags: 0
@@ -6127,12 +6128,12 @@ GameObject:
   - component: {fileID: 7509095397989540202}
   - component: {fileID: 8629009730597293662}
   - component: {fileID: 7928313549537484593}
-  - component: {fileID: 2312772671236322014}
   - component: {fileID: 422819367626716894}
   - component: {fileID: 1171899017266227412}
   - component: {fileID: 638782563166323672}
   - component: {fileID: 6713158499483296687}
   - component: {fileID: 102607621922122272}
+  - component: {fileID: 2467279123356572261}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -6283,52 +6284,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!61 &2312772671236322014
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.45, y: 0.25}
-    oldSize: {x: 4, y: 4}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 0.52}
-  m_EdgeRadius: 0
 --- !u!61 &422819367626716894
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -6399,6 +6354,7 @@ MonoBehaviour:
   chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
+  xpReward: 25
   bloodEffect: {fileID: 8721656231829694241}
   spriteRenderer: {fileID: 0}
   personalUI: {fileID: 0}
@@ -6414,9 +6370,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b951968edc22f045a871c95a4457d35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  moveSpeed: 2
   stopDistance: 0.1
   canMove: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  obstacleCheckDistance: 0.8
+  stuckTimeout: 3
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
@@ -6456,6 +6416,9 @@ MonoBehaviour:
   pursueTarget: 1
   pursuitRange: 15
   loseTargetTime: 3
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &102607621922122272
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6478,6 +6441,42 @@ MonoBehaviour:
   leftHandAttachedItem: {fileID: 0}
   rightHandAttachedItem: {fileID: 5086896131331104564}
   backAttachedItem: {fileID: 0}
+--- !u!58 &2467279123356572261
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.2
 --- !u!1 &8320124014034768044
 GameObject:
   m_ObjectHideFlags: 0

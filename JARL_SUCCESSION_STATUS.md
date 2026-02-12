@@ -625,6 +625,148 @@ WeatherManager.Instance.GetCurrentWeather();
 
 ---
 
+### Weather Manager Enhancements
+
+**Manual/Auto Weather Control:**
+- `autoWeather` bool - toggle between automatic random weather and manual control
+- `SetManualWeather(WeatherType, intensity)` - lock weather for cutscenes
+- `ResumeAutoWeather()` - return to random weather changes
+
+**Sun Beam Timing:**
+- Sun beams now fade in/out based on time window around midday (not dawn/dusk)
+- `sunBeamStartTime` / `sunBeamEndTime` - configure when sun beams appear (default 0.4-0.6 = ~9:30 AM to 2:30 PM)
+- `sunBeamFadeDuration` - smooth fade in/out duration
+
+---
+
+### Day/Night Manager Improvements
+
+**Smooth Lighting Transitions:**
+- Fixed light snap at midday/midnight - now uses sine wave for smooth transitions
+- Added `OnDayNightChanged` event (fires when sun rises/sets)
+- Added `OnDawnEveningChanged` event (fires at dawn/dusk)
+- Added `IsDaytime()` and `GetSunElevation()` helper methods
+
+**Fire Shadow Visibility:**
+- Fire shadows now always visible, intensity controlled per-light
+- `ShadowCastingLight.daytimeIntensity` - how visible shadows are during day (default 0.3 = 30%)
+
+---
+
+### Audio Manager
+
+**Cleaned up from old project:**
+- Removed `PlayerSavedData` references, uses `PlayerPrefs` for volume persistence
+- Three audio sources: `musicSource`, `sfxSource`, `ambientSource`
+- Music tracks: `peacefulTracks`, `combatTracks`, `menuTracks`
+- Ambient: `ambientDaytime`, `ambientNighttime`
+- SFX enum with Viking-appropriate sounds (combat, actions, UI, feedback)
+
+**API:**
+```csharp
+AudioManager.Instance.PlayPeacefulMusic();
+AudioManager.Instance.PlaySFX(SFX.SwordSwing);
+AudioManager.Instance.SetMusicVolume(0.8f);
+```
+
+---
+
+### Obstacle Avoidance System
+
+**Problem:** Villagers and enemies getting stuck on trees/obstacles when wandering or during combat movement.
+
+**Solution:** Added raycast-based obstacle avoidance to the base CharacterController class.
+
+**Modified Files:**
+
+| File | Changes |
+|------|---------|
+| `CharacterController.cs` | Added obstacle avoidance with ray casting, stuck detection, and recovery steering |
+
+**How It Works:**
+1. When moving to a target (via `MoveTo()`), character casts 5 rays in a forward cone (0°, ±30°, ±60°)
+2. If rays hit obstacles, character steers away from them with strength based on proximity
+3. If character is stuck (not moving despite trying) for `stuckTimeThreshold` seconds, it picks a perpendicular direction to go around
+4. Works for all movement: wandering, combat chasing, cutscene movement, following
+
+**Inspector Settings (on any CharacterController-derived class):**
+- `useObstacleAvoidance` - Enable/disable the system (default: true)
+- `detectionDistance` - How far ahead to detect obstacles (default: 1)
+- `avoidanceStrength` - How strongly to steer away (default: 1.5)
+- `obstacleLayer` - **IMPORTANT: Must configure!** Layer mask for obstacles (trees, buildings, rocks)
+- `stuckTimeThreshold` - Seconds before trying to go around (default: 1)
+- `stuckDistanceThreshold` - Movement threshold to detect being stuck (default: 0.1)
+
+**Unity Setup:**
+1. Create a layer for obstacles (e.g., "Obstacles")
+2. Assign trees, rocks, buildings to this layer
+3. On VillagerController and EnemyController prefabs, set `obstacleLayer` to include "Obstacles"
+4. Debug rays visible in Scene view during play mode (green = clear, red = blocked)
+
+**Applies To:**
+- VillagerController (wandering, combat, cutscene movement)
+- EnemyController (chasing, returning to spawn)
+- Any future CharacterController subclass
+
+---
+
+### Cutscene System
+
+**New Files:**
+
+| File | Location | Purpose |
+|------|----------|---------|
+| `CutsceneManager.cs` | `Assets/Scripts/Cutscene/` | Singleton that plays cutscenes, manages state, animated letterbox |
+| `CutsceneSO.cs` | `Assets/Scripts/Cutscene/` | ScriptableObject defining cutscene sequences |
+| `CutsceneAction.cs` | `Assets/Scripts/Cutscene/` | Base action class + built-in actions |
+| `CutsceneSOEditor.cs` | `Assets/Scripts/Cutscene/Editor/` | Custom editor for adding actions |
+
+**Built-in Actions:**
+- `WaitAction` - Wait for duration
+- `CameraMoveAction` - Move camera to position or follow actor
+- `ActorMoveAction` - Move character to position
+- `DialogueAction` - Trigger dialogue system
+- `SetWeatherAction` - Set weather (uses manual mode)
+- `ActorFaceAction` - Make actor face direction/another actor
+
+**Actor Reference System:**
+Dynamic references that resolve at runtime:
+- `Jarl` - Current Jarl (whoever that is after succession)
+- `Player` - Player-controlled character
+- `VillagerByName` - Find villager by name
+- `SceneObject` - Find GameObject by name
+- `Tagged` - Find by tag
+
+**Features:**
+- Animated letterbox bars (slide in/out from screen edges)
+- Pauses game clock (day/night) but not animations/movement
+- Disables player control during cutscene
+- Hides game UI
+- Auto-resumes weather when cutscene ends
+- Inspector buttons for testing
+
+**CutsceneSO Settings:**
+- `disablePlayerControl` - Lock player input
+- `pauseGameClock` - Pause day/night cycle (animations continue)
+- `hideUI` - Hide game canvas
+- `resumeAutoWeather` - Return to random weather after
+
+**API:**
+```csharp
+CutsceneManager.Instance.PlayCutscene(cutsceneSO);
+CutsceneManager.Instance.SkipCutscene();
+CutsceneManager.Instance.IsPlaying;
+```
+
+**Unity Setup:**
+1. Create `CutsceneManager` GameObject
+2. Create letterbox UI bars (RectTransform), assign to manager
+3. Create cutscene: `Assets > Create > Viking Settlement > Cutscene`
+4. Add actions via inspector dropdown
+5. Assign test cutscene, use inspector buttons to test
+
+---
+
 ## Demo Progress Checklist
 
 ### Visual Systems
@@ -650,6 +792,8 @@ WeatherManager.Instance.GetCurrentWeather();
 - [x] Skill tree (persists through succession)
 - [x] Mission/Quest system
 - [x] Raid system
+- [x] Cutscene system (actions, actor references, letterbox)
+- [x] Obstacle avoidance (villagers and enemies navigate around trees/obstacles)
 
 ### UI
 - [x] Resource display
@@ -660,11 +804,12 @@ WeatherManager.Instance.GetCurrentWeather();
 - [x] Skill tree UI
 - [x] Main menu save/load UI (slot selection, autosave, delete confirmation)
 - [x] Return to main menu button
+- [x] Cutscene letterbox bars (animated slide in/out)
 
 ### Polish Needed
 - [ ] Visual Jarl indicator (crown/aura)
 - [ ] Game over screen
-- [ ] Tutorial/intro sequence
-- [x] Audio manager (importing from other project)
+- [ ] Tutorial/intro cutscene
+- [x] Audio manager (cleaned up, PlayerPrefs volume)
 - [ ] Sound effects for actions
-- [ ] Background music system
+- [ ] Background music integration

@@ -19,8 +19,8 @@ namespace Cutscenes
         [Tooltip("Should the player lose control during this cutscene?")]
         public bool disablePlayerControl = true;
 
-        [Tooltip("Should the game pause during this cutscene?")]
-        public bool pauseGame = false;
+        [Tooltip("Pause the game clock (day/night cycle) during this cutscene? Animations and movement still work.")]
+        public bool pauseGameClock = true;
 
         [Tooltip("Should UI be hidden during this cutscene?")]
         public bool hideUI = true;

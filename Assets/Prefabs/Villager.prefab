@@ -197,13 +197,13 @@ GameObject:
   - component: {fileID: 8764698263912582825}
   - component: {fileID: 3306281021511002227}
   - component: {fileID: 3703127985558776490}
-  - component: {fileID: 2656297003790825960}
   - component: {fileID: 6265767561972848296}
   - component: {fileID: 6336476821366728448}
   - component: {fileID: 731802624662873023}
   - component: {fileID: 6057599852231826267}
   - component: {fileID: 5493561719251364476}
   - component: {fileID: 3728299144202640379}
+  - component: {fileID: 7330671388403268956}
   m_Layer: 6
   m_Name: Villager
   m_TagString: Untagged
@@ -247,6 +247,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -413,52 +415,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!61 &2656297003790825960
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 983789909891545685}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.45, y: 0.25}
-    oldSize: {x: 4, y: 4}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 0.67, y: 0.15}
-  m_EdgeRadius: 0
 --- !u!95 &6265767561972848296
 Animator:
   serializedVersion: 7
@@ -497,6 +453,8 @@ MonoBehaviour:
   idleTimeMin: 2
   idleTimeMax: 5
   wanderRadius: 5
+  villageCentre: {fileID: 0}
+  maxDistanceFromCentre: 20
   shouldWander: 1
   workLocation: {fileID: 0}
   workRadius: 2
@@ -565,6 +523,7 @@ MonoBehaviour:
   generationsFromJarl: -1
   agingTimer: 0
   spriteVariant: 
+  loadedFromSave: 0
   personalUI: {fileID: 3800885191924336657}
   bloodEffect: {fileID: 6444847126489216009}
   _speechMinCooldown: 5
@@ -584,6 +543,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VillagerController
   stopDistance: 0.1
   canMove: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  obstacleCheckDistance: 0.8
+  stuckTimeout: 3
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
@@ -642,6 +606,44 @@ MonoBehaviour:
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 0}
+  nightThreshold: 0.4
+  dayThreshold: 0.6
+--- !u!58 &7330671388403268956
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983789909891545685}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0.03}
+  m_Radius: 0.2
 --- !u!1 &1148867561775107672
 GameObject:
   m_ObjectHideFlags: 0
