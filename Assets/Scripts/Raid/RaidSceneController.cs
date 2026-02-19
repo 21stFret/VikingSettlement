@@ -425,6 +425,12 @@ public class RaidSceneController : MonoBehaviour
     /// </summary>
     public void AddLoot(ResourceType type, float amount)
     {
+        // Apply Raiding Ships runestone bonus
+        if (RunestoneManager.Instance != null)
+        {
+            amount *= RunestoneManager.Instance.GetRaidLootMultiplier();
+        }
+
         collectedLoot.Add(new ResourceLoot { resourceType = type, amount = amount });
     }
 

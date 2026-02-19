@@ -263,17 +263,11 @@ public class DayNightManager : MonoBehaviour, ISaveable
         float angle = Mathf.Lerp(-180f, 0f, dayProgress);
         float angleRad = angle * Mathf.Deg2Rad;
 
-        float xValue = sunArcCenterX + Mathf.Cos(angleRad) * sunArcRadius;
+        float xValue = Mathf.Cos(angleRad) * sunArcRadius;
+        // Clockwise: arc over the top (flip Y positive), Anticlockwise: arc under (Y stays negative)
+        float yValue = Mathf.Sin(angleRad) * sunArcRadius * (clockwise ? -1f : 1f);
         float zValue = Mathf.Abs(Mathf.Sin(angleRad) * sunHeightTarget);
-        float yValue = sunArcCenterY + Mathf.Sin(angleRad) * sunArcRadius;
 
-
-        if(!clockwise)
-        {
-            xValue = sunArcCenterX - Mathf.Cos(angleRad) * sunArcRadius;
-            zValue = Mathf.Sin(angleRad) * sunHeightTarget;
-            yValue = sunArcCenterY + Mathf.Sin(angleRad) * sunArcRadius;
-        }
         // Calculate sun position
         Vector3 sunPosition = new Vector3(
             sunArcCenterX + xValue,

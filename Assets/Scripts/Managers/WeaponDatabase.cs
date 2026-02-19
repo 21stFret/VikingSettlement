@@ -10,6 +10,9 @@ public class WeaponDatabase : MonoBehaviour
     [Header("Shields")]
     [SerializeField] private EquipableItem[] availableShields;
 
+    [Header("Torches")]
+    [SerializeField] private EquipableItem[] availableTorches;
+
     private void Awake()
     {
         if (Instance == null)
@@ -78,6 +81,32 @@ public class WeaponDatabase : MonoBehaviour
             if (shield != null && shield.itemName == shieldName)
             {
                 return shield;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Get a random torch from the database
+    /// </summary>
+    public EquipableItem GetRandomTorch()
+    {
+        if (availableTorches == null || availableTorches.Length == 0) return null;
+        return availableTorches[Random.Range(0, availableTorches.Length)];
+    }
+
+    /// <summary>
+    /// Get a torch by name
+    /// </summary>
+    public EquipableItem GetTorchByName(string torchName)
+    {
+        if (string.IsNullOrEmpty(torchName) || availableTorches == null) return null;
+
+        foreach (var torch in availableTorches)
+        {
+            if (torch != null && torch.itemName == torchName)
+            {
+                return torch;
             }
         }
         return null;

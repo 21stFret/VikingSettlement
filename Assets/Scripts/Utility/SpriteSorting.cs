@@ -38,7 +38,7 @@ public class SpriteSorting : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("Linked SpriteRenderer is null in " + gameObject.name);
+                //Debug.LogWarning("Linked SpriteRenderer is null in " + gameObject.name);
                 linkedSpriteRenderers.RemoveAt(i);
             }
         }

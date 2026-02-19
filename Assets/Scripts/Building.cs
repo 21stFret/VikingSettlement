@@ -149,13 +149,19 @@ public class Building : MonoBehaviour
     private float GetProductionSpeed(float baseRate)
     {
         float totalSpeed = 0f;
-        
+
         foreach (var worker in assignedWorkers)
         {
             // Each worker contributes their skill multiplier to the speed
             totalSpeed += baseRate * worker.GetSkillMultiplier(data.assignedJobType);
         }
-        
+
+        // Apply Tireless Workers runestone bonus
+        if (RunestoneManager.Instance != null)
+        {
+            totalSpeed *= RunestoneManager.Instance.GetProductionSpeedMultiplier();
+        }
+
         return totalSpeed;
     }
     
@@ -165,7 +171,18 @@ public class Building : MonoBehaviour
     private void CompleteResourceGathering()
     {
         // Use the pre-calculated adjusted amount (already set in UpdateResourceGathering)
-        int finalAmount = Mathf.RoundToInt(adjustedProductionAmount);
+        float amount = adjustedProductionAmount;
+
+        // Apply Gefjon's Blessing food production bonus
+        if (data.producedResource == ResourceType.Fish || data.producedResource == ResourceType.Wheat)
+        {
+            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+            {
+                amount *= (1f + DeathTypeBuff.Instance.GetFoodProductionPercent() / 100f);
+            }
+        }
+
+        int finalAmount = Mathf.RoundToInt(amount);
         ResourceManager.Instance.AddResource(data.producedResource, finalAmount);
 
         // Reset progress (keep overflow for next cycle)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -157,16 +158,23 @@ public class CharacterController : MonoBehaviour
     }
 
     /// <summary>
-    /// Get move speed with skill bonuses applied.
+    /// Get move speed with skill bonuses and wound penalties applied.
     /// </summary>
     protected float GetEffectiveMoveSpeed()
     {
         float speed = moveSpeed;
+        var villager = GetComponent<Villager>();
 
         if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
         {
             float speedBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.MoveSpeedPercent);
             speed *= (1f + speedBonus / 100f);
+        }
+
+        if (villager != null && villager.activeWounds.Count > 0)
+        {
+            float woundPenaltyPct = WoundDatabase.TotalMoveSpeedPenaltyPct(villager.activeWounds);
+            speed *= (1f - woundPenaltyPct / 100f);
         }
 
         return speed;
@@ -324,19 +332,38 @@ public class CharacterController : MonoBehaviour
     public float GetAttackDelay()
     {
         float baseDelay = weapon != null ? weapon.attackSpeed : attackDelay;
+        var villager = GetComponent<Villager>();
 
-        // Apply attack speed skill bonus (reduces delay)
-        if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+        if (characterFaction == Faction.Player)
         {
-            float speedBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.AttackSpeedPercent);
-            if (speedBonus > 0)
+            if (SkillTreeManager.Instance != null)
             {
-                baseDelay *= (1f - speedBonus / 100f);
-                baseDelay = Mathf.Max(0.1f, baseDelay); // Minimum delay cap
+                float speedBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.AttackSpeedPercent);
+                if (speedBonus > 0)
+                {
+                    baseDelay *= (1f - speedBonus / 100f);
+                    baseDelay = Mathf.Max(0.1f, baseDelay);
+                }
+            }
+
+            if (RunestoneManager.Instance != null)
+                baseDelay *= RunestoneManager.Instance.GetJarlCooldownMultiplier();
+
+            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+            {
+                float cooldownPercent = DeathTypeBuff.Instance.GetJarlCooldownPercent();
+                baseDelay *= (1f - cooldownPercent / 100f);
             }
         }
 
-        return baseDelay;
+        // Wound attack speed penalties apply regardless of faction
+        if (villager != null && villager.activeWounds.Count > 0)
+        {
+            float woundPenaltyPct = WoundDatabase.TotalAttackSpeedPenaltyPct(villager.activeWounds);
+            baseDelay *= (1f + woundPenaltyPct / 100f);
+        }
+
+        return Mathf.Max(0.1f, baseDelay);
     }
 
     /// <summary>
@@ -443,18 +470,18 @@ public class CharacterController : MonoBehaviour
     protected virtual void OnHitTarget(Collider2D hit)
     {
         var target = hit.GetComponent<TargetHealth>();
-        if (target != null && weapon != null)
-        {
-            float damage = weapon.strength;
+        if (target == null || weapon == null) return;
 
-            // Apply skill bonuses for player faction
-            if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+        float damage = weapon.strength;
+        var villager = GetComponent<Villager>();
+
+        if (characterFaction == Faction.Player)
+        {
+            if (SkillTreeManager.Instance != null)
             {
-                // Damage bonus
                 float damageBonus = SkillTreeManager.Instance.GetEffect(SkillEffectType.DamagePercent);
                 damage *= (1f + damageBonus / 100f);
 
-                // Critical hit
                 float critChance = SkillTreeManager.Instance.GetEffect(SkillEffectType.CriticalChance);
                 if (critChance > 0 && UnityEngine.Random.value * 100f < critChance)
                 {
@@ -463,21 +490,33 @@ public class CharacterController : MonoBehaviour
                 }
             }
 
-            target.TakeDamage(damage, weapon);
+            if (RunestoneManager.Instance != null)
+                damage *= RunestoneManager.Instance.GetWarriorDamageMultiplier();
 
-            // Life steal
-            if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
             {
-                float lifeSteal = SkillTreeManager.Instance.GetEffect(SkillEffectType.LifeSteal);
-                if (lifeSteal > 0)
-                {
-                    float healAmount = damage * (lifeSteal / 100f);
-                    var selfHealth = GetComponent<TargetHealth>();
-                    if (selfHealth != null)
-                    {
-                        selfHealth.Heal(healAmount);
-                    }
-                }
+                float deathBuffDmg = DeathTypeBuff.Instance.GetWarriorDamagePercent();
+                damage *= (1f + deathBuffDmg / 100f);
+            }
+        }
+
+        // Wound damage penalties apply regardless of faction
+        if (villager != null && villager.activeWounds.Count > 0)
+        {
+            float woundDmgPenaltyPct = WoundDatabase.TotalAttackDamagePenaltyPct(villager.activeWounds);
+            damage *= (1f - woundDmgPenaltyPct / 100f);
+        }
+
+        target.TakeDamage(damage, weapon);
+
+        // Life steal (Player only)
+        if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
+        {
+            float lifeSteal = SkillTreeManager.Instance.GetEffect(SkillEffectType.LifeSteal);
+            if (lifeSteal > 0)
+            {
+                var selfHealth = GetComponent<TargetHealth>();
+                selfHealth?.Heal(damage * (lifeSteal / 100f));
             }
         }
     }
@@ -496,6 +535,24 @@ public class CharacterController : MonoBehaviour
     public bool IsAttacking()
     {
         return isAttacking;
+    }
+
+    /// <summary>
+    /// Stun the character for duration seconds — used by parry and Heavy Strike.
+    /// Prevents movement and attacks for the duration.
+    /// </summary>
+    public void ApplyStun(float duration)
+    {
+        StartCoroutine(StunCoroutine(duration));
+    }
+
+    private IEnumerator StunCoroutine(float duration)
+    {
+        canMove = false;
+        // Push lastAttackTime forward so attack can't fire during stun
+        lastAttackTime = Time.time + duration;
+        yield return new WaitForSeconds(duration);
+        canMove = true;
     }
 
     #endregion

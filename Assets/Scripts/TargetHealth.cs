@@ -6,6 +6,7 @@ public class TargetHealth : MonoBehaviour
     public float maxHealth = 100f;
     public float currentHealth;
     protected bool isDead = false;
+    protected bool lastDamageWasCombat = false;
     private float invincibilityDuration = 0.1f;
     private float lastDamageTime = -Mathf.Infinity;
 
@@ -39,6 +40,12 @@ public class TargetHealth : MonoBehaviour
 
         currentHealth -= finalDamage;
 
+        lastDamageWasCombat = (weapon != null);
+
+        // Combat hits (weapon != null) can trigger wound rolls on significant damage
+        if (weapon != null && finalDamage > 0f)
+            OnSignificantHPDamage(finalDamage);
+
         OnDamageTaken(finalDamage, weapon);
 
         Debug.Log($"{gameObject.name} took {finalDamage} damage (raw: {damage}, trueDamage: {trueDamage})");
@@ -65,6 +72,11 @@ public class TargetHealth : MonoBehaviour
     {
         // Base implementation does nothing - override in subclasses
     }
+
+    /// <summary>
+    /// Called when a weapon-based hit deals damage. Override to roll for wounds.
+    /// </summary>
+    protected virtual void OnSignificantHPDamage(float hpDamage) { }
 
     public virtual void Die()
     {

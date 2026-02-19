@@ -223,6 +223,12 @@ public class SeasonManager : MonoBehaviour, ISaveable
         int villagerCount = SettlementManager.Instance.GetPopulation();
         woodNeededToday = villagerCount * woodPerVillagerPerDay;
 
+        // Apply Winter's Friend runestone bonus (-30% firewood)
+        if (RunestoneManager.Instance != null)
+        {
+            woodNeededToday *= RunestoneManager.Instance.GetFirewoodConsumptionMultiplier();
+        }
+
         // Try to consume wood
         float availableWood = ResourceManager.Instance.GetResource(ResourceType.Wood);
 

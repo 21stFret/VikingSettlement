@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Villager : TargetHealth
 {
@@ -44,6 +45,9 @@ public class Villager : TargetHealth
 
     [Header("Appearance")]
     public string spriteVariant = ""; // e.g. "blue_villager", "red_villager"
+
+    [Header("Wounds")]
+    public List<WoundType> activeWounds = new List<WoundType>();
 
     [Header("Save/Load")]
     [HideInInspector] public bool loadedFromSave = false; // Set by SettlementManager when loading
@@ -94,8 +98,6 @@ public class Villager : TargetHealth
         {
             _settlementManager.RegisterVillager(this);
         }
-
-        ApplySkillBonuses();
 
         // Only set to max if not loaded from save
         if (!loadedFromSave)
@@ -280,8 +282,23 @@ public class Villager : TargetHealth
         // Only mature villagers can reproduce
         if (currentLifeStage != LifeStage.Mature) return;
         
+        // Calculate effective reproduction cooldown with birth rate modifiers
+        float effectiveCooldown = _settlementManager.reproductionCooldown;
+
+        // Apply Fertile Lands runestone bonus (+20% birth rate = reduce cooldown)
+        if (RunestoneManager.Instance != null)
+        {
+            effectiveCooldown /= RunestoneManager.Instance.GetBirthRateMultiplier();
+        }
+
+        // Apply Gefjon's Blessing birth rate bonus (+10%)
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+        {
+            effectiveCooldown /= (1f + DeathTypeBuff.Instance.GetBirthRatePercent() / 100f);
+        }
+
         // Must have waited long enough since last child
-        if (timeSinceLastChild < _settlementManager.reproductionCooldown) return;
+        if (timeSinceLastChild < effectiveCooldown) return;
         
         // Need to find a partner if we don't have one
         if (partner == null)
@@ -348,6 +365,16 @@ public class Villager : TargetHealth
         // Inherit skills from parents (mean of both parents)
         child.skills = VillagerSkills.Inherit(mother.skills, father.skills);
 
+        // Apply Education runestone bonus (+2 to 2 random skills)
+        if (RunestoneManager.Instance != null)
+        {
+            int bonus = RunestoneManager.Instance.GetEducationSkillBonus();
+            if (bonus > 0)
+            {
+                child.skills.ApplyRandomSkillBonuses(bonus, 2);
+            }
+        }
+
         // Inherit combat stats (mean of both parents)
         child.combatStats.strength = (mother.combatStats.strength + father.combatStats.strength) / 2f;
         child.combatStats.defense = (mother.combatStats.defense + father.combatStats.defense) / 2f;
@@ -377,12 +404,57 @@ public class Villager : TargetHealth
         child.spriteVariant = InheritSpriteVariant(mother.spriteVariant, father.spriteVariant);
         child.ApplySpriteVariant();
 
+        child.ApplySkillBonuses();
+
         Debug.Log($"{mother.villagerName} and {father.villagerName} had a child: {child.villagerName}!");
     }
 
     #endregion
 
     #region Health Management
+
+    #region Wounds
+
+    /// <summary>
+    /// Add a wound. A 4th wound kills the villager regardless of remaining HP.
+    /// </summary>
+    public void AddWound(WoundType wound)
+    {
+        if (activeWounds.Count >= WoundManager.MAX_WOUNDS)
+        {
+            Debug.Log($"{villagerName} suffered a mortal wound and has died!");
+            Die();
+            return;
+        }
+
+        activeWounds.Add(wound);
+        var info = WoundDatabase.Get(wound);
+        Debug.Log($"{villagerName} received wound: {info.displayName} — {info.description}");
+
+        ApplySkillBonuses(); // Refresh max HP with new wound penalty
+        if (personalUI != null) personalUI.UpdateBars(true, false);
+    }
+
+    /// <summary>
+    /// Remove a wound (called by HealerHut on purchase).
+    /// </summary>
+    public void RemoveWound(WoundType wound)
+    {
+        if (activeWounds.Remove(wound))
+        {
+            ApplySkillBonuses();
+            if (personalUI != null) personalUI.UpdateBars(true, false);
+            Debug.Log($"{villagerName}'s {WoundDatabase.Get(wound).displayName} has healed.");
+        }
+    }
+
+    protected override void OnSignificantHPDamage(float hpDamage)
+    {
+        if (WoundManager.Instance != null)
+            WoundManager.Instance.TryApplyWound(this, hpDamage, maxHealth);
+    }
+
+    #endregion
 
     /// <summary>
     /// Apply defense and shield reduction to incoming damage.
@@ -402,12 +474,35 @@ public class Villager : TargetHealth
             totalDefense *= (1f + defensePercent / 100f);
         }
 
+        // Apply runestone warrior defense bonus
+        if (RunestoneManager.Instance != null)
+        {
+            float runestoneDefPercent = RunestoneManager.Instance.GetWarriorDefensePercent();
+            totalDefense *= (1f + runestoneDefPercent / 100f);
+        }
+
+        // Apply death buff warrior defense bonus
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+        {
+            float deathBuffDefPercent = DeathTypeBuff.Instance.GetWarriorDefensePercent();
+            totalDefense *= (1f + deathBuffDefPercent / 100f);
+        }
+
+        // Apply wound defense penalties
+        if (activeWounds.Count > 0)
+        {
+            float woundDefPenaltyPct = WoundDatabase.TotalDefensePenaltyPct(activeWounds);
+            totalDefense *= (1f - woundDefPenaltyPct / 100f);
+        }
+
         reduced -= totalDefense;
 
-        // Apply shield if equipped
-        if (_controller != null && _controller.shield != null)
+        // Apply shield if equipped and not broken
+        if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
         {
             reduced -= _controller.shield.strength;
+            // Shield absorbs the hit — take durability damage equal to raw incoming damage
+            _controller.shield.TakeDurabilityDamage(Mathf.CeilToInt(rawDamage));
         }
 
         return reduced;
@@ -446,6 +541,26 @@ public class Villager : TargetHealth
         }
     }
 
+    /// <summary>
+    /// Shared hunger mode. hungerFraction 0 = fully fed, 1 = fully starving.
+    /// Damage and morale loss scale linearly — missing 1/3 food = 33% of full hunger damage.
+    /// </summary>
+    public void HandleSharedHunger(float hungerFraction)
+    {
+        isHungry = hungerFraction > 0f;
+
+        if (hungerFraction <= 0f)
+        {
+            HealFromFood(1f, 5f);
+            return;
+        }
+
+        float fullDamage = Mathf.Max(currentHealth / 2f, 5f);
+        TakeDamage(fullDamage * hungerFraction, null, true);
+        ChangeMorale(-10f * hungerFraction);
+        personalUI.ShowSpeech(hungerFraction >= 1f ? "I'm starving..." : "I'm hungry...", 2.0f);
+    }
+
     private void ReduceHealthAndMoraleDueToHunger()
     {
         // Reduce health and morale due to hunger
@@ -472,6 +587,12 @@ public class Villager : TargetHealth
     
     public void Heal(float amount)
     {
+        // Apply Gefjon's Blessing heal speed bonus
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+        {
+            amount *= (1f + DeathTypeBuff.Instance.GetHealSpeedPercent() / 100f);
+        }
+
         currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
     
@@ -489,7 +610,18 @@ public class Villager : TargetHealth
         // If the Jarl is dying, trigger succession
         if (isJarl && JarlManager.Instance != null)
         {
-            JarlManager.Instance.OnCurrentJarlDied();
+            // Determine cause of death
+            DeathCause cause = DeathCause.Other;
+            if (lastDamageWasCombat)
+                cause = DeathCause.Combat;
+            else if (age >= lifeExpectancy)
+                cause = DeathCause.OldAge;
+            else if (isHungry)
+                cause = DeathCause.Starvation;
+            else if (isCold)
+                cause = DeathCause.Cold;
+
+            JarlManager.Instance.OnCurrentJarlDied(cause);
         }
 
         // Handle villager death
@@ -603,17 +735,30 @@ public class Villager : TargetHealth
         if (baseMaxHealth == 0f)
             baseMaxHealth = maxHealth;
 
-        if (!isJarl || SkillTreeManager.Instance == null)
+        float newMaxHealth = baseMaxHealth;
+
+        // Jarl-only: apply skill tree flat/percent bonuses
+        if (isJarl && SkillTreeManager.Instance != null)
         {
-            maxHealth = baseMaxHealth;
-            return;
+            float healthFlat = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthFlat);
+            float healthPercent = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthPercent);
+            newMaxHealth = (newMaxHealth + healthFlat) * (1f + healthPercent / 100f);
         }
 
-        // Apply max health bonuses
-        float healthFlat = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthFlat);
-        float healthPercent = SkillTreeManager.Instance.GetEffect(SkillEffectType.MaxHealthPercent);
+        // Resilient Blood applies to ALL villagers (+10% max HP)
+        if (RunestoneManager.Instance != null)
+        {
+            newMaxHealth *= RunestoneManager.Instance.GetMaxHealthMultiplier();
+        }
 
-        maxHealth = (baseMaxHealth + healthFlat) * (1f + healthPercent / 100f);
+        // Wound HP penalties (stacking, applied after all bonuses)
+        if (activeWounds.Count > 0)
+        {
+            float woundHPPenaltyPct = WoundDatabase.TotalMaxHPPenaltyPct(activeWounds);
+            newMaxHealth *= (1f - woundHPPenaltyPct / 100f);
+        }
+
+        maxHealth = newMaxHealth;
 
         // Ensure current health doesn't exceed new max
         currentHealth = Mathf.Min(currentHealth, maxHealth);

@@ -293,13 +293,15 @@ public class VillagerSpawner : MonoBehaviour
                 villager.age = Random.Range(18f, 40f);
             }
 
-            //Give weapon
+            //Give weapon, shield and torch
             villager.itemAttachment.GiveRandomWeapon();
             villager.itemAttachment.GiveRandomShield();
+            villager.itemAttachment.GiveRandomTorch();
 
             villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
 
             spawnedVillagers.Add(villager);
+            villager.ApplySkillBonuses();
         }
 
         return villager;

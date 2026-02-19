@@ -10,10 +10,12 @@ public class ItemAttachment : MonoBehaviour
     [Header("Equipped Items")]
     [SerializeField] private GameObject shield;
     [SerializeField] private GameObject weapon;
+    [SerializeField] private GameObject torch;
 
     [Header("Settings")]
     [SerializeField] private AttachmentPoint shieldAttachPoint = AttachmentPoint.LeftHand;
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
+    [SerializeField] private AttachmentPoint torchAttachPoint = AttachmentPoint.Back;
 
     public EquipableItem leftHandAttachedItem;
     public EquipableItem rightHandAttachedItem;
@@ -31,9 +33,12 @@ public class ItemAttachment : MonoBehaviour
         // Attach items to their points
         if (shield != null)
             EquipShield(shield);
-        
+
         if (weapon != null)
             EquipWeapon(weapon);
+
+        if (torch != null)
+            EquipTorch(torch);
     }
 
     private void AttachItem(Transform item, AttachmentPoint point)
@@ -89,6 +94,26 @@ public class ItemAttachment : MonoBehaviour
         {
             GameObject shieldInstance = Instantiate(randomShield.gameObject);
             EquipShield(shieldInstance);
+        }
+    }
+
+    public void EquipTorch(GameObject newTorch)
+    {
+        torch = newTorch;
+        AttachItem(newTorch.transform, torchAttachPoint);
+        backAttachedItem = newTorch.GetComponent<EquipableItem>();
+        if (backAttachedItem != null)
+            backAttachedItem.isEquipped = true;
+    }
+
+    public void GiveRandomTorch()
+    {
+        if (WeaponDatabase.Instance == null) return;
+        EquipableItem randomTorch = WeaponDatabase.Instance.GetRandomTorch();
+        if (randomTorch != null)
+        {
+            GameObject torchInstance = Instantiate(randomTorch.gameObject);
+            EquipTorch(torchInstance);
         }
     }
     

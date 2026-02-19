@@ -19,6 +19,7 @@ public class JarlManager : MonoBehaviour, ISaveable
     [Header("Succession Settings")]
     [SerializeField] private float successionDelay = 2f; // Delay before showing succession UI
     [SerializeField] private int maxCandidatesToShow = 5;
+    [SerializeField] private bool allowChildrenInSuccession = false;
 
     [Header("State")]
     [SerializeField] private bool isInSuccession = false;
@@ -34,6 +35,7 @@ public class JarlManager : MonoBehaviour, ISaveable
 
     // Track the dead Jarl during succession
     private Villager deadJarl;
+    private DeathCause lastDeathCause = DeathCause.Other;
 
     private void Awake()
     {
@@ -151,7 +153,7 @@ public class JarlManager : MonoBehaviour, ISaveable
     /// <summary>
     /// Called when the current Jarl dies
     /// </summary>
-    public void OnCurrentJarlDied()
+    public void OnCurrentJarlDied(DeathCause cause = DeathCause.Other)
     {
         if (isInSuccession)
         {
@@ -160,7 +162,8 @@ public class JarlManager : MonoBehaviour, ISaveable
         }
 
         deadJarl = currentJarl;
-        Debug.Log($"The Jarl {deadJarl.villagerName} has fallen!");
+        lastDeathCause = cause;
+        Debug.Log($"The Jarl {deadJarl.villagerName} has fallen! Cause: {cause}");
 
         // Fire death event
         OnJarlDied?.Invoke(deadJarl);
@@ -220,11 +223,12 @@ public class JarlManager : MonoBehaviour, ISaveable
 
         var allVillagers = SettlementManager.Instance.GetAllVillagers();
 
-        // Filter to eligible candidates (mature, alive)
+        // Filter to eligible candidates
         var eligible = allVillagers
             .Where(v => v != deadJarl &&
-                        v.currentLifeStage == LifeStage.Mature &&
-                        !v.IsDead())
+                        !v.IsDead() &&
+                        (v.currentLifeStage == LifeStage.Mature ||
+                         (allowChildrenInSuccession && v.currentLifeStage == LifeStage.Young)))
             .ToList();
 
         foreach (var villager in eligible)
@@ -341,7 +345,7 @@ public class JarlManager : MonoBehaviour, ISaveable
             return;
         }
 
-        if (heir == null || heir.IsDead() || heir.currentLifeStage != LifeStage.Mature)
+        if (heir == null || heir.IsDead())
         {
             Debug.LogError("Invalid heir selection!");
             return;
@@ -352,13 +356,50 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Set the new Jarl
         SetJarl(heir);
 
-        // End succession
+        // End succession state
         isInSuccession = false;
+
+        // Apply death type buff
+        if (DeathTypeBuff.Instance != null)
+        {
+            DeathTypeBuff.Instance.ApplyBuff(lastDeathCause);
+        }
+
+        // Start runestone selection if manager exists
+        // Use (object) cast to bypass Unity's fake-null on destroyed GameObjects —
+        // the C# object and its fields (skills, name) are still valid
+        if (RunestoneManager.Instance != null && (object)deadJarl != null)
+        {
+            // Defer OnSuccessionEnded until runestone selection completes
+            RunestoneManager.Instance.OnSelectionComplete += OnRunestoneSelectionComplete;
+            RunestoneManager.Instance.StartSelection(deadJarl);
+        }
+        else
+        {
+            // No runestone manager - fire succession ended immediately
+            deadJarl = null;
+            OnSuccessionEnded?.Invoke();
+        }
+    }
+
+    private void OnRunestoneSelectionComplete()
+    {
+        if (RunestoneManager.Instance != null)
+        {
+            RunestoneManager.Instance.OnSelectionComplete -= OnRunestoneSelectionComplete;
+        }
+
+        // Re-apply skill bonuses to ALL villagers so the newly-selected runestone
+        // (e.g. Resilient Blood) takes effect immediately on everyone, including the new Jarl.
+        if (SettlementManager.Instance != null)
+        {
+            foreach (var villager in SettlementManager.Instance.GetAllVillagers())
+            {
+                villager.ApplySkillBonuses();
+            }
+        }
+
         deadJarl = null;
-
-        // Resume game if paused
-        // Time.timeScale = 1f;
-
         OnSuccessionEnded?.Invoke();
     }
 

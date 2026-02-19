@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Attach to any object to make it harvestable when struck.
@@ -48,6 +49,7 @@ public class HarvestableResource : TargetHealth
     private Vector3 originalPosition;
     private float shakeTimer = 0f;
     private bool isRespawning = false;
+    public UnityEvent OnHit;
 
     public override void Awake()
     {
@@ -94,6 +96,8 @@ public class HarvestableResource : TargetHealth
             ResourceManager.Instance.AddResource(resourceType, yield);
             Debug.Log($"Harvested {yield} {resourceType} from {gameObject.name}");
         }
+
+        OnHit?.Invoke();
 
         // Visual feedback
         if (harvestEffect != null)

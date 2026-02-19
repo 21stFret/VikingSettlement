@@ -55,6 +55,37 @@ public class VillagerSkills
     }
     
     /// <summary>
+    /// Add a flat bonus to a number of randomly chosen skills.
+    /// Used by the Education runestone.
+    /// </summary>
+    public void ApplyRandomSkillBonuses(int bonus, int count)
+    {
+        // All trainable skills as setter actions
+        System.Action<float>[] setters = {
+            v => farming += v,
+            v => fishing += v,
+            v => mining += v,
+            v => woodcutting += v,
+            v => crafting += v,
+            v => combat += v,
+            v => sailing += v
+        };
+
+        // Fisher-Yates partial shuffle to pick 'count' unique indices
+        int[] indices = { 0, 1, 2, 3, 4, 5, 6 };
+        int picks = Mathf.Min(count, indices.Length);
+        for (int i = 0; i < picks; i++)
+        {
+            int j = Random.Range(i, indices.Length);
+            int temp = indices[i];
+            indices[i] = indices[j];
+            indices[j] = temp;
+
+            setters[indices[i]](bonus);
+        }
+    }
+
+    /// <summary>
     /// Create inherited skills from two parents (mean of both)
     /// </summary>
     public static VillagerSkills Inherit(VillagerSkills parent1, VillagerSkills parent2)

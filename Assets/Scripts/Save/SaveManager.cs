@@ -332,6 +332,12 @@ public class SaveManager : MonoBehaviour
         if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
             skillTree.PopulateSaveData(data);
 
+        if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
+            runestone.PopulateSaveData(data);
+
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance is ISaveable deathBuff)
+            deathBuff.PopulateSaveData(data);
+
         return data;
     }
 
@@ -341,6 +347,18 @@ public class SaveManager : MonoBehaviour
 
     private void ApplySaveData(SaveData data)
     {
+        // Load stat modifiers first so villager ApplySkillBonuses() sees correct values
+        // when SettlementManager creates villagers below.
+        if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
+            skillTree.LoadSaveData(data);
+
+        if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
+            runestone.LoadSaveData(data);
+
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance is ISaveable deathBuff)
+            deathBuff.LoadSaveData(data);
+
+        // World / settlement state
         if (DayNightManager.Instance != null && DayNightManager.Instance is ISaveable dayNight)
             dayNight.LoadSaveData(data);
 
@@ -358,9 +376,6 @@ public class SaveManager : MonoBehaviour
 
         if (JarlManager.Instance != null && JarlManager.Instance is ISaveable jarl)
             jarl.LoadSaveData(data);
-
-        if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
-            skillTree.LoadSaveData(data);
     }
 
     #endregion

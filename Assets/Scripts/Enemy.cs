@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Enemy : TargetHealth
 {
@@ -20,6 +21,7 @@ public class Enemy : TargetHealth
     [Header("Loot")]
     public int goldReward = 10;
     public float lootChance = 0.3f;
+    public List<LootTableEntry> lootTable = new List<LootTableEntry>();
 
     [Header("XP")]
     public int xpReward = 25;
@@ -131,9 +133,10 @@ public class Enemy : TargetHealth
 
     private void DropLoot()
     {
-        // TODO: Implement loot drop system
-        // For now just log it
-        Debug.Log($"{enemyName} dropped {goldReward} gold!");
+        if (LootDropManager.Instance != null)
+        {
+            LootDropManager.Instance.SpawnDrops(transform.position, lootTable);
+        }
     }
 
     private IEnumerator FlashRedOnDamage()

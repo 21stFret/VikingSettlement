@@ -1,13 +1,14 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class CuttableGrass : HittableObject
+public class CuttableGrass : TargetHealth
 {
     [Header("Cuttable Grass Settings")]
     private SpriteRenderer _spriteRenderer;
     public Sprite cutGrassSprite, longGrassSprite;
     private bool isCut = false;
     private float growBackTimer = 5f;
+    public float growBackTime = 5f;
     public ParticleSystem cutEffect;
 
     public override void Awake()
@@ -55,7 +56,7 @@ public class CuttableGrass : HittableObject
             _spriteRenderer.sprite = longGrassSprite;
         }
         isCut = false;
-        growBackTimer = 5f; // Reset timer
+        growBackTimer = growBackTime; // Reset timer
         isDead = false; // Reset health state
         currentHealth = maxHealth; // Reset health
     }

@@ -29,6 +29,8 @@ public class SaveData
     public string currentJarlId;
     public SettlementStatsSave stats;
     public SkillTreeSaveData skillTreeData;
+    public RunestoneSaveData runestoneData;
+    public DeathTypeBuffSaveData deathBuffData;
 }
 
 [Serializable]
@@ -81,6 +83,8 @@ public class VillagerSave
     public string spriteVariant;
     public string weaponName;
     public string shieldName;
+    public string torchName;
+    public int[] activeWounds; // WoundType cast to int
 }
 
 [Serializable]
@@ -165,4 +169,17 @@ public class SkillTreeSaveData
 {
     public int currentXP;
     public string[] unlockedSkillIds;
+}
+
+[Serializable]
+public class RunestoneSaveData
+{
+    public int[] activeRunestoneTypes;
+}
+
+[Serializable]
+public class DeathTypeBuffSaveData
+{
+    public int currentBuffType;
+    public float remainingTime;
 }

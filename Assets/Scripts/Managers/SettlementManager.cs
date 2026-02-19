@@ -35,6 +35,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     [Header("Food Consumption")]
     public float fishPerVillagerPerDay = 1f;
+    [SerializeField] private HungerDistributionMode hungerMode = HungerDistributionMode.Prioritized;
 
     private void Awake()
     {
@@ -159,9 +160,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
     
     private void UpdateVillagers(float deltaTime)
     {
-        foreach (Villager villager in allVillagers)
+        for (int i = allVillagers.Count - 1; i >= 0; i--)
         {
-            villager.UpdateLife(deltaTime);
+            allVillagers[i].UpdateLife(deltaTime);
         }
     }
     
@@ -211,7 +212,16 @@ public class SettlementManager : MonoBehaviour, ISaveable
             return;
 
         int villagerCount = allVillagers.Count;
-        float totalFishNeeded = villagerCount * fishPerVillagerPerDay;
+        float effectiveFishPerVillager = fishPerVillagerPerDay;
+
+        // Apply Rationing runestone bonus (-1 food per villager)
+        if (RunestoneManager.Instance != null)
+        {
+            effectiveFishPerVillager += RunestoneManager.Instance.GetFoodConsumptionModifier();
+            effectiveFishPerVillager = Mathf.Max(0f, effectiveFishPerVillager);
+        }
+
+        float totalFishNeeded = villagerCount * effectiveFishPerVillager;
 
         if (totalFishNeeded <= 0)
         {
@@ -234,38 +244,50 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
         else
         {
-            // Not enough fish - villagers go hungry
             Debug.LogWarning($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
 
-            // Consume what we have
             if (availableFish > 0)
-            {
                 ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
-                int fedVillagers = Mathf.FloorToInt(availableFish / fishPerVillagerPerDay);
-                Debug.LogWarning($"Only fed {fedVillagers}/{villagerCount} villagers. {villagerCount - fedVillagers} villagers went hungry!");
-            }
-            else
-            {
-                Debug.LogWarning($"No fish available! All {villagerCount} villagers went hungry!");
-            }
 
-            // Select random villagers to go hungry
-            List<Villager> hungryVillagers = new List<Villager>(allVillagers);
-            int villagersToFeed = Mathf.FloorToInt(availableFish / fishPerVillagerPerDay);
-            hungryVillagers = hungryVillagers.OrderBy(v => Random.value).ToList(); // Randomize order
-            for (int i = 0; i < hungryVillagers.Count; i++)
-            {
-                if (i >= villagersToFeed)
-                {
-                    hungryVillagers[i].HandleHunger(true);
-                }
-                else
-                {
-                    hungryVillagers[i].HandleHunger(false);
-                }
-            }
+            if (hungerMode == HungerDistributionMode.Shared)
+                ApplySharedHunger(availableFish, effectiveFishPerVillager);
+            else
+                ApplyPrioritizedHunger(availableFish, effectiveFishPerVillager);
         }
     }
+
+    /// <summary>
+    /// Prioritized: randomly chosen villagers eat fully; the rest get nothing and starve.
+    /// </summary>
+    private void ApplyPrioritizedHunger(float availableFish, float fishPerVillager)
+    {
+        int fedCount = fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : allVillagers.Count;
+        Debug.LogWarning($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
+
+        List<Villager> shuffled = allVillagers.OrderBy(v => Random.value).ToList();
+        for (int i = 0; i < shuffled.Count; i++)
+            shuffled[i].HandleHunger(i >= fedCount);
+    }
+
+    /// <summary>
+    /// Shared: food divided evenly across all villagers; everyone takes proportional hunger damage.
+    /// 0 fish = 100% damage to all. Missing 1 of 3 fish = 33% damage to all.
+    /// </summary>
+    private void ApplySharedHunger(float availableFish, float fishPerVillager)
+    {
+        if (fishPerVillager <= 0f || allVillagers.Count == 0) return;
+
+        float foodPerVillager = availableFish / allVillagers.Count;
+        float hungerFraction = Mathf.Clamp01((fishPerVillager - foodPerVillager) / fishPerVillager);
+
+        Debug.LogWarning($"Shared hunger: {foodPerVillager:F2}/{fishPerVillager:F2} food each ({hungerFraction * 100f:F0}% shortage).");
+
+        foreach (var villager in allVillagers)
+            villager.HandleSharedHunger(hungerFraction);
+    }
+
+    public void SetHungerMode(HungerDistributionMode mode) => hungerMode = mode;
+    public HungerDistributionMode GetHungerMode() => hungerMode;
 
     #endregion
 
@@ -588,7 +610,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 posZ = v.transform.position.z,
                 spriteVariant = v.spriteVariant,
                 weaponName = GetEquipableItemName(v.GetComponent<CharacterController>()?.weapon),
-                shieldName = GetEquipableItemName(v.GetComponent<CharacterController>()?.shield)
+                shieldName = GetEquipableItemName(v.GetComponent<CharacterController>()?.shield),
+                torchName = GetEquipableItemName(v.GetComponent<ItemAttachment>()?.backAttachedItem),
+                activeWounds = v.activeWounds != null
+                    ? v.activeWounds.Select(w => (int)w).ToArray()
+                    : new int[0]
             };
 
             // Debug: Log weapon/shield being saved
@@ -695,7 +721,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
             v.lifeExpectancy = vs.lifeExpectancy;
             v.currentLifeStage = (LifeStage)vs.currentLifeStage;
             v.currentHealth = vs.health;
-            v.maxHealth = vs.maxHealth;
+            // maxHealth is not restored — ApplySkillBonuses() derives it from the prefab base
+            // plus any active runestone/skill-tree modifiers (which are loaded before this).
             v.morale = vs.morale;
             v.maxMorale = vs.maxMorale;
             v.isHungry = vs.isHungry;
@@ -760,6 +787,20 @@ public class SettlementManager : MonoBehaviour, ISaveable
                         Debug.LogWarning($"  -> Shield '{vs.shieldName}' NOT FOUND in WeaponDatabase!");
                     }
                 }
+                if (!string.IsNullOrEmpty(vs.torchName))
+                {
+                    EquipableItem torchPrefab = WeaponDatabase.Instance.GetTorchByName(vs.torchName);
+                    if (torchPrefab != null)
+                    {
+                        GameObject torchInstance = Instantiate(torchPrefab.gameObject);
+                        itemAttachment.EquipTorch(torchInstance);
+                        Debug.Log($"  -> Torch '{vs.torchName}' equipped successfully");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"  -> Torch '{vs.torchName}' NOT FOUND in WeaponDatabase!");
+                    }
+                }
             }
             else if (itemAttachment == null)
             {
@@ -769,6 +810,16 @@ public class SettlementManager : MonoBehaviour, ISaveable
             {
                 Debug.LogWarning($"Loading {vs.villagerName}: WeaponDatabase.Instance is null!");
             }
+
+            // Restore wounds before ApplySkillBonuses so the HP penalty is included.
+            if (vs.activeWounds != null)
+            {
+                foreach (int w in vs.activeWounds)
+                    v.activeWounds.Add((WoundType)w);
+            }
+
+            // Derive maxHealth from base + active modifiers (runestones/skill tree/wounds already set).
+            v.ApplySkillBonuses();
 
             villagerObj.name = vs.villagerName;
             villagerLookup[vs.id] = v;
@@ -895,6 +946,12 @@ public class SettlementManager : MonoBehaviour, ISaveable
     }
 
     #endregion
+}
+
+public enum HungerDistributionMode
+{
+    Prioritized, // Some villagers eat fully; the rest starve completely
+    Shared       // Food split evenly; all take proportional hunger damage
 }
 
 /// <summary>

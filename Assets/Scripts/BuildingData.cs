@@ -117,6 +117,7 @@ public enum ResourceType
     Wood,
     Stone,
     Iron,
+    Honey,
     Weapons,
     Tools,
     Armor,
@@ -124,5 +125,6 @@ public enum ResourceType
     Sails,
     Leather,
     Mead,
-    Planks
+    Planks,
+    Gold
 }
