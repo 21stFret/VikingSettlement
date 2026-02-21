@@ -89,12 +89,15 @@ public class BuildingSelector : MonoBehaviour, IClickable
         if (selectionIndicator != null)
             selectionIndicator.SetActive(true);
 
-        // Show info panel
+        // Show info panel and pause game while it is open
         if (sharedInfoPanel != null)
         {
             sharedInfoPanel.ShowBuilding(building, this);
         }
-        
+
+        if (PauseManager.Instance != null)
+            PauseManager.Instance.EnterDialoguePause();
+
         // Optionally focus camera on this building
         if (CameraController.Instance != null)
         {

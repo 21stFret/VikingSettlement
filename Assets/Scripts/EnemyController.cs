@@ -12,6 +12,16 @@ public class EnemyController : CharacterController
         base.Awake();
         enemyData = GetComponent<Enemy>();
         characterFaction = Faction.Enemy;
+        useReactiveBlocking = true;
+    }
+
+    /// <summary>
+    /// Always use the enemy's own attackCooldown — weapons affect damage and animation
+    /// type only, not attack speed for enemies.
+    /// </summary>
+    public override float GetAttackDelay()
+    {
+        return enemyData != null ? enemyData.attackCooldown : attackDelay;
     }
 
     protected override void Update()
@@ -66,7 +76,8 @@ public class EnemyController : CharacterController
             }
             float totalDamage = damage + weaponDamage;
             Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
-            target.TakeDamage(totalDamage);
+            target.TakeDamage(totalDamage, weapon);
+            CheckParryAndStun(hit);
         }
     }
 

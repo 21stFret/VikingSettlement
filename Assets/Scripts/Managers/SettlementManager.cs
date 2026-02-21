@@ -611,7 +611,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 spriteVariant = v.spriteVariant,
                 weaponName = GetEquipableItemName(v.GetComponent<CharacterController>()?.weapon),
                 shieldName = GetEquipableItemName(v.GetComponent<CharacterController>()?.shield),
-                torchName = GetEquipableItemName(v.GetComponent<ItemAttachment>()?.backAttachedItem),
+                torchName = GetEquipableItemName(v.GetComponent<CharacterController>()?.torch),
                 activeWounds = v.activeWounds != null
                     ? v.activeWounds.Select(w => (int)w).ToArray()
                     : new int[0]

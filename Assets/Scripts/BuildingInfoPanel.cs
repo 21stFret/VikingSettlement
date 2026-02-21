@@ -89,12 +89,15 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         gameObject.SetActive(false);
         currentBuilding = null;
+
+        if (PauseManager.Instance != null)
+            PauseManager.Instance.ExitDialoguePause();
+
         CloseAssignPanel();
         if (buildingSelector != null)
         {
             buildingSelector.Deselect();
         }
-            
     }
     
     /// <summary>

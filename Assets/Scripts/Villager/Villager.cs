@@ -461,6 +461,21 @@ public class Villager : TargetHealth
     /// </summary>
     protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
     {
+        // Active block: route all damage to shield durability, no HP damage.
+        // Attacks from behind bypass the block entirely.
+        if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
+        {
+            if ((_controller.isBlocking || _controller.isParrying)
+                && !_controller.IsAttackFromBehind(_controller.lastAttackerPosition))
+            {
+                int durDamage = _controller.isParrying
+                    ? Mathf.CeilToInt(rawDamage * 0.5f)
+                    : Mathf.CeilToInt(rawDamage);
+                _controller.shield.TakeDurabilityDamage(durDamage);
+                return 0f;
+            }
+        }
+
         float reduced = rawDamage;
 
         // Apply defense stat
@@ -496,14 +511,6 @@ public class Villager : TargetHealth
         }
 
         reduced -= totalDefense;
-
-        // Apply shield if equipped and not broken
-        if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
-        {
-            reduced -= _controller.shield.strength;
-            // Shield absorbs the hit — take durability damage equal to raw incoming damage
-            _controller.shield.TakeDurabilityDamage(Mathf.CeilToInt(rawDamage));
-        }
 
         return reduced;
     }

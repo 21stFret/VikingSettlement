@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b59017dcfb4829140bf3e05290cb6f2b
+guid: 0c53781ad4ea6414c86b8204ddc5e62d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6417791950613746532
-    second: tinyShield_0
+      213: 646670960776403769
+    second: tinyShieldDamaged2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 16
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: 4
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: tinyShield_0
+      name: tinyShieldDamaged2_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c9c6e4d493c6fe6a0800000000000000
-      internalID: -6417791950613746532
+      spriteID: 93b53a700df69f800800000000000000
+      internalID: 646670960776403769
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      tinyShield_0: -6417791950613746532
+      tinyShieldDamaged2_0: 646670960776403769
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

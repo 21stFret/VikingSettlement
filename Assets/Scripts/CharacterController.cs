@@ -40,6 +40,22 @@ public class CharacterController : MonoBehaviour
     [SerializeField] public float attackDelay = 1f;
     public bool friendlyFire = false;
 
+    [Header("Blocking")]
+    public bool isBlocking = false;
+    public bool isParrying = false;
+    [SerializeField] protected float parryStunDuration = 1.5f;
+    [SerializeField] private ParticleSystem stunEffect;
+
+    [Header("AI Blocking")]
+    public bool useReactiveBlocking = false;
+    public int maxBlockCharges = 1;
+    [SerializeField] private float blockCooldown = 5f;
+    [Tooltip("How long a reactive block holds before auto-clearing if no hit lands. Should match the attack animation's windup duration.")]
+    [SerializeField] protected float reactiveBlockDuration = 1.5f;
+    private int currentBlockCharges;
+    private float blockCooldownTimer;
+    private bool isOnBlockCooldown;
+
     protected Rigidbody2D rb;
     protected Collider2D characterCollider;
     protected Vector2 movement;
@@ -72,10 +88,17 @@ public class CharacterController : MonoBehaviour
     protected static readonly int SpearAttackTrigger = Animator.StringToHash("SpearAttack");
     protected static readonly int AxeAttackTrigger = Animator.StringToHash("AxeAttack");
 
+    [HideInInspector]
     public EquipableItem weapon;
+    [HideInInspector]
     public EquipableItem shield;
+    [HideInInspector]
+    public EquipableItem torch;
+    [HideInInspector]
     public ItemAttachment itemAttachment;
-
+    [HideInInspector]
+    public Vector2 lastAttackerPosition;
+    [HideInInspector]
     public Faction characterFaction = Faction.Neutral;
 
     // Cache of valid animator parameter hashes to avoid errors
@@ -106,6 +129,8 @@ public class CharacterController : MonoBehaviour
         // Configure Rigidbody2D for top-down movement
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        currentBlockCharges = maxBlockCharges;
     }
 
     /// <summary>
@@ -136,6 +161,17 @@ public class CharacterController : MonoBehaviour
 
     protected virtual void Update()
     {
+        // Tick AI block cooldown regardless of movement state
+        if (isOnBlockCooldown)
+        {
+            blockCooldownTimer -= Time.deltaTime;
+            if (blockCooldownTimer <= 0f)
+            {
+                isOnBlockCooldown = false;
+                currentBlockCharges = maxBlockCharges;
+            }
+        }
+
         if (!canMove)
         {
             movement = Vector2.zero;
@@ -176,6 +212,9 @@ public class CharacterController : MonoBehaviour
             float woundPenaltyPct = WoundDatabase.TotalMoveSpeedPenaltyPct(villager.activeWounds);
             speed *= (1f - woundPenaltyPct / 100f);
         }
+
+        if (isBlocking)
+            speed *= 0.5f;
 
         return speed;
     }
@@ -329,7 +368,7 @@ public class CharacterController : MonoBehaviour
     /// Get the current attack delay (uses weapon's attackSpeed if equipped, otherwise default)
     /// Applies skill tree attack speed bonuses.
     /// </summary>
-    public float GetAttackDelay()
+    public virtual float GetAttackDelay()
     {
         float baseDelay = weapon != null ? weapon.attackSpeed : attackDelay;
         var villager = GetComponent<Villager>();
@@ -371,6 +410,7 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     public bool CanAttack()
     {
+        if (isBlocking) return false;
         return Time.time - lastAttackTime >= GetAttackDelay();
     }
 
@@ -456,12 +496,60 @@ public class CharacterController : MonoBehaviour
             
             if (!hitGameObjects.Contains(hit.gameObject))
             {
-                hitGameObjects.Add(hit.gameObject); // Mark this gameobject as hit
+                hitGameObjects.Add(hit.gameObject);
+                // Refresh attacker position at the moment of impact
+                var targetCC = hit.GetComponent<CharacterController>();
+                if (targetCC != null)
+                    targetCC.lastAttackerPosition = (Vector2)transform.position;
                 OnHitTarget(hit);
             }
         }
 
         isAttacking = true;
+    }
+
+    /// <summary>
+    /// Scans the attack area and notifies targets that an attack is incoming so they can
+    /// raise their shield reactively. No damage is dealt here.
+    /// Call this from an animation event at the START of the attack windup, before
+    /// PerformAttackHitbox fires at the actual hit frame.
+    /// </summary>
+    public virtual void NotifyAttackWindup()
+    {
+        Vector2 adjustedOffset = currentHitboxOffset;
+        if (cachedMoveX < 0.01f)
+            adjustedOffset.x = -Math.Abs(adjustedOffset.x);
+        else if (cachedMoveX > 0.01f)
+            adjustedOffset.x = Math.Abs(adjustedOffset.x);
+
+        Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
+            (Vector2)transform.position + adjustedOffset, currentHitboxSize, 0f, attackTargetLayer);
+
+        HashSet<GameObject> notified = new HashSet<GameObject>();
+        foreach (var hit in hitObjects)
+        {
+            if (hit.gameObject == this.gameObject) continue;
+            if (notified.Contains(hit.gameObject)) continue;
+            notified.Add(hit.gameObject);
+
+            var targetCC = hit.GetComponent<CharacterController>();
+            if (targetCC != null)
+            {
+                targetCC.lastAttackerPosition = (Vector2)transform.position;
+                targetCC.NotifyIncomingAttack(this);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns true if worldPos is on the opposite side to this character's facing direction.
+    /// Uses transform.localScale.x as the facing ground-truth (set by FlipSprite).
+    /// </summary>
+    public bool IsAttackFromBehind(Vector2 worldPos)
+    {
+        float dx = worldPos.x - transform.position.x;
+        bool facingRight = transform.localScale.x >= 0f;
+        return facingRight ? dx < 0f : dx > 0f;
     }
 
     /// <summary>
@@ -538,6 +626,52 @@ public class CharacterController : MonoBehaviour
     }
 
     /// <summary>
+    /// Called when an attack hitbox overlaps this character.
+    /// If AI reactive blocking is enabled and charges are available, raises shield for this hit.
+    /// </summary>
+    public void NotifyIncomingAttack(CharacterController attacker)
+    {
+        if (!useReactiveBlocking) return;
+        if (attacker.characterFaction == characterFaction) return;
+        if (shield == null || shield.IsBroken) return;
+        if (isOnBlockCooldown || currentBlockCharges <= 0) return;
+
+        isBlocking = true;
+        currentBlockCharges--;
+        StartCoroutine(ClearBlockAfterDelay(reactiveBlockDuration));
+
+        if (currentBlockCharges <= 0)
+        {
+            isOnBlockCooldown = true;
+            blockCooldownTimer = GetEffectiveBlockCooldown();
+        }
+    }
+
+    private IEnumerator ClearBlockAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isBlocking = false;
+    }
+
+    /// <summary>
+    /// Override in subclasses to scale block cooldown with character stats.
+    /// </summary>
+    protected virtual float GetEffectiveBlockCooldown() => blockCooldown;
+
+    /// <summary>
+    /// If the target was parrying when we hit them, stun ourselves. Call after TakeDamage.
+    /// </summary>
+    protected void CheckParryAndStun(Collider2D hit)
+    {
+        var targetCC = hit.GetComponent<CharacterController>();
+        if (targetCC != null && targetCC.isParrying
+            && targetCC.shield != null && !targetCC.shield.IsBroken)
+        {
+            ApplyStun(parryStunDuration);
+        }
+    }
+
+    /// <summary>
     /// Stun the character for duration seconds — used by parry and Heavy Strike.
     /// Prevents movement and attacks for the duration.
     /// </summary>
@@ -549,9 +683,22 @@ public class CharacterController : MonoBehaviour
     private IEnumerator StunCoroutine(float duration)
     {
         canMove = false;
-        // Push lastAttackTime forward so attack can't fire during stun
         lastAttackTime = Time.time + duration;
+
+        if (stunEffect != null)
+            stunEffect.Play();
+
+        if (animator != null)
+            animator.SetBool("Stunned", true);
+
         yield return new WaitForSeconds(duration);
+
+        if (stunEffect != null)
+            stunEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+        if (animator != null)
+            animator.SetBool("Stunned", false);
+
         canMove = true;
     }
 
@@ -580,8 +727,8 @@ public class CharacterController : MonoBehaviour
                 cachedMoveX = lastMoveDirection.x;
             }
 
-            // Handle sprite flipping
-            if (flipSpriteOnDirection && spriteRenderer != null)
+            // Handle sprite flipping — locked while blocking so the shield always faces the attacker
+            if (flipSpriteOnDirection && spriteRenderer != null && !isBlocking)
             {
                 if (movement.x > 0.01f)
                 {
@@ -629,6 +776,12 @@ public class CharacterController : MonoBehaviour
         if (shield != null)
         {
             shield.gameObject.SetActive(!isDead);
+        }
+
+        if (isDead && stunEffect != null)
+        {
+            StopCoroutine(nameof(StunCoroutine));
+            stunEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
     }
 

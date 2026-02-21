@@ -17,6 +17,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private bool inputEnabled = true;
     private bool isAttackHeld = false;
+    private float blockPressTime = -999f;
+    [SerializeField] private float parryWindowDuration = 0.3f;
 
     // Input System
     private PlayerInputActions inputActions;
@@ -139,7 +141,21 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Only apply keyboard input if not using mouse movement and input is enabled
+        // Block input (right mouse button) — resolved first so movement uses current frame's state
+        var mouse = UnityEngine.InputSystem.Mouse.current;
+        if (mouse != null)
+        {
+            if (mouse.rightButton.wasPressedThisFrame)
+                blockPressTime = Time.time;
+
+            bool hasShield = controller.shield != null && !controller.shield.IsBroken;
+            bool inParryWindow = inputEnabled && hasShield && (Time.time - blockPressTime) < parryWindowDuration;
+
+            controller.isParrying = inParryWindow;
+            controller.isBlocking = inParryWindow || (inputEnabled && hasShield && mouse.rightButton.isPressed);
+        }
+
+        // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
         if (!useMouseMovement && inputEnabled)
         {
             controller.SetMovement(moveInput * playerMoveSpeed);
@@ -194,9 +210,12 @@ public class PlayerController : MonoBehaviour
             targetAI.SetAIEnabled(true);
         }
 
-        // Stop current movement
+        // Restore reactive blocking on old target and clear its block state
         if (controller != null)
         {
+            controller.useReactiveBlocking = true;
+            controller.isBlocking = false;
+            controller.isParrying = false;
             controller.Stop();
         }
 
@@ -211,7 +230,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Disable AI on new target (player controls this villager)
+        // Disable reactive blocking and AI on new target (player controls this villager)
+        controller.useReactiveBlocking = false;
         if (targetAI != null)
         {
             targetAI.SetAIEnabled(false);
@@ -250,6 +270,8 @@ public class PlayerController : MonoBehaviour
             {
                 controller.SetMovement(Vector2.zero);
                 controller.SetSprinting(false);
+                controller.isBlocking = false;
+                controller.isParrying = false;
             }
         }
     }

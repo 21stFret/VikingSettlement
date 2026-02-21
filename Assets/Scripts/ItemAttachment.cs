@@ -17,10 +17,6 @@ public class ItemAttachment : MonoBehaviour
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
     [SerializeField] private AttachmentPoint torchAttachPoint = AttachmentPoint.Back;
 
-    public EquipableItem leftHandAttachedItem;
-    public EquipableItem rightHandAttachedItem;
-    public EquipableItem backAttachedItem;
-
     public enum AttachmentPoint
     {
         LeftHand,
@@ -47,6 +43,7 @@ public class ItemAttachment : MonoBehaviour
         if (attachPoint != null)
         {
             item.SetParent(attachPoint);
+            item.gameObject.SetActive(true);
             item.localPosition = Vector3.zero;
             item.localRotation = Quaternion.identity;
         }
@@ -61,7 +58,36 @@ public class ItemAttachment : MonoBehaviour
         {
             CC.shield = newShield.GetComponent<EquipableItem>();
             CC.shield.isEquipped = true;
-        } 
+            CC.shield.OnBroken += UnequipShield;
+        }
+    }
+
+    /// <summary>
+    /// Remove and destroy the equipped shield, clearing all related state.
+    /// Called automatically when shield durability reaches zero.
+    /// </summary>
+    public void UnequipShield()
+    {
+        CharacterController CC = GetComponent<CharacterController>();
+        if (CC != null)
+        {
+            // Detach and play both break effects before the shield GO is destroyed
+            if (CC.shield != null)
+            {
+                PlayDetachedEffect(CC.shield.sheildSparkEffect);
+                PlayDetachedEffect(CC.shield.shatterEffect);
+            }
+
+            CC.isBlocking = false;
+            CC.isParrying = false;
+            CC.shield = null;
+        }
+
+        if (shield != null)
+        {
+            Destroy(shield);
+            shield = null;
+        }
     }
 
     public void EquipWeapon(GameObject newWeapon)
@@ -101,9 +127,13 @@ public class ItemAttachment : MonoBehaviour
     {
         torch = newTorch;
         AttachItem(newTorch.transform, torchAttachPoint);
-        backAttachedItem = newTorch.GetComponent<EquipableItem>();
-        if (backAttachedItem != null)
-            backAttachedItem.isEquipped = true;
+        CharacterController CC = GetComponent<CharacterController>();
+        if (CC != null)
+        {
+            CC.torch = newTorch.GetComponent<EquipableItem>();
+            if (CC.torch != null)
+                CC.torch.isEquipped = true;
+        }
     }
 
     public void GiveRandomTorch()
@@ -117,6 +147,14 @@ public class ItemAttachment : MonoBehaviour
         }
     }
     
+    private static void PlayDetachedEffect(ParticleSystem fx)
+    {
+        if (fx == null) return;
+        fx.transform.SetParent(null);
+        fx.Play();
+        Destroy(fx.gameObject, fx.main.duration + fx.main.startLifetime.constantMax);
+    }
+
     private Transform GetAttachmentPoint(AttachmentPoint point)
     {
         switch (point)

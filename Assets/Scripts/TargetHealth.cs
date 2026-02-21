@@ -44,9 +44,11 @@ public class TargetHealth : MonoBehaviour
 
         // Combat hits (weapon != null) can trigger wound rolls on significant damage
         if (weapon != null && finalDamage > 0f)
+        {
             OnSignificantHPDamage(finalDamage);
+            OnDamageTaken(finalDamage, weapon);
+        }
 
-        OnDamageTaken(finalDamage, weapon);
 
         Debug.Log($"{gameObject.name} took {finalDamage} damage (raw: {damage}, trueDamage: {trueDamage})");
 

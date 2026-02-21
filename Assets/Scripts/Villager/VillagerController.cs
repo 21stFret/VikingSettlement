@@ -13,6 +13,33 @@ public class VillagerController : CharacterController
         base.Awake();
         villagerData = GetComponent<Villager>();
         characterFaction = Faction.Player;
+        useReactiveBlocking = true;
+    }
+
+    /// <summary>
+    /// Combat skill multiplier — scales attack speed, damage, and block cooldown.
+    /// Starts at 1x (skill=1) and gains 5% per skill point.
+    /// </summary>
+    private float GetCombatSkillMultiplier()
+    {
+        if (villagerData == null) return 1f;
+        return 1f + (villagerData.skills.combat - 1f) * 0.05f;
+    }
+
+    /// <summary>
+    /// Attack delay reduced by combat skill — higher skill = faster attacks.
+    /// </summary>
+    public override float GetAttackDelay()
+    {
+        return base.GetAttackDelay() / GetCombatSkillMultiplier();
+    }
+
+    /// <summary>
+    /// Block cooldown reduced by combat skill — higher skill = charges refill faster.
+    /// </summary>
+    protected override float GetEffectiveBlockCooldown()
+    {
+        return base.GetEffectiveBlockCooldown() / GetCombatSkillMultiplier();
     }
 
     protected override void Update()
@@ -68,13 +95,13 @@ public class VillagerController : CharacterController
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && villagerData != null)
         {
-            // Use villager's damage stat instead of weapon damage
             float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;
-            float damage = weaponDamage + villagerDamage;
+            float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
 
             target.TakeDamage(damage, weapon);
+            CheckParryAndStun(hit);
         }
     }
 }
