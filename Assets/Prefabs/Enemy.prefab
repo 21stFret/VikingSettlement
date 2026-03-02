@@ -11177,9 +11177,12 @@ MonoBehaviour:
   useReactiveBlocking: 0
   maxBlockCharges: 1
   blockCooldown: 5
+  reactiveBlockDuration: 1.5
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
+  torch: {fileID: 0}
   itemAttachment: {fileID: 0}
+  lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
 --- !u!114 &6713158499483296687
 MonoBehaviour:
@@ -11218,7 +11221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ItemAttachment
   leftHandAttachment: {fileID: 3263248016914883596}
-  rightHandAttachment: {fileID: 4233878493513126470}
+  rightHandAttachment: {fileID: 4849225661351066656}
   backAttachment: {fileID: 0}
   shield: {fileID: 0}
   weapon: {fileID: 0}
@@ -11226,9 +11229,6 @@ MonoBehaviour:
   shieldAttachPoint: 0
   weaponAttachPoint: 1
   torchAttachPoint: 2
-  leftHandAttachedItem: {fileID: 0}
-  rightHandAttachedItem: {fileID: 0}
-  backAttachedItem: {fileID: 0}
 --- !u!58 &2467279123356572261
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -11350,37 +11350,13 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4849225661351066656}
     m_Modifications:
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3902751356614634231, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_Name
       value: SwordAttch
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7362057055399559573, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_LocalPosition.x

@@ -126,6 +126,14 @@ public class CombatTestManager : MonoBehaviour
             }
 
             villager.ApplySkillBonuses();
+
+            // Set raid follow AI — allies follow the player character
+            var ai = go.GetComponent<VillagerAI>();
+            if (ai != null && _player != null)
+            {
+                ai.SetRaidMode(true, _player.transform);
+                PlayerController.Instance?.RegisterRaidAlly(ai);
+            }
         }
 
         Debug.Log($"[CombatTest] Spawned {allySpawnPoints.Length} allies.");
@@ -133,6 +141,7 @@ public class CombatTestManager : MonoBehaviour
 
     public void ClearAllies()
     {
+        PlayerController.Instance?.ClearRaidAllies();
         foreach (var v in FindObjectsByType<Villager>(FindObjectsSortMode.None))
         {
             if (v != _player)

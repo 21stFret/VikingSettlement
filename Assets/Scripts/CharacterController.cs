@@ -415,6 +415,14 @@ public class CharacterController : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns 0 when the attack was just fired, 1 when ready to attack again.
+    /// </summary>
+    public float GetAttackCooldownProgress()
+    {
+        return Mathf.Clamp01((Time.time - lastAttackTime) / GetAttackDelay());
+    }
+
+    /// <summary>
     /// Perform an attack
     /// </summary>
     public virtual void Attack()

@@ -156,6 +156,7 @@ public class RaidSceneController : MonoBehaviour
         }
 
         // Second pass: set up AI for followers (everyone except player-controlled)
+        PlayerController.Instance?.ClearRaidAllies();
         foreach (var villager in raidParty)
         {
             if (villager == null || villager == playerControlled) continue;
@@ -164,6 +165,7 @@ public class RaidSceneController : MonoBehaviour
             if (ai != null)
             {
                 ai.SetRaidMode(true, playerControlled.transform);
+                PlayerController.Instance?.RegisterRaidAlly(ai);
             }
         }
 

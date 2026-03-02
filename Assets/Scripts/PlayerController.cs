@@ -20,6 +20,14 @@ public class PlayerController : MonoBehaviour
     private float blockPressTime = -999f;
     [SerializeField] private float parryWindowDuration = 0.3f;
 
+    // Shield wall
+    private bool _shieldWallActive = false;
+    private readonly System.Collections.Generic.List<VillagerAI> _raidAllies
+        = new System.Collections.Generic.List<VillagerAI>();
+    [Header("Shield Wall")]
+    [Tooltip("World-space gap between each villager in the formation.")]
+    [SerializeField] private float wallSlotSpacing = 1f;
+
     // Input System
     private PlayerInputActions inputActions;
 
@@ -62,8 +70,9 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed += OnStopMove;
         inputActions.Player.Attack.performed += OnAttack;
         inputActions.Player.Attack.canceled += OnAttackReleased;
+        inputActions.Player.ShieldWall.performed += OnShieldWall;
     }
-    
+
     private void OnDisable()
     {
         inputActions.Player.Move.performed -= OnMove;
@@ -74,6 +83,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed -= OnStopMove;
         inputActions.Player.Attack.performed -= OnAttack;
         inputActions.Player.Attack.canceled -= OnAttackReleased;
+        inputActions.Player.ShieldWall.performed -= OnShieldWall;
         inputActions.Disable();
     }
     
@@ -133,6 +143,15 @@ public class PlayerController : MonoBehaviour
         isAttackHeld = false;
     }
 
+    private void OnShieldWall(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled) return;
+        if (_shieldWallActive)
+            DeactivateShieldWall();
+        else
+            ActivateShieldWall();
+    }
+
     private void Update()
     {
         // Skip if we don't have a valid controller
@@ -152,7 +171,16 @@ public class PlayerController : MonoBehaviour
             bool inParryWindow = inputEnabled && hasShield && (Time.time - blockPressTime) < parryWindowDuration;
 
             controller.isParrying = inParryWindow;
-            controller.isBlocking = inParryWindow || (inputEnabled && hasShield && mouse.rightButton.isPressed);
+            if (_shieldWallActive)
+            {
+                // Shield wall: player holds shield permanently, no parrying
+                controller.isParrying = false;
+                controller.isBlocking = hasShield;
+            }
+            else
+            {
+                controller.isBlocking = inParryWindow || (inputEnabled && hasShield && mouse.rightButton.isPressed);
+            }
         }
 
         // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
@@ -171,6 +199,7 @@ public class PlayerController : MonoBehaviour
         {
             controller.Attack();
         }
+
     }
     
     /// <summary>
@@ -282,6 +311,83 @@ public class PlayerController : MonoBehaviour
     public bool IsInputEnabled()
     {
         return inputEnabled;
+    }
+
+    // ── Raid ally registration ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Register an ally villager's AI so it can be included in shield wall commands.
+    /// Call once per ally when spawning/setting up raid mode.
+    /// </summary>
+    public void RegisterRaidAlly(VillagerAI ai)
+    {
+        if (ai != null && !_raidAllies.Contains(ai))
+            _raidAllies.Add(ai);
+    }
+
+    /// <summary>
+    /// Remove all registered raid allies (call when raid ends or allies are cleared).
+    /// </summary>
+    public void ClearRaidAllies()
+    {
+        _raidAllies.Clear();
+        _shieldWallActive = false;
+    }
+
+    // ── Shield Wall ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Forms a shield wall perpendicular to the player's current facing.
+    /// Allies line up alternating above/below with the player at the centre.
+    /// Wall direction is fixed at activation; it moves with the party but cannot rotate.
+    /// </summary>
+    public void ActivateShieldWall()
+    {
+        if (controller == null || controlTarget == null) return;
+
+        // Perpendicular to player's last move direction.
+        // e.g. facing right → wall runs vertically.
+        Vector2 facing = controller.GetLastMoveDirection();
+        if (facing == Vector2.zero) facing = Vector2.right;
+        Vector2 perp = new Vector2(-facing.y, facing.x); // rotate 90°
+
+        int slotIndex = 0;
+        foreach (var ai in _raidAllies)
+        {
+            if (ai == null) continue;
+
+            // Slot pattern: 0→+1, 1→−1, 2→+2, 3→−2, …  (player stays in centre)
+            int magnitude = slotIndex / 2 + 1;
+            int side      = slotIndex % 2 == 0 ? 1 : -1;
+            ai.wallFormationOffset = perp * (magnitude * side * wallSlotSpacing);
+            ai.SetRaidBehavior(VillagerAI.RaidBehavior.ShieldWall);
+
+            var villager = ai.GetComponent<Villager>();
+            villager?.personalUI?.ShowSpeech("Shield Wall!", 2f);
+
+            slotIndex++;
+        }
+
+        // Player calls it out too
+        controlTarget.personalUI?.ShowSpeech("Shield Wall!", 2f);
+
+        _shieldWallActive = true;
+        Debug.Log($"[PlayerController] Shield wall activated ({slotIndex} villagers).");
+    }
+
+    /// <summary>
+    /// Dissolves the shield wall and returns all allies to follow mode.
+    /// </summary>
+    public void DeactivateShieldWall()
+    {
+        foreach (var ai in _raidAllies)
+        {
+            if (ai == null) continue;
+            ai.SetRaidBehavior(VillagerAI.RaidBehavior.Follow);
+        }
+
+        _shieldWallActive = false;
+        Debug.Log("[PlayerController] Shield wall deactivated.");
     }
 }
 

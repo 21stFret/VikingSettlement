@@ -18,12 +18,12 @@ public class VillagerController : CharacterController
 
     /// <summary>
     /// Combat skill multiplier — scales attack speed, damage, and block cooldown.
-    /// Starts at 1x (skill=1) and gains 5% per skill point.
+    /// Ranges from 0.5× at skill 1 to 1.5× at skill 10.
     /// </summary>
     private float GetCombatSkillMultiplier()
     {
-        if (villagerData == null) return 1f;
-        return 1f + (villagerData.skills.combat - 1f) * 0.05f;
+        if (villagerData == null) return 0.5f;
+        return Mathf.Lerp(0.5f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
     }
 
     /// <summary>

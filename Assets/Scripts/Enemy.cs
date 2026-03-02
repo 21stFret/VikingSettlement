@@ -89,15 +89,7 @@ public class Enemy : TargetHealth
             }
         }
 
-        float reduced = rawDamage;
-
-        // Apply shield passive reduction if equipped but not actively blocking
-        if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
-        {
-            reduced -= _controller.shield.strength;
-        }
-
-        return reduced;
+        return rawDamage;
     }
 
     /// <summary>

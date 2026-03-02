@@ -31,6 +31,27 @@ public class VillagerAI : MonoBehaviour
     [SerializeField] private Transform followTarget; // Player-controlled villager to follow
     [SerializeField] private float followDistance = 2f; // How close to stay to the leader
     [SerializeField] private float maxFollowDistance = 8f; // Start following if further than this
+    [SerializeField] private RaidBehavior raidBehavior = RaidBehavior.Follow;
+
+    [Header("Separation")]
+    [Tooltip("Radius within which this villager pushes away from allies.")]
+    [SerializeField] private float separationRadius = 1.2f;
+    [Tooltip("How strongly allies are pushed apart. Scale relative to movement.")]
+    [SerializeField] private float separationStrength = 1.5f;
+
+    // Shield wall formation — set by PlayerController when wall activates
+    [HideInInspector] public Vector2 wallFormationOffset; // World-space offset from the leader
+    private bool _wallInPosition = false;                 // True once slot reached
+
+    /// <summary>
+    /// Active raid formation / behaviour. Switch via <see cref="SetRaidBehavior"/> at runtime.
+    /// </summary>
+    public enum RaidBehavior
+    {
+        Follow,     // Shadow the player — current default
+        ShieldWall, // Hold position and block (formation logic TBD)
+        Aggressive, // Hunt the nearest enemy independently (no follow)
+    }
 
     private VillagerController controller;
     private Villager villagerData;
@@ -51,6 +72,7 @@ public class VillagerAI : MonoBehaviour
         Combat,
         Fleeing,
         Following,
+        ShieldWall,      // Hold position, raise shield — expanded via SetRaidBehavior
         MovingToPosition // For cutscene movement
     }
     
@@ -65,8 +87,9 @@ public class VillagerAI : MonoBehaviour
     {
         if (!enableAI) return;
 
-        // Periodically check for threats (only if alive and mature)
-        if (villagerData != null && villagerData.currentLifeStage == LifeStage.Mature)
+        // Periodically check for threats (only if alive, mature, and not holding formation)
+        if (currentState != AIState.ShieldWall &&
+            villagerData != null && villagerData.currentLifeStage == LifeStage.Mature)
         {
             threatCheckTimer += Time.deltaTime;
             if (threatCheckTimer >= threatCheckInterval)
@@ -108,6 +131,10 @@ public class VillagerAI : MonoBehaviour
 
             case AIState.Following:
                 HandleFollowingState();
+                break;
+
+            case AIState.ShieldWall:
+                HandleShieldWallState();
                 break;
         }
     }
@@ -364,7 +391,9 @@ public class VillagerAI : MonoBehaviour
         }
         else if (distanceToThreat > combatEngageRange)
         {
-            controller.MoveTo(currentThreat.position);
+            // Approach the threat but offset by separation so allies spread around the target
+            Vector2 approachTarget = (Vector2)currentThreat.position + GetSeparationForce() * separationStrength;
+            controller.MoveTo(approachTarget);
 
             /*
             // Move towards threat if combat job, otherwise flee
@@ -462,6 +491,9 @@ public class VillagerAI : MonoBehaviour
             Vector2 targetPos = (Vector2)followTarget.position - directionToLeader * (followDistance * 0.5f);
             float distanceToTarget = Vector2.Distance(transform.position, targetPos);
 
+            // Offset target by separation so allies don't pile up
+            targetPos += GetSeparationForce() * separationStrength;
+
             // Check for obstacles
             RaycastHit2D hit = Physics2D.Raycast(transform.position, directionToLeader, distanceToTarget, movementLayerMask);
             if (hit.collider == null)
@@ -491,6 +523,65 @@ public class VillagerAI : MonoBehaviour
                 controller.Stop();
             }
         }
+    }
+
+    private void HandleShieldWallState()
+    {
+        if (followTarget == null) return;
+
+        // Target slot moves with the leader every frame
+        Vector2 slotPos = (Vector2)followTarget.position + wallFormationOffset;
+        float distToSlot = Vector2.Distance(transform.position, slotPos);
+
+        if (distToSlot > 0.4f)
+        {
+            // Still running to slot at full speed — shield down while closing distance
+            _wallInPosition = false;
+            controller.isBlocking = false;
+            controller.MoveTo(slotPos);
+        }
+        else
+        {
+            // In slot — raise shield; blocking gives 50% speed so the wall drifts with the leader
+            _wallInPosition = true;
+            controller.isBlocking = controller.shield != null && !controller.shield.IsBroken;
+
+            // Keep tracking the slot even while blocking (slot drifts as leader moves)
+            if (distToSlot > 0.1f)
+                controller.MoveTo(slotPos);
+            else
+                controller.Stop();
+        }
+        // Attacking is not permitted while in shield wall — do NOT call controller.Attack()
+    }
+
+    /// <summary>
+    /// Returns a repulsion vector pushing this villager away from nearby allies.
+    /// Strongest when overlapping, zero at <see cref="separationRadius"/>.
+    /// Only considers objects on the player layer (layer 6).
+    /// </summary>
+    private Vector2 GetSeparationForce()
+    {
+        Vector2 force = Vector2.zero;
+        Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, separationRadius, 1 << 6);
+        foreach (var col in nearby)
+        {
+            if (col.gameObject == gameObject) continue;
+            if (col.GetComponent<VillagerController>() == null) continue; // allies only
+
+            Vector2 away = (Vector2)transform.position - (Vector2)col.transform.position;
+            float dist = away.magnitude;
+            if (dist < 0.001f)
+            {
+                // Exactly overlapping — push in a pseudo-random direction
+                away = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
+                dist = 1f;
+            }
+            // Linear falloff: full strength at 0, zero at separationRadius
+            float scale = 1f - (dist / separationRadius);
+            force += away.normalized * scale;
+        }
+        return force;
     }
 
     private void CheckForThreats()
@@ -523,7 +614,8 @@ public class VillagerAI : MonoBehaviour
         if (nearestEnemy != null)
         {
             currentThreat = nearestEnemy.transform;
-            controller.SetMoveSpeed(controller.combatMoveSpeed);
+            if (controller.combatMoveSpeed > 0f)
+                controller.SetMoveSpeed(controller.combatMoveSpeed);
 
             // In raid mode, always be aggressive
             if (isInRaidMode)
@@ -574,10 +666,11 @@ public class VillagerAI : MonoBehaviour
         {
             // No threats detected
             currentThreat = null;
-            controller.SetMoveSpeed(controller.walkMoveSpeed);
+            if (controller.walkMoveSpeed > 0f)
+                controller.SetMoveSpeed(controller.walkMoveSpeed);
 
-            // In raid mode, go back to following when no threats
-            if (isInRaidMode && currentState == AIState.Combat)
+            // In raid mode, return to following from any combat/flee state
+            if (isInRaidMode && (currentState == AIState.Combat || currentState == AIState.Fleeing))
             {
                 currentState = AIState.Following;
             }
@@ -650,6 +743,35 @@ public class VillagerAI : MonoBehaviour
     public void SetFollowTarget(Transform target)
     {
         followTarget = target;
+    }
+
+    /// <summary>
+    /// Switch the raid formation / behaviour at runtime without leaving raid mode.
+    /// For ShieldWall, set <see cref="wallFormationOffset"/> before calling this.
+    /// </summary>
+    public void SetRaidBehavior(RaidBehavior behavior)
+    {
+        raidBehavior = behavior;
+        if (!isInRaidMode) return;
+
+        switch (behavior)
+        {
+            case RaidBehavior.Follow:
+                controller.isBlocking = false;
+                _wallInPosition = false;
+                currentState = AIState.Following;
+                break;
+            case RaidBehavior.ShieldWall:
+                _wallInPosition = false;
+                controller.Stop();
+                currentState = AIState.ShieldWall;
+                break;
+            case RaidBehavior.Aggressive:
+                controller.isBlocking = false;
+                _wallInPosition = false;
+                currentState = AIState.Idle; // threat check will immediately push to Combat
+                break;
+        }
     }
 
     // Cutscene support

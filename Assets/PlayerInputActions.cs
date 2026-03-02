@@ -172,6 +172,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ShieldWall"",
+                    ""type"": ""Button"",
+                    ""id"": ""1939b8f7-dd97-4fcf-b262-2186a4065399"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -372,6 +381,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""StrategicPause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ba20888b-9274-407d-932a-4ad0ee2ad2cd"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ShieldWall"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -389,6 +409,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_StrategicPause = m_Player.FindAction("StrategicPause", throwIfNotFound: true);
+        m_Player_ShieldWall = m_Player.FindAction("ShieldWall", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -478,6 +499,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_StrategicPause;
+    private readonly InputAction m_Player_ShieldWall;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -525,6 +547,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/StrategicPause".
         /// </summary>
         public InputAction @StrategicPause => m_Wrapper.m_Player_StrategicPause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ShieldWall".
+        /// </summary>
+        public InputAction @ShieldWall => m_Wrapper.m_Player_ShieldWall;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -578,6 +604,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started += instance.OnStrategicPause;
             @StrategicPause.performed += instance.OnStrategicPause;
             @StrategicPause.canceled += instance.OnStrategicPause;
+            @ShieldWall.started += instance.OnShieldWall;
+            @ShieldWall.performed += instance.OnShieldWall;
+            @ShieldWall.canceled += instance.OnShieldWall;
         }
 
         /// <summary>
@@ -616,6 +645,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started -= instance.OnStrategicPause;
             @StrategicPause.performed -= instance.OnStrategicPause;
             @StrategicPause.canceled -= instance.OnStrategicPause;
+            @ShieldWall.started -= instance.OnShieldWall;
+            @ShieldWall.performed -= instance.OnShieldWall;
+            @ShieldWall.canceled -= instance.OnShieldWall;
         }
 
         /// <summary>
@@ -719,5 +751,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnStrategicPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ShieldWall" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnShieldWall(InputAction.CallbackContext context);
     }
 }

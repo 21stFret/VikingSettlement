@@ -103,7 +103,7 @@ public class CombatRecorder : MonoBehaviour
         // through sRGB→linear→sRGB, preserving the original display colours.
         // Without this, URP's linear pipeline leaves linear data in the RT which
         // reads back as washed-out/overexposed when displayed via RawImage.
-        _renderTex   = new RenderTexture(captureWidth, captureHeight, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+        _renderTex   = new RenderTexture(captureWidth, captureHeight, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
         _readbackTex = new Texture2D(captureWidth, captureHeight, TextureFormat.RGBA32, false);
         _decodeTex   = new Texture2D(2, 2, TextureFormat.RGB24, false); // LoadImage resizes automatically
 
@@ -179,7 +179,7 @@ public class CombatRecorder : MonoBehaviour
 
     private void OnReadbackComplete(AsyncGPUReadbackRequest request)
     {
-        if (request.hasError) return;
+        if (request.hasError || _readbackTex == null) return;
         NativeArray<byte> data = request.GetData<byte>();
         _readbackTex.LoadRawTextureData(data);
         _readbackTex.Apply(false);
@@ -246,6 +246,37 @@ public class CombatRecorder : MonoBehaviour
     }
 
     // ── Save to disk ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Encodes all captured frames to an H.264 MP4 and opens the containing folder in Explorer.
+    /// Synchronous — blocks the main thread for a few seconds on large recordings.
+    /// Windows only; falls back to <see cref="SaveRecording"/> on other platforms.
+    /// </summary>
+    public void SaveAsMP4()
+    {
+        if (!HasRecording || _frames.Count == 0)
+        {
+            Debug.LogWarning("[CombatRecorder] Nothing to save.");
+            return;
+        }
+
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        string path = Path.Combine(
+            Application.persistentDataPath,
+            $"CombatRecording_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.mp4");
+
+        Debug.Log($"[CombatRecorder] Encoding {_frames.Count} frames to MP4…");
+        bool ok = WMFVideoEncoder.Encode(_frames.ToArray(), captureWidth, captureHeight, captureFps, path);
+        if (ok)
+        {
+            Debug.Log($"[CombatRecorder] Saved:\n{path}");
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+        }
+#else
+        Debug.LogWarning("[CombatRecorder] MP4 export is Windows-only. Saving as JPEG frames instead.");
+        SaveRecording();
+#endif
+    }
 
     /// <summary>
     /// Writes each captured frame as a JPEG into a timestamped folder under

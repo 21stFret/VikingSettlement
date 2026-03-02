@@ -169,7 +169,19 @@ public class CombatReplayUI : MonoBehaviour
 
     public void SaveRecording()
     {
-        _recorder?.SaveRecording();
+        StartCoroutine(SaveRoutine());
+    }
+
+    private IEnumerator SaveRoutine()
+    {
+        // Show "Saving…" for one frame so Unity can repaint before blocking.
+        if (timeLabel != null) timeLabel.text = "Saving\u2026";
+        yield return null;
+
+        _recorder?.SaveAsMP4();
+
+        // Restore label.
+        UpdateTimeLabel();
     }
 
     // ── Playback ───────────────────────────────────────────────────────────────

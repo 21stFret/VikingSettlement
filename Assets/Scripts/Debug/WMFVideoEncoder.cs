@@ -204,13 +204,12 @@ public static class WMFVideoEncoder
                 decodeTex.LoadImage(jpegFrames[i]);
                 Color32[] px = decodeTex.GetPixels32();
 
-                // Convert Unity RGBA (bottom-up) → WMF RGB32 = BGRA (top-down)
+                // Convert Unity RGBA → WMF RGB32 = BGRA (same row order)
                 for (int row = 0; row < height; row++)
                 {
-                    int srcRow = height - 1 - row;          // flip vertical
                     for (int col = 0; col < width; col++)
                     {
-                        Color32 c = px[srcRow * width + col];
+                        Color32 c = px[row * width + col];
                         int d = (row * width + col) * 4;
                         bgra[d]     = c.b;
                         bgra[d + 1] = c.g;
