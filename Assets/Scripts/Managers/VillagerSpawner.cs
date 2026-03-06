@@ -293,6 +293,9 @@ public class VillagerSpawner : MonoBehaviour
                 villager.age = Random.Range(18f, 40f);
             }
 
+            // Randomize starting skills
+            villager.skills.Randomize();
+
             //Give weapon, shield and torch
             villager.itemAttachment.GiveRandomWeapon();
             villager.itemAttachment.GiveRandomShield();

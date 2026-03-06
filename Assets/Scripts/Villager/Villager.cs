@@ -166,7 +166,7 @@ public class Villager : TargetHealth
     {
         float baseSkill = skills.GetSkillForJob(job);
         float moraleModifier = morale / 100f;
-        return baseSkill * moraleModifier;
+        return (1f + baseSkill * 0.5f) * moraleModifier;
     }
 
     public void UpdateLife(float deltaTime)
@@ -562,7 +562,8 @@ public class Villager : TargetHealth
             return;
         }
 
-        float fullDamage = Mathf.Max(currentHealth / 2f, 5f);
+        float minDmg = SettlementManager.Instance != null ? SettlementManager.Instance.minStarvationDamage : 5f;
+        float fullDamage = Mathf.Max(currentHealth / 2f, minDmg);
         TakeDamage(fullDamage * hungerFraction, null, true);
         ChangeMorale(-10f * hungerFraction);
         personalUI.ShowSpeech(hungerFraction >= 1f ? "I'm starving..." : "I'm hungry...", 2.0f);
@@ -571,8 +572,9 @@ public class Villager : TargetHealth
     private void ReduceHealthAndMoraleDueToHunger()
     {
         // Reduce health and morale due to hunger
+        int minDmg = SettlementManager.Instance != null ? Mathf.FloorToInt(SettlementManager.Instance.minStarvationDamage) : 5;
         int hungerDamage = Mathf.FloorToInt(currentHealth / 2);
-        hungerDamage = Mathf.Max(hungerDamage, 5); // Ensure at least 5 damage
+        hungerDamage = Mathf.Max(hungerDamage, minDmg);
         TakeDamage(hungerDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
         ChangeMorale(-10f); // Lose 10 morale due to hunger
         personalUI.ShowSpeech("I'm starving...", 2.0f);

@@ -39,12 +39,19 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private GameObject availableVillagerItemPrefab;
     [SerializeField] private Button closeAssignPanelButton;
     
+    [Header("Repair")]
+    [SerializeField] private GameObject repairSection;
+    [SerializeField] private Button repairButton;
+    [SerializeField] private Transform repairCostContainer;
+    [SerializeField] private GameObject repairCostItemPrefab;
+
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
     
     private Building currentBuilding;
     private List<GameObject> workerListItems = new List<GameObject>();
     private List<GameObject> availableVillagerItems = new List<GameObject>();
+    private List<GameObject> repairCostItems = new List<GameObject>();
 
     
     
@@ -55,6 +62,12 @@ public class BuildingInfoPanel : MonoBehaviour
         
         if (assignWorkerButton != null)
             assignWorkerButton.onClick.AddListener(OnAssignWorkerButtonClicked);
+
+        if (repairButton != null)
+            repairButton.onClick.AddListener(OnRepairButtonClicked);
+
+        if (repairSection != null)
+            repairSection.SetActive(false);
 
         if (closeAssignPanelButton != null)
             closeAssignPanelButton.onClick.AddListener(CloseAssignPanel);
@@ -90,8 +103,8 @@ public class BuildingInfoPanel : MonoBehaviour
         gameObject.SetActive(false);
         currentBuilding = null;
 
-        if (PauseManager.Instance != null)
-            PauseManager.Instance.ExitDialoguePause();
+        if (PlayerController.Instance != null)
+            PlayerController.Instance.SetInputEnabled(true);
 
         CloseAssignPanel();
         if (buildingSelector != null)
@@ -106,27 +119,88 @@ public class BuildingInfoPanel : MonoBehaviour
     private void UpdateDisplay()
     {
         if (currentBuilding == null) return;
-        
+
         // Building name and type
         if (buildingNameText != null)
             buildingNameText.text = currentBuilding.data.buildingName;
-        
+
         if (buildingTypeText != null)
             buildingTypeText.text = currentBuilding.data.buildingType.ToString();
-        
+
+        // Repair state overrides normal UI
+        if (currentBuilding.needsRepair)
+        {
+            if (repairSection != null)
+                repairSection.SetActive(true);
+
+            RefreshRepairCosts();
+
+            if (repairButton != null)
+                repairButton.interactable = currentBuilding.CanRepair();
+
+            if (productionSection != null) productionSection.SetActive(false);
+            if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(false);
+            if (workerCountText != null) workerCountText.gameObject.SetActive(false);
+            return;
+        }
+
+        // Normal display
+        if (repairSection != null) repairSection.SetActive(false);
+        if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
+        if (workerCountText != null) workerCountText.gameObject.SetActive(true);
+
         // Production info
         bool producesResources = currentBuilding.data.producedResource != ResourceType.None;
-        
+
         if (productionSection != null)
             productionSection.SetActive(producesResources);
-        
-        if (producesResources)
+
+        if (currentBuilding != null && !currentBuilding.needsRepair)
         {
-            UpdateProductionDisplay();
+            if (producesResources)
+            {
+                UpdateProductionDisplay();
+            }
         }
-        
+        else
+        {
+            if (productionSection != null)
+                productionSection.SetActive(false);
+        }
+
         // Worker info
         UpdateWorkerDisplay();
+    }
+
+    private void RefreshRepairCosts()
+    {
+        if (repairCostContainer == null || repairCostItemPrefab == null) return;
+
+        foreach (var item in repairCostItems)
+            if (item != null) Destroy(item);
+        repairCostItems.Clear();
+
+        foreach (var cost in currentBuilding.repairCosts)
+        {
+            GameObject item = Instantiate(repairCostItemPrefab, repairCostContainer);
+
+            var icon = item.GetComponentInChildren<Image>();
+            if (icon != null && IconManager.Instance != null)
+                icon.sprite = IconManager.Instance.GetIconForResource(cost.resourceType);
+
+            var label = item.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null)
+                label.text = cost.amount.ToString();
+
+            repairCostItems.Add(item);
+        }
+    }
+
+    private void OnRepairButtonClicked()
+    {
+        if (currentBuilding == null) return;
+        currentBuilding.Repair();
+        UpdateDisplay();
     }
     
     /// <summary>
@@ -423,9 +497,14 @@ public class BuildingInfoPanel : MonoBehaviour
 
     public void Update()
     {
-        if (currentBuilding != null)
+        if (currentBuilding == null) return;
+
+        bool producesResources = currentBuilding.data.producedResource != ResourceType.None;
+
+        if (producesResources && !currentBuilding.needsRepair)
         {
             UpdateProductionDisplay();
         }
+
     }
 }

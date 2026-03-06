@@ -54,6 +54,9 @@ public class MissionManager : MonoBehaviour, ISaveable
         {
             DayNightManager.Instance.OnNewDay += OnNewDay;
         }
+
+        Building.OnAnyBuildingRepaired += OnBuildingRepaired;
+        Building.OnAnyWorkerAssigned  += OnWorkerAssigned;
     }
 
     private void OnDestroy()
@@ -70,6 +73,9 @@ public class MissionManager : MonoBehaviour, ISaveable
         {
             DayNightManager.Instance.OnNewDay -= OnNewDay;
         }
+
+        Building.OnAnyBuildingRepaired -= OnBuildingRepaired;
+        Building.OnAnyWorkerAssigned  -= OnWorkerAssigned;
     }
 
     /// <summary>
@@ -185,6 +191,42 @@ public class MissionManager : MonoBehaviour, ISaveable
                     mission.objectiveProgress[j] = template.targetAmount;
                     OnObjectiveUpdated?.Invoke(mission, j);
                 }
+            }
+        }
+    }
+
+    private void OnBuildingRepaired(Building building)
+    {
+        foreach (var mission in activeMissions)
+        {
+            if (mission.definition.objectives == null) continue;
+            for (int i = 0; i < mission.definition.objectives.Length; i++)
+            {
+                var template = mission.definition.objectives[i];
+                if (template.type != MissionObjectiveType.RepairBuilding) continue;
+                if (mission.IsObjectiveComplete(i)) continue;
+                if (building.data == null || building.data.buildingType != template.targetBuildingType) continue;
+
+                mission.objectiveProgress[i] = template.targetAmount;
+                OnObjectiveUpdated?.Invoke(mission, i);
+            }
+        }
+    }
+
+    private void OnWorkerAssigned(Building building)
+    {
+        foreach (var mission in activeMissions)
+        {
+            if (mission.definition.objectives == null) continue;
+            for (int i = 0; i < mission.definition.objectives.Length; i++)
+            {
+                var template = mission.definition.objectives[i];
+                if (template.type != MissionObjectiveType.AssignVillager) continue;
+                if (mission.IsObjectiveComplete(i)) continue;
+                if (building.data == null || building.data.buildingType != template.targetBuildingType) continue;
+
+                mission.objectiveProgress[i] = template.targetAmount;
+                OnObjectiveUpdated?.Invoke(mission, i);
             }
         }
     }

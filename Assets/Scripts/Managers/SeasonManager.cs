@@ -103,6 +103,8 @@ public class SeasonManager : MonoBehaviour, ISaveable
     [Tooltip("Sun color tint during summer")]
     public Color summerSunTint = new Color(1f, 1f, 0.95f);
 
+    public FireController fireController; // Reference to the FireController to toggle fire effects based on warmth
+
     // Events
     public event Action<Season> OnSeasonChanged;
     public event Action<bool> OnWarmthChanged; // true = warm, false = cold
@@ -168,6 +170,11 @@ public class SeasonManager : MonoBehaviour, ISaveable
 
         // Initialize the current season's effects
         ApplySeasonEffects(currentSeason);
+
+        if (fireController != null)
+        {
+            fireController.Setup();
+        }
     }
 
     private void OnDestroy()

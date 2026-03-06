@@ -513,6 +513,15 @@ public class CharacterController : MonoBehaviour
             }
         }
 
+        // Improve combat skill on every swing, for all factions
+        var villager = GetComponent<Villager>();
+        if (villager != null)
+        {
+            villager.skills.ImproveSkill(JobType.Warrior);
+            if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
+                villager.skills.ImproveSkill(JobType.Warrior);
+        }
+
         isAttacking = true;
     }
 
@@ -756,15 +765,19 @@ public class CharacterController : MonoBehaviour
         transform.localScale = new Vector3(flip ? -1f : 1f, 1f, 1f);
     }
 
+    private bool _isSprinting = false;
+
     /// <summary>
     /// Set sprinting state for animation
     /// </summary>
     public virtual void SetSprinting(bool isSprinting)
     {
+        if (isSprinting == _isSprinting) return;
+        _isSprinting = isSprinting;
+
         if (animator != null)
-        {
             animator.SetBool(IsSprinting, isSprinting);
-        }
+
         moveSpeed = isSprinting ? moveSpeed * 1.5f : moveSpeed / 1.5f;
     }
 

@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   dialogueId: 1
   lines:
-  - speakerName: Villager Elder
+  - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Please help us and get some wood my Jarl!
+    text: The buildings have been damaged in the raid.
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: Can you gather some wood and repair them please?
   offersQuest: 1

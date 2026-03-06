@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[System.Serializable]
+public struct RepairCost
+{
+    public ResourceType resourceType;
+    public int amount;
+}
+
 public class Building : MonoBehaviour
 {
     public string uniqueId;
@@ -12,6 +19,19 @@ public class Building : MonoBehaviour
     [Header("Production")]
     public float productionProgress = 0f; // 0 to 100
     public float adjustedProductionAmount = 0f; // Production amount after seasonal modifiers (for UI)
+
+    [Header("Repair")]
+    [SerializeField] private bool startsDamaged = false;
+    public bool needsRepair = false;
+    public RepairCost[] repairCosts = new RepairCost[0];
+    public Sprite damagedSprite;
+    [SerializeField] private SpriteRenderer buildingSprite;
+    [SerializeField] private ParticleSystem[] damageVFX;
+    private Sprite _normalSprite;
+
+    public event System.Action OnRepaired;
+    public static event System.Action<Building> OnAnyBuildingRepaired;
+    public static event System.Action<Building> OnAnyWorkerAssigned;
 
     [Header("Crafting Status")]
     public bool waitingForResources = false; // True if crafting building lacks input materials
@@ -28,12 +48,19 @@ public class Building : MonoBehaviour
         // Initialize gridPosition from world position if not already set
         if (gridPosition == Vector2Int.zero)
         {
-            // Convert world position to grid position (assuming 1 unit = 1 grid cell)
             gridPosition = new Vector2Int(
                 Mathf.RoundToInt(transform.position.x),
                 Mathf.RoundToInt(transform.position.y)
             );
         }
+
+        if (buildingSprite == null)
+            buildingSprite = GetComponent<SpriteRenderer>();
+        if (buildingSprite != null)
+            _normalSprite = buildingSprite.sprite;
+
+        if (startsDamaged)
+            SetNeedsRepair(true);
 
         // Register with settlement manager
         if (SettlementManager.Instance != null)
@@ -53,7 +80,43 @@ public class Building : MonoBehaviour
     
     public bool CanAssignWorker()
     {
-        return assignedWorkers.Count < data.maxWorkers;
+        return !needsRepair && assignedWorkers.Count < data.maxWorkers;
+    }
+
+    public void SetNeedsRepair(bool value)
+    {
+        needsRepair = value;
+
+        if (buildingSprite != null)
+            buildingSprite.sprite = needsRepair && damagedSprite != null ? damagedSprite : _normalSprite;
+
+        foreach (var vfx in damageVFX)
+        {
+            if (vfx == null) continue;
+            if (needsRepair) vfx.Play();
+            else vfx.Stop();
+        }
+    }
+
+    public bool CanRepair()
+    {
+        if (ResourceManager.Instance == null) return false;
+        foreach (var cost in repairCosts)
+        {
+            if (ResourceManager.Instance.GetResource(cost.resourceType) < cost.amount)
+                return false;
+        }
+        return true;
+    }
+
+    public void Repair()
+    {
+        if (!needsRepair || !CanRepair()) return;
+        foreach (var cost in repairCosts)
+            ResourceManager.Instance.SpendResource(cost.resourceType, cost.amount);
+        SetNeedsRepair(false);
+        OnRepaired?.Invoke();
+        OnAnyBuildingRepaired?.Invoke(this);
     }
     
     public void AssignWorker(Villager villager)
@@ -62,6 +125,7 @@ public class Building : MonoBehaviour
         {
             assignedWorkers.Add(villager);
             villager.AssignJob(data.assignedJobType, this);
+            OnAnyWorkerAssigned?.Invoke(this);
         }
     }
     
@@ -76,7 +140,7 @@ public class Building : MonoBehaviour
     /// </summary>
     public void UpdateProduction(float deltaTime)
     {
-        if (!isConstructed || assignedWorkers.Count == 0) return;
+        if (!isConstructed || needsRepair || assignedWorkers.Count == 0) return;
         
         // Handle based on production type
         if (data.productionType == ProductionType.ResourceGathering)

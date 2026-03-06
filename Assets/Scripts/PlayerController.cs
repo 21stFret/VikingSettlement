@@ -164,7 +164,7 @@ public class PlayerController : MonoBehaviour
         var mouse = UnityEngine.InputSystem.Mouse.current;
         if (mouse != null)
         {
-            if (mouse.rightButton.wasPressedThisFrame)
+            if (inputEnabled && mouse.rightButton.wasPressedThisFrame)
                 blockPressTime = Time.time;
 
             bool hasShield = controller.shield != null && !controller.shield.IsBroken;
@@ -302,6 +302,14 @@ public class PlayerController : MonoBehaviour
                 controller.isBlocking = false;
                 controller.isParrying = false;
             }
+        }
+        else
+        {
+            // Re-read held keys so the player doesn't get stuck if a key was held while input was disabled
+            moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+            float sprintValue = inputActions.Player.Sprint.ReadValue<float>();
+            if (controller != null)
+                controller.SetSprinting(sprintValue > 0.5f);
         }
     }
 

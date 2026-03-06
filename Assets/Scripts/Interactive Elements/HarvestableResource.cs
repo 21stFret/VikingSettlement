@@ -28,10 +28,14 @@ public class HarvestableResource : TargetHealth
 
     [Header("Respawn Settings")]
     [Tooltip("Should this resource respawn after depletion?")]
-    public bool canRespawn = true;
+    public bool canRespawn = false;
 
     [Tooltip("Time in seconds before respawning")]
     public float respawnTime = 60f;
+
+    [Header("XP")]
+    [Tooltip("XP granted to the Jarl's skill tree per successful harvest")]
+    public int xpPerHarvest = 5;
 
     [Header("Visual Feedback")]
     [Tooltip("Particle effect to spawn on harvest")]
@@ -86,15 +90,22 @@ public class HarvestableResource : TargetHealth
     {
         if (isDepleted) return;
 
-        canRespawn = true;
-        // Calculate yield based on weapon type
-        int yield = CalculateYield(weapon);
+        Villager attacker = weapon != null ? weapon.GetComponentInParent<Villager>() : null;
+        int yield = CalculateYield(weapon, attacker);
 
         // Add resources to pool
         if (ResourceManager.Instance != null && yield > 0)
         {
             ResourceManager.Instance.AddResource(resourceType, yield);
             Debug.Log($"Harvested {yield} {resourceType} from {gameObject.name}");
+        }
+
+        if (attacker != null && yield > 0)
+        {
+            if (SkillTreeManager.Instance != null && xpPerHarvest > 0)
+                SkillTreeManager.Instance.AddXP(xpPerHarvest);
+
+            attacker.skills.ImproveSkill(GetJobTypeForResource());
         }
 
         OnHit?.Invoke();
@@ -124,7 +135,7 @@ public class HarvestableResource : TargetHealth
     /// <summary>
     /// Calculate resource yield based on weapon used
     /// </summary>
-    private int CalculateYield(EquipableItem weapon)
+    private int CalculateYield(EquipableItem weapon, Villager attacker = null)
     {
         float multiplier = 1f;
 
@@ -132,20 +143,22 @@ public class HarvestableResource : TargetHealth
         {
             if (weapon.itemType == preferredTool)
             {
-                // Using the right tool
                 multiplier = preferredToolMultiplier;
             }
             else if (IsWrongTool(weapon.itemType))
             {
-                // Using a bad tool
                 multiplier = wrongToolMultiplier;
             }
-            // else: neutral tool, use base multiplier
         }
         else
         {
-            // No weapon (bare hands) - reduced yield
             multiplier = wrongToolMultiplier;
+        }
+
+        if (attacker != null)
+        {
+            JobType job = GetJobTypeForResource();
+            multiplier *= attacker.GetSkillMultiplier(job);
         }
 
         actualYield += baseYield * multiplier;
@@ -162,6 +175,19 @@ public class HarvestableResource : TargetHealth
     /// <summary>
     /// Check if this is a particularly bad tool for this resource
     /// </summary>
+    private JobType GetJobTypeForResource()
+    {
+        switch (resourceType)
+        {
+            case ResourceType.Wood:  return JobType.Woodcutter;
+            case ResourceType.Stone: return JobType.Miner;
+            case ResourceType.Iron:  return JobType.Miner;
+            case ResourceType.Wheat: return JobType.Farmer;
+            case ResourceType.Fish:  return JobType.Fisherman;
+            default:                 return JobType.Warrior;
+        }
+    }
+
     private bool IsWrongTool(EquipableItem.ItemType toolType)
     {
         // Swords are bad for trees and rocks
@@ -176,7 +202,7 @@ public class HarvestableResource : TargetHealth
     /// <summary>
     /// Called when the resource is fully depleted
     /// </summary>
-    private void Deplete()
+    protected virtual void Deplete()
     {
         isDepleted = true;
         isDead = true;
@@ -196,13 +222,13 @@ public class HarvestableResource : TargetHealth
             col.enabled = false;
         }
 
-
+        canRespawn = true;
     }
 
     /// <summary>
     /// Respawn the resource
     /// </summary>
-    private void Respawn()
+    protected virtual void Respawn()
     {
         isDepleted = false;
         isRespawning = false;

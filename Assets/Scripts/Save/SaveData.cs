@@ -119,6 +119,7 @@ public class BuildingSave
     public float constructionProgress;
     public float productionProgress;
     public string[] assignedWorkerIds;
+    public bool needsRepair;
 }
 
 [Serializable]

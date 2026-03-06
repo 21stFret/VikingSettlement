@@ -77,6 +77,10 @@ public class ActiveMission
                 int currentDays = Mathf.FloorToInt(current);
                 int targetDays = Mathf.FloorToInt(template.targetAmount);
                 return $"Survive: {currentDays}/{targetDays} days";
+            case MissionObjectiveType.RepairBuilding:
+                return $"Repair {template.targetBuildingType}: {(current >= template.targetAmount ? "Done" : "Incomplete")}";
+            case MissionObjectiveType.AssignVillager:
+                return $"Assign villager to {template.targetBuildingType}: {(current >= template.targetAmount ? "Done" : "Incomplete")}";
             default:
                 return "Unknown objective";
         }

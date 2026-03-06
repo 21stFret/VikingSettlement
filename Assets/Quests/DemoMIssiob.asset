@@ -18,11 +18,16 @@ MonoBehaviour:
   objectives:
   - type: 0
     resourceType: 3
+    targetBuildingType: 0
     targetAmount: 10
+  - type: 3
+    resourceType: 3
+    targetBuildingType: 3
+    targetAmount: 1
   rewards:
   - rewardType: 0
-    resourceType: 12
-    amount: 50
+    resourceType: 4
+    amount: 10
     itemReward: {fileID: 0}
   startDialogue: {fileID: 11400000, guid: f514e290ac671a64eb86f030290599b6, type: 2}
   completionDialogue: {fileID: 11400000, guid: 5dcfe1117f78efa4781e8851e73c1d8f, type: 2}

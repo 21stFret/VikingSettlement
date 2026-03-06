@@ -82,7 +82,7 @@ MonoBehaviour:
   strength: 1
   attachPoint: 1
   isEquipped: 0
-  attackSpeed: 1
+  attackSpeed: 0.5
   sheildSparkEffect: {fileID: 0}
   shatterEffect: {fileID: 0}
   shakeMagnitude: 0.06

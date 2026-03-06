@@ -47,6 +47,7 @@ public class EquipableItem : MonoBehaviour
     public int CurrentDurability => currentDurability;
 
     public event System.Action OnBroken;
+    public event System.Action OnDurabilityChanged;
 
     private void Awake()
     {
@@ -74,6 +75,16 @@ public class EquipableItem : MonoBehaviour
             int damageLevel = Mathf.FloorToInt(((float)(maxDurability - currentDurability) / maxDurability) * itemDamageSprites.Length);
             damageLevel = Mathf.Clamp(damageLevel, 0, itemDamageSprites.Length - 1);
             itemSpriteRenderer.sprite = itemDamageSprites[damageLevel];
+        }
+        OnDurabilityChanged?.Invoke();
+        var villager = GetComponentInParent<Villager>();
+        if (villager != null)
+        {
+            villager.skills.ImproveSkill(JobType.Warrior);
+            var cc = GetComponentInParent<CharacterController>();
+            bool bonusXP = (cc != null && cc.isParrying) ||
+                           (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid);
+            if (bonusXP) villager.skills.ImproveSkill(JobType.Warrior);
         }
         if (currentDurability <= 0)
         {

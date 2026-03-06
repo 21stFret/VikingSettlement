@@ -4,7 +4,9 @@ public enum MissionObjectiveType
 {
     GatherResource,
     CompleteRaid,
-    SurviveTime
+    SurviveTime,
+    RepairBuilding,
+    AssignVillager
 }
 
 public enum MissionRewardType
@@ -34,8 +36,11 @@ public class MissionObjectiveTemplate
     [Header("GatherResource Settings")]
     public ResourceType resourceType;
 
+    [Header("RepairBuilding / AssignVillager Settings")]
+    public BuildingType targetBuildingType;
+
     [Header("Target")]
-    [Tooltip("Amount to gather, or days to survive")]
+    [Tooltip("Amount to gather, days to survive, or 1 for repair/assign")]
     public float targetAmount;
 }
 

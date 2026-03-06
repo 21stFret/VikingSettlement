@@ -22,7 +22,7 @@ MonoBehaviour:
   assignedJobType: 7
   maxWorkers: 2
   productionType: 1
-  producedResource: 6
+  producedResource: 7
   productionRate: 0.6
   productionAmount: 2
   craftingRecipe:
@@ -31,6 +31,6 @@ MonoBehaviour:
       amount: 1
     - resourceType: 5
       amount: 1
-    outputResource: 6
+    outputResource: 7
     outputAmount: 1
     craftingRate: 1

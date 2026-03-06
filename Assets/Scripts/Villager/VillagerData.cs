@@ -55,6 +55,21 @@ public class VillagerSkills
     }
     
     /// <summary>
+    /// Randomize all skills to a value within [min, max]. Called on fresh spawns.
+    /// </summary>
+    public void Randomize(float min = 1f, float max = 4f)
+    {
+        farming    = Random.Range(min, max);
+        fishing    = Random.Range(min, max);
+        mining     = Random.Range(min, max);
+        woodcutting = Random.Range(min, max);
+        crafting   = Random.Range(min, max);
+        combat     = Random.Range(min, max);
+        sailing    = Random.Range(min, max);
+        intelligence = Random.Range(min, max);
+    }
+
+    /// <summary>
     /// Add a flat bonus to a number of randomly chosen skills.
     /// Used by the Education runestone.
     /// </summary>

@@ -1,0 +1,124 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Mirrors the player's equipped shield in the HUD.
+/// Swaps damage sprites and shakes using the same logic as the in-world EquipableItem.
+///
+/// Quick setup:
+///   1. Add a UI Image on a Canvas.
+///   2. Attach this component to the Image's GameObject (or any active GameObject).
+///   3. Assign the Image in the Inspector. Optionally assign a CanvasGroup and a noShieldSprite.
+/// </summary>
+public class ShieldUI : MonoBehaviour
+{
+    [Header("References")]
+    [SerializeField] private Image shieldImage;
+    [SerializeField] private CanvasGroup canvasGroup;
+    [Tooltip("Sprite shown when no shield is equipped. Leave empty to hide the UI instead.")]
+    [SerializeField] private Sprite noShieldSprite;
+
+    [Header("Shake")]
+    [Tooltip("Horizontal shake distance in UI pixels.")]
+    [SerializeField] private float shakeMagnitude = 10f;
+    [SerializeField] private float shakeDuration = 0.18f;
+    [SerializeField] private int shakeOscillations = 3;
+
+    private CharacterController _trackedCC;
+    private EquipableItem _trackedShield;
+    private RectTransform _rect;
+    private Vector2 _originPos;
+
+    private void Awake()
+    {
+        _rect = GetComponent<RectTransform>();
+        _originPos = _rect.anchoredPosition;
+    }
+
+    private void Update()
+    {
+        var cc = PlayerController.Instance != null ? PlayerController.Instance.GetController() : null;
+        if (cc != _trackedCC)
+            _trackedCC = cc;
+
+        var shield = _trackedCC != null ? _trackedCC.shield : null;
+        if (shield == _trackedShield) return;
+
+        UnsubscribeFromShield();
+        _trackedShield = shield;
+        SubscribeToShield();
+        UpdateSprite();
+    }
+
+    private void SubscribeToShield()
+    {
+        if (_trackedShield == null) return;
+        _trackedShield.OnDurabilityChanged += OnShieldDamaged;
+        _trackedShield.OnBroken += OnShieldBroken;
+    }
+
+    private void UnsubscribeFromShield()
+    {
+        if (_trackedShield == null) return;
+        _trackedShield.OnDurabilityChanged -= OnShieldDamaged;
+        _trackedShield.OnBroken -= OnShieldBroken;
+    }
+
+    private void OnShieldDamaged()
+    {
+        UpdateSprite();
+        StopCoroutine(nameof(ShakeCoroutine));
+        StartCoroutine(nameof(ShakeCoroutine));
+    }
+
+    private void OnShieldBroken()
+    {
+        UpdateSprite();
+    }
+
+    private void UpdateSprite()
+    {
+        bool hasShield = _trackedShield != null && _trackedShield.maxDurability > 0;
+
+        if (!hasShield)
+        {
+            if (shieldImage != null)
+                shieldImage.sprite = noShieldSprite;
+            if (canvasGroup != null)
+                canvasGroup.alpha = noShieldSprite != null ? 1f : 0f;
+            return;
+        }
+
+        if (canvasGroup != null)
+            canvasGroup.alpha = 1f;
+
+        var sprites = _trackedShield.itemDamageSprites;
+        if (sprites == null || sprites.Length == 0 || shieldImage == null) return;
+
+        int damageLevel = Mathf.FloorToInt(
+            ((float)(_trackedShield.maxDurability - _trackedShield.CurrentDurability) / _trackedShield.maxDurability)
+            * sprites.Length);
+        damageLevel = Mathf.Clamp(damageLevel, 0, sprites.Length - 1);
+        shieldImage.sprite = sprites[damageLevel];
+    }
+
+    private IEnumerator ShakeCoroutine()
+    {
+        float elapsed = 0f;
+        while (elapsed < shakeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float progress = elapsed / shakeDuration;
+            float offset = Mathf.Sin(progress * shakeOscillations * Mathf.PI * 2f) * shakeMagnitude * (1f - progress);
+            _rect.anchoredPosition = _originPos + new Vector2(offset, 0f);
+            yield return null;
+        }
+        _rect.anchoredPosition = _originPos;
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromShield();
+    }
+}

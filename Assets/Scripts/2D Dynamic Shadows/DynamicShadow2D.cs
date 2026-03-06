@@ -14,6 +14,7 @@ public class DynamicShadow2D : MonoBehaviour
     private GameObject shadowObject;
     private SpriteRenderer shadowRenderer;
     public float objectHeight = 1f;
+    public float shadowOffsetX = 0;
     public float shadowOffsetY = 0;
     public float shadowHorizontalMovement = 0;
     public ShadowMaster shadowMaster;
@@ -108,7 +109,7 @@ public class DynamicShadow2D : MonoBehaviour
         shadowObject = Instantiate(shadowMaster.shadowPrefab);
         shadowObject.name = gameObject.name + "_Shadow";
         shadowObject.transform.SetParent(transform);
-        shadowObject.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+        shadowObject.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
         shadowObject.transform.localRotation = Quaternion.identity;
         shadowObject.transform.localScale = Vector3.one;
         shadowObject.hideFlags = HideFlags.DontSave;
@@ -164,7 +165,7 @@ public class DynamicShadow2D : MonoBehaviour
         GameObject autoShadow = Instantiate(shadowMaster.shadowPrefab);
         autoShadow.name = gameObject.name + "_AutoShadow_" + index;
         autoShadow.transform.SetParent(transform);
-        autoShadow.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+        autoShadow.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
         autoShadow.transform.localRotation = Quaternion.identity;
         autoShadow.transform.localScale = Vector3.one;
         autoShadow.hideFlags = HideFlags.DontSave;
@@ -279,7 +280,7 @@ public class DynamicShadow2D : MonoBehaviour
             shadowRend.sprite = spriteRenderer.sprite;
         }
 
-        shadowObj.transform.localPosition = new Vector3(0f, shadowOffsetY, 0f);
+        shadowObj.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
 
         float sunAngle = shadowRotation.eulerAngles.z;
         if (sunAngle > 180f)

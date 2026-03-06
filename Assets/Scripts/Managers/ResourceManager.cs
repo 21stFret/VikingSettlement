@@ -1,9 +1,13 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
 public class ResourceManager : MonoBehaviour, ISaveable
 {
     public static ResourceManager Instance { get; private set; }
+
+    /// <summary>Fired whenever resources are added. Subscribe for notifications or HUD updates.</summary>
+    public static event Action<ResourceType, float> OnResourceAdded;
 
     private Dictionary<ResourceType, float> resources = new Dictionary<ResourceType, float>();
 
@@ -44,6 +48,7 @@ public class ResourceManager : MonoBehaviour, ISaveable
     public void AddResource(ResourceType type, float amount)
     {
         resources[type] += amount;
+        OnResourceAdded?.Invoke(type, amount);
     }
 
     public bool SpendResource(ResourceType type, float amount)

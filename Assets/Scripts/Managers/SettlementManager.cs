@@ -36,6 +36,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
     [Header("Food Consumption")]
     public float fishPerVillagerPerDay = 1f;
     [SerializeField] private HungerDistributionMode hungerMode = HungerDistributionMode.Prioritized;
+    [Tooltip("Minimum health lost per starvation tick regardless of current health. Lower this for testing.")]
+    [SerializeField] public float minStarvationDamage = 5f;
 
     private void Awake()
     {
@@ -642,6 +644,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 isConstructed = b.isConstructed,
                 constructionProgress = b.constructionProgress,
                 productionProgress = b.productionProgress,
+                needsRepair = b.needsRepair,
                 assignedWorkerIds = new string[b.assignedWorkers.Count]
             };
 
@@ -903,6 +906,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 b.isConstructed = bs.isConstructed;
                 b.constructionProgress = bs.constructionProgress;
                 b.productionProgress = bs.productionProgress;
+                b.SetNeedsRepair(bs.needsRepair);
 
                 // Restore assigned workers
                 b.assignedWorkers.Clear();

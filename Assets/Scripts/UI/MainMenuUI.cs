@@ -244,6 +244,11 @@ public class MainMenuUI : MonoBehaviour
         GameManager.Instance?.LoadAutosave();
     }
 
+    public void OnApplicationQuit()
+    {
+        Application.Quit();
+    }
+
     private void OnBackClicked()
     {
         ShowMainButtons();
