@@ -24,10 +24,10 @@ public class SeasonNotificationHook : MonoBehaviour
         switch (season)
         {
             case Season.Summer:
-                InfoPopupUI.Push("Summer", "Summer has arrived. A good season to raid.");
+                InfoPopupUI.Push("Summer", "Summer has arrived. Crops and bees thrive — farming and beekeeping are at their best. Fishing is poor.");
                 break;
             case Season.Winter:
-                InfoPopupUI.Push("Winter", "Winter is here. Farms are dormant — move workers to the Fishing Hut.");
+                InfoPopupUI.Push("Winter", "Winter is here. Farms and hives lie dormant — move workers to the Fishing Hut.");
                 break;
         }
     }

@@ -951,6 +951,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -61801,7 +61802,6 @@ RectTransform:
   - {fileID: 502126931}
   - {fileID: 290166804}
   - {fileID: 973581952}
-  - {fileID: 893020363}
   - {fileID: 1638042849}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -69157,6 +69157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -73303,6 +73304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -79680,6 +79682,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -85390,6 +85393,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -89338,6 +89342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -90302,6 +90307,7 @@ MonoBehaviour:
   age: 0
   fishPerVillagerPerDay: 1
   hungerMode: 0
+  minStarvationDamage: 5
 --- !u!114 &755482534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90393,6 +90399,7 @@ MonoBehaviour:
   woodNeededToday: 0
   winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
   summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
+  fireController: {fileID: 0}
 --- !u!4 &756562262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 490618974392446098, guid: 9885f45d31777c3478463082f11f1391, type: 3}
@@ -92438,6 +92445,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -102838,6 +102846,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -103505,6 +103514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -106457,17 +106467,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 893020362}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 890933089}
-  m_Father: {fileID: 412366683}
+  m_Father: {fileID: 1638042849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 973.49, y: 526.4099}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &894573622
@@ -109849,6 +109859,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -111895,6 +111906,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &955865862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111908,6 +111921,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -130860,6 +130874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -135926,6 +135941,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -138264,6 +138280,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1296130511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138277,6 +138295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -193125,6 +193144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 0}
@@ -194022,6 +194042,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -194868,6 +194889,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -196787,6 +196809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -197591,6 +197614,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 0}
@@ -199777,6 +199801,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199790,6 +199816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -216479,6 +216506,7 @@ RectTransform:
   m_Children:
   - {fileID: 703828103}
   - {fileID: 1621071322}
+  - {fileID: 893020363}
   m_Father: {fileID: 412366683}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -243281,6 +243309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -247430,6 +247459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -249049,6 +249079,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 0}
@@ -250791,6 +250822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -253060,6 +253092,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -259318,6 +259351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -262275,6 +262309,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -262532,6 +262567,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -262553,6 +262589,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -264168,6 +264206,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
+  shadowOffsetX: 0
   shadowOffsetY: 0
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}
@@ -269263,6 +269302,7 @@ MonoBehaviour:
   wrongToolMultiplier: 0.5
   canRespawn: 1
   respawnTime: 60
+  xpPerHarvest: 5
   harvestEffect: {fileID: 1933662471}
   shakeOnHit: 1
   shakeIntensity: 0.1
@@ -269662,6 +269702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1.43
+  shadowOffsetX: 0
   shadowOffsetY: 0.01
   shadowHorizontalMovement: 0
   shadowMaster: {fileID: 2110183759}

@@ -91,8 +91,9 @@ public class MissionManager : MonoBehaviour, ISaveable
         OnMissionAccepted?.Invoke(mission);
         Debug.Log($"Mission accepted: {definition.title}");
 
-        // Immediately check gather objectives in case player already has the resources
+        // Immediately check objectives in case the conditions are already met
         CheckGatherObjectives(mission);
+        CheckRepairAndAssignObjectives(mission);
 
         return mission;
     }
@@ -227,6 +228,44 @@ public class MissionManager : MonoBehaviour, ISaveable
 
                 mission.objectiveProgress[i] = template.targetAmount;
                 OnObjectiveUpdated?.Invoke(mission, i);
+            }
+        }
+    }
+
+    private void CheckRepairAndAssignObjectives(ActiveMission mission)
+    {
+        if (mission.definition.objectives == null) return;
+
+        var allBuildings = FindObjectsByType<Building>(FindObjectsSortMode.None);
+
+        for (int i = 0; i < mission.definition.objectives.Length; i++)
+        {
+            if (mission.IsObjectiveComplete(i)) continue;
+            var template = mission.definition.objectives[i];
+
+            if (template.type == MissionObjectiveType.RepairBuilding)
+            {
+                foreach (var b in allBuildings)
+                {
+                    if (b.data != null && b.data.buildingType == template.targetBuildingType && !b.needsRepair)
+                    {
+                        mission.objectiveProgress[i] = template.targetAmount;
+                        OnObjectiveUpdated?.Invoke(mission, i);
+                        break;
+                    }
+                }
+            }
+            else if (template.type == MissionObjectiveType.AssignVillager)
+            {
+                foreach (var b in allBuildings)
+                {
+                    if (b.data != null && b.data.buildingType == template.targetBuildingType && b.assignedWorkers.Count > 0)
+                    {
+                        mission.objectiveProgress[i] = template.targetAmount;
+                        OnObjectiveUpdated?.Invoke(mission, i);
+                        break;
+                    }
+                }
             }
         }
     }

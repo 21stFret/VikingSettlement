@@ -34,6 +34,22 @@ public class DynamicShadow2D : MonoBehaviour
 
     private float nightBlendFactor = 0f;
 
+    // Shared across all instances so Unity can batch the shadow renderers
+    private static Material s_sunShadowMaterial;
+    private static Material SunShadowMaterial
+    {
+        get
+        {
+            if (s_sunShadowMaterial == null)
+            {
+                var shader = Shader.Find("Custom/Shadow2DStencilOnce");
+                s_sunShadowMaterial = new Material(shader != null ? shader : Shader.Find("Sprites/Default"));
+                s_sunShadowMaterial.SetInt("_StencilRef", 1);
+            }
+            return s_sunShadowMaterial;
+        }
+    }
+
     void OnEnable()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -118,6 +134,7 @@ public class DynamicShadow2D : MonoBehaviour
         shadowRenderer.sprite = spriteRenderer.sprite;
         shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
         shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+        shadowRenderer.sharedMaterial = SunShadowMaterial;
 
         SpriteSorting spriteSorting = GetComponent<SpriteSorting>();
         if (spriteSorting != null)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// <summary>
 /// Attach to a Light2D (fire, torch, etc.) to make nearby objects cast shadows from this light.
 /// Uses a trigger collider to efficiently detect shadow casters entering/leaving range.
+/// Works with both DynamicShadow2D and MeshShadow2D.
 /// </summary>
 [RequireComponent(typeof(Light2D))]
 public class ShadowCastingLight : MonoBehaviour
@@ -22,7 +23,8 @@ public class ShadowCastingLight : MonoBehaviour
 
     private Light2D light2D;
     private CircleCollider2D triggerCollider;
-    private HashSet<DynamicShadow2D> registeredShadows = new HashSet<DynamicShadow2D>();
+    private HashSet<DynamicShadow2D> registeredShadows     = new HashSet<DynamicShadow2D>();
+    private HashSet<MeshShadow2D>    registeredMeshShadows = new HashSet<MeshShadow2D>();
 
     void Awake()
     {
@@ -32,18 +34,15 @@ public class ShadowCastingLight : MonoBehaviour
 
     void Start()
     {
-        // Find objects already in range at start
         FindObjectsInRange();
     }
 
     void SetupTrigger()
     {
-        // Find or create trigger collider
         triggerCollider = GetComponent<CircleCollider2D>();
         if (triggerCollider == null)
-        {
             triggerCollider = gameObject.AddComponent<CircleCollider2D>();
-        }
+
         triggerCollider.isTrigger = true;
         SyncRadiusToLight();
     }
@@ -51,9 +50,7 @@ public class ShadowCastingLight : MonoBehaviour
     void SyncRadiusToLight()
     {
         if (light2D != null && triggerCollider != null)
-        {
             triggerCollider.radius = light2D.pointLightOuterRadius;
-        }
     }
 
     void FindObjectsInRange()
@@ -63,75 +60,88 @@ public class ShadowCastingLight : MonoBehaviour
         float radius = light2D.pointLightOuterRadius;
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius);
 
-        foreach (var collider in colliders)
+        foreach (var col in colliders)
         {
-            DynamicShadow2D shadow = collider.GetComponent<DynamicShadow2D>();
-            if (shadow != null && !registeredShadows.Contains(shadow))
-            {
-                shadow.RegisterAutoLight(this);
-                registeredShadows.Add(shadow);
-            }
+            TryRegister(col);
         }
     }
 
     void OnValidate()
     {
         if (light2D == null)
-        {
             light2D = GetComponent<Light2D>();
-        }
         SyncRadiusToLight();
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        DynamicShadow2D shadow = other.GetComponent<DynamicShadow2D>();
-        if (shadow != null && !registeredShadows.Contains(shadow))
-        {
-            shadow.RegisterAutoLight(this);
-            registeredShadows.Add(shadow);
-        }
+        TryRegister(other);
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        DynamicShadow2D shadow = other.GetComponent<DynamicShadow2D>();
-        if (shadow != null && registeredShadows.Contains(shadow))
+        TryUnregister(other);
+    }
+
+    void TryRegister(Collider2D col)
+    {
+        var ds = col.GetComponent<DynamicShadow2D>();
+        if (ds != null && !registeredShadows.Contains(ds))
         {
-            shadow.UnregisterAutoLight(this);
-            registeredShadows.Remove(shadow);
+            ds.RegisterAutoLight(this);
+            registeredShadows.Add(ds);
+        }
+
+        var ms = col.GetComponent<MeshShadow2D>();
+        if (ms != null && !registeredMeshShadows.Contains(ms))
+        {
+            ms.RegisterAutoLight(this);
+            registeredMeshShadows.Add(ms);
+        }
+    }
+
+    void TryUnregister(Collider2D col)
+    {
+        var ds = col.GetComponent<DynamicShadow2D>();
+        if (ds != null && registeredShadows.Contains(ds))
+        {
+            ds.UnregisterAutoLight(this);
+            registeredShadows.Remove(ds);
+        }
+
+        var ms = col.GetComponent<MeshShadow2D>();
+        if (ms != null && registeredMeshShadows.Contains(ms))
+        {
+            ms.UnregisterAutoLight(this);
+            registeredMeshShadows.Remove(ms);
         }
     }
 
     void OnDisable()
     {
-        // Unregister from all shadows when disabled
-        foreach (var shadow in registeredShadows)
-        {
-            if (shadow != null)
-            {
-                shadow.UnregisterAutoLight(this);
-            }
-        }
+        foreach (var s in registeredShadows)
+            if (s != null) s.UnregisterAutoLight(this);
         registeredShadows.Clear();
+
+        foreach (var s in registeredMeshShadows)
+            if (s != null) s.UnregisterAutoLight(this);
+        registeredMeshShadows.Clear();
     }
 
     void OnDestroy()
     {
-        // Unregister from all shadows when destroyed
-        foreach (var shadow in registeredShadows)
-        {
-            if (shadow != null)
-            {
-                shadow.UnregisterAutoLight(this);
-            }
-        }
+        foreach (var s in registeredShadows)
+            if (s != null) s.UnregisterAutoLight(this);
         registeredShadows.Clear();
+
+        foreach (var s in registeredMeshShadows)
+            if (s != null) s.UnregisterAutoLight(this);
+        registeredMeshShadows.Clear();
     }
 
-    public Light2D GetLight() => light2D;
-    public float GetLightHeight() => lightHeight;
-    public float GetShadowIntensity() => shadowIntensity;
-    public float GetDaytimeIntensity() => daytimeIntensity;
-    public float GetRadius() => light2D != null ? light2D.pointLightOuterRadius : 5f;
+    public Light2D GetLight()           => light2D;
+    public float GetLightHeight()       => lightHeight;
+    public float GetShadowIntensity()   => shadowIntensity;
+    public float GetDaytimeIntensity()  => daytimeIntensity;
+    public float GetRadius()            => light2D != null ? light2D.pointLightOuterRadius : 5f;
 }

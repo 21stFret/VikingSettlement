@@ -18,6 +18,10 @@ public class AttackCooldownUI : MonoBehaviour
     [SerializeField] private Image fillImage;
     [Tooltip("CanvasGroup used for fading the indicator in and out.")]
     [SerializeField] private CanvasGroup canvasGroup;
+    [Tooltip("Darker backing image shown behind the fill. Both backing and fill get the weapon sprite.")]
+    [SerializeField] private Image backingImage;
+    [Tooltip("Fallback sprite shown when no weapon is equipped.")]
+    [SerializeField] private Sprite defaultWeaponSprite;
 
     [Header("Timing")]
     [Tooltip("Seconds after the attack is ready before the indicator fades out.")]
@@ -28,6 +32,7 @@ public class AttackCooldownUI : MonoBehaviour
     [SerializeField] private bool doFade;
 
     private CharacterController _trackedController;
+    private EquipableItem _trackedWeapon;
     private bool _wasReady = true;
     private Tweener _fadeTween;
 
@@ -42,6 +47,18 @@ public class AttackCooldownUI : MonoBehaviour
             _trackedController = currentCC;
 
         if (_trackedController == null) return;
+
+        // Update weapon sprite on both images when the equipped weapon changes
+        var currentWeapon = _trackedController.weapon;
+        if (currentWeapon != _trackedWeapon)
+        {
+            _trackedWeapon = currentWeapon;
+            var sprite = currentWeapon != null && currentWeapon.itemSpriteRenderer != null
+                ? currentWeapon.itemSpriteRenderer.sprite
+                : defaultWeaponSprite;
+            if (fillImage != null)    fillImage.sprite = sprite;
+            if (backingImage != null) backingImage.sprite = sprite;
+        }
 
         float progress = _trackedController.GetAttackCooldownProgress();
         if (fillImage != null)
