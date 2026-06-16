@@ -150,31 +150,22 @@ public class SeasonManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Initialize()
     {
-        // Subscribe to day change events
         if (DayNightManager.Instance != null)
-        {
             DayNightManager.Instance.OnNewDay += OnNewDay;
-        }
         else
-        {
-            Debug.LogWarning("SeasonManager: DayNightManager not found!");
-        }
+            Debug.LogWarning("SeasonManager: DayNightManager not found during Initialize!");
 
-        // Subscribe to game tick for updates
         if (GameTickManager.Instance != null)
-        {
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
-        }
+        else
+            Debug.LogWarning("SeasonManager: GameTickManager not found during Initialize!");
 
-        // Initialize the current season's effects
         ApplySeasonEffects(currentSeason);
 
         if (fireController != null)
-        {
             fireController.Setup();
-        }
     }
 
     private void OnDestroy()
@@ -364,10 +355,13 @@ public class SeasonManager : MonoBehaviour, ISaveable
                 break;
         }
 
-        DayNightManager.Instance.sunColor = Color.Lerp(
-        DayNightManager.Instance.sunColor, 
-        sunTint, 
-        0.5f * Time.deltaTime);
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.sunColor = Color.Lerp(
+                DayNightManager.Instance.sunColor,
+                sunTint,
+                0.5f * Time.deltaTime);
+        }
     }
 
     private void UpdateSummerEffects()

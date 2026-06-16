@@ -123,20 +123,21 @@ public class DayNightManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Initialize()
     {
         if (sunLight == null)
-        {
             Debug.LogWarning("DayNightManager: No Sun Light assigned or found!");
-        }
         if (ambientLight == null)
-        {
             Debug.LogWarning("DayNightManager: No Ambient Light assigned or found!");
-        }
+
         if (GameTickManager.Instance != null)
         {
             GameTickManager.Instance.OnGameTick += OnTick;
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
+        }
+        else
+        {
+            Debug.LogWarning("DayNightManager: GameTickManager not found during Initialize!");
         }
     }
 

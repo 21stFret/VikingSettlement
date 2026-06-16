@@ -45,13 +45,12 @@ public class SkillTreeManager : MonoBehaviour, ISaveable
         RecalculateEffects();
     }
 
-    private void Start()
+    public void Initialize()
     {
-        // Subscribe to Jarl changes to reset XP
         if (JarlManager.Instance != null)
-        {
             JarlManager.Instance.OnJarlDied += OnJarlChanged;
-        }
+        else
+            Debug.LogWarning("SkillTreeManager: JarlManager not found during Initialize!");
     }
 
     private void OnDestroy()

@@ -35,25 +35,20 @@ public class MissionManager : MonoBehaviour, ISaveable
         missionTrackerUI?.Init();
     }
 
-    private void Start()
+    public void Initialize()
     {
-        // Subscribe to game tick for objective checking
         if (GameTickManager.Instance != null)
-        {
             GameTickManager.Instance.OnGameTick += OnTick;
-        }
+        else
+            Debug.LogWarning("MissionManager: GameTickManager not found during Initialize!");
 
-        // Subscribe to raid completion
         if (RaidManager.Instance != null)
-        {
             RaidManager.Instance.OnRaidEnded += OnRaidEnded;
-        }
 
-        // Subscribe to new day for survive time tracking
         if (DayNightManager.Instance != null)
-        {
             DayNightManager.Instance.OnNewDay += OnNewDay;
-        }
+        else
+            Debug.LogWarning("MissionManager: DayNightManager not found during Initialize!");
 
         Building.OnAnyBuildingRepaired += OnBuildingRepaired;
         Building.OnAnyWorkerAssigned  += OnWorkerAssigned;

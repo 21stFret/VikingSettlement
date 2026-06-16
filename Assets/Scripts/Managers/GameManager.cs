@@ -45,12 +45,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDestroy()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     /// <summary>
@@ -126,18 +120,13 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    /// <summary>
+    /// Called by GameSceneBootstrap after all managers have been initialized.
+    /// Applies save data or creates an initial save for a new game.
+    /// </summary>
+    public void ApplySaveDataToScene()
     {
-        if (scene.name == gameSceneName && !GameInitialized)
-        {
-            StartCoroutine(InitializeGameAfterDelay());
-        }
-    }
-
-    private System.Collections.IEnumerator InitializeGameAfterDelay()
-    {
-        yield return null;
-        yield return null;
+        if (GameInitialized) return;
 
         if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
         {
@@ -146,8 +135,6 @@ public class GameManager : MonoBehaviour
         }
         else if (!ShouldLoadSave && SaveManager.Instance != null)
         {
-            // New game - create initial save after a short delay
-            yield return new WaitForSeconds(0.5f);
             SaveManager.Instance.SaveToCurrentSlot();
             Debug.Log("Initial save created");
         }

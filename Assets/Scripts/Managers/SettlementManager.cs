@@ -51,24 +51,31 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Initialize()
     {
-        // Subscribe to meal time events
         if (DayNightManager.Instance != null)
-        {
             DayNightManager.Instance.OnMealTime += HandleMealTime;
-        }
+        else
+            Debug.LogWarning("SettlementManager: DayNightManager not found during Initialize!");
+
         if (GameTickManager.Instance != null)
         {
             GameTickManager.Instance.OnGameTick += OnTick;
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
         }
+        else
+        {
+            Debug.LogWarning("SettlementManager: GameTickManager not found during Initialize!");
+        }
 
-        // Subscribe to Jarl events for settlement-wide morale effects
         if (JarlManager.Instance != null)
         {
             JarlManager.Instance.OnJarlDied += HandleJarlDeath;
             JarlManager.Instance.OnJarlChanged += HandleJarlChanged;
+        }
+        else
+        {
+            Debug.LogWarning("SettlementManager: JarlManager not found during Initialize!");
         }
     }
 
