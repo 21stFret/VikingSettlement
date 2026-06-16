@@ -55,7 +55,7 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Find PlayerController if not assigned
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<PlayerController>();
+            playerController = FindAnyObjectByType<PlayerController>();
         }
 
         // If we have a current Jarl set in inspector, initialize them

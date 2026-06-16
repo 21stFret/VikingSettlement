@@ -531,7 +531,7 @@ public class SeasonManager : MonoBehaviour, ISaveable
             }
         }
 
-        Debug.Log("Summer effects enabled");
+        Debug.Log($"Summer effects enabled : {value}");
     }
 
     private void EnableWinterEffects(bool value)
@@ -551,7 +551,7 @@ public class SeasonManager : MonoBehaviour, ISaveable
             snowEmission.rateOverTime = baseSnowEmissionRate;
         }
 
-        Debug.Log("Winter effects enabled");
+        Debug.Log($"Winter effects enabled : {value}");
     }
 
     private void ApplySummerLighting()

@@ -11,7 +11,8 @@ public class VillagerGridItem : MonoBehaviour
     [SerializeField] private TextMeshProUGUI villagerNameText;
     [SerializeField] private TextMeshProUGUI jobText;
     [SerializeField] private Button selectButton;
-    
+    [SerializeField] private Image jarlIcon;
+
     [Header("Visual Feedback")]
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Color normalColor = Color.white;
@@ -59,6 +60,18 @@ public class VillagerGridItem : MonoBehaviour
                     jobName = "Child";
                 }
             jobText.text = jobName;
+        }
+
+        if (jarlIcon != null)
+        {
+            if (villager.isJarl)
+            {
+                jarlIcon.gameObject.SetActive(true);
+            }
+            else
+            {
+                jarlIcon.gameObject.SetActive(false);
+            }
         }
     }
     

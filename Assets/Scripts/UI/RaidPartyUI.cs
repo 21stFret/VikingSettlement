@@ -116,6 +116,10 @@ public class RaidPartyUI : MonoBehaviour
             partySelectionPanel.SetActive(true);
         }
 
+        // auto add Jarl
+        Villager jarl = JarlManager.Instance.GetCurrentJarl();
+        AddToParty(jarl);
+
         // Populate villager lists
         RefreshVillagerLists();
 
@@ -213,7 +217,7 @@ public class RaidPartyUI : MonoBehaviour
     /// </summary>
     public void RemoveFromParty(Villager villager)
     {
-        if (villager == null || !raidParty.Contains(villager)) return;
+        if (villager == null || !raidParty.Contains(villager) || villager.isJarl) return;
 
         raidParty.Remove(villager);
         RefreshVillagerLists();

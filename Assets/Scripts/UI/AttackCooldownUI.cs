@@ -36,19 +36,35 @@ public class AttackCooldownUI : MonoBehaviour
     private bool _wasReady = true;
     private Tweener _fadeTween;
 
-    private void Update()
+    private CharacterController currentCC;
+
+    private void Start()
     {
-        // Always follow whoever the player is currently controlling (handles Jarl succession)
-        var currentCC = PlayerController.Instance != null
+        // Initialize with the current weapon sprite if possible
+        currentCC = PlayerController.Instance != null
             ? PlayerController.Instance.GetController()
             : null;
-
-        if (currentCC != _trackedController)
+        if (currentCC != null)
+        {
             _trackedController = currentCC;
+            _trackedWeapon = currentCC.weapon;
+            var sprite = _trackedWeapon != null && _trackedWeapon.itemSpriteRenderer != null
+                ? _trackedWeapon.itemSpriteRenderer.sprite
+                : defaultWeaponSprite;
+            if (fillImage != null) fillImage.sprite = sprite;
+            if (backingImage != null) backingImage.sprite = sprite;
+        }
+        // Start fully transparent if fading is enabled
+        if (doFade && canvasGroup != null)
+        {
+            canvasGroup.alpha = 0f;
+        }
+        OnChangeWeapon();
 
-        if (_trackedController == null) return;
+    }
 
-        // Update weapon sprite on both images when the equipped weapon changes
+    public void OnChangeWeapon()
+    {
         var currentWeapon = _trackedController.weapon;
         if (currentWeapon != _trackedWeapon)
         {
@@ -56,9 +72,18 @@ public class AttackCooldownUI : MonoBehaviour
             var sprite = currentWeapon != null && currentWeapon.itemSpriteRenderer != null
                 ? currentWeapon.itemSpriteRenderer.sprite
                 : defaultWeaponSprite;
-            if (fillImage != null)    fillImage.sprite = sprite;
+            if (fillImage != null) fillImage.sprite = sprite;
             if (backingImage != null) backingImage.sprite = sprite;
         }
+    }
+
+    private void Update()
+    {
+
+        if (currentCC != _trackedController)
+            _trackedController = currentCC;
+
+        if (_trackedController == null) return;
 
         float progress = _trackedController.GetAttackCooldownProgress();
         if (fillImage != null)

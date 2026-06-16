@@ -38,7 +38,8 @@ namespace SpriteShadersUltimate
         Dictionary<string, int> shaderDictionary;
         Shader lastShader;
         bool newCategory; //Used to avoid drawing lines at the beginning of a new category.
-        bool isDisabled; //Skip shaders.
+        bool isEffectHidden; // Is the effect disabled or collapsed
+        bool isEffectEnabled; // Is the effect enabled
         bool isHidden; //Used to skip hidden properties.
         bool skipGUI; //Skip GUI refresh after changing the shader.
         float shaderSpace; //Used to skip hidden properties.
@@ -57,6 +58,7 @@ namespace SpriteShadersUltimate
         static Material[] materials;
         bool wasWarned;
         bool requiresFullRectMesh, requiresSpriteSheetFix, requiresInstancing, requiresTiling;
+        HashSet<string> strippedTextureProperties = new HashSet<string>();
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
         {
@@ -71,7 +73,7 @@ namespace SpriteShadersUltimate
 
             //Properties:
             enabledShaders = new HashSet<string>();
-            isDisabled = false;
+            isEffectHidden = false;
             isHidden = false;
             EditorGUILayout.BeginVertical();
             for (int n = 0; n < properties.Length; n++)
@@ -104,16 +106,38 @@ namespace SpriteShadersUltimate
                 //Enable:
                 if (enableProperties.Contains(prop.name))
                 {
-                    isDisabled = DrawShaderToggle(materialEditor, prop);
+                    isEffectHidden = DrawShaderToggle(materialEditor, prop);
                     isHidden = false;
 
                     continue; //Dont display shader toggle twice.
                 }
                 else
                 {
-                    if (isDisabled)
+                    if (isEffectHidden)
                     {
-                        continue; //Skip disabled properties.
+                        // Strip textures
+                        if (isEffectEnabled == false && prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture)
+                        {
+                            // Cache as stripped texture property
+                            if (strippedTextureProperties.Contains(prop.name) == false)
+                            {
+                                strippedTextureProperties.Add(prop.name);
+                            }
+
+                            // Remove texture to reduce build size
+                            prop.textureValue = null;
+                        }
+
+                        continue; //Skip disabled properties
+                    }
+                    else
+                    {
+                        // Add stripped textures back
+                        if (prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture && prop.textureValue == null && strippedTextureProperties.Contains(prop.name))
+                        {
+                            prop.textureValue = defaultMaterial.GetTexture(prop.name);
+                            strippedTextureProperties.Remove(prop.name);
+                        }
                     }
                 }
 
@@ -164,6 +188,29 @@ namespace SpriteShadersUltimate
                 }
                 else if (prop.name == "_ShaderFading")
                 {
+                    DrawShaderCategory("Fading");
+                    shaderFading = prop.floatValue;
+                }
+                else if (prop.name == "_UberNoiseTexture")
+                {
+                    DrawShaderCategory("Noise", ref showNoise);
+                }
+                else if (prop.name == "_VertexTintFirst")
+                {
+                    DrawShaderCategory("Settings");
+                }
+                else if (prop.name == "_IsText")
+                {
+                    DrawShaderCategory("GUI Settings");
+                }
+                else if (prop.name == "_StencilComp")
+                {
+                    DrawShaderCategory("UI Masking", ref showMasking);
+                }
+
+                // Hints Above:
+                if (prop.name == "_ShaderSpacePixelate")
+                {
                     //Space Hints:
                     switch (Mathf.RoundToInt(shaderSpace))
                     {
@@ -206,25 +253,6 @@ namespace SpriteShadersUltimate
                             DisplayHint("- Use this for non-moving <b>UI Images</b> or <b>fullscreen</b> effects..");
                             break;
                     }
-
-                    DrawShaderCategory("Fading");
-                    shaderFading = prop.floatValue;
-                }
-                else if (prop.name == "_UberNoiseTexture")
-                {
-                    DrawShaderCategory("Noise", ref showNoise);
-                }
-                else if (prop.name == "_VertexTintFirst")
-                {
-                    DrawShaderCategory("Settings");
-                }
-                else if (prop.name == "_IsText")
-                {
-                    DrawShaderCategory("GUI Settings");
-                }
-                else if (prop.name == "_StencilComp")
-                {
-                    DrawShaderCategory("UI Masking", ref showMasking);
                 }
 
                 if (isKeyword && !newCategory && prop.name != "PixelSnap" && prop.name != "_UseUIAlphaClip" && prop.name != "_MetallicMapToggle")
@@ -400,6 +428,10 @@ namespace SpriteShadersUltimate
                 {
                     DisplayHint("- Fixes issues with <b>tiling</b> shaders.");
                     DisplayHint("- This is only required on <b>sprite sheets</b>.");
+                }
+                if (prop.name == "_ResizableTexture" && prop.floatValue > 0.5f)
+                {
+                    DisplayHint("- Fixes inconsistencies with some effects when the texture's <b>size</b> is changed.");
                 }
                 if (prop.name == "_PixelPerfectSpace" && prop.floatValue > 0.5f)
                 {
@@ -591,7 +623,7 @@ namespace SpriteShadersUltimate
                 hidingProperties = new HashSet<string>();
                 foreach (MaterialProperty prop in properties)
                 {
-                    if (prop.name.StartsWith("_Toggle") || prop.name.EndsWith("Toggle") || prop.name == "_IsTextMeshPro" || prop.name == "_WindLocalWind" || prop.name == "_WindIsParallax" || prop.name == "_SpriteSheetFix")
+                    if (prop.name.StartsWith("_Toggle") || prop.name.EndsWith("Toggle") || prop.name == "_ShaderSpacePixelate" || prop.name == "_IsTextMeshPro" || prop.name == "_WindLocalWind" || prop.name == "_WindIsParallax" || prop.name == "_SpriteSheetFix")
                     {
                         hidingProperties.Add(prop.name);
                     }
@@ -1595,6 +1627,7 @@ namespace SpriteShadersUltimate
                 }
             }
 
+            isEffectEnabled = isEnabled;
             return !isEnabled || isCollapsed;
         }
 
@@ -1916,7 +1949,7 @@ namespace SpriteShadersUltimate
 
         public static bool IsKeyword(string propertyName)
         {
-            if (propertyName.StartsWith("_Toggle") || propertyName.EndsWith("Toggle") || propertyName.EndsWith("Invert") || propertyName == "PixelSnap" || propertyName == "_ShaderSpace" || propertyName == "_ShaderFading" || propertyName == "_BakedMaterial" || propertyName == "_SmokeVertexSeed" || propertyName == "_SpriteSheetFix" || propertyName == "_UseUIAlphaClip" || propertyName == "_IsText" || propertyName == "_IsTextMeshPro" || propertyName == "_TilingFix" || propertyName == "_ForceAlpha" || propertyName == "_VertexTintFirst" || propertyName == "_PixelPerfectSpace" || propertyName == "_PixelPerfectUV" || propertyName == "_WindLocalWind" || propertyName == "_WindHighQualityNoise" || propertyName == "_WindIsParallax" || propertyName == "_WindFlip" || propertyName == "_SquishFlip")
+            if (propertyName.StartsWith("_Toggle") || propertyName.EndsWith("Toggle") || propertyName.EndsWith("Invert") || propertyName == "PixelSnap" || propertyName == "_ShaderSpace" || propertyName == "_ShaderFading" || propertyName == "_BakedMaterial" || propertyName == "_SmokeVertexSeed" || propertyName == "_SpriteSheetFix" || propertyName == "_UseUIAlphaClip" || propertyName == "_IsText" || propertyName == "_IsTextMeshPro" || propertyName == "_ResizableTexture" || propertyName == "_TilingFix" || propertyName == "_ForceAlpha" || propertyName == "_VertexTintFirst" || propertyName == "_PixelPerfectSpace" || propertyName == "_PixelPerfectUV" || propertyName == "_ShaderSpacePixelate" || propertyName == "_WindLocalWind" || propertyName == "_WindHighQualityNoise" || propertyName == "_WindIsParallax" || propertyName == "_WindFlip" || propertyName == "_SquishFlip")
             {
                 return true;
             }
