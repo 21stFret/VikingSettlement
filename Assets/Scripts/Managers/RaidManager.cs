@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
-/// Manages offensive raids - leaving settlement, time tracking, and return
+/// Manages offensive raids - leaving settlement, time tracking, and return.
+/// On return, stores a PendingRaidResults snapshot; GameManager loads the pre-raid
+/// autosave then calls ApplyPendingResults() to patch loot/casualties/time on top.
 /// </summary>
 public class RaidManager : MonoBehaviour
 {
@@ -19,7 +22,6 @@ public class RaidManager : MonoBehaviour
     [SerializeField] private RaidDestination currentRaid;
     [SerializeField] private float raidStartTime;
     [SerializeField] private List<Villager> raidParty = new List<Villager>();
-    [SerializeField] private List<Villager> homeVillagers = new List<Villager>(); // Villagers staying behind
 
     [Header("Scene Names")]
     [Tooltip("Name of the main settlement scene")]
@@ -34,13 +36,10 @@ public class RaidManager : MonoBehaviour
     public bool IsOnRaid => isOnRaid;
     public RaidDestination CurrentRaid => currentRaid;
     public List<Villager> RaidParty => raidParty;
-    private List<Villager> RaidPartyCopy;
 
-    // Track raid survivors for reintegration (cleared after VillagerSpawner uses it)
-    private HashSet<Villager> raidSurvivorsForReintegration = new HashSet<Villager>();
+    public bool HasPendingRaidResults => pendingRaidResults != null && pendingRaidResults.hasPendingResults;
 
-    // Store worker assignments before raid (villager uniqueId -> building data name)
-    private Dictionary<string, string> savedWorkerAssignments = new Dictionary<string, string>();
+    private PendingRaidResults pendingRaidResults;
 
     private void Awake()
     {
@@ -62,7 +61,6 @@ public class RaidManager : MonoBehaviour
     private void OnDestroy()
     {
         Debug.Log($"RaidManager.OnDestroy() - ID: {GetInstanceID()}, Instance ID: {(Instance != null ? Instance.GetInstanceID().ToString() : "null")}");
-        // Only clear Instance if this is the actual singleton being destroyed
         if (Instance == this)
         {
             Debug.LogWarning("RaidManager singleton is being destroyed! This should not happen during a raid.");
@@ -72,9 +70,6 @@ public class RaidManager : MonoBehaviour
 
     #region Starting a Raid
 
-    /// <summary>
-    /// Start a raid with the given party to the specified destination
-    /// </summary>
     public bool StartRaid(RaidDestination destination, List<Villager> party)
     {
         if (isOnRaid)
@@ -95,101 +90,48 @@ public class RaidManager : MonoBehaviour
             return false;
         }
 
-        // Store raid info
         currentRaid = destination;
         raidParty = new List<Villager>(party);
-        RaidPartyCopy = new List<Villager>(party);
         raidStartTime = Time.time;
         isOnRaid = true;
 
-        // Pause settlement simulation
+        // Pause ticks so no production runs during the autosave write
         PauseSettlement();
 
-        // Save all worker assignments before the raid (for restoration on return)
-        savedWorkerAssignments.Clear();
-        if (SettlementManager.Instance != null)
-        {
-            foreach (var villager in SettlementManager.Instance.GetAllVillagers())
-            {
-                if (villager != null && villager.assignedBuilding != null && villager.assignedBuilding.data != null)
-                {
-                    savedWorkerAssignments[villager.uniqueId] = villager.assignedBuilding.data.name;
-                }
-            }
-            Debug.Log($"Saved {savedWorkerAssignments.Count} worker assignments before raid");
-        }
+        // Snapshot full pre-raid settlement state — this is what we restore on return
+        SaveManager.Instance?.SaveAuto();
 
-        // Mark raid party members as "on raid" and preserve across scene load
+        // Move raid party to DontDestroyOnLoad so they survive the scene transition
         foreach (var villager in raidParty)
         {
             if (villager != null)
             {
                 villager.isOnRaid = true;
-                villager.UnassignJob(); // Free up job while on raid
-
-                // Unparent the villager first - DontDestroyOnLoad only works on root objects
-                // If villager is child of a container that gets destroyed, they'd be destroyed too
+                villager.UnassignJob();
                 villager.transform.SetParent(null);
-
-                // Preserve villager GameObject across scene transition
                 DontDestroyOnLoad(villager.gameObject);
             }
         }
 
-        // Preserve and hide villagers staying behind at the settlement
-        homeVillagers.Clear();
-        if (SettlementManager.Instance != null)
-        {
-            foreach (var villager in SettlementManager.Instance.GetAllVillagers())
-            {
-                if (villager != null && !raidParty.Contains(villager))
-                {
-                    homeVillagers.Add(villager);
-
-                    // Unparent so DontDestroyOnLoad works
-                    villager.transform.SetParent(null);
-
-                    // Preserve across scene transition
-                    DontDestroyOnLoad(villager.gameObject);
-
-                    // Hide the villager while on raid
-                    villager.gameObject.SetActive(false);
-                }
-            }
-        }
-        Debug.Log($"Preserved {homeVillagers.Count} villagers at settlement during raid.");
-
         Debug.Log($"Starting raid to {destination.destinationName} with {raidParty.Count} villagers.");
-
         OnRaidStarted?.Invoke(destination);
 
-        // Load raid scene
         if (!string.IsNullOrEmpty(destination.sceneName))
-        {
             SceneManager.LoadScene(destination.sceneName);
-        }
 
         return true;
     }
 
-    /// <summary>
-    /// Pause settlement systems while on raid
-    /// </summary>
     private void PauseSettlement()
     {
         if (GameTickManager.Instance != null)
-        {
             GameTickManager.Instance.SetPaused(true);
-        }
     }
 
     #endregion
 
     #region Ending a Raid
 
-    /// <summary>
-    /// End the current raid (called when raid is complete - win, lose, or retreat)
-    /// </summary>
     public void EndRaid(RaidResult result, List<ResourceLoot> loot = null, List<Villager> casualties = null)
     {
         if (!isOnRaid)
@@ -198,13 +140,9 @@ public class RaidManager : MonoBehaviour
             return;
         }
 
-        // Calculate real time elapsed
         float raidRealTime = Time.time - raidStartTime;
-
-        // Calculate game days based on time dilation - FASTER = LESS TIME PASSED
         float gameDaysPassed = currentRaid.CalculateGameDaysPassed(raidRealTime);
 
-        // Create raid report
         RaidReport raidReport = new RaidReport
         {
             destination = currentRaid,
@@ -216,143 +154,145 @@ public class RaidManager : MonoBehaviour
             survivors = new List<Villager>(raidParty)
         };
 
-        // Remove casualties from survivors
         if (casualties != null)
         {
             foreach (var casualty in casualties)
-            {
                 raidReport.survivors.Remove(casualty);
-            }
         }
 
         Debug.Log($"Raid ended: {result}. Real time: {raidRealTime:F1}s, Game days passed: {gameDaysPassed:F2}. Loot: {loot?.Count ?? 0}, Casualties: {casualties?.Count ?? 0}");
 
         OnRaidEnded?.Invoke(raidReport);
-
-        // Return to settlement
         ReturnToSettlement(raidReport);
     }
 
-    /// <summary>
-    /// Return to settlement and process time that passed
-    /// </summary>
     private void ReturnToSettlement(RaidReport raidReport)
     {
-        // Calculate what happened at settlement while away
-        // Round up game days so at least partial days are simulated
-        int daysToSimulate = Mathf.CeilToInt(raidReport.gameDaysPassed);
-
-        SettlementReport settlementReport = SettlementSimulator.SimulateTime(
-            daysToSimulate,
-            raidParty, // Exclude raid party from settlement calculations
-            raidReport.gameDaysPassed // Pass fractional days for more accurate resource calc
-        );
-
-        // Apply raid loot to resources
-        if (ResourceManager.Instance != null && raidReport.loot != null)
+        // Package all results as data — scene-local managers are about to be destroyed
+        pendingRaidResults = new PendingRaidResults
         {
-            foreach (var lootItem in raidReport.loot)
-            {
-                ResourceManager.Instance.AddResource(lootItem.resourceType, lootItem.amount);
-            }
+            hasPendingResults = true,
+            gameDaysPassed = raidReport.gameDaysPassed,
+            loot = raidReport.loot ?? new List<ResourceLoot>(),
+            casualtyIds = raidReport.casualties?
+                .Where(v => v != null)
+                .Select(v => v.uniqueId)
+                .ToList() ?? new List<string>(),
+            survivorHealth = new Dictionary<string, float>(),
+            raidPartyIds = raidParty
+                .Where(v => v != null)
+                .Select(v => v.uniqueId)
+                .ToList()
+        };
+
+        foreach (var survivor in raidReport.survivors)
+        {
+            if (survivor != null && !string.IsNullOrEmpty(survivor.uniqueId))
+                pendingRaidResults.survivorHealth[survivor.uniqueId] = survivor.currentHealth;
         }
 
-        // Handle casualties
-        if (raidReport.casualties != null)
-        {
-            foreach (var casualty in raidReport.casualties)
-            {
-                if (casualty != null && !casualty.IsDead())
-                {
-                    casualty.Die();
-                }
-            }
-        }
-
-        // Mark survivors as returned and clean up DontDestroyOnLoad status
-        // Store survivors for VillagerSpawner to identify who needs repositioning
-        raidSurvivorsForReintegration.Clear();
-        foreach (var villager in raidReport.survivors)
-        {
-            if (villager != null)
-            {
-                raidSurvivorsForReintegration.Add(villager);
-                villager.isOnRaid = false;
-
-                // Disable raid mode AI
-                VillagerAI ai = villager.GetComponent<VillagerAI>();
-                if (ai != null)
-                {
-                    ai.SetRaidMode(false);
-                }
-            }
-            Villager vil = RaidPartyCopy.Find(v => v == villager);
-            if (vil != null)
-            {
-                villager.AssignJob(vil.currentJob, vil.assignedBuilding); // Reassign job after returning from raid
-            }
-        }
-
-        // Apply settlement simulation results
-        ApplySettlementReport(settlementReport);
-
-        // Reset raid state
         isOnRaid = false;
         currentRaid = null;
 
-        // Destroy casualties
-        foreach (var casualty in raidReport.casualties)
-        {
-            if (casualty != null)
-            {
-                Destroy(casualty.gameObject);
-            }
-        }
-
-        raidParty.Clear();
-        RaidPartyCopy.Clear();
-
-        // Reactivate home villagers that were hidden during the raid
-        foreach (var villager in homeVillagers)
+        // Destroy DDOL raid party villagers — autosave recreates them at pre-raid state;
+        // ApplyPendingResults patches casualties/health via uniqueId after load
+        foreach (var villager in raidParty)
         {
             if (villager != null)
-            {
-                villager.gameObject.SetActive(true);
-            }
+                Destroy(villager.gameObject);
         }
-        Debug.Log($"Reactivated {homeVillagers.Count} villagers at settlement.");
-        homeVillagers.Clear();
+        raidParty.Clear();
 
-        // Resume settlement
-        ResumeSettlement();
+        Debug.Log($"Raid return: {pendingRaidResults.casualtyIds.Count} casualties, {pendingRaidResults.survivorHealth.Count} survivors, {raidReport.gameDaysPassed:F2} days. Waiting for results UI.");
 
-        OnReturnedToSettlement?.Invoke(settlementReport);
-
-        // Load settlement scene - VillagerSpawner will handle reintegrating survivors
-        SceneManager.LoadScene(settlementSceneName);
+        GameManager.Instance.PrepareRaidReturn();
+        // Scene load is deferred — RaidResultsUI shows results, player clicks to return
     }
 
     /// <summary>
-    /// Apply the settlement report - resources, events, etc.
+    /// Called by the raid results UI button to load the settlement scene.
+    /// Separated from ReturnToSettlement so LoadScene isn't called mid-event-chain.
     /// </summary>
+    public void LoadSettlementScene()
+    {
+        SceneManager.LoadScene(settlementSceneName);
+    }
+
+    #endregion
+
+    #region Applying Pending Results
+
+    /// <summary>
+    /// Called by GameManager.InitializeGameAfterDelay after the autosave is loaded.
+    /// Applies loot, casualties, survivor health, settlement simulation, and time advance.
+    /// </summary>
+    public void ApplyPendingResults()
+    {
+        if (pendingRaidResults == null || !pendingRaidResults.hasPendingResults) return;
+
+        var pending = pendingRaidResults;
+        pendingRaidResults = null; // clear before applying to prevent double-apply on error
+
+        // 1. Loot
+        if (ResourceManager.Instance != null)
+        {
+            foreach (var lootItem in pending.loot)
+                ResourceManager.Instance.AddResource(lootItem.resourceType, lootItem.amount);
+        }
+
+        if (SettlementManager.Instance != null)
+        {
+            // 2. Kill casualties by uniqueId (autosave restored them as living)
+            foreach (var id in pending.casualtyIds)
+            {
+                Villager v = SettlementManager.Instance.GetVillagerById(id);
+                if (v != null && !v.IsDead())
+                    v.Die();
+            }
+
+            // 3. Set survivor health to post-raid values (autosave had pre-raid health)
+            foreach (var kvp in pending.survivorHealth)
+            {
+                Villager v = SettlementManager.Instance.GetVillagerById(kvp.Key);
+                if (v != null)
+                    v.currentHealth = Mathf.Clamp(kvp.Value, 0f, v.maxHealth);
+            }
+
+            // 4. Settlement simulation — what happened at home while the party was away
+            var absentVillagers = pending.raidPartyIds
+                .Select(id => SettlementManager.Instance.GetVillagerById(id))
+                .Where(v => v != null)
+                .ToList();
+
+            int daysToSimulate = Mathf.CeilToInt(pending.gameDaysPassed);
+            SettlementReport report = SettlementSimulator.SimulateTime(daysToSimulate, absentVillagers, pending.gameDaysPassed);
+            ApplySettlementReport(report);
+            OnReturnedToSettlement?.Invoke(report);
+        }
+
+        // 5. Advance game time
+        int days = Mathf.CeilToInt(pending.gameDaysPassed);
+        DayNightManager.Instance?.AdvanceDays(days);
+        SeasonManager.Instance?.AdvanceDays(days);
+
+        // 6. Resume settlement tick (paused in StartRaid)
+        ResumeSettlement();
+
+        Debug.Log($"Raid results applied: {pending.loot.Count} loot, {pending.casualtyIds.Count} casualties, {days} days simulated.");
+    }
+
     private void ApplySettlementReport(SettlementReport report)
     {
         if (ResourceManager.Instance == null) return;
 
-        // Apply net resource changes
         foreach (var change in report.resourceChanges)
         {
             if (change.Value >= 0)
-            {
                 ResourceManager.Instance.AddResource(change.Key, change.Value);
-            }
             else
-            {
                 ResourceManager.Instance.SpendResource(change.Key, -change.Value);
-            }
         }
 
-        // Apply villager damage from events (true damage - abstract event damage)
         if (SettlementManager.Instance != null && report.villagerDamage > 0)
         {
             var villagers = SettlementManager.Instance.GetAllVillagers();
@@ -361,50 +301,33 @@ public class RaidManager : MonoBehaviour
             foreach (var villager in villagers)
             {
                 if (villager != null && !villager.IsDead() && !villager.isOnRaid)
-                {
                     villager.TakeDamage(damagePerVillager, null, true);
-                }
             }
         }
 
-        // Apply morale changes
         if (SettlementManager.Instance != null)
         {
-            var villagers = SettlementManager.Instance.GetAllVillagers();
-            foreach (var villager in villagers)
+            foreach (var villager in SettlementManager.Instance.GetAllVillagers())
             {
                 if (villager != null && !villager.IsDead())
-                {
                     villager.ChangeMorale(report.moraleChange);
-                }
             }
         }
 
         Debug.Log($"Settlement report applied: {report.events.Count} events occurred while away.");
     }
 
-    /// <summary>
-    /// Resume settlement systems after raid
-    /// </summary>
     private void ResumeSettlement()
     {
         if (GameTickManager.Instance != null)
-        {
             GameTickManager.Instance.SetPaused(false);
-        }
     }
 
     #endregion
 
     #region Public API
 
-    /// <summary>
-    /// Get list of available raid destinations
-    /// </summary>
-    public List<RaidDestination> GetAvailableRaids()
-    {
-        return raidDestinations;
-    }
+    public List<RaidDestination> GetAvailableRaids() => raidDestinations;
 
     public Villager AddVillagerToRaidParty(Villager villager)
     {
@@ -416,42 +339,24 @@ public class RaidManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// Get time remaining in current raid (if time-limited)
-    /// </summary>
     public float GetRaidTimeRemaining()
     {
         if (!isOnRaid || currentRaid == null) return 0f;
-
-        float elapsed = Time.time - raidStartTime;
-        float maxTime = currentRaid.realTimeLimit;
-
-        return Mathf.Max(0f, maxTime - elapsed);
+        return Mathf.Max(0f, currentRaid.realTimeLimit - (Time.time - raidStartTime));
     }
 
-    /// <summary>
-    /// Get real seconds elapsed since raid started
-    /// </summary>
     public float GetRaidTimeElapsed()
     {
         if (!isOnRaid) return 0f;
         return Time.time - raidStartTime;
     }
 
-    /// <summary>
-    /// Get current projected game days that would pass if raid ended now
-    /// </summary>
     public float GetProjectedGameDays()
     {
         if (!isOnRaid || currentRaid == null) return 0f;
-
-        float elapsed = Time.time - raidStartTime;
-        return currentRaid.CalculateGameDaysPassed(elapsed);
+        return currentRaid.CalculateGameDaysPassed(Time.time - raidStartTime);
     }
 
-    /// <summary>
-    /// Get formatted text showing current time dilation status (for UI)
-    /// </summary>
     public string GetTimeDilationStatus()
     {
         if (!isOnRaid || currentRaid == null) return "";
@@ -463,59 +368,13 @@ public class RaidManager : MonoBehaviour
         return $"Time: {elapsed:F0}s | Settlement: {projectedDays:F1} days | Remaining: {remaining:F0}s";
     }
 
-    /// <summary>
-    /// Check if raid time has expired
-    /// </summary>
     public bool IsRaidTimeExpired()
     {
         if (!isOnRaid || currentRaid == null) return false;
-
         return Time.time - raidStartTime >= currentRaid.realTimeLimit;
     }
 
-    /// <summary>
-    /// Force retreat from raid (timeout or player choice)
-    /// </summary>
-    public void Retreat()
-    {
-        EndRaid(RaidResult.Retreat);
-    }
-
-    /// <summary>
-    /// Check if a villager was a raid survivor (for reintegration positioning)
-    /// </summary>
-    public bool WasRaidSurvivor(Villager villager)
-    {
-        return raidSurvivorsForReintegration.Contains(villager);
-    }
-
-    /// <summary>
-    /// Clear the raid survivors tracking after reintegration is complete
-    /// </summary>
-    public void ClearReintegrationTracking()
-    {
-        raidSurvivorsForReintegration.Clear();
-    }
-
-    /// <summary>
-    /// Get the saved building assignment for a villager (by uniqueId)
-    /// </summary>
-    public string GetSavedWorkerAssignment(string villagerUniqueId)
-    {
-        if (savedWorkerAssignments.TryGetValue(villagerUniqueId, out string buildingName))
-        {
-            return buildingName;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// Clear saved worker assignments after restoration
-    /// </summary>
-    public void ClearSavedWorkerAssignments()
-    {
-        savedWorkerAssignments.Clear();
-    }
+    public void Retreat() => EndRaid(RaidResult.Retreat);
 
     #endregion
 }
@@ -534,7 +393,7 @@ public class RaidDestination
     public float timeDilationMultiplier = 10f;
 
     [Tooltip("Real-time limit in seconds (0 = no limit)")]
-    public float realTimeLimit = 300f; // 5 minutes default
+    public float realTimeLimit = 300f;
 
     [Tooltip("Maximum game-days that can pass (caps the time even if player is slow)")]
     public float maxGameDays = 5f;
@@ -547,18 +406,10 @@ public class RaidDestination
     [Header("Rewards")]
     public List<ResourceLoot> potentialLoot = new List<ResourceLoot>();
 
-    /// <summary>
-    /// Calculate how many game-days passed based on real time elapsed
-    /// </summary>
     public float CalculateGameDaysPassed(float realSecondsElapsed)
     {
-        // Convert real seconds to game seconds using dilation
         float gameSeconds = realSecondsElapsed * timeDilationMultiplier;
-
-        // Convert game seconds to game days (assuming 120 second day cycle like DayNightManager)
         float gameDays = gameSeconds / 120f;
-
-        // Cap at maximum
         return Mathf.Min(gameDays, maxGameDays);
     }
 }
@@ -584,17 +435,14 @@ public class RaidReport
     public RaidResult result;
 
     [Header("Time")]
-    public float realTimeElapsed;    // Actual seconds spent in raid
-    public float gameDaysPassed;     // Calculated game days based on time dilation
+    public float realTimeElapsed;
+    public float gameDaysPassed;
 
     [Header("Results")]
     public List<ResourceLoot> loot = new List<ResourceLoot>();
     public List<Villager> casualties = new List<Villager>();
     public List<Villager> survivors = new List<Villager>();
 
-    /// <summary>
-    /// Get a formatted string showing time efficiency
-    /// </summary>
     public string GetTimeEfficiencyText()
     {
         float maxDays = destination?.maxGameDays ?? 5f;
@@ -606,16 +454,13 @@ public class RaidReport
 [System.Serializable]
 public class SettlementReport
 {
-    public int daysPassed;           // Whole days (for event count)
-    public float exactDaysPassed;    // Fractional days (for resource calculations)
+    public int daysPassed;
+    public float exactDaysPassed;
     public Dictionary<ResourceType, float> resourceChanges = new Dictionary<ResourceType, float>();
     public float villagerDamage;
     public float moraleChange;
     public List<SettlementEvent> events = new List<SettlementEvent>();
 
-    /// <summary>
-    /// Get summary text for UI
-    /// </summary>
     public string GetSummaryText()
     {
         int netPositive = 0;
@@ -625,7 +470,6 @@ public class SettlementReport
             if (change.Value > 0) netPositive++;
             else if (change.Value < 0) netNegative++;
         }
-
         return $"{exactDaysPassed:F1} days passed. {events.Count} events. Net resources: +{netPositive}/-{netNegative}";
     }
 }
@@ -643,6 +487,20 @@ public enum SettlementEventType
     Positive,
     Negative,
     Neutral
+}
+
+/// <summary>
+/// Holds serialized raid outcome data between raid end and autosave load.
+/// Lives only in RaidManager memory — never written to disk.
+/// </summary>
+public class PendingRaidResults
+{
+    public bool hasPendingResults;
+    public float gameDaysPassed;
+    public List<ResourceLoot> loot;
+    public List<string> casualtyIds;
+    public Dictionary<string, float> survivorHealth;
+    public List<string> raidPartyIds;
 }
 
 #endregion

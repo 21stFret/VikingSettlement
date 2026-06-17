@@ -584,6 +584,28 @@ public class SeasonManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>
+    /// Advance season tracking by N days without firing per-day events — used by raid return.
+    /// Firewood consumption is already handled by SettlementSimulator for the elapsed period.
+    /// </summary>
+    public void AdvanceDays(int days)
+    {
+        int remaining = days;
+        while (remaining > 0)
+        {
+            if (daysUntilSeasonChange <= 0)
+                ChangeSeason(); // resets daysUntilSeasonChange to daysPerSeason
+
+            int step = Mathf.Min(remaining, daysUntilSeasonChange);
+            daysUntilSeasonChange -= step;
+            remaining -= step;
+
+            if (daysUntilSeasonChange <= 0)
+                ChangeSeason();
+        }
+        Debug.Log($"SeasonManager: Advanced {days} days — now {currentSeason}, {daysUntilSeasonChange} days until season change");
+    }
+
+    /// <summary>
     /// Force a season change (for debugging/testing)
     /// </summary>
     public void ForceSeasonChange()

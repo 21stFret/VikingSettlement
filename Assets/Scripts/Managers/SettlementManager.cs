@@ -404,6 +404,15 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         return new List<Villager>(allVillagers);
     }
+
+    public Villager GetVillagerById(string uniqueId)
+    {
+        foreach (var v in allVillagers)
+        {
+            if (v != null && v.uniqueId == uniqueId) return v;
+        }
+        return null;
+    }
     
     /// <summary>
     /// Get all unemployed villagers (only mature villagers can work)

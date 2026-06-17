@@ -107,6 +107,17 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Prepare for returning from a raid — loads the pre-raid autosave on next scene load.
+    /// </summary>
+    public void PrepareRaidReturn()
+    {
+        ShouldLoadSave = true;
+        SaveFileToLoad = SaveManager.AUTOSAVE_NAME;
+        GameInitialized = false;
+        Debug.Log("GameManager: Prepared for raid return — will load autosave");
+    }
+
+    /// <summary>
     /// Return to the main menu.
     /// </summary>
     public void ReturnToMainMenu()
@@ -133,6 +144,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log($"Applying save data from: {SaveFileToLoad}");
             SaveManager.Instance.LoadGame(SaveFileToLoad);
+            RaidManager.Instance?.ApplyPendingResults();
         }
         else if (!ShouldLoadSave && SaveManager.Instance != null)
         {

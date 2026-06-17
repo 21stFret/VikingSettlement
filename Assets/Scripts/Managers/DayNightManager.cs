@@ -361,6 +361,16 @@ public class DayNightManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>
+    /// Advance the day counter without firing OnNewDay — used by raid return.
+    /// Season advancement and resource simulation are handled separately.
+    /// </summary>
+    public void AdvanceDays(int days)
+    {
+        currentDay += days;
+        Debug.Log($"DayNightManager: Advanced {days} days to Day {currentDay}");
+    }
+
+    /// <summary>
     /// Returns true if the sun is currently above the horizon
     /// </summary>
     public bool IsDaytime()
