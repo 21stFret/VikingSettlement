@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Manages three types of pause:
@@ -34,6 +35,8 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private Button saveButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button testSceneButton;
+    [SerializeField] private Button closeMenuButton;
 
 
     [Header("Strategic Pause Settings")]
@@ -134,6 +137,22 @@ public class PauseManager : MonoBehaviour
             quitButton.onClick.AddListener(() =>
             {
                 GameManager.Instance.ReturnToMainMenu();
+            });
+        }
+
+        if(testSceneButton != null)
+        {
+            testSceneButton.onClick.AddListener(() =>
+            {
+                SceneManager.LoadScene("Combat Testing");
+            });
+        }
+
+        if (closeMenuButton != null)
+        {
+            closeMenuButton.onClick.AddListener(() =>
+            {
+                ExitMenuPause();
             });
         }
     }

@@ -11,11 +11,6 @@ public class GameSceneBootstrap : MonoBehaviour
     private void Start()
     {
         InitializeManagers();
-
-        if (GameManager.Instance != null)
-            GameManager.Instance.ApplySaveDataToScene();
-        else
-            Debug.Log("GameSceneBootstrap: No GameManager found — scene opened directly.");
     }
 
     private void InitializeManagers()

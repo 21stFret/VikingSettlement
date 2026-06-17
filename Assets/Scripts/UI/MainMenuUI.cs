@@ -191,7 +191,7 @@ public class MainMenuUI : MonoBehaviour
 
         if (item != null)
         {
-            item.Setup(autosaveInfo, _ => OnSlotClicked(autosaveInfo.slotNumber)); 
+            item.Setup(autosaveInfo, _ => OnSlotClicked(-1)); 
         }
     }
 
@@ -226,6 +226,11 @@ public class MainMenuUI : MonoBehaviour
         }
         else
         {
+            if(selectedSlot == -1)
+            {
+                GameManager.Instance?.LoadAutosave();
+                return;
+            }
             GameManager.Instance?.LoadSlot(selectedSlot);
         }
     }
@@ -237,11 +242,6 @@ public class MainMenuUI : MonoBehaviour
         {
             ShowDeleteConfirmation($"Are you sure you want to delete the save in Slot {selectedSlot}?");
         }
-    }
-
-    private void OnAutosaveClicked()
-    {
-        GameManager.Instance?.LoadAutosave();
     }
 
     public void OnApplicationQuit()

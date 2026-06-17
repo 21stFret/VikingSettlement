@@ -574,6 +574,11 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     protected virtual void OnHitTarget(Collider2D hit)
     {
+        if (!GameManager.Instance.IsGameActive)
+        {
+            Debug.Log("Hit detected but game is not active, ignoring damage.");
+            return; // Don't apply damage if game is not active (e.g. during scene transitions)
+        }
         var target = hit.GetComponent<TargetHealth>();
         if (target == null || weapon == null) return;
 

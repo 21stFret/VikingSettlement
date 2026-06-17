@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool GameInitialized { get; private set; }
 
+    public bool IsGameActive;
+
     private void Awake()
     {
         if (Instance == null)
@@ -45,6 +47,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     /// <summary>
@@ -90,21 +98,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void LoadAutosave()
     {
-        // Get the slot number from the autosave
-        var autosaveInfo = SaveManager.Instance?.GetAutosaveInfo();
-        if (autosaveInfo != null && autosaveInfo.exists)
-        {
-            CurrentSlot = autosaveInfo.slotNumber;
-        }
-
         SaveFileToLoad = SaveManager.AUTOSAVE_NAME;
         ShouldLoadSave = true;
         GameInitialized = false;
-
-        if (SaveManager.Instance != null)
-        {
-            SaveManager.Instance.SetCurrentSlot(CurrentSlot);
-        }
 
         Debug.Log($"Loading autosave (slot {CurrentSlot})");
         SceneManager.LoadScene(gameSceneName);
@@ -120,13 +116,18 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    /// <summary>
-    /// Called by GameSceneBootstrap after all managers have been initialized.
-    /// Applies save data or creates an initial save for a new game.
-    /// </summary>
-    public void ApplySaveDataToScene()
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (GameInitialized) return;
+        if (scene.name == gameSceneName && !GameInitialized)
+        {
+            StartCoroutine(InitializeGameAfterDelay());
+        }
+    }
+
+    private System.Collections.IEnumerator InitializeGameAfterDelay()
+    {
+        yield return null;
+        yield return null;
 
         if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
         {
@@ -135,6 +136,8 @@ public class GameManager : MonoBehaviour
         }
         else if (!ShouldLoadSave && SaveManager.Instance != null)
         {
+            // New game - create initial save after a short delay
+            yield return new WaitForSeconds(0.5f);
             SaveManager.Instance.SaveToCurrentSlot();
             Debug.Log("Initial save created");
         }

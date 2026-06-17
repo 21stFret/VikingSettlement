@@ -569,7 +569,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         // Save villagers
         var villagerSaves = new List<VillagerSave>();
-        foreach (var v in allVillagers)
+        foreach (var v in allVillagers.ToList())
         {
             if (v == null || v.IsDead()) continue;
 
@@ -638,7 +638,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
         // Save buildings
         var buildingSaves = new List<BuildingSave>();
-        foreach (var b in allBuildings)
+        foreach (var b in allBuildings.ToList())
         {
             if (b == null) continue;
 
@@ -674,7 +674,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     public void LoadSaveData(SaveData data)
     {
-        if (data.villagers == null) return;
+        if (data.villagers.Length == 0)
+        {
+            Debug.LogError("No Villagers in Saved Data"); 
+            return;
+        }
 
         // Get the villager prefab from VillagerSpawner
         GameObject villagerPrefab = null;

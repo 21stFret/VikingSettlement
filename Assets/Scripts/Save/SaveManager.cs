@@ -74,7 +74,7 @@ public class SaveManager : MonoBehaviour
     {
         isInGameScene = SceneManager.GetActiveScene().name == gameSceneName;
 
-        if (isInGameScene && autoSaveEnabled && autoSaveCoroutine == null && CurrentSlot > 0)
+        if (isInGameScene && autoSaveEnabled && autoSaveCoroutine == null && CurrentSlot >= 0)
         {
             StartAutoSave();
         }

@@ -65,6 +65,7 @@ public class AttackCooldownUI : MonoBehaviour
 
     public void OnChangeWeapon()
     {
+        if (_trackedController == null) return;
         var currentWeapon = _trackedController.weapon;
         if (currentWeapon != _trackedWeapon)
         {

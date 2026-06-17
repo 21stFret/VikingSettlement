@@ -348,6 +348,7 @@ public class RaidSceneController : MonoBehaviour
     {
         if (!raidActive) return;
         raidActive = false;
+        GameManager.Instance.IsGameActive = false;
 
         Debug.Log($"VICTORY! Collected {collectedLoot.Count} loot items. Casualties: {casualties.Count}");
 

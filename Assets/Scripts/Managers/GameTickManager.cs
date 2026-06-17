@@ -44,6 +44,11 @@ public class GameTickManager : MonoBehaviour
         Instance = this;
     }
 
+    public void Initialize()
+    {
+        isPaused = false;
+    }
+
     private void OnDestroy()
     {
         // Clear instance when destroyed to prevent stale references
