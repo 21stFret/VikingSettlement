@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 /// <summary>
 /// Manages three types of pause:
@@ -28,10 +29,13 @@ public class PauseManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private CameraController cameraController;
+    [SerializeField] private CanvasGroup savePopupCanvas;
 
     [Header("UI Panels")]
     [SerializeField] private GameObject menuPausePanel;
     [SerializeField] private GameObject strategicPauseIndicator;
+    [SerializeField] private GameObject savePopup;
+    [SerializeField] private TMP_Text savePopupText;
     [SerializeField] private Button saveButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
@@ -63,6 +67,8 @@ public class PauseManager : MonoBehaviour
 
     // Track which state we were in before dialogue (to restore after)
     private PauseState stateBeforeDialogue;
+
+    private Coroutine flashCoroutine;
 
     private void Awake()
     {
@@ -113,13 +119,47 @@ public class PauseManager : MonoBehaviour
 
     }
 
+    private void FlashSavedPopup()
+    {
+        if (savePopup != null)
+        {
+            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+            flashCoroutine = StartCoroutine(FlashSavedPopupCoroutine());
+        }
+    }
+
+    private System.Collections.IEnumerator FlashSavedPopupCoroutine()
+    {
+        savePopupText.text = $"Game saved to slot {SaveManager.Instance.CurrentSlot} successfully!";
+        savePopupCanvas.alpha = 0f;
+        while (savePopupCanvas.alpha < 1)
+        {
+            savePopupCanvas.alpha += Time.unscaledDeltaTime * 2f; // Fade in over 0.5 seconds
+            yield return null;
+        }
+        yield return new WaitForSecondsRealtime(1f); // Stay visible for 1 second
+        while (savePopupCanvas.alpha > 0)
+        {
+            savePopupCanvas.alpha -= Time.unscaledDeltaTime * 2f; // Fade in over 0.5 seconds
+            yield return null;
+        }
+        yield break;
+    }
+
     private void SetupButtons()
     {
+        if (savePopup != null)
+        {
+            savePopupCanvas = savePopup.GetComponent<CanvasGroup>();
+            savePopupCanvas.alpha = 0f;
+        }
+
         if (saveButton != null)
         {
             saveButton.onClick.AddListener(() =>
             {
                 SaveManager.Instance.SaveToCurrentSlot();
+                FlashSavedPopup();
             });
         }
 
