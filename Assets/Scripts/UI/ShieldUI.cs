@@ -79,7 +79,7 @@ public class ShieldUI : MonoBehaviour
 
     private void UpdateSprite()
     {
-        bool hasShield = _trackedShield != null && _trackedShield.maxDurability > 0;
+        bool hasShield = _trackedShield != null && _trackedShield.itemSpriteRenderer != null;
 
         if (!hasShield)
         {
@@ -93,14 +93,11 @@ public class ShieldUI : MonoBehaviour
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
 
-        var sprites = _trackedShield.itemDamageSprites;
-        if (sprites == null || sprites.Length == 0 || shieldImage == null) return;
-
-        int damageLevel = Mathf.FloorToInt(
-            ((float)(_trackedShield.maxDurability - _trackedShield.CurrentDurability) / _trackedShield.maxDurability)
-            * sprites.Length);
-        damageLevel = Mathf.Clamp(damageLevel, 0, sprites.Length - 1);
-        shieldImage.sprite = sprites[damageLevel];
+        // Mirror the in-world sprite directly — TakeDurabilityDamage updates
+        // itemSpriteRenderer.sprite before firing OnDurabilityChanged, so this
+        // is always in sync without re-deriving the damage level independently.
+        if (shieldImage != null)
+            shieldImage.sprite = _trackedShield.itemSpriteRenderer.sprite;
     }
 
     private IEnumerator ShakeCoroutine()

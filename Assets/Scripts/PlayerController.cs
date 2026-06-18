@@ -47,17 +47,6 @@ public class PlayerController : MonoBehaviour
 
         // Setup Input System
         inputActions = new PlayerInputActions();
-
-        // If we have a control target set in inspector, use it
-        if (controlTarget != null)
-        {
-            SetControlTarget(controlTarget);
-        }
-        else
-        {
-            // Fallback: try to get CharacterController on this object
-            controller = GetComponent<CharacterController>();
-        }
     }
 
     private void OnEnable()

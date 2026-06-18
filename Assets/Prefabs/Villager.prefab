@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 5493561719251364476}
   - component: {fileID: 3728299144202640379}
   - component: {fileID: 7330671388403268956}
+  - component: {fileID: 3195747193457852163}
   m_Layer: 6
   m_Name: Villager
   m_TagString: Untagged
@@ -337,6 +338,7 @@ MonoBehaviour:
   - {fileID: 0}
 --- !u!212 &8764698263912582825
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -382,6 +384,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -2924508640703339208, guid: 8b7dd40313d9ef14bb3eaddeb9a2952b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -391,7 +394,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!61 &3306281021511002227
 BoxCollider2D:
@@ -564,6 +566,8 @@ MonoBehaviour:
   isHungry: 0
   isCold: 0
   isOnRaid: 0
+  healthRegenFromFood: 1
+  moraleRegenFromFood: 5
   gender: 1
   age: 20
   lifeExpectancy: 60
@@ -654,7 +658,7 @@ MonoBehaviour:
   torch: {fileID: 0}
   shieldAttachPoint: 0
   weaponAttachPoint: 1
-  torchAttachPoint: 2
+  torchAttachPoint: 1
 --- !u!114 &3728299144202640379
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -710,6 +714,21 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0.03}
   m_Radius: 0.2
+--- !u!114 &3195747193457852163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983789909891545685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 519dd23e043226744ab1d679d0d69c6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponSwapper
+  swordPrefab: {fileID: 0}
+  axePrefab: {fileID: 0}
+  torchPrefab: {fileID: 0}
 --- !u!1 &1148867561775107672
 GameObject:
   m_ObjectHideFlags: 0
@@ -833,6 +852,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8452135069986472533
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -878,6 +898,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: -1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0.5803922}
   m_FlipX: 0
@@ -887,7 +908,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &3259311032161353500
 GameObject:
@@ -5780,7 +5800,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &7438599688224235745
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5826,6 +5846,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 2
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -5857,7 +5878,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &3850377027533555742
 GameObject:
   m_ObjectHideFlags: 0
@@ -6188,6 +6208,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: -758993017
@@ -6294,6 +6315,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -78.182}
 --- !u!212 &994827219048450226
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -6339,6 +6361,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 9146166088044349010, guid: 8474fba116e272248a54695103cfc801, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -6348,7 +6371,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &6091153361603931089
 MonoBehaviour:
@@ -11209,7 +11231,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &305215891553911677
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -11255,6 +11277,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -758993017
   m_SortingLayer: 2
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -11286,7 +11309,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &9201663787025108328
 GameObject:
   m_ObjectHideFlags: 0
@@ -11391,6 +11413,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0

@@ -31,7 +31,10 @@ public class GameSceneBootstrap : MonoBehaviour
         // Layer 3: needs DayNightManager
         FindAnyObjectByType<BeehiveManager>()?.Initialize();
 
-        // Layer 3: needs JarlManager (Instance set in Awake)
+        // Layer 3: needs JarlManager
+        VillagerSpawner.Instance?.Init();
+        JarlManager.Instance?.Init();
         SkillTreeManager.Instance?.Initialize();
+        AttackCooldownUI.Instance?.Init();
     }
 }

@@ -50,24 +50,14 @@ public class JarlManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Init()
     {
         // Find PlayerController if not assigned
         if (playerController == null)
         {
-            playerController = FindAnyObjectByType<PlayerController>();
+            playerController = PlayerController.Instance;
         }
-
-        // If we have a current Jarl set in inspector, initialize them
-        if (currentJarl != null)
-        {
-            SetJarl(currentJarl, isInitial: true);
-        }
-        else
-        {
-            // Try to find a villager marked as Jarl
-            FindAndSetInitialJarl();
-        }
+        FindAndSetInitialJarl();
     }
 
     /// <summary>

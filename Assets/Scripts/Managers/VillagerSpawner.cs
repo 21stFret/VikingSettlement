@@ -39,7 +39,7 @@ public class VillagerSpawner : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void Init()
     {
         if (ShouldLoadFromSave())
         {
@@ -50,7 +50,6 @@ public class VillagerSpawner : MonoBehaviour
         {
             SpawnInitialVillagers();
             EnsureJarlExists();
-            ConnectPlayerToJarl();
         }
     }
 
@@ -71,7 +70,6 @@ public class VillagerSpawner : MonoBehaviour
         spawnedVillagers.AddRange(loadedVillagers);
 
         EnsureJarlExists();
-        ConnectPlayerToJarl();
 
         Debug.Log($"VillagerSpawner: Registered {loadedVillagers.Count} villagers from save");
     }
@@ -206,40 +204,6 @@ public class VillagerSpawner : MonoBehaviour
 
                 Debug.Log($"Assigned {newJarl.villagerName} as Jarl");
             }
-        }
-    }
-
-    /// <summary>
-    /// Connect the player controller to the Jarl
-    /// </summary>
-    private void ConnectPlayerToJarl()
-    {
-        PlayerController playerController = FindFirstObjectByType<PlayerController>();
-        if (playerController == null)
-        {
-            Debug.LogWarning("VillagerSpawner: No PlayerController found!");
-            return;
-        }
-
-        // Find the Jarl
-        Villager jarl = null;
-        foreach (var villager in spawnedVillagers)
-        {
-            if (villager != null && villager.isJarl)
-            {
-                jarl = villager;
-                break;
-            }
-        }
-
-        if (jarl != null)
-        {
-            playerController.SetControlTarget(jarl);
-            Debug.Log($"Connected player to Jarl: {jarl.villagerName}");
-        }
-        else
-        {
-            Debug.LogWarning("VillagerSpawner: No Jarl found to connect player to!");
         }
     }
 

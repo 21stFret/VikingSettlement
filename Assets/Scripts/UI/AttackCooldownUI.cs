@@ -13,6 +13,7 @@ using UnityEngine.UI;
 /// </summary>
 public class AttackCooldownUI : MonoBehaviour
 {
+    public static AttackCooldownUI Instance;
     [Header("References")]
     [Tooltip("Filled Image whose fillAmount represents cooldown progress (0 = just fired, 1 = ready).")]
     [SerializeField] private Image fillImage;
@@ -38,7 +39,20 @@ public class AttackCooldownUI : MonoBehaviour
 
     private CharacterController currentCC;
 
-    private void Start()
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("Multiple AttackCooldownUI instances detected. Destroying duplicate.");
+            Destroy(gameObject);
+        }
+    }
+
+    public  void Init()
     {
         // Initialize with the current weapon sprite if possible
         currentCC = PlayerController.Instance != null
@@ -85,6 +99,8 @@ public class AttackCooldownUI : MonoBehaviour
             _trackedController = currentCC;
 
         if (_trackedController == null) return;
+
+        OnChangeWeapon();
 
         float progress = _trackedController.GetAttackCooldownProgress();
         if (fillImage != null)
