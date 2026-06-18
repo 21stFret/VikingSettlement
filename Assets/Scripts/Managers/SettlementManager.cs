@@ -28,7 +28,6 @@ public class SettlementManager : MonoBehaviour, ISaveable
     public float ageingAmount = 0.1f; // How much villagers age each interval
     public float reproductionCooldown = 5f; // Minimum time between having children
     public float reproductionInterval = 0f; // Timer to track reproduction intervals
-    private float gameTickTimer = 0f;
     private float ageTimer = 0f;
     public float age;
     private float countingAge;
@@ -789,7 +788,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                     {
                         GameObject weaponInstance = Instantiate(weaponPrefab.gameObject);
                         itemAttachment.EquipWeapon(weaponInstance);
-                        Debug.Log($"  -> Weapon '{vs.weaponName}' equipped successfully");
+                        //Debug.Log($"  -> Weapon '{vs.weaponName}' equipped successfully");
                     }
                     else
                     {
@@ -803,7 +802,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                     {
                         GameObject shieldInstance = Instantiate(shieldPrefab.gameObject);
                         itemAttachment.EquipShield(shieldInstance);
-                        Debug.Log($"  -> Shield '{vs.shieldName}' equipped successfully");
+                        //Debug.Log($"  -> Shield '{vs.shieldName}' equipped successfully");
                     }
                     else
                     {

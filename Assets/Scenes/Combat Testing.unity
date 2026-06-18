@@ -65647,8 +65647,11 @@ MonoBehaviour:
   currentState: 0
   playerController: {fileID: 0}
   cameraController: {fileID: 519420034}
+  savePopupCanvas: {fileID: 0}
   menuPausePanel: {fileID: 893020362}
   strategicPauseIndicator: {fileID: 1465665319}
+  savePopup: {fileID: 0}
+  savePopupText: {fileID: 0}
   saveButton: {fileID: 0}
   settingsButton: {fileID: 0}
   quitButton: {fileID: 1307423751}
@@ -109812,7 +109815,7 @@ GameObject:
   - component: {fileID: 938487559}
   - component: {fileID: 938487560}
   m_Layer: 5
-  m_Name: Playback Penlk
+  m_Name: Playback Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111342,6 +111345,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -137685,6 +137689,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -199982,6 +199987,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258781,8 +258787,6 @@ MonoBehaviour:
   shadowSortingOrder: 1
   shadowXScaleShrinkAmount: 0.3
   autoUpdate: 1
-  autoDetectNewShadows: 0
-  detectionInterval: 1
   shadowPrefab: {fileID: 84905747932348909, guid: 06ad8ce59ada8754988d927924b57917, type: 3}
   shadowFadeSpeed: 1
 --- !u!1001 &2111437202
@@ -262849,6 +262853,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

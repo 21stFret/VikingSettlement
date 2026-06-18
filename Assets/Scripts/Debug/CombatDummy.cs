@@ -82,7 +82,7 @@ public class CombatDummy : MonoBehaviour
         float bestSqDist = autoAttackRange * autoAttackRange;
         Villager nearest = null;
 
-        foreach (var v in FindObjectsByType<Villager>(FindObjectsSortMode.None))
+        foreach (var v in FindObjectsByType<Villager>())
         {
             if (v.IsDead()) continue;
             float sqDist = ((Vector2)(v.transform.position - transform.position)).sqrMagnitude;

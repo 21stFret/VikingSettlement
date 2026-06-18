@@ -111,7 +111,7 @@ public class BreakableObject2D : MonoBehaviour
             Rigidbody2D rb = part.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
-                rb.isKinematic = false;
+                rb.bodyType = RigidbodyType2D.Kinematic;
 
                 // Random torque (Z-axis only in 2D)
                 rb.AddTorque(Random.Range(-torqueMultiplier, torqueMultiplier), ForceMode2D.Impulse);
@@ -161,7 +161,7 @@ public class BreakableObject2D : MonoBehaviour
             if (spriteRend == null) continue;
 
             // Freeze the part in place
-            if (rb != null) rb.isKinematic = true;
+            if (rb != null) rb.bodyType = RigidbodyType2D.Kinematic;
             if (col != null) col.enabled = false;
 
             // Fade out using SpriteRenderer color (no material leak)

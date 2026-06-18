@@ -13,10 +13,7 @@ public class SingleResourceDisplay : MonoBehaviour
     public Image icon; // Optional
 
     [Header("Format")]
-    [SerializeField] private bool showResourceName = true;
     [SerializeField] private string numberFormat = "F0"; // F0 = no decimals, F1 = 1 decimal
-    [SerializeField] private string prefix = ""; // e.g., "x" or ""
-    [SerializeField] private string suffix = ""; // e.g., "kg" or ""
     
     [Header("Color Coding (Optional)")]
     [SerializeField] private bool useColorCoding = false;

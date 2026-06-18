@@ -37,6 +37,7 @@ public class CombatReplayUI : MonoBehaviour
     [SerializeField] private TMP_Text timeLabel;
     [Tooltip("Button that opens the replay panel. Leave unassigned to use the OnGUI fallback.")]
     [SerializeField] private Button openButton;
+    [SerializeField] private Button closeButton;
 
     [Header("Playback Speed")]
     [Tooltip("1.0 = normal speed; 0.5 = half speed; 2.0 = double speed.")]
@@ -71,6 +72,9 @@ public class CombatReplayUI : MonoBehaviour
 
         if (openButton != null)
             openButton.onClick.AddListener(OpenPanel);
+
+        if(closeButton != null)
+            closeButton.onClick.AddListener(ClosePanel);
 
         // Wire up slider (dragging pauses and seeks).
         if (timelineSlider != null)

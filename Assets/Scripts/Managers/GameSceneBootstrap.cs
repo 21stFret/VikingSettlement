@@ -39,5 +39,6 @@ public class GameSceneBootstrap : MonoBehaviour
 
         MouseInputController.Instance?.Init();
         CameraController.Instance?.Init();
+        PauseManager.Instance?.Init();
     }
 }

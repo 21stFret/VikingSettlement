@@ -33,12 +33,7 @@ public class BuildingSelector : MonoBehaviour, IClickable
         // Find or create the info panel
         if (sharedInfoPanel == null && infoPanelPrefab != null)
         {
-            sharedInfoPanel = FindFirstObjectByType<BuildingInfoPanel>(FindObjectsInactive.Include);
-            if (sharedInfoPanel == null)
-            {
-                // Create one if it doesn't exist
-                sharedInfoPanel = Instantiate(infoPanelPrefab);
-            }
+            sharedInfoPanel = FindAnyObjectByType<BuildingInfoPanel>(FindObjectsInactive.Include);
         }
 
         if (selectionIndicator != null)

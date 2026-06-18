@@ -142,7 +142,7 @@ public class CombatTestManager : MonoBehaviour
     public void ClearAllies()
     {
         PlayerController.Instance?.ClearRaidAllies();
-        foreach (var v in FindObjectsByType<Villager>(FindObjectsSortMode.None))
+        foreach (var v in FindObjectsByType<Villager>())
         {
             if (v != _player)
                 Destroy(v.gameObject);
@@ -178,7 +178,7 @@ public class CombatTestManager : MonoBehaviour
 
     public void ClearEnemies()
     {
-        foreach (var e in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+        foreach (var e in FindObjectsByType<Enemy>())
             Destroy(e.gameObject);
     }
 
@@ -237,7 +237,7 @@ public class CombatTestManager : MonoBehaviour
         if (GUILayout.Button("Respawn Player")) SpawnPlayer();
 
         GUILayout.Space(6);
-        int enemyCount = FindObjectsByType<Enemy>(FindObjectsSortMode.None).Length;
+        int enemyCount = FindObjectsByType<Enemy>().Length;
         GUILayout.Label($"Enemies alive: {enemyCount}");
 
         GUILayout.EndVertical();

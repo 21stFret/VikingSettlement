@@ -86,12 +86,12 @@ public class PauseManager : MonoBehaviour
         SetupButtons();
     }
 
-    private void Start()
+    public void Init()
     {
         // Auto-find references if not set
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<PlayerController>();
+            playerController = FindAnyObjectByType<PlayerController>();
         }
         if (cameraController == null)
         {
