@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class SettlementManager : MonoBehaviour, ISaveable
 {
@@ -34,9 +35,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     [Header("Food Consumption")]
     public float fishPerVillagerPerDay = 1f;
+    public float totalFishNeeded = 0f;
     [SerializeField] private HungerDistributionMode hungerMode = HungerDistributionMode.Prioritized;
     [Tooltip("Minimum health lost per starvation tick regardless of current health. Lower this for testing.")]
     [SerializeField] public float minStarvationDamage = 5f;
+    public event Action<bool> OnFoodConsumed;
 
     private void Awake()
     {
@@ -229,7 +232,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
             effectiveFishPerVillager = Mathf.Max(0f, effectiveFishPerVillager);
         }
 
-        float totalFishNeeded = villagerCount * effectiveFishPerVillager;
+        totalFishNeeded = villagerCount * effectiveFishPerVillager;
 
         if (totalFishNeeded <= 0)
         {
@@ -262,6 +265,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
             else
                 ApplyPrioritizedHunger(availableFish, effectiveFishPerVillager);
         }
+
+        OnFoodConsumed?.Invoke(availableFish >= totalFishNeeded);
     }
 
     /// <summary>
@@ -272,7 +277,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         int fedCount = fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : allVillagers.Count;
         Debug.LogWarning($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
 
-        List<Villager> shuffled = allVillagers.OrderBy(v => Random.value).ToList();
+        List<Villager> shuffled = allVillagers.OrderBy(v => UnityEngine.Random.value).ToList();
         for (int i = 0; i < shuffled.Count; i++)
             shuffled[i].HandleHunger(i >= fedCount);
     }
@@ -682,174 +687,38 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     public void LoadSaveData(SaveData data)
     {
-        if (data.villagers.Length == 0)
+        if (data.villagers == null || data.villagers.Length == 0)
         {
-            Debug.LogError("No Villagers in Saved Data"); 
+            Debug.LogError("SettlementManager: No villagers in save data.");
             return;
         }
 
-        // Get the villager prefab from VillagerSpawner
-        GameObject villagerPrefab = null;
-        Transform villagerParent = null;
-        if (VillagerSpawner.Instance != null)
+        if (VillagerSpawner.Instance == null)
         {
-            villagerPrefab = VillagerSpawner.Instance.GetVillagerPrefab();
-            villagerParent = VillagerSpawner.Instance.GetVillagerParent();
-        }
-
-        if (villagerPrefab == null)
-        {
-            Debug.LogError("SettlementManager: Cannot load save - no villager prefab found!");
+            Debug.LogError("SettlementManager: VillagerSpawner not found — cannot restore villagers.");
             return;
         }
 
-        // Destroy any existing villagers (shouldn't be any if VillagerSpawner skipped spawn)
+        // Destroy any villagers that exist before this load.
         foreach (var v in allVillagers.ToArray())
         {
-            if (v != null)
-            {
-                Destroy(v.gameObject);
-            }
+            if (v != null) Destroy(v.gameObject);
         }
         allVillagers.Clear();
 
-        // Create villagers from save data
+        // VillagerSpawner owns all instantiation: restore each villager, which also
+        // registers it with SettlementManager via Villager.Init().
         var villagerLookup = new Dictionary<string, Villager>();
-        var loadedVillagers = new List<Villager>();
 
         foreach (var vs in data.villagers)
         {
-            Vector3 pos = new Vector3(vs.posX, vs.posY, vs.posZ);
-            GameObject villagerObj = Instantiate(villagerPrefab, pos, Quaternion.identity);
-
-            if (villagerParent != null)
-            {
-                villagerObj.transform.SetParent(villagerParent);
-            }
-
-            Villager v = villagerObj.GetComponent<Villager>();
-            if (v == null) continue;
-
-            // Mark as loaded from save to skip default initialization in Start()
-            v.loadedFromSave = true;
-
-            // Set uniqueId BEFORE Start() runs (Instantiate is synchronous, Start runs next frame)
-            v.uniqueId = vs.id;
-
-            // Set all other properties
-            v.villagerName = vs.villagerName;
-            v.gender = (Gender)vs.gender;
-            v.age = vs.age;
-            v.lifeExpectancy = vs.lifeExpectancy;
-            v.currentLifeStage = (LifeStage)vs.currentLifeStage;
-            v.currentHealth = vs.health;
-            // maxHealth is not restored — ApplySkillBonuses() derives it from the prefab base
-            // plus any active runestone/skill-tree modifiers (which are loaded before this).
-            v.morale = vs.morale;
-            v.maxMorale = vs.maxMorale;
-            v.isHungry = vs.isHungry;
-            v.isCold = vs.isCold;
-            v.currentJob = (JobType)vs.currentJob;
-
-            v.skills.farming = vs.skills.farming;
-            v.skills.fishing = vs.skills.fishing;
-            v.skills.mining = vs.skills.mining;
-            v.skills.woodcutting = vs.skills.woodcutting;
-            v.skills.crafting = vs.skills.crafting;
-            v.skills.combat = vs.skills.combat;
-            v.skills.sailing = vs.skills.sailing;
-            v.skills.intelligence = vs.skills.intelligence;
-            v.skills.learningRate = vs.skills.learningRate;
-
-            v.combatStats.strength = vs.combatStats.strength;
-            v.combatStats.defense = vs.combatStats.defense;
-
-            v.childrenCount = vs.childrenCount;
-            v.timeSinceLastChild = vs.timeSinceLastChild;
-            v.isJarl = vs.isJarl;
-            v.isOfJarlLineage = vs.isOfJarlLineage;
-            v.generationsFromJarl = vs.generationsFromJarl;
-            v.spriteVariant = vs.spriteVariant;
-
-            // Restore weapon and shield
-            ItemAttachment itemAttachment = v.GetComponent<ItemAttachment>();
-            if (itemAttachment != null && WeaponDatabase.Instance != null)
-            {
-                // Debug: Log what we're trying to load
-                if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
-                {
-                    Debug.Log($"Loading {vs.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
-                }
-
-                if (!string.IsNullOrEmpty(vs.weaponName))
-                {
-                    EquipableItem weaponPrefab = WeaponDatabase.Instance.GetWeaponByName(vs.weaponName);
-                    if (weaponPrefab != null)
-                    {
-                        GameObject weaponInstance = Instantiate(weaponPrefab.gameObject);
-                        itemAttachment.EquipWeapon(weaponInstance);
-                        //Debug.Log($"  -> Weapon '{vs.weaponName}' equipped successfully");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"  -> Weapon '{vs.weaponName}' NOT FOUND in WeaponDatabase!");
-                    }
-                }
-                if (!string.IsNullOrEmpty(vs.shieldName))
-                {
-                    EquipableItem shieldPrefab = WeaponDatabase.Instance.GetShieldByName(vs.shieldName);
-                    if (shieldPrefab != null)
-                    {
-                        GameObject shieldInstance = Instantiate(shieldPrefab.gameObject);
-                        itemAttachment.EquipShield(shieldInstance);
-                        //Debug.Log($"  -> Shield '{vs.shieldName}' equipped successfully");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"  -> Shield '{vs.shieldName}' NOT FOUND in WeaponDatabase!");
-                    }
-                }
-                if (!string.IsNullOrEmpty(vs.torchName))
-                {
-                    EquipableItem torchPrefab = WeaponDatabase.Instance.GetTorchByName(vs.torchName);
-                    if (torchPrefab != null)
-                    {
-                        GameObject torchInstance = Instantiate(torchPrefab.gameObject);
-                        itemAttachment.EquipTorch(torchInstance);
-                        Debug.Log($"  -> Torch '{vs.torchName}' equipped successfully");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"  -> Torch '{vs.torchName}' NOT FOUND in WeaponDatabase!");
-                    }
-                }
-            }
-            else if (itemAttachment == null)
-            {
-                Debug.LogWarning($"Loading {vs.villagerName}: No ItemAttachment component!");
-            }
-            else if (WeaponDatabase.Instance == null)
-            {
-                Debug.LogWarning($"Loading {vs.villagerName}: WeaponDatabase.Instance is null!");
-            }
-
-            // Restore wounds before ApplySkillBonuses so the HP penalty is included.
-            if (vs.activeWounds != null)
-            {
-                foreach (int w in vs.activeWounds)
-                    v.activeWounds.Add((WoundType)w);
-            }
-
-            // Derive maxHealth from base + active modifiers (runestones/skill tree/wounds already set).
-            v.ApplySkillBonuses();
-
-            villagerObj.name = vs.villagerName;
-            villagerLookup[vs.id] = v;
-            loadedVillagers.Add(v);
+            Villager v = VillagerSpawner.Instance.RestoreVillagerFromSave(vs);
+            if (v != null)
+                villagerLookup[vs.id] = v;
         }
 
         // Build building lookup by data name (BuildingData SO name)
-        // If multiple buildings have the same type, they're stored in a list
+        // If multiple buildings share a type they are stored in a list.
         var buildingsByName = new Dictionary<string, List<Building>>();
         foreach (var b in allBuildings)
         {
@@ -953,19 +822,13 @@ public class SettlementManager : MonoBehaviour, ISaveable
             totalDeaths = data.stats.totalDeaths;
         }
 
-        // Notify VillagerSpawner about loaded villagers
-        if (VillagerSpawner.Instance != null)
-        {
-            VillagerSpawner.Instance.OnVillagersLoadedFromSave(loadedVillagers);
-        }
+        totalFishNeeded = allVillagers.Count * fishPerVillagerPerDay;
 
-        // Refresh shadows to pick up newly spawned villagers
+        // Refresh shadows to pick up newly spawned villagers.
         if (ShadowMaster.Instance != null)
-        {
             ShadowMaster.Instance.RefreshShadows();
-        }
 
-        Debug.Log($"Loaded {loadedVillagers.Count} villagers from save");
+        Debug.Log($"SettlementManager: Loaded {villagerLookup.Count} villagers from save.");
     }
 
     #endregion

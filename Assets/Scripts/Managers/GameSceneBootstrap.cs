@@ -25,20 +25,31 @@ public class GameSceneBootstrap : MonoBehaviour
 
         // Layer 2: needs GameTickManager + DayNightManager
         SeasonManager.Instance?.Initialize();
+        WeatherManager.Instance?.Initialize();
         SettlementManager.Instance?.Initialize();
         MissionManager.Instance?.Initialize();
 
         // Layer 3: needs DayNightManager
         FindAnyObjectByType<BeehiveManager>()?.Initialize();
 
-        // Layer 3: needs JarlManager
-        VillagerSpawner.Instance?.Init();
+        // Layer 3: spawn villagers for a new game only (save-loaded villagers are already
+        // instantiated and registered by SettlementManager.LoadSaveData before Bootstrap runs).
+        bool isNewGame = GameManager.Instance != null && !GameManager.Instance.ShouldLoadSave;
+        if (isNewGame)
+            VillagerSpawner.Instance?.SpawnInitialSettlement();
+
         JarlManager.Instance?.Init();
+
+        // Assign the first villager as Jarl for a new game (load path restores Jarl via save data).
+        if (isNewGame)
+            JarlManager.Instance?.EnsureInitialJarl();
+
         SkillTreeManager.Instance?.Initialize();
         AttackCooldownUI.Instance?.Init();
 
         MouseInputController.Instance?.Init();
         CameraController.Instance?.Init();
         PauseManager.Instance?.Init();
+        UIManager.Instance?.Init();
     }
 }

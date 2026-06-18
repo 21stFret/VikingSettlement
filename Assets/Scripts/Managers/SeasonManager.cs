@@ -773,9 +773,6 @@ public class SeasonManager : MonoBehaviour, ISaveable
         currentSeason = (Season)data.gameState.currentSeason;
         daysUntilSeasonChange = data.gameState.daysUntilSeasonChange;
         currentSolarYear = data.gameState.currentSolarYear;
-
-        // Always apply effects on load - scene may have initialized with wrong visuals
-        ApplySeasonEffects(currentSeason);
     }
 
     #endregion

@@ -71,7 +71,7 @@ public class Villager : TargetHealth
 
     public ItemAttachment itemAttachment;
 
-    private void Start()
+    public void Init()
     {
         if (string.IsNullOrEmpty(uniqueId))
         {

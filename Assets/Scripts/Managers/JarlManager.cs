@@ -57,27 +57,6 @@ public class JarlManager : MonoBehaviour, ISaveable
         {
             playerController = PlayerController.Instance;
         }
-        FindAndSetInitialJarl();
-    }
-
-    /// <summary>
-    /// Find a villager already marked as Jarl in the scene
-    /// </summary>
-    private void FindAndSetInitialJarl()
-    {
-        if (SettlementManager.Instance == null) return;
-
-        var allVillagers = SettlementManager.Instance.GetAllVillagers();
-        var existingJarl = allVillagers.FirstOrDefault(v => v.isJarl);
-
-        if (existingJarl != null)
-        {
-            SetJarl(existingJarl, isInitial: true);
-        }
-        else
-        {
-            Debug.Log("Jarl already set!");
-        }
     }
 
     /// <summary>
@@ -462,11 +441,43 @@ public class JarlManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>
-    /// Set the initial Jarl (called by VillagerSpawner)
+    /// Set the initial Jarl without firing the OnJarlChanged event.
     /// </summary>
     public void SetInitialJarl(Villager villager)
     {
         SetJarl(villager, isInitial: true);
+    }
+
+    /// <summary>
+    /// For a brand-new game: find whichever villager is already flagged as Jarl, or promote
+    /// the first villager. Called by Bootstrap after villagers have been spawned and
+    /// JarlManager.Init() has wired up PlayerController.
+    /// </summary>
+    public void EnsureInitialJarl()
+    {
+        if (currentJarl != null) return;
+        if (SettlementManager.Instance == null) return;
+
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        foreach (var v in villagers)
+        {
+            if (v != null && v.isJarl)
+            {
+                SetInitialJarl(v);
+                return;
+            }
+        }
+
+        if (villagers.Count > 0 && villagers[0] != null)
+        {
+            Villager newJarl = villagers[0];
+            newJarl.isJarl = true;
+            newJarl.isOfJarlLineage = true;
+            newJarl.generationsFromJarl = 0;
+            SetInitialJarl(newJarl);
+            Debug.Log($"JarlManager: Assigned {newJarl.villagerName} as initial Jarl");
+        }
     }
 
     #region ISaveable

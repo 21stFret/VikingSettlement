@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Spawns and manages villagers in the settlement.
-/// Handles initial spawn, raid returns, and prevents duplicates.
+/// Factory for creating villager GameObjects. Owns the prefab, parent, spawn points, and
+/// village centre reference. Handles both fresh spawns (new game) and save restoration.
+/// Does NOT track the villager list — SettlementManager is the single source of truth
+/// for who exists in the settlement.
 /// </summary>
 public class VillagerSpawner : MonoBehaviour
 {
@@ -11,27 +13,18 @@ public class VillagerSpawner : MonoBehaviour
 
     [Header("Spawning")]
     [SerializeField] private GameObject villagerPrefab;
-    [SerializeField] private List<Transform> spawnPoint;
-    [SerializeField] private Transform villagerParent; // Optional parent for organization
+    [SerializeField] private List<Transform> spawnPoints;
+    [SerializeField] private Transform villagerParent;
 
     [Header("Initial Settlement")]
     [SerializeField] private int initialVillagerCount = 5;
-    [SerializeField] private bool spawnOnStart = true;
-
-    [Header("Jarl Setup")]
-    [SerializeField] private bool assignFirstAsJarl = true;
-
-    // Track spawned villagers
-    private List<Villager> spawnedVillagers = new List<Villager>();
 
     public Transform villageCentre;
 
     private void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-        }
         else
         {
             Destroy(gameObject);
@@ -39,45 +32,11 @@ public class VillagerSpawner : MonoBehaviour
         }
     }
 
-    public void Init()
-    {
-        if (ShouldLoadFromSave())
-        {
-            // Villagers will be created from save data — SettlementManager calls OnVillagersLoadedFromSave
-            Debug.Log("VillagerSpawner: Skipping initial spawn - loading from save");
-        }
-        else if (spawnOnStart)
-        {
-            SpawnInitialVillagers();
-            EnsureJarlExists();
-        }
-    }
-
     /// <summary>
-    /// Check if we should load from a save file instead of spawning fresh
+    /// Spawn the starting villagers for a brand-new game.
+    /// Called by Bootstrap only when not loading from a save file.
     /// </summary>
-    private bool ShouldLoadFromSave()
-    {
-        return GameManager.Instance != null && GameManager.Instance.ShouldLoadSave;
-    }
-
-    /// <summary>
-    /// Called by SettlementManager after loading villagers from save
-    /// </summary>
-    public void OnVillagersLoadedFromSave(List<Villager> loadedVillagers)
-    {
-        spawnedVillagers.Clear();
-        spawnedVillagers.AddRange(loadedVillagers);
-
-        EnsureJarlExists();
-
-        Debug.Log($"VillagerSpawner: Registered {loadedVillagers.Count} villagers from save");
-    }
-
-    /// <summary>
-    /// Spawn the initial villagers for a new settlement
-    /// </summary>
-    private void SpawnInitialVillagers()
+    public void SpawnInitialSettlement()
     {
         if (villagerPrefab == null)
         {
@@ -86,158 +45,180 @@ public class VillagerSpawner : MonoBehaviour
         }
 
         for (int i = 0; i < initialVillagerCount; i++)
-        {
             SpawnVillager();
-        }
 
-        Debug.Log($"Spawned {initialVillagerCount} initial villagers");
+        Debug.Log($"VillagerSpawner: Spawned {initialVillagerCount} initial villagers");
     }
 
     /// <summary>
-    /// Spawn a single villager
+    /// Instantiate a single fresh villager, configure it, and register it with SettlementManager
+    /// via Villager.Init().
     /// </summary>
     public Villager SpawnVillager(Vector3? position = null, Gender? gender = null, float? age = null)
     {
         if (villagerPrefab == null) return null;
 
         Vector3 spawnPos = position ?? GetRandomSpawnPosition();
-
         GameObject villagerObj = Instantiate(villagerPrefab, spawnPos, Quaternion.identity);
 
         if (villagerParent != null)
-        {
             villagerObj.transform.SetParent(villagerParent);
-        }
 
         Villager villager = villagerObj.GetComponent<Villager>();
-        if (villager != null)
-        {
-            // Set gender if specified
-            if (gender.HasValue)
-            {
-                villager.gender = gender.Value;
-            }
-            else
-            {
-                villager.gender = Random.value > 0.5f ? Gender.Male : Gender.Female;
-            }
+        if (villager == null) return null;
 
-            // Set age if specified (default to mature adult)
-            if (age.HasValue)
-            {
-                villager.age = age.Value;
-            }
-            else
-            {
-                villager.age = Random.Range(18f, 40f);
-            }
+        villager.gender = gender ?? (Random.value > 0.5f ? Gender.Male : Gender.Female);
+        villager.age = age ?? Random.Range(18f, 40f);
 
-            // Randomize starting skills
-            villager.skills.Randomize();
+        villager.skills.Randomize();
 
-            //Give weapon, shield and torch
-            villager.itemAttachment.GiveRandomWeapon();
-            villager.itemAttachment.GiveRandomShield();
-            villager.itemAttachment.GiveRandomTorch();
+        villager.itemAttachment.GiveRandomWeapon();
+        villager.itemAttachment.GiveRandomShield();
+        villager.itemAttachment.GiveRandomTorch();
 
-            villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
+        villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
 
-            spawnedVillagers.Add(villager);
-            villager.ApplySkillBonuses();
-        }
+        villager.ApplySkillBonuses();
+        villager.Init();
 
         return villager;
     }
 
     /// <summary>
-    /// Get a random position near the spawn point
+    /// Restore a single villager from save data: instantiate, apply all saved fields,
+    /// restore equipment and wounds, then register with SettlementManager via Init().
+    /// Called by SettlementManager.LoadSaveData() for each entry in the save file.
+    /// Cross-references (parents, partner, assigned building) are resolved by
+    /// SettlementManager after all villagers have been restored.
     /// </summary>
-    private Vector3 GetRandomSpawnPosition()
+    public Villager RestoreVillagerFromSave(VillagerSave vs)
     {
-        if (spawnPoint != null)
+        if (villagerPrefab == null)
         {
-            int spawnIndex = Random.Range(0, spawnPoint.Count);
-            return spawnPoint[spawnIndex].position;
+            Debug.LogError("VillagerSpawner: No villager prefab assigned — cannot restore from save!");
+            return null;
         }
-        return transform.position;
+
+        Vector3 pos = new Vector3(vs.posX, vs.posY, vs.posZ);
+        GameObject villagerObj = Instantiate(villagerPrefab, pos, Quaternion.identity);
+
+        if (villagerParent != null)
+            villagerObj.transform.SetParent(villagerParent);
+
+        Villager v = villagerObj.GetComponent<Villager>();
+        if (v == null) return null;
+
+        // Flag early so Init() skips default-value branches.
+        v.loadedFromSave = true;
+
+        // Identity — set uniqueId before Init() so it isn't re-generated.
+        v.uniqueId = vs.id;
+        v.villagerName = vs.villagerName;
+        villagerObj.name = vs.villagerName;
+
+        // Core stats
+        v.gender          = (Gender)vs.gender;
+        v.age             = vs.age;
+        v.lifeExpectancy  = vs.lifeExpectancy;
+        v.currentLifeStage = (LifeStage)vs.currentLifeStage;
+        v.currentHealth   = vs.health;
+        v.morale          = vs.morale;
+        v.maxMorale       = vs.maxMorale;
+        v.isHungry        = vs.isHungry;
+        v.isCold          = vs.isCold;
+        v.currentJob      = (JobType)vs.currentJob;
+
+        // Skills
+        v.skills.farming       = vs.skills.farming;
+        v.skills.fishing       = vs.skills.fishing;
+        v.skills.mining        = vs.skills.mining;
+        v.skills.woodcutting   = vs.skills.woodcutting;
+        v.skills.crafting      = vs.skills.crafting;
+        v.skills.combat        = vs.skills.combat;
+        v.skills.sailing       = vs.skills.sailing;
+        v.skills.intelligence  = vs.skills.intelligence;
+        v.skills.learningRate  = vs.skills.learningRate;
+
+        // Combat
+        v.combatStats.strength = vs.combatStats.strength;
+        v.combatStats.defense  = vs.combatStats.defense;
+
+        // Lineage / reproduction
+        v.childrenCount        = vs.childrenCount;
+        v.timeSinceLastChild   = vs.timeSinceLastChild;
+        v.isJarl               = vs.isJarl;
+        v.isOfJarlLineage      = vs.isOfJarlLineage;
+        v.generationsFromJarl  = vs.generationsFromJarl;
+
+        // Appearance
+        v.spriteVariant = vs.spriteVariant;
+
+        // Equipment
+        RestoreEquipment(v, vs);
+
+        // Wounds (before ApplySkillBonuses so the HP penalty is included)
+        if (vs.activeWounds != null)
+        {
+            foreach (int w in vs.activeWounds)
+                v.activeWounds.Add((WoundType)w);
+        }
+
+        // maxHealth derived from base + active modifiers (runestones/skill tree/wounds).
+        v.ApplySkillBonuses();
+
+        // Register with SettlementManager and finalise visuals.
+        v.Init();
+
+        return v;
     }
 
-    /// <summary>
-    /// Ensure there is a Jarl in the settlement
-    /// </summary>
-    private void EnsureJarlExists()
+    private void RestoreEquipment(Villager v, VillagerSave vs)
     {
-        // Check if JarlManager already has a Jarl
-        if (JarlManager.Instance != null && JarlManager.Instance.GetCurrentJarl() != null)
+        ItemAttachment itemAttachment = v.GetComponent<ItemAttachment>();
+        if (itemAttachment == null)
         {
+            Debug.LogWarning($"VillagerSpawner: {vs.villagerName} has no ItemAttachment — equipment skipped.");
             return;
         }
 
-        // Find existing Jarl among villagers
-        foreach (var villager in spawnedVillagers)
+        if (WeaponDatabase.Instance == null)
         {
-            if (villager != null && villager.isJarl)
-            {
-                // Register with JarlManager if needed
-                if (JarlManager.Instance != null)
-                {
-                    JarlManager.Instance.SetInitialJarl(villager);
-                }
-                return;
-            }
+            Debug.LogWarning($"VillagerSpawner: WeaponDatabase not found — equipment skipped for {vs.villagerName}.");
+            return;
         }
 
-        // No Jarl found, assign one
-        if (assignFirstAsJarl && spawnedVillagers.Count > 0)
+        if (!string.IsNullOrEmpty(vs.weaponName))
         {
-            Villager newJarl = spawnedVillagers[0];
-            if (newJarl != null)
-            {
-                newJarl.isJarl = true;
-                newJarl.isOfJarlLineage = true;
-                newJarl.generationsFromJarl = 0;
+            EquipableItem prefab = WeaponDatabase.Instance.GetWeaponByName(vs.weaponName);
+            if (prefab != null)
+                itemAttachment.EquipWeapon(Instantiate(prefab.gameObject));
+            else
+                Debug.LogWarning($"VillagerSpawner: Weapon '{vs.weaponName}' not found for {vs.villagerName}.");
+        }
 
-                if (JarlManager.Instance != null)
-                {
-                    JarlManager.Instance.SetInitialJarl(newJarl);
-                }
+        if (!string.IsNullOrEmpty(vs.shieldName))
+        {
+            EquipableItem prefab = WeaponDatabase.Instance.GetShieldByName(vs.shieldName);
+            if (prefab != null)
+                itemAttachment.EquipShield(Instantiate(prefab.gameObject));
+            else
+                Debug.LogWarning($"VillagerSpawner: Shield '{vs.shieldName}' not found for {vs.villagerName}.");
+        }
 
-                Debug.Log($"Assigned {newJarl.villagerName} as Jarl");
-            }
+        if (!string.IsNullOrEmpty(vs.torchName))
+        {
+            EquipableItem prefab = WeaponDatabase.Instance.GetTorchByName(vs.torchName);
+            if (prefab != null)
+                itemAttachment.EquipTorch(Instantiate(prefab.gameObject));
+            else
+                Debug.LogWarning($"VillagerSpawner: Torch '{vs.torchName}' not found for {vs.villagerName}.");
         }
     }
 
-    /// <summary>
-    /// Get all spawned villagers
-    /// </summary>
-    public List<Villager> GetAllVillagers()
+    private Vector3 GetRandomSpawnPosition()
     {
-        // Clean up null references
-        spawnedVillagers.RemoveAll(v => v == null);
-        return new List<Villager>(spawnedVillagers);
-    }
-
-    /// <summary>
-    /// Remove a villager from tracking (called when they die)
-    /// </summary>
-    public void UntrackVillager(Villager villager)
-    {
-        spawnedVillagers.Remove(villager);
-    }
-
-    /// <summary>
-    /// Get the villager prefab for spawning
-    /// </summary>
-    public GameObject GetVillagerPrefab()
-    {
-        return villagerPrefab;
-    }
-
-    /// <summary>
-    /// Get the parent transform for villagers
-    /// </summary>
-    public Transform GetVillagerParent()
-    {
-        return villagerParent;
+        if (spawnPoints != null && spawnPoints.Count > 0)
+            return spawnPoints[Random.Range(0, spawnPoints.Count)].position;
+        return transform.position;
     }
 }
