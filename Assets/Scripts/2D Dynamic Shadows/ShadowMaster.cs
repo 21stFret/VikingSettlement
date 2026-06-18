@@ -239,7 +239,7 @@ public class ShadowMaster : MonoBehaviour
     public void RefreshShadows()
     {
         shadows.Clear();
-        DynamicShadow2D[] foundShadows = FindObjectsByType<DynamicShadow2D>(FindObjectsSortMode.None);
+        DynamicShadow2D[] foundShadows = FindObjectsByType<DynamicShadow2D>();
 
         foreach (DynamicShadow2D shadow in foundShadows)
         {
@@ -248,11 +248,13 @@ public class ShadowMaster : MonoBehaviour
 
         Debug.Log($"ShadowMaster: Found and registered {shadows.Count} shadows");
 
+        /*
         // Only clean up orphaned shadows in editor mode - in play mode, let them be created first
         if (!Application.isPlaying)
         {
             CleanupOrphanedShadows();
         }
+        */
     }
     
     /// <summary>

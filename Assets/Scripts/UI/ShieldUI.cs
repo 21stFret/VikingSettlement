@@ -36,18 +36,18 @@ public class ShieldUI : MonoBehaviour
         _originPos = _rect.anchoredPosition;
     }
 
-    private void Update()
+    public void Init()
     {
-        var cc = PlayerController.Instance != null ? PlayerController.Instance.GetController() : null;
-        if (cc != _trackedCC)
-            _trackedCC = cc;
+        SubscribeToShield();
+
+        if (PlayerController.Instance != null)
+        {
+            _trackedCC = PlayerController.Instance.GetController();
+        }
 
         var shield = _trackedCC != null ? _trackedCC.shield : null;
-        if (shield == _trackedShield) return;
-
-        UnsubscribeFromShield();
         _trackedShield = shield;
-        SubscribeToShield();
+
         UpdateSprite();
     }
 

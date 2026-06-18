@@ -8,7 +8,7 @@ using UnityEngine;
 [DefaultExecutionOrder(-1000)]
 public class GameSceneBootstrap : MonoBehaviour
 {
-    private void Start()
+    public void Init()
     {
         InitializeManagers();
     }
@@ -36,5 +36,8 @@ public class GameSceneBootstrap : MonoBehaviour
         JarlManager.Instance?.Init();
         SkillTreeManager.Instance?.Initialize();
         AttackCooldownUI.Instance?.Init();
+
+        MouseInputController.Instance?.Init();
+        CameraController.Instance?.Init();
     }
 }

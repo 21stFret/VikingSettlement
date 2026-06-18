@@ -47,7 +47,7 @@ public class CameraController : MonoBehaviour
         }
     }
     
-    private void Start()
+    public void Init()
     {
         cam = GetComponent<Camera>();
         
@@ -59,7 +59,7 @@ public class CameraController : MonoBehaviour
         // If no target assigned, try to find player
         if (target == null)
         {
-            PlayerController player = FindFirstObjectByType<PlayerController>();
+            PlayerController player = FindAnyObjectByType<PlayerController>();
             if (player != null)
             {
                 target = player.transform;

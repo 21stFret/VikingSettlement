@@ -18,7 +18,7 @@ public class RaidUI : MonoBehaviour
 
     private void Start()
     {
-        raidManager = RaidManager.Instance;
+        
         raidUIPanel.SetActive(false);
         closeButton.onClick.AddListener(() => CloseRaidUI());
 
@@ -35,6 +35,7 @@ public class RaidUI : MonoBehaviour
 
     public void OpenRaidUI()
     {
+        raidManager = RaidManager.Instance;
         raidUIPanel.SetActive(true);
         PopulateRaidOptions();
         raidAmountText.text = "Available Raids: " + raidManager.GetAvailableRaids().Count.ToString();

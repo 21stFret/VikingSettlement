@@ -34,6 +34,8 @@ public class GameManager : MonoBehaviour
 
     public bool IsGameActive;
 
+    private GameSceneBootstrap GSB;
+
     private void Awake()
     {
         if (Instance == null)
@@ -131,6 +133,10 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name == gameSceneName && !GameInitialized)
         {
+            if(GSB == null)
+            {
+                GSB = FindAnyObjectByType<GameSceneBootstrap>();
+            }
             StartCoroutine(InitializeGameAfterDelay());
         }
     }
@@ -155,6 +161,11 @@ public class GameManager : MonoBehaviour
         }
 
         GameInitialized = true;
+
+        if(GSB != null)
+        {
+            GSB.Init();
+        }
     }
 
     /// <summary>

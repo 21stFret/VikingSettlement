@@ -74,15 +74,9 @@ public class JarlManager : MonoBehaviour, ISaveable
         {
             SetJarl(existingJarl, isInitial: true);
         }
-        else if (allVillagers.Count > 0)
+        else
         {
-            // No Jarl found - select the first mature villager
-            var firstMature = allVillagers.FirstOrDefault(v => v.currentLifeStage == LifeStage.Mature);
-            if (firstMature != null)
-            {
-                Debug.Log($"No Jarl found, selecting {firstMature.villagerName} as initial Jarl");
-                SetJarl(firstMature, isInitial: true);
-            }
+            Debug.Log("Jarl already set!");
         }
     }
 
