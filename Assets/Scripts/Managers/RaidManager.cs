@@ -43,24 +43,19 @@ public class RaidManager : MonoBehaviour
 
     private void Awake()
     {
-        Debug.Log($"RaidManager.Awake() - Instance is null: {Instance == null}, this: {GetInstanceID()}, scene: {gameObject.scene.name}");
-
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            Debug.Log($"RaidManager: Initialized as singleton with DontDestroyOnLoad, ID: {GetInstanceID()}");
         }
         else
         {
-            Debug.Log($"RaidManager: Duplicate found, destroying self. Existing ID: {Instance.GetInstanceID()}, this ID: {GetInstanceID()}");
             Destroy(gameObject);
         }
     }
 
     private void OnDestroy()
     {
-        Debug.Log($"RaidManager.OnDestroy() - ID: {GetInstanceID()}, Instance ID: {(Instance != null ? Instance.GetInstanceID().ToString() : "null")}");
         if (Instance == this)
         {
             Debug.LogWarning("RaidManager singleton is being destroyed! This should not happen during a raid.");

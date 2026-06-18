@@ -231,7 +231,7 @@ public class MissionManager : MonoBehaviour, ISaveable
     {
         if (mission.definition.objectives == null) return;
 
-        var allBuildings = FindObjectsByType<Building>(FindObjectsSortMode.None);
+        var allBuildings = FindObjectsByType<Building>();
 
         for (int i = 0; i < mission.definition.objectives.Length; i++)
         {

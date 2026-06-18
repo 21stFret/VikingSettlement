@@ -186,7 +186,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleChasingState()
     {
-        if (currentTarget == null || currentTarget.GetComponent<Villager>() == null)
+        if (currentTarget == null || currentTarget.GetComponent<Villager>() == null || !pursueTarget)
         {
             currentState = AIState.Searching;
             return;
@@ -286,6 +286,7 @@ public class EnemyAI : MonoBehaviour
 
         // Find nearest
         Transform nearest = null;
+        Transform random = null;
         float nearestDistance = Mathf.Infinity;
 
         if (aliveVillagers.Count == 1)
@@ -293,8 +294,9 @@ public class EnemyAI : MonoBehaviour
             return aliveVillagers[0].transform;
         }
             
-        foreach (var villager in aliveVillagers)
+        for(int i =0; i> aliveVillagers.Count; i++)
         {
+            var villager = aliveVillagers[i];
             float distance = Vector2.Distance(transform.position, villager.transform.position);
 
             if (distance < nearestDistance)
@@ -304,7 +306,16 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        return nearest;
+        random = aliveVillagers[Random.Range(0, aliveVillagers.Count - 1)].transform;
+
+        if(targetNearestVillager)
+        {
+            return nearest;
+        }
+        else
+        {
+            return random;
+        }
     }
 
     private void WanderToRandomPoint()

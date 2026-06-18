@@ -28,7 +28,7 @@ public class RaidUI : MonoBehaviour
             raidPartyUI = GetComponentInChildren<RaidPartyUI>(true);
             if (raidPartyUI == null)
             {
-                raidPartyUI = FindFirstObjectByType<RaidPartyUI>();
+                raidPartyUI = FindAnyObjectByType<RaidPartyUI>();
             }
         }
     }

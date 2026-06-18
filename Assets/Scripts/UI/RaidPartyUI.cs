@@ -52,7 +52,7 @@ public class RaidPartyUI : MonoBehaviour
         raidUI = GetComponentInParent<RaidUI>();
         if (raidUI == null)
         {
-            raidUI = FindFirstObjectByType<RaidUI>();
+            raidUI = FindAnyObjectByType<RaidUI>();
         }
 
         if (startRaidButton != null)

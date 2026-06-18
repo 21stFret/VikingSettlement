@@ -30,7 +30,6 @@ public class VillagerAI : MonoBehaviour
     [SerializeField] private bool isInRaidMode = false;
     [SerializeField] private Transform followTarget; // Player-controlled villager to follow
     [SerializeField] private float followDistance = 2f; // How close to stay to the leader
-    [SerializeField] private float maxFollowDistance = 8f; // Start following if further than this
     [SerializeField] private RaidBehavior raidBehavior = RaidBehavior.Follow;
 
     [Header("Separation")]
@@ -41,7 +40,7 @@ public class VillagerAI : MonoBehaviour
 
     // Shield wall formation — set by PlayerController when wall activates
     [HideInInspector] public Vector2 wallFormationOffset; // World-space offset from the leader
-    private bool _wallInPosition = false;                 // True once slot reached
+
 
     /// <summary>
     /// Active raid formation / behaviour. Switch via <see cref="SetRaidBehavior"/> at runtime.
@@ -536,14 +535,12 @@ public class VillagerAI : MonoBehaviour
         if (distToSlot > 0.4f)
         {
             // Still running to slot at full speed — shield down while closing distance
-            _wallInPosition = false;
             controller.isBlocking = false;
             controller.MoveTo(slotPos);
         }
         else
         {
             // In slot — raise shield; blocking gives 50% speed so the wall drifts with the leader
-            _wallInPosition = true;
             controller.isBlocking = controller.shield != null && !controller.shield.IsBroken;
 
             // Keep tracking the slot even while blocking (slot drifts as leader moves)
@@ -593,7 +590,7 @@ public class VillagerAI : MonoBehaviour
         }
 
         // Find all enemies in detection range
-        Enemy[] allEnemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+        Enemy[] allEnemies = FindObjectsByType<Enemy>();
         Enemy nearestEnemy = null;
         float nearestDistance = Mathf.Infinity;
 
@@ -758,17 +755,14 @@ public class VillagerAI : MonoBehaviour
         {
             case RaidBehavior.Follow:
                 controller.isBlocking = false;
-                _wallInPosition = false;
                 currentState = AIState.Following;
                 break;
             case RaidBehavior.ShieldWall:
-                _wallInPosition = false;
                 controller.Stop();
                 currentState = AIState.ShieldWall;
                 break;
             case RaidBehavior.Aggressive:
                 controller.isBlocking = false;
-                _wallInPosition = false;
                 currentState = AIState.Idle; // threat check will immediately push to Combat
                 break;
         }

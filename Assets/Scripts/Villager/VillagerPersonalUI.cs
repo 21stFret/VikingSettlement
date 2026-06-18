@@ -23,7 +23,6 @@ public class VillagerPersonalUI : MonoBehaviour
     public CanvasGroup moraleBar;
     public Image moraleFill;
     private Villager _villager;
-    private bool _enabled = true;
     public CanvasGroup statusImageCanvas;
     public Image statusEffectIcon;
     public Sprite[] satusEffectIcons;
@@ -152,7 +151,6 @@ public class VillagerPersonalUI : MonoBehaviour
 
     public void Hide()
     {
-        _enabled = false;
         textCanvas.DOFade(0, 0.5f);
         healthBar.DOFade(0, 0.5f);
         moraleBar.DOFade(0, 0.5f);

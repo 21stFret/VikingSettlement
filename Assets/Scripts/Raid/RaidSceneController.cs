@@ -191,7 +191,7 @@ public class RaidSceneController : MonoBehaviour
         // Find PlayerController if not assigned
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<PlayerController>();
+            playerController = FindAnyObjectByType<PlayerController>();
             Debug.Log($"SetupPlayerControl() - FindFirstObjectByType result: {playerController != null}");
         }
 

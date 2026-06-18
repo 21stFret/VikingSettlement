@@ -10,15 +10,14 @@ public class SingleResourceDisplay : MonoBehaviour
     [Header("Settings")]
     public ResourceType resourceType;
     public TextMeshProUGUI amountText;
-    public Image icon; // Optional
-
-    [Header("Format")]
-    [SerializeField] private string numberFormat = "F0"; // F0 = no decimals, F1 = 1 decimal
+    public Image icon;
     
+    /*
     [Header("Color Coding (Optional)")]
     [SerializeField] private bool useColorCoding = false;
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color lowColor = Color.red;
     [SerializeField] private float lowThreshold = 10f; // Below this = red
+    */
     
 }
