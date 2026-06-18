@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController controller;
     private VillagerAI targetAI;
+    private WeaponSwapper weaponSwapper;
     private Vector2 moveInput;
     private bool inputEnabled = true;
     private bool isAttackHeld = false;
@@ -71,6 +72,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Attack.performed += OnAttack;
         inputActions.Player.Attack.canceled += OnAttackReleased;
         inputActions.Player.ShieldWall.performed += OnShieldWall;
+        inputActions.Player.SwapWeapon.performed += OnSwapWeapon;
     }
 
     private void OnDisable()
@@ -84,6 +86,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Attack.performed -= OnAttack;
         inputActions.Player.Attack.canceled -= OnAttackReleased;
         inputActions.Player.ShieldWall.performed -= OnShieldWall;
+        inputActions.Player.SwapWeapon.performed -= OnSwapWeapon;
         inputActions.Disable();
     }
     
@@ -150,6 +153,12 @@ public class PlayerController : MonoBehaviour
             DeactivateShieldWall();
         else
             ActivateShieldWall();
+    }
+
+    private void OnSwapWeapon(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || weaponSwapper == null) return;
+        weaponSwapper.SwapToNext();
     }
 
     private void Update()
@@ -252,6 +261,7 @@ public class PlayerController : MonoBehaviour
         controlTarget = target;
         controller = target.GetComponent<CharacterController>();
         targetAI = target.GetComponent<VillagerAI>();
+        weaponSwapper = target.GetComponent<WeaponSwapper>();
 
         if (controller == null)
         {

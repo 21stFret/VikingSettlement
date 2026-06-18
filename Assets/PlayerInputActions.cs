@@ -181,6 +181,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SwapWeapon"",
+                    ""type"": ""Button"",
+                    ""id"": ""bdb57f28-5e65-428c-8949-14d0d9642c8f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -392,6 +401,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ShieldWall"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ad1bf5d8-9915-43dd-a371-ea4c2ce7e3ee"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapWeapon"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -410,6 +430,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_StrategicPause = m_Player.FindAction("StrategicPause", throwIfNotFound: true);
         m_Player_ShieldWall = m_Player.FindAction("ShieldWall", throwIfNotFound: true);
+        m_Player_SwapWeapon = m_Player.FindAction("SwapWeapon", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -500,6 +521,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_StrategicPause;
     private readonly InputAction m_Player_ShieldWall;
+    private readonly InputAction m_Player_SwapWeapon;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -551,6 +573,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ShieldWall".
         /// </summary>
         public InputAction @ShieldWall => m_Wrapper.m_Player_ShieldWall;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/SwapWeapon".
+        /// </summary>
+        public InputAction @SwapWeapon => m_Wrapper.m_Player_SwapWeapon;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -607,6 +633,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ShieldWall.started += instance.OnShieldWall;
             @ShieldWall.performed += instance.OnShieldWall;
             @ShieldWall.canceled += instance.OnShieldWall;
+            @SwapWeapon.started += instance.OnSwapWeapon;
+            @SwapWeapon.performed += instance.OnSwapWeapon;
+            @SwapWeapon.canceled += instance.OnSwapWeapon;
         }
 
         /// <summary>
@@ -648,6 +677,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ShieldWall.started -= instance.OnShieldWall;
             @ShieldWall.performed -= instance.OnShieldWall;
             @ShieldWall.canceled -= instance.OnShieldWall;
+            @SwapWeapon.started -= instance.OnSwapWeapon;
+            @SwapWeapon.performed -= instance.OnSwapWeapon;
+            @SwapWeapon.canceled -= instance.OnSwapWeapon;
         }
 
         /// <summary>
@@ -758,5 +790,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnShieldWall(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SwapWeapon" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSwapWeapon(InputAction.CallbackContext context);
     }
 }
