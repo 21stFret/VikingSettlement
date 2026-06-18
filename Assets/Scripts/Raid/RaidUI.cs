@@ -18,10 +18,7 @@ public class RaidUI : MonoBehaviour
 
     private void Start()
     {
-        if (raidManager == null)
-        {
-            raidManager = RaidManager.Instance;
-        }
+        raidManager = RaidManager.Instance;
         raidUIPanel.SetActive(false);
         closeButton.onClick.AddListener(() => CloseRaidUI());
 

@@ -218,12 +218,12 @@ public class BuildingInfoPanel : MonoBehaviour
             
             if (currentBuilding.data.productionType == ProductionType.ResourceGathering)
             {
-                string info = $"Produces: {currentBuilding.data.productionAmount} {currentBuilding.data.producedResource}";
+                string info = $"Produces: {currentBuilding.adjustedProductionAmount} {currentBuilding.data.producedResource}";
                 productionInfoText.text = info;
 
                 if (productionAmountText != null)
                 {
-                    productionAmountText.text = $"+ {currentBuilding.data.productionAmount}";
+                    productionAmountText.text = $"+ {currentBuilding.adjustedProductionAmount}";
                 }
 
                 
