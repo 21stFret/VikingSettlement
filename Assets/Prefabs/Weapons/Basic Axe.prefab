@@ -79,10 +79,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
   itemType: 2
   itemName: Basic Axe
-  strength: 2
+  strength: 4
   attachPoint: 1
   isEquipped: 0
-  attackSpeed: 0.7
+  attackSpeed: 1.5
   sheildSparkEffect: {fileID: 0}
   shatterEffect: {fileID: 0}
   shakeMagnitude: 0.06
@@ -127,6 +127,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2808145276735054269
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -172,6 +173,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 56dd237e53d00a646a252a0f156c4d45, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -181,7 +183,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1342690500798667316
 MonoBehaviour:

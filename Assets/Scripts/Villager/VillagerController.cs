@@ -95,6 +95,8 @@ public class VillagerController : CharacterBase
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && villagerData != null)
         {
+            if (target.IsDead()) return;
+
             float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;
             float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();
