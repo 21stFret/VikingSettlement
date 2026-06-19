@@ -11131,7 +11131,7 @@ MonoBehaviour:
   enemyName: Axe
   enemyType: 5
   damage: 3
-  attackRange: 2
+  attackRange: 3
   attackCooldown: 2
   detectionRange: 10
   weaponName: DAxe
@@ -11173,10 +11173,10 @@ MonoBehaviour:
   flipSpriteOnDirection: 1
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 1, y: 1}
+  axeAttackSize: {x: 2, y: 2}
   swordAttackOffset: {x: 1, y: 0}
   spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 0}
+  axeAttackOffset: {x: 1, y: 1}
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577

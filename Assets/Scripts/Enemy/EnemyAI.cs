@@ -194,7 +194,7 @@ public class EnemyAI : MonoBehaviour
 
         // Check if target is dead
         var villager = currentTarget.GetComponent<Villager>();
-        if (villager != null && villager.currentLifeStage == LifeStage.Dead)
+        if (villager != null && villager.IsDead())
         {
             currentTarget = null;
             currentState = AIState.Searching;

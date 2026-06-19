@@ -430,6 +430,7 @@ public class CharacterBase : MonoBehaviour
         if (!CanAttack()) return;
 
         lastAttackTime = Time.time;
+        isAttacking = true;
 
         if (itemAttachment != null)
         {
@@ -521,8 +522,6 @@ public class CharacterBase : MonoBehaviour
             if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
                 villager.skills.ImproveSkill(JobType.Warrior);
         }
-
-        isAttacking = true;
     }
 
     /// <summary>

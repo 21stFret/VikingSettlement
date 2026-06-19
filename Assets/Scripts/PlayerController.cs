@@ -201,7 +201,7 @@ public class PlayerController : MonoBehaviour
         // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
         if (!useMouseMovement && inputEnabled)
         {
-            controller.SetMovement(moveInput * playerMoveSpeed);
+            controller.SetMovement(controller.IsAttacking() ? Vector2.zero : moveInput * playerMoveSpeed);
         }
         else if (!inputEnabled)
         {
