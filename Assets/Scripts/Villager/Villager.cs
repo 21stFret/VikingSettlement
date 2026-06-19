@@ -794,6 +794,14 @@ public class Villager : TargetHealth
         ApplySkillBonuses();
     }
 
+    public void CheckBuildingInteractionZone()
+    {
+        if (!isJarl)
+        {
+            GetComponentInChildren<WorldInteractionZone>().gameObject.SetActive(false);
+        }
+    }
+
     #endregion
 
     #region Succession Helpers

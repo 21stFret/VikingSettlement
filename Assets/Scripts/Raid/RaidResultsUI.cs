@@ -94,6 +94,8 @@ public class RaidResultsUI : MonoBehaviour
                 casualtiesText.text = lines.ToString().TrimEnd();
             }
         }
+
+        UIFocus.Set(returnButton.gameObject);
     }
 
     private void OnReturnClicked()

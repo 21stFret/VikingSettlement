@@ -34,6 +34,7 @@ public class GameSceneBootstrap : MonoBehaviour
 
         // Layer 3: spawn villagers for a new game only (save-loaded villagers are already
         // instantiated and registered by SettlementManager.LoadSaveData before Bootstrap runs).
+        JarlManager.Instance?.Init();
         bool isNewGame = GameManager.Instance != null && !GameManager.Instance.ShouldLoadSave;
         if (isNewGame)
             VillagerSpawner.Instance?.SpawnInitialSettlement();
@@ -51,5 +52,8 @@ public class GameSceneBootstrap : MonoBehaviour
         CameraController.Instance?.Init();
         PauseManager.Instance?.Init();
         UIManager.Instance?.Init();
+
+        if(isNewGame)
+            SaveManager.Instance?.SaveToCurrentSlot();
     }
 }

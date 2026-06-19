@@ -2,12 +2,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Displays detailed information about a selected building
 /// </summary>
 public class BuildingInfoPanel : MonoBehaviour
 {
+    [SerializeField] private GameObject mainPanel;
+
     [Header("Building Info")]
     [SerializeField] private BuildingSelector buildingSelector;
     [SerializeField] private TextMeshProUGUI buildingNameText;
@@ -22,6 +25,7 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private Button closeBuildingPanelButton;
     
     [Header("Production Progress")]
+
     [SerializeField] private GameObject productionSection;
     [SerializeField] private Image productionProgressBar;
     [SerializeField] private TextMeshProUGUI productionProgressText;
@@ -30,13 +34,13 @@ public class BuildingInfoPanel : MonoBehaviour
     [Header("Workers")]
     [SerializeField] private TextMeshProUGUI workerCountText;
     [SerializeField] private Transform workerListContainer;
-    [SerializeField] private GameObject workerListItemPrefab;
+    [SerializeField] private List<GameObject> workerListItemPrefabs;
     [SerializeField] private Button assignWorkerButton;
     
     [Header("Assign Worker Panel")]
     [SerializeField] private GameObject assignWorkerPanel;
     [SerializeField] private Transform availableVillagersContainer;
-    [SerializeField] private GameObject availableVillagerItemPrefab;
+    [SerializeField] private List<GameObject> availableVillagerItemPrefabs;
     [SerializeField] private Button closeAssignPanelButton;
     
     [Header("Repair")]
@@ -48,13 +52,19 @@ public class BuildingInfoPanel : MonoBehaviour
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
     
+    public static BuildingInfoPanel Instance { get; private set; }
+
     private Building currentBuilding;
-    private List<GameObject> workerListItems = new List<GameObject>();
     private List<GameObject> availableVillagerItems = new List<GameObject>();
     private List<GameObject> repairCostItems = new List<GameObject>();
 
     
     
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
         if (productionProgressBar != null)
@@ -78,7 +88,9 @@ public class BuildingInfoPanel : MonoBehaviour
         if (assignWorkerPanel != null)
             assignWorkerPanel.SetActive(false);
 
-        gameObject.SetActive(false);
+        if(mainPanel !=null)
+            mainPanel.SetActive(false);
+   
     }
     
     /// <summary>
@@ -90,17 +102,29 @@ public class BuildingInfoPanel : MonoBehaviour
         
         currentBuilding = building;
         buildingSelector = selector;
-        gameObject.SetActive(true);
+        mainPanel.SetActive(true);
         
         UpdateDisplay();
     }
     
     /// <summary>
+    /// Called by BuildingInteractionZone after opening the panel via controller.
+    /// Sets EventSystem focus to the close button so gamepad can navigate immediately.
+    /// </summary>
+    public void FocusForController()
+    {
+        if (currentBuilding != null && currentBuilding.needsRepair)
+            UIFocus.Set(repairButton != null ? repairButton.gameObject : closeBuildingPanelButton?.gameObject);
+        else
+            UIFocus.Set(assignWorkerButton != null ? assignWorkerButton.gameObject : closeBuildingPanelButton?.gameObject);
+    }
+
+    /// <summary>
     /// Hide the building info panel
     /// </summary>
     public void Hide()
     {
-        gameObject.SetActive(false);
+        mainPanel.SetActive(false);
         currentBuilding = null;
 
         if (PlayerController.Instance != null)
@@ -201,6 +225,7 @@ public class BuildingInfoPanel : MonoBehaviour
         if (currentBuilding == null) return;
         currentBuilding.Repair();
         UpdateDisplay();
+        UIFocus.Set(assignWorkerButton.gameObject);
     }
     
     /// <summary>
@@ -368,28 +393,21 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void RefreshWorkerList()
     {
-        if (workerListContainer == null || workerListItemPrefab == null) return;
-        
-        // Clear existing items
-        foreach (GameObject item in workerListItems)
+        if (workerListContainer == null || workerListItemPrefabs == null) return;
+
+        for (int i = 0; i < workerListItemPrefabs.Count; i++)
         {
-            if (item != null) Destroy(item);
-        }
-        workerListItems.Clear();
-        
-        // Create items for each worker
-        foreach (Villager worker in currentBuilding.assignedWorkers)
-        {
-            GameObject item = Instantiate(workerListItemPrefab, workerListContainer);
-            
-            // Setup the item
-            VillagerWorkerItem itemComponent = item.GetComponent<VillagerWorkerItem>();
+            VillagerWorkerItem itemComponent = workerListItemPrefabs[i].GetComponent<VillagerWorkerItem>();
+            if (i >= currentBuilding.assignedWorkers.Count)
+            {
+                if (itemComponent != null) itemComponent.gameObject.SetActive(false);
+                continue;
+            }
             if (itemComponent != null)
             {
-                itemComponent.Setup(worker, this, false);
+                itemComponent.Setup(currentBuilding.assignedWorkers[i], this, false);
+                itemComponent.gameObject.SetActive(true);
             }
-            
-            workerListItems.Add(item);
         }
     }
     
@@ -410,31 +428,36 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void RefreshAvailableVillagers()
     {
-        if (availableVillagersContainer == null || availableVillagerItemPrefab == null) return;
-        
-        // Clear existing items
-        foreach (GameObject item in availableVillagerItems)
-        {
-            if (item != null) Destroy(item);
-        }
-        availableVillagerItems.Clear();
+        if (availableVillagersContainer == null) return;
         
         // Get unemployed villagers
         List<Villager> unemployed = SettlementManager.Instance.GetUnemployedVillagers();
         
         // Create items for each villager
-        foreach (Villager villager in unemployed)
+        for(int i = 0; i < availableVillagerItemPrefabs.Count; i++)
         {
-            GameObject item = Instantiate(availableVillagerItemPrefab, availableVillagersContainer);
-            
             // Setup the item
-            VillagerWorkerItem itemComponent = item.GetComponent<VillagerWorkerItem>();
+            VillagerWorkerItem itemComponent = availableVillagerItemPrefabs[i].GetComponent<VillagerWorkerItem>();
+            if(i>unemployed.Count)
+            {
+                itemComponent.gameObject.SetActive(false);
+                continue;
+            }
             if (itemComponent != null)
             {
-                itemComponent.Setup(villager, this, true);
+                itemComponent.Setup(unemployed[i], this, true);
+                itemComponent.gameObject.SetActive(true);
             }
             
-            availableVillagerItems.Add(item);
+            availableVillagerItems.Add(itemComponent.gameObject);
+        }
+        if(unemployed.Count > 0)
+        {
+            UIFocus.Set(availableVillagerItems[0]);
+        }
+        else
+        {
+            UIFocus.Set(closeAssignPanelButton != null ? closeAssignPanelButton.gameObject : assignWorkerButton.gameObject);
         }
     }
     

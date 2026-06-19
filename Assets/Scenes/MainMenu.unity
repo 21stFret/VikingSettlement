@@ -517,7 +517,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 1957045600}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &304919926
@@ -2472,6 +2472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   mainMenuSceneName: MainMenu
   gameSceneName: Demo Scene
+  IsGameActive: 0
 --- !u!1001 &1630438113
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3481,7 +3482,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2539767872020964904, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -57.14805
+      value: -57.5
       objectReference: {fileID: 0}
     - target: {fileID: 2539767872020964904, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3495,13 +3496,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5098124093058524760, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
+      propertyPath: selectedColor.b
+      value: 0.039782852
+      objectReference: {fileID: 0}
+    - target: {fileID: 5098124093058524760, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
+      propertyPath: selectedColor.g
+      value: 0.6531903
+      objectReference: {fileID: 0}
+    - target: {fileID: 5098124093058524760, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
+      propertyPath: selectedColor.r
+      value: 0.7028302
+      objectReference: {fileID: 0}
     - target: {fileID: 8308396740018309840, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
       propertyPath: m_Name
       value: Save Slot UI
       objectReference: {fileID: 0}
     - target: {fileID: 8308396740018309840, guid: c3b4e45d9bca5824a8387459e8da4891, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

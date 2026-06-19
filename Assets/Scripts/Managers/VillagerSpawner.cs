@@ -81,6 +81,13 @@ public class VillagerSpawner : MonoBehaviour
         villager.ApplySkillBonuses();
         villager.Init();
 
+        if (JarlManager.Instance.CurrentJarl == null)
+        {
+            JarlManager.Instance.EnsureInitialJarl();
+        }
+
+        villager.CheckBuildingInteractionZone();
+
         return villager;
     }
 
@@ -168,6 +175,8 @@ public class VillagerSpawner : MonoBehaviour
 
         // Register with SettlementManager and finalise visuals.
         v.Init();
+
+        v.CheckBuildingInteractionZone();
 
         return v;
     }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class RaidUI : MonoBehaviour
 {
-    public RaidManager raidManager;
+    private RaidManager raidManager;
     public List<RaidOptionItemUI> raidOptionItems;
     public GameObject raidUIPanel;
     public TMP_Text raidAmountText;

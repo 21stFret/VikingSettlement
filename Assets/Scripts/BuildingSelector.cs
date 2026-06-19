@@ -5,7 +5,7 @@ using UnityEngine;
 /// Allows buildings to be clicked and selected
 /// </summary>
 [RequireComponent(typeof(Building))]
-public class BuildingSelector : MonoBehaviour, IClickable
+public class BuildingSelector : WorldInteractable, IClickable
 {
     [Header("Selection")]
     [SerializeField] private GameObject selectionIndicator; // Optional visual indicator
@@ -17,10 +17,15 @@ public class BuildingSelector : MonoBehaviour, IClickable
     private static BuildingInfoPanel sharedInfoPanel;
     private Collider2D buildingCollider;
 
-    // IClickable implementation
+    // WorldInteractable
+    public override bool IsInteractable => building != null && building.isConstructed;
+    public override void Interact() => SelectBuilding();
+    public override void FocusPanel() => BuildingInfoPanel.Instance?.FocusForController();
+
+    // IClickable (mouse)
     public Collider2D Collider => buildingCollider;
     public int ClickPriority => clickPriority;
-    public bool IsClickable => building != null && building.isConstructed;
+    public bool IsClickable => IsInteractable;
 
     private void Awake()
     {
@@ -104,7 +109,7 @@ public class BuildingSelector : MonoBehaviour, IClickable
     /// <summary>
     /// Deselect this building
     /// </summary>
-    public void Deselect()
+    public override void Deselect()
     {
         isSelected = false;
 
