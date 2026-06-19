@@ -32,12 +32,12 @@ public class AttackCooldownUI : MonoBehaviour
 
     [SerializeField] private bool doFade;
 
-    private CharacterController _trackedController;
+    private CharacterBase _trackedController;
     private EquipableItem _trackedWeapon;
     private bool _wasReady = true;
     private Tweener _fadeTween;
 
-    private CharacterController currentCC;
+    private CharacterBase currentCC;
 
     public ShieldUI shieldUi;
 

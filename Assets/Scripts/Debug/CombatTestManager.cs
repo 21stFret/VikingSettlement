@@ -271,7 +271,7 @@ public class CombatTestManager : MonoBehaviour
         GUILayout.Label($"HP:     {_player.currentHealth:F0} / {_player.maxHealth:F0}");
         GUILayout.Label($"Wounds: {_player.activeWounds.Count} / {WoundManager.MAX_WOUNDS}");
 
-        var cc = _player.GetComponent<CharacterController>();
+        var cc = _player.GetComponent<CharacterBase>();
         if (cc == null) return;
 
         // Block / parry state

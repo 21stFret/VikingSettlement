@@ -25,7 +25,7 @@ public class ShieldUI : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.18f;
     [SerializeField] private int shakeOscillations = 3;
 
-    private CharacterController _trackedCC;
+    private CharacterBase _trackedCC;
     private EquipableItem _trackedShield;
     private RectTransform _rect;
     private Vector2 _originPos;

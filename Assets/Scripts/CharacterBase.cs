@@ -12,7 +12,7 @@ public enum Faction
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-public class CharacterController : MonoBehaviour
+public class CharacterBase : MonoBehaviour
 {
     [Header("Movement Settings")]
     protected float moveSpeed = 2f;
@@ -495,7 +495,7 @@ public class CharacterController : MonoBehaviour
 
             if (!friendlyFire)
             {
-                var hitController = hit.GetComponent<CharacterController>();
+                var hitController = hit.GetComponent<CharacterBase>();
                 if (hitController != null && hitController.characterFaction == this.characterFaction)
                 {
                     continue; // Skip friendly targets
@@ -506,7 +506,7 @@ public class CharacterController : MonoBehaviour
             {
                 hitGameObjects.Add(hit.gameObject);
                 // Refresh attacker position at the moment of impact
-                var targetCC = hit.GetComponent<CharacterController>();
+                var targetCC = hit.GetComponent<CharacterBase>();
                 if (targetCC != null)
                     targetCC.lastAttackerPosition = (Vector2)transform.position;
                 OnHitTarget(hit);
@@ -549,7 +549,7 @@ public class CharacterController : MonoBehaviour
             if (notified.Contains(hit.gameObject)) continue;
             notified.Add(hit.gameObject);
 
-            var targetCC = hit.GetComponent<CharacterController>();
+            var targetCC = hit.GetComponent<CharacterBase>();
             if (targetCC != null)
             {
                 targetCC.lastAttackerPosition = (Vector2)transform.position;
@@ -652,7 +652,7 @@ public class CharacterController : MonoBehaviour
     /// Called when an attack hitbox overlaps this character.
     /// If AI reactive blocking is enabled and charges are available, raises shield for this hit.
     /// </summary>
-    public void NotifyIncomingAttack(CharacterController attacker)
+    public void NotifyIncomingAttack(CharacterBase attacker)
     {
         if (!useReactiveBlocking) return;
         if (!canMove) return;
@@ -687,7 +687,7 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     protected void CheckParryAndStun(Collider2D hit)
     {
-        var targetCC = hit.GetComponent<CharacterController>();
+        var targetCC = hit.GetComponent<CharacterBase>();
         if (targetCC != null && targetCC.isParrying
             && targetCC.shield != null && !targetCC.shield.IsBroken)
         {

@@ -631,9 +631,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 posY = v.transform.position.y,
                 posZ = v.transform.position.z,
                 spriteVariant = v.spriteVariant,
-                weaponName = GetEquipableItemName(v.GetComponent<CharacterController>()?.weapon),
-                shieldName = GetEquipableItemName(v.GetComponent<CharacterController>()?.shield),
-                torchName = GetEquipableItemName(v.GetComponent<CharacterController>()?.torch),
+                weaponName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.weapon),
+                shieldName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.shield),
+                torchName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.torch),
                 activeWounds = v.activeWounds != null
                     ? v.activeWounds.Select(w => (int)w).ToArray()
                     : new int[0]

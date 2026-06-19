@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [Header("Control Target")]
     [SerializeField] private Villager controlTarget;
 
-    private CharacterController controller;
+    private CharacterBase controller;
     private VillagerAI targetAI;
     private WeaponSwapper weaponSwapper;
     private Vector2 moveInput;
@@ -225,9 +225,9 @@ public class PlayerController : MonoBehaviour
     }
     
     /// <summary>
-    /// Get reference to the underlying CharacterController
+    /// Get reference to the underlying CharacterBase
     /// </summary>
-    public CharacterController GetController()
+    public CharacterBase GetController()
     {
         return controller;
     }
@@ -260,13 +260,13 @@ public class PlayerController : MonoBehaviour
 
         // Set new target
         controlTarget = target;
-        controller = target.GetComponent<CharacterController>();
+        controller = target.GetComponent<CharacterBase>();
         targetAI = target.GetComponent<VillagerAI>();
         weaponSwapper = target.GetComponent<WeaponSwapper>();
 
         if (controller == null)
         {
-            Debug.LogError($"Control target {target.villagerName} has no CharacterController!");
+            Debug.LogError($"Control target {target.villagerName} has no CharacterBase!");
             return;
         }
 

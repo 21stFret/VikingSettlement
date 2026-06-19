@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterBase))]
 [RequireComponent(typeof(Enemy))]
 public class EnemyAI : MonoBehaviour
 {

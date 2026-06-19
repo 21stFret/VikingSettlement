@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// Enemy-specific controller that extends the base CharacterController
+/// Enemy-specific controller that extends the base CharacterBase
 /// </summary>
-public class EnemyController : CharacterController
+public class EnemyController : CharacterBase
 {
     private Enemy enemyData;
 

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class VillagerController : CharacterController
+public class VillagerController : CharacterBase
 {
     private Villager villagerData;
 

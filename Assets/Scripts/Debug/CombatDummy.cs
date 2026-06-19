@@ -14,7 +14,7 @@ using UnityEngine;
 ///
 /// Any component whose class name ends with "AI" is auto-disabled on Awake.
 /// </summary>
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterBase))]
 public class CombatDummy : MonoBehaviour
 {
     [Header("Manual State — toggle at runtime in the Inspector")]
@@ -26,11 +26,11 @@ public class CombatDummy : MonoBehaviour
     public bool autoAttack = false;
     [SerializeField] private float autoAttackRange = 3f;
 
-    private CharacterController _cc;
+    private CharacterBase _cc;
 
     private void Awake()
     {
-        _cc = GetComponent<CharacterController>();
+        _cc = GetComponent<CharacterBase>();
 
         // We control blocking manually — disable reactive blocking
         _cc.useReactiveBlocking = false;

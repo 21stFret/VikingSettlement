@@ -67,7 +67,7 @@ public class Villager : TargetHealth
     public float _speechMinCooldown = 5f;
     public float _speechMaxCooldown = 10f;
 
-    private CharacterController _controller;
+    private CharacterBase _controller;
 
     public ItemAttachment itemAttachment;
 
@@ -80,7 +80,7 @@ public class Villager : TargetHealth
 
         _settlementManager = SettlementManager.Instance;
         _material = GetComponent<Renderer>().material;
-        _controller = GetComponent<CharacterController>();
+        _controller = GetComponent<CharacterBase>();
         itemAttachment = GetComponent<ItemAttachment>();
 
         if (string.IsNullOrEmpty(villagerName))

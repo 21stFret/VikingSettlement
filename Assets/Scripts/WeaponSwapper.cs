@@ -5,7 +5,7 @@ using UnityEngine;
 /// pre-instantiated GOs in the right-hand attachment point.
 /// Expandable: replace the 3 prefab fields with an inventory list later.
 /// </summary>
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterBase))]
 [RequireComponent(typeof(ItemAttachment))]
 public class WeaponSwapper : MonoBehaviour
 {
@@ -16,7 +16,7 @@ public class WeaponSwapper : MonoBehaviour
 
     private GameObject[] slots = new GameObject[3];
     private int currentIndex;
-    private CharacterController charController;
+    private CharacterBase charController;
     private ItemAttachment itemAttachment;
     private Villager villager;
 
@@ -26,7 +26,7 @@ public class WeaponSwapper : MonoBehaviour
 
     private void Awake()
     {
-        charController = GetComponent<CharacterController>();
+        charController = GetComponent<CharacterBase>();
         itemAttachment = GetComponent<ItemAttachment>();
         villager = GetComponent<Villager>();
     }

@@ -53,7 +53,7 @@ public class ItemAttachment : MonoBehaviour
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.shield = newShield.GetComponent<EquipableItem>();
@@ -68,7 +68,7 @@ public class ItemAttachment : MonoBehaviour
     /// </summary>
     public void UnequipShield()
     {
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             // Detach and play both break effects before the shield GO is destroyed
@@ -94,7 +94,7 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.weapon = newWeapon.GetComponent<EquipableItem>();
@@ -149,7 +149,7 @@ public class ItemAttachment : MonoBehaviour
     {
         torch = newTorch;
         AttachItem(newTorch.transform, torchAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.torch = newTorch.GetComponent<EquipableItem>();
