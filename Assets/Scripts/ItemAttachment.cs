@@ -112,6 +112,17 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
+    public void GiveWeaponByName(string weaponName)
+    {
+        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetWeaponByName(weaponName);
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipWeapon(weaponInstance);
+        }
+    }
+
     public void GiveRandomShield()
     {
         // This is a placeholder implementation. Replace with actual shield selection logic.
@@ -120,6 +131,17 @@ public class ItemAttachment : MonoBehaviour
         {
             GameObject shieldInstance = Instantiate(randomShield.gameObject);
             EquipShield(shieldInstance);
+        }
+    }
+
+    public void GiveShieldByName(string weaponName)
+    {
+        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetShieldByName(weaponName);
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipShield(weaponInstance);
         }
     }
 

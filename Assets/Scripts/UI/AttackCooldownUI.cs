@@ -39,6 +39,8 @@ public class AttackCooldownUI : MonoBehaviour
 
     private CharacterController currentCC;
 
+    public ShieldUI shieldUi;
+
     private void Awake()
     {
         if(Instance == null)
@@ -74,6 +76,11 @@ public class AttackCooldownUI : MonoBehaviour
             canvasGroup.alpha = 0f;
         }
         OnChangeWeapon();
+        
+        if(shieldUi !=null)
+        {
+            shieldUi.Init();
+        }
 
     }
 

@@ -581,6 +581,7 @@ public class CharacterController : MonoBehaviour
         }
         var target = hit.GetComponent<TargetHealth>();
         if (target == null || weapon == null) return;
+        if (target.IsDead()) return;
 
         float damage = weapon.strength;
         var villager = GetComponent<Villager>();
@@ -654,6 +655,7 @@ public class CharacterController : MonoBehaviour
     public void NotifyIncomingAttack(CharacterController attacker)
     {
         if (!useReactiveBlocking) return;
+        if (!canMove) return;
         if (attacker.characterFaction == characterFaction) return;
         if (shield == null || shield.IsBroken) return;
         if (isOnBlockCooldown || currentBlockCharges <= 0) return;
@@ -705,6 +707,8 @@ public class CharacterController : MonoBehaviour
     private IEnumerator StunCoroutine(float duration)
     {
         canMove = false;
+        isBlocking = false;
+        isParrying = false;
         lastAttackTime = Time.time + duration;
 
         if (stunEffect != null)
@@ -795,6 +799,7 @@ public class CharacterController : MonoBehaviour
         canMove = !isDead;
         movement = Vector2.zero;
         characterCollider.enabled = !isDead;
+        rb.bodyType = RigidbodyType2D.Kinematic;
         if (weapon != null)
         {
             weapon.gameObject.SetActive(!isDead);

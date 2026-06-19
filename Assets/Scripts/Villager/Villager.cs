@@ -79,7 +79,7 @@ public class Villager : TargetHealth
         }
 
         _settlementManager = SettlementManager.Instance;
-        _material = GetComponentInChildren<Renderer>().material;
+        _material = GetComponent<Renderer>().material;
         _controller = GetComponent<CharacterController>();
         itemAttachment = GetComponent<ItemAttachment>();
 

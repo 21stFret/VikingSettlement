@@ -19,7 +19,7 @@ public class EnemyPersonalUI : MonoBehaviour
     {
         _enemy = GetComponentInParent<Enemy>(true);
         _enemy.personalUI = this;
-        transform.parent = null; // Detach from enemy to avoid scaling issues
+        transform.SetParent(null); // Detach from enemy to avoid scaling issues
         _canvasGroup = GetComponent<CanvasGroup>();
         enabled = true;
     }
@@ -32,6 +32,10 @@ public class EnemyPersonalUI : MonoBehaviour
     void Update()
     {
         if (!_enabled)
+        {
+            return;
+        }
+        if(_enemy == null)
         {
             return;
         }
@@ -91,7 +95,7 @@ public class EnemyPersonalUI : MonoBehaviour
             {
                 speechText.gameObject.SetActive(false);
                 healthBar.SetActive(false);
-                moraleBar.SetActive(false);
+                if (moraleBar != null) moraleBar.SetActive(false);
                 _canvasGroup.alpha = 0;
             });
         }
@@ -107,7 +111,7 @@ public class EnemyPersonalUI : MonoBehaviour
             {
                 speechText.gameObject.SetActive(false);
                 healthBar.SetActive(false);
-                moraleBar.SetActive(false);
+                if (moraleBar != null) moraleBar.SetActive(false);
                 _canvasGroup.alpha = 0;
             });
         }

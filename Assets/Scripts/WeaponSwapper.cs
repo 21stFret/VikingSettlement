@@ -18,6 +18,7 @@ public class WeaponSwapper : MonoBehaviour
     private int currentIndex;
     private CharacterController charController;
     private ItemAttachment itemAttachment;
+    private Villager villager;
 
     public int CurrentSlot => currentIndex;
     public EquipableItem CurrentWeapon => slots[currentIndex] != null
@@ -27,12 +28,16 @@ public class WeaponSwapper : MonoBehaviour
     {
         charController = GetComponent<CharacterController>();
         itemAttachment = GetComponent<ItemAttachment>();
+        villager = GetComponent<Villager>();
     }
 
     private void Start()
     {
         if (itemAttachment == null || charController == null) return;
-
+        if(!villager.isJarl)
+        {
+            return;
+        }
         swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Sword");
         axePrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Axe");
         torchPrefab = WeaponDatabase.Instance.GetWeaponByName("Torch");

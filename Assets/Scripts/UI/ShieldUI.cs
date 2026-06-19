@@ -38,8 +38,6 @@ public class ShieldUI : MonoBehaviour
 
     public void Init()
     {
-        SubscribeToShield();
-
         if (PlayerController.Instance != null)
         {
             _trackedCC = PlayerController.Instance.GetController();
@@ -47,7 +45,7 @@ public class ShieldUI : MonoBehaviour
 
         var shield = _trackedCC != null ? _trackedCC.shield : null;
         _trackedShield = shield;
-
+        SubscribeToShield();
         UpdateSprite();
     }
 

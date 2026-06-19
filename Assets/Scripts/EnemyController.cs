@@ -15,12 +15,9 @@ public class EnemyController : CharacterController
         useReactiveBlocking = true;
     }
 
-    /// <summary>
-    /// Always use the enemy's own attackCooldown — weapons affect damage and animation
-    /// type only, not attack speed for enemies.
-    /// </summary>
     public override float GetAttackDelay()
     {
+        if (weapon != null) return Mathf.Max(0.1f, weapon.attackSpeed);
         return enemyData != null ? enemyData.attackCooldown : attackDelay;
     }
 
@@ -67,7 +64,8 @@ public class EnemyController : CharacterController
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && enemyData != null)
         {
-            // Use enemy's damage stat instead of weapon damage
+            if (target.IsDead()) return;
+
             float damage = enemyData.GetDamage();
             float weaponDamage = 0f;
             if (weapon != null)

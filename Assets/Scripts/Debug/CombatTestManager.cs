@@ -42,6 +42,8 @@ public class CombatTestManager : MonoBehaviour
     {
         public string label = "Enemy";
         public GameObject prefab;
+        public bool giveWeapon;
+        public bool giveShield;
     }
 
     private Villager _player;
@@ -87,6 +89,7 @@ public class CombatTestManager : MonoBehaviour
         }
 
         _player.ApplySkillBonuses();
+        _player.Init();
 
         if (PlayerController.Instance != null)
             PlayerController.Instance.SetControlTarget(_player);
@@ -126,6 +129,7 @@ public class CombatTestManager : MonoBehaviour
             }
 
             villager.ApplySkillBonuses();
+            villager.Init();
 
             // Set raid follow AI — allies follow the player character
             var ai = go.GetComponent<VillagerAI>();
@@ -162,12 +166,18 @@ public class CombatTestManager : MonoBehaviour
         for (int i = 0; i < _spawnCount; i++)
         {
             var go = Instantiate(enemyTypes[index].prefab, GetSpawnPoint(i), Quaternion.identity);
+            go.GetComponent<Enemy>().InitializeEnemyStats();
+            /*
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)
             {
-                ia.GiveRandomWeapon();
-                ia.GiveRandomShield();
+                if (enemyTypes[index].giveWeapon)
+                    ia.GiveWeaponByName("DSword");
+
+                if (enemyTypes[index].giveShield)
+                    ia.GiveRandomShield();
             }
+            */
         }
             
 
