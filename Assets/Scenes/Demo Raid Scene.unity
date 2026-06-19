@@ -109196,7 +109196,7 @@ MonoBehaviour:
   enemiesRemaining: 0
   partyMembersAlive: 0
   lootTable:
-  - resourceType: 3
+  - resourceType: 2
     dropChance: 0.702
     minAmount: 1
     maxAmount: 5
@@ -112114,11 +112114,11 @@ MonoBehaviour:
   estimatedTimeText: {fileID: 1384182819}
   workerCountText: {fileID: 1266353579}
   workerListContainer: {fileID: 1925197317}
-  workerListItemPrefab: {fileID: 7391022683986547264, guid: 3b9d3e11b6de48f43b0a3e602a8c908a, type: 3}
+  workerListItemPrefabs: []
   assignWorkerButton: {fileID: 228564006}
   assignWorkerPanel: {fileID: 1482813775}
   availableVillagersContainer: {fileID: 1947690218}
-  availableVillagerItemPrefab: {fileID: 7391022683986547264, guid: 3b9d3e11b6de48f43b0a3e602a8c908a, type: 3}
+  availableVillagerItemPrefabs: []
   closeAssignPanelButton: {fileID: 1763917573}
   repairSection: {fileID: 0}
   repairButton: {fileID: 0}
@@ -113640,6 +113640,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -140244,6 +140245,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -201983,6 +201985,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -266356,6 +266359,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

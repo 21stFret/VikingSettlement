@@ -16,10 +16,13 @@ public class WorldInteractionZone : MonoBehaviour
     private WorldInteractable active;
     private PlayerInputActions inputActions;
 
+    public GameObject interactionPrompt;
+
     private void Awake()
     {
         inputActions = new PlayerInputActions();
         GetComponent<CircleCollider2D>().isTrigger = true;
+        interactionPrompt.SetActive(false);
     }
 
     private void OnEnable()
@@ -41,6 +44,8 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null && !nearby.Contains(interactable))
             nearby.Add(interactable);
+        if(nearby.Count > 0)
+            interactionPrompt.SetActive(true);
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -48,6 +53,8 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null)
             nearby.Remove(interactable);
+        if(nearby.Count <= 0)
+            interactionPrompt.SetActive(false);
     }
 
     private void OnInteract(InputAction.CallbackContext ctx)

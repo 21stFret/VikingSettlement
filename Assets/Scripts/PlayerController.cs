@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private Vector2 moveInput;
     private bool inputEnabled = true;
     private bool isAttackHeld = false;
+    private bool isBlockHeld = false;
     private float blockPressTime = -999f;
     [SerializeField] private float parryWindowDuration = 0.3f;
 
@@ -60,6 +61,8 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed += OnStopMove;
         inputActions.Player.Attack.performed += OnAttack;
         inputActions.Player.Attack.canceled += OnAttackReleased;
+        inputActions.Player.Block.performed += OnBlock;
+        inputActions.Player.Block.canceled += OnBlockReleased;
         inputActions.Player.ShieldWall.performed += OnShieldWall;
         inputActions.Player.SwapWeapon.performed += OnSwapWeapon;
     }
@@ -74,6 +77,8 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed -= OnStopMove;
         inputActions.Player.Attack.performed -= OnAttack;
         inputActions.Player.Attack.canceled -= OnAttackReleased;
+        inputActions.Player.Block.performed -= OnBlock;
+        inputActions.Player.Block.canceled -= OnBlockReleased;
         inputActions.Player.ShieldWall.performed -= OnShieldWall;
         inputActions.Player.SwapWeapon.performed -= OnSwapWeapon;
         inputActions.Disable();
@@ -135,6 +140,18 @@ public class PlayerController : MonoBehaviour
         isAttackHeld = false;
     }
 
+    private void OnBlock(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null) return;
+        blockPressTime = Time.time;
+        isBlockHeld = true;
+    }
+
+    private void OnBlockReleased(InputAction.CallbackContext context)
+    {
+        isBlockHeld = false;
+    }
+
     private void OnShieldWall(InputAction.CallbackContext context)
     {
         if (!inputEnabled) return;
@@ -158,13 +175,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Block input (right mouse button) — resolved first so movement uses current frame's state
-        var mouse = UnityEngine.InputSystem.Mouse.current;
-        if (mouse != null)
+        // Block — driven by the Block input action (right mouse / gamepad right trigger)
         {
-            if (inputEnabled && mouse.rightButton.wasPressedThisFrame)
-                blockPressTime = Time.time;
-
             bool hasShield = controller.shield != null && !controller.shield.IsBroken;
             bool inParryWindow = inputEnabled && hasShield && (Time.time - blockPressTime) < parryWindowDuration;
 
@@ -177,7 +189,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                controller.isBlocking = inParryWindow || (inputEnabled && hasShield && mouse.rightButton.isPressed);
+                controller.isBlocking = inParryWindow || (inputEnabled && hasShield && isBlockHeld);
             }
         }
 
@@ -294,6 +306,7 @@ public class PlayerController : MonoBehaviour
             // Clear movement and stop character when disabling input
             moveInput = Vector2.zero;
             isAttackHeld = false;
+            isBlockHeld = false;
             if (controller != null)
             {
                 controller.SetMovement(Vector2.zero);

@@ -294,7 +294,7 @@ public class EnemyAI : MonoBehaviour
             return aliveVillagers[0].transform;
         }
             
-        for(int i =0; i> aliveVillagers.Count; i++)
+        for(int i =0; i< aliveVillagers.Count; i++)
         {
             var villager = aliveVillagers[i];
             float distance = Vector2.Distance(transform.position, villager.transform.position);
