@@ -67,6 +67,14 @@ public class CharacterBase : MonoBehaviour
     protected float lastAttackTime = 0f;
     protected bool isAttacking = false;
 
+    // Roll
+    [Header("Roll")]
+    [SerializeField] protected float rollSpeed = 6f;
+    [SerializeField] protected float rollDuration = 0.35f;
+    [SerializeField] protected float rollCooldown = 1f;
+    private float lastRollTime = -999f;
+    public bool isRolling { get; private set; }
+
     // Stuck detection
     protected Vector2 lastPosition;
     protected float stuckTimer = 0f;
@@ -87,6 +95,7 @@ public class CharacterBase : MonoBehaviour
     protected static readonly int SwordAttackTrigger = Animator.StringToHash("SwordAttack");
     protected static readonly int SpearAttackTrigger = Animator.StringToHash("SpearAttack");
     protected static readonly int AxeAttackTrigger = Animator.StringToHash("AxeAttack");
+    protected static readonly int RollTrigger = Animator.StringToHash("Roll");
 
     [HideInInspector]
     public EquipableItem weapon;
@@ -358,6 +367,35 @@ public class CharacterBase : MonoBehaviour
         }
 
         movement = moveDir;
+    }
+
+    public bool CanRoll() => !isRolling && !isAttacking && canMove && Time.time - lastRollTime >= rollCooldown;
+
+    public virtual void Roll(Vector2 direction)
+    {
+        if (!CanRoll()) return;
+        if (direction == Vector2.zero) direction = lastMoveDirection;
+        if (direction == Vector2.zero) return;
+
+        lastRollTime = Time.time;
+        StartCoroutine(RollCoroutine(direction.normalized));
+    }
+
+    private IEnumerator RollCoroutine(Vector2 direction)
+    {
+        isRolling = true;
+        SafeSetTrigger(RollTrigger);
+
+        float elapsed = 0f;
+        while (elapsed < rollDuration)
+        {
+            movement = direction * rollSpeed;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        movement = Vector2.zero;
+        isRolling = false;
     }
 
     #endregion

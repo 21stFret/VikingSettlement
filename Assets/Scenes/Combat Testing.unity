@@ -14718,17 +14718,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 1822552749}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -14776,6 +14772,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[11]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[12]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -68337,17 +68337,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 479234337}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -68395,6 +68391,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[11]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[12]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -90449,17 +90449,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 584339264}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -90507,6 +90503,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[11]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[12]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -107604,17 +107604,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 2056931012}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -107662,6 +107658,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[11]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[12]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -109025,6 +109025,14 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -134762,6 +134770,14 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -197148,6 +197164,14 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202416,17 +202440,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 381472687}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 12
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -202474,6 +202494,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[11]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[12]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -258284,6 +258308,9 @@ MonoBehaviour:
   maxBlockCharges: 2
   blockCooldown: 2
   reactiveBlockDuration: 1.5
+  rollSpeed: 6
+  rollDuration: 0.35
+  rollCooldown: 1
   weapon: {fileID: 1925526622}
   shield: {fileID: 1899040833}
   torch: {fileID: 0}
@@ -258894,6 +258921,14 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -260616,17 +260651,13 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 9
       objectReference: {fileID: 0}
-    - target: {fileID: 3354213915865988636, guid: 9885f45d31777c3478463082f11f1391, type: 3}
-      propertyPath: rotationFactor
-      value: 1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 3898664951875631419, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: m_ShadowMesh.m_Mesh
       value: 
       objectReference: {fileID: 482245564}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 14
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -260682,6 +260713,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[13]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[14]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:

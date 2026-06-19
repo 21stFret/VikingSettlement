@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Cuttable Grass
+  - Name: Tree
   - Tag: Untagged
-  - Layer: Grass
+  - Layer: Static
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

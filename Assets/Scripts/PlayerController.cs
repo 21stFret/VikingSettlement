@@ -70,6 +70,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Block.canceled += OnBlockReleased;
         inputActions.Player.ShieldWall.performed += OnShieldWall;
         inputActions.Player.SwapWeapon.performed += OnSwapWeapon;
+        inputActions.Player.Roll.performed += OnRoll;
     }
 
     private void OnDisable()
@@ -86,6 +87,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.Block.canceled -= OnBlockReleased;
         inputActions.Player.ShieldWall.performed -= OnShieldWall;
         inputActions.Player.SwapWeapon.performed -= OnSwapWeapon;
+        inputActions.Player.Roll.performed -= OnRoll;
         inputActions.Disable();
     }
     
@@ -172,6 +174,13 @@ public class PlayerController : MonoBehaviour
         weaponSwapper.SwapToNext();
     }
 
+    private void OnRoll(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null) return;
+        Vector2 rollDir = moveInput.magnitude > 0.1f ? moveInput.normalized : controller.GetLastMoveDirection();
+        controller.Roll(rollDir);
+    }
+
     private void Update()
     {
         // Skip if we don't have a valid controller
@@ -201,7 +210,8 @@ public class PlayerController : MonoBehaviour
         // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
         if (!useMouseMovement && inputEnabled)
         {
-            controller.SetMovement(controller.IsAttacking() ? Vector2.zero : moveInput * playerMoveSpeed);
+            bool movementLocked = controller.IsAttacking() || controller.isRolling;
+            controller.SetMovement(movementLocked ? Vector2.zero : moveInput * playerMoveSpeed);
         }
         else if (!inputEnabled)
         {

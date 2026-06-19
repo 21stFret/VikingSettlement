@@ -531,13 +531,13 @@ Material:
     - _WindIsParallax: 0
     - _WindLocalWind: 0
     - _WindMaxIntensity: 0.4
-    - _WindMaxRotation: 2
+    - _WindMaxRotation: 1
     - _WindMinIntensity: -0.4
     - _WindNoiseScale: 0.1
     - _WindNoiseSpeed: 1
     - _WindRotation: 0
-    - _WindRotationWindFactor: 1
-    - _WindSquishFactor: 0.3
+    - _WindRotationWindFactor: 0.5
+    - _WindSquishFactor: 0.85
     - _WindSquishWindFactor: 0
     - _WindXPosition: 0
     - _WorldTilingPixelsPerUnit: 100
