@@ -429,16 +429,18 @@ public class BuildingInfoPanel : MonoBehaviour
     private void RefreshAvailableVillagers()
     {
         if (availableVillagersContainer == null) return;
-        
+
+        availableVillagerItems.Clear();
+
         // Get unemployed villagers
         List<Villager> unemployed = SettlementManager.Instance.GetUnemployedVillagers();
-        
+
         // Create items for each villager
         for(int i = 0; i < availableVillagerItemPrefabs.Count; i++)
         {
             // Setup the item
             VillagerWorkerItem itemComponent = availableVillagerItemPrefabs[i].GetComponent<VillagerWorkerItem>();
-            if(i>unemployed.Count)
+            if(i>=unemployed.Count)
             {
                 itemComponent.gameObject.SetActive(false);
                 continue;
@@ -447,9 +449,8 @@ public class BuildingInfoPanel : MonoBehaviour
             {
                 itemComponent.Setup(unemployed[i], this, true);
                 itemComponent.gameObject.SetActive(true);
+                availableVillagerItems.Add(itemComponent.gameObject);
             }
-            
-            availableVillagerItems.Add(itemComponent.gameObject);
         }
         if(unemployed.Count > 0)
         {
@@ -483,6 +484,7 @@ public class BuildingInfoPanel : MonoBehaviour
         {
             currentBuilding.RemoveWorker(villager);
             UpdateDisplay();
+            assignWorkerPanel.SetActive(true);
             RefreshAvailableVillagers();
         }
     }

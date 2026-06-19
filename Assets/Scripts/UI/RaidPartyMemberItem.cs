@@ -152,22 +152,25 @@ public class RaidPartyMemberItem : MonoBehaviour
     {
         if (partyUI == null || villager == null) return;
 
+        RaidPartyUI ui = partyUI;
+
         if (isInParty)
         {
-            partyUI.RemoveFromParty(villager);
+            ui.RemoveFromParty(villager);
         }
         else
         {
-            partyUI.AddToParty(villager);
+            ui.AddToParty(villager);
         }
 
-        if(partyUI.availableVillagerPool.Count>0)
+        RaidPartyMemberItem firstActive = ui.availableVillagerPool.Find(item => item != null && item.gameObject.activeSelf);
+        if (firstActive != null)
         {
-            UIFocus.Set(partyUI.availableVillagerPool[0].gameObject);
+            UIFocus.Set(firstActive.gameObject);
         }
         else
         {
-            UIFocus.Set(partyUI.startRaidButton.gameObject);
+            UIFocus.Set(ui.startRaidButton.gameObject);
         }
     }
 }

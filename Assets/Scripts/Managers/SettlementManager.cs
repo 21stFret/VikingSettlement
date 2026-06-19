@@ -255,7 +255,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
         else
         {
-            Debug.LogWarning($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
+            print($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
 
             if (availableFish > 0)
                 ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
@@ -275,7 +275,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     private void ApplyPrioritizedHunger(float availableFish, float fishPerVillager)
     {
         int fedCount = fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : allVillagers.Count;
-        Debug.LogWarning($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
+        print($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
 
         List<Villager> shuffled = allVillagers.OrderBy(v => UnityEngine.Random.value).ToList();
         for (int i = 0; i < shuffled.Count; i++)
