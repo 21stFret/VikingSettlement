@@ -44,6 +44,12 @@ public class ShieldUI : MonoBehaviour
         }
 
         var shield = _trackedCC != null ? _trackedCC.shield : null;
+
+        if(shield!=null)
+        {
+            UnsubscribeFromShield();
+        }
+
         _trackedShield = shield;
         SubscribeToShield();
         UpdateSprite();
@@ -72,7 +78,8 @@ public class ShieldUI : MonoBehaviour
 
     private void OnShieldBroken()
     {
-        UpdateSprite();
+        if (shieldImage != null)
+            shieldImage.sprite = noShieldSprite;
     }
 
     private void UpdateSprite()

@@ -84,8 +84,8 @@ public class CombatTestManager : MonoBehaviour
         if (ia != null)
         {
             ia.GiveRandomWeapon();
-            ia.GiveRandomShield();
-            ia.GiveRandomTorch();
+            //ia.GiveRandomShield();
+            //ia.GiveRandomTorch();
         }
 
         _player.ApplySkillBonuses();
@@ -125,7 +125,7 @@ public class CombatTestManager : MonoBehaviour
             if (ia != null)
             {
                 ia.GiveRandomWeapon();
-                ia.GiveRandomShield();
+                //ia.GiveRandomShield();
             }
 
             villager.ApplySkillBonuses();

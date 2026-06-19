@@ -625,7 +625,16 @@ public class VillagerAI : MonoBehaviour
                 }
                 else
                 {
-                    currentState = AIState.Combat;
+                    if (controller.shield == null && CanFindShield())
+                    {
+                        // If healthy will try to find shield first
+                        currentState = AIState.PrepareCombat;
+                    }
+                    else
+                    {
+                        currentState = AIState.Combat;
+                    }
+
                 }
                 return;
             }

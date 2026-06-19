@@ -771,7 +771,9 @@ public class CharacterBase : MonoBehaviour
     protected virtual void FlipSprite(bool flip)
     {
         // Can be overridden for different flip methods
-        transform.localScale = new Vector3(flip ? -1f : 1f, 1f, 1f);
+        var cached = transform.localScale;
+        var x = Mathf.Abs(cached.x);
+        transform.localScale = new Vector3(flip ? -x : x, cached.y, cached.z);
     }
 
     private bool _isSprinting = false;

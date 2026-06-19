@@ -60,6 +60,7 @@ public class ItemAttachment : MonoBehaviour
             CC.shield.isEquipped = true;
             CC.shield.OnBroken += UnequipShield;
         }
+        AttackCooldownUI.Instance.shieldUi.Init();
     }
 
     /// <summary>

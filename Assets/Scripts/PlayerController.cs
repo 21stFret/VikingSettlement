@@ -22,6 +22,11 @@ public class PlayerController : MonoBehaviour
     private float blockPressTime = -999f;
     [SerializeField] private float parryWindowDuration = 0.3f;
 
+    // Shield pickup
+    private float _pickupCheckTimer;
+    [SerializeField] private float pickupCheckInterval = 0.15f;
+    [SerializeField] private float shieldPickupRadius = 0.5f;
+
     // Shield wall
     private bool _shieldWallActive = false;
     private readonly System.Collections.Generic.List<VillagerAI> _raidAllies
@@ -210,6 +215,30 @@ public class PlayerController : MonoBehaviour
             controller.Attack();
         }
 
+        // Auto-pickup shields the player walks over
+        _pickupCheckTimer -= Time.deltaTime;
+        if (_pickupCheckTimer <= 0f)
+        {
+            _pickupCheckTimer = pickupCheckInterval;
+            CheckShieldPickup();
+        }
+    }
+
+    private void CheckShieldPickup()
+    {
+        if (controller.shield != null) return;
+        if (controlTarget == null || controlTarget.itemAttachment == null) return;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(controlTarget.transform.position, shieldPickupRadius);
+        foreach (var hit in hits)
+        {
+            if (!hit.CompareTag("Shield")) continue;
+            var item = hit.GetComponent<EquipableItem>();
+            if (item == null || item.isEquipped) continue;
+
+            controlTarget.itemAttachment.EquipShield(hit.gameObject);
+            return;
+        }
     }
     
     /// <summary>
