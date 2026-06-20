@@ -10,6 +10,8 @@ public enum Faction
     Neutral
 }
 
+public enum FacingDirection { East, West, North, South }
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
 public class CharacterBase : MonoBehaviour
@@ -18,6 +20,7 @@ public class CharacterBase : MonoBehaviour
     protected float moveSpeed = 2f;
     [SerializeField] protected float stopDistance = 0.1f;
     public bool canMove = true;
+    private int _immobilizeCount = 0; // reference-counted; movement locked while > 0
 
     [Header("Obstacle Avoidance")]
     public LayerMask obstacleLayer;
@@ -28,6 +31,7 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected Animator animator;
     [SerializeField] protected SpriteRenderer spriteRenderer;
     [SerializeField] protected bool flipSpriteOnDirection = true;
+    [SerializeField] protected bool use4DirectionalSprites = false;
 
     [Header("Attack Settings")]
     [SerializeField] protected Vector2 swordAttackSize = new Vector2(1f, 1f);
@@ -36,7 +40,7 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected Vector2 swordAttackOffset = new Vector2(1f, 0f);
     [SerializeField] protected Vector2 spearAttackOffset = new Vector2(1f, 0f);
     [SerializeField] protected Vector2 axeAttackOffset = new Vector2(1f, 0f);
-    [SerializeField] protected LayerMask attackTargetLayer;
+    [SerializeField] public LayerMask attackTargetLayer;
     [SerializeField] public float attackDelay = 1f;
     public bool friendlyFire = false;
 
@@ -109,6 +113,14 @@ public class CharacterBase : MonoBehaviour
     public Vector2 lastAttackerPosition;
     [HideInInspector]
     public Faction characterFaction = Faction.Neutral;
+    [HideInInspector]
+    public FacingDirection facingDirection = FacingDirection.South;
+
+    [Header("Combat Slots")]
+    [SerializeField] public float slotDistance = 0.8f;
+    [SerializeField] private float knockbackForce = 5f;
+    [SerializeField] private float knockbackDuration = 0.1f;
+    private CharacterBase[] _slotOccupants = new CharacterBase[4]; // N, E, S, W
 
     // Cache of valid animator parameter hashes to avoid errors
     private HashSet<int> validAnimatorParams;
@@ -483,23 +495,24 @@ public class CharacterBase : MonoBehaviour
             else
             {
                 // Trigger appropriate attack animation based on weapon type
+                // Hitbox size and offset are rotated to match current facing direction
                 if (weapon.itemType == EquipableItem.ItemType.Sword)
                 {
                     SafeSetTrigger(SwordAttackTrigger);
-                    currentHitboxSize = swordAttackSize;
-                    currentHitboxOffset = swordAttackOffset;
+                    currentHitboxSize   = RotateSizeToFacing(swordAttackSize);
+                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset);
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Spear)
                 {
                     SafeSetTrigger(SpearAttackTrigger);
-                    currentHitboxSize = spearAttackSize;
-                    currentHitboxOffset = spearAttackOffset;
+                    currentHitboxSize   = RotateSizeToFacing(spearAttackSize);
+                    currentHitboxOffset = RotateOffsetToFacing(spearAttackOffset);
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Axe)
                 {
                     SafeSetTrigger(AxeAttackTrigger);
-                    currentHitboxSize = axeAttackSize;
-                    currentHitboxOffset = axeAttackOffset;
+                    currentHitboxSize   = RotateSizeToFacing(axeAttackSize);
+                    currentHitboxOffset = RotateOffsetToFacing(axeAttackOffset);
                 }
             }
         }
@@ -512,18 +525,8 @@ public class CharacterBase : MonoBehaviour
     {
         if (weapon == null) return;
 
-        // Adjust hitbox based on facing direction
-        Vector2 adjustedOffset = currentHitboxOffset;
-        if (cachedMoveX < 0.01f)
-        {
-            adjustedOffset.x = -Math.Abs(adjustedOffset.x);
-        }
-        else if (cachedMoveX > 0.01f)
-        {
-            adjustedOffset.x = Math.Abs(adjustedOffset.x);
-        }
-
-        currentHitboxPos = (Vector2)transform.position + adjustedOffset;
+        // Offset is already rotated to facing direction — set when the swing was committed in Attack()
+        currentHitboxPos = (Vector2)transform.position + currentHitboxOffset;
         Collider2D[] hitObjects = Physics2D.OverlapBoxAll(currentHitboxPos, currentHitboxSize, 0f, attackTargetLayer);
 
         // Check if any have the same gameobject to avoid multiple hits
@@ -550,6 +553,11 @@ public class CharacterBase : MonoBehaviour
                 var targetCC = hit.GetComponent<CharacterBase>();
                 if (targetCC != null)
                     targetCC.lastAttackerPosition = (Vector2)transform.position;
+
+                // Attacking a blocking character bounces the attacker back
+                if (targetCC != null && (targetCC.isBlocking || targetCC.isParrying))
+                    ApplyKnockback(this, hit.transform.position);
+
                 OnHitTarget(hit);
             }
         }
@@ -572,14 +580,9 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual void NotifyAttackWindup()
     {
-        Vector2 adjustedOffset = currentHitboxOffset;
-        if (cachedMoveX < 0.01f)
-            adjustedOffset.x = -Math.Abs(adjustedOffset.x);
-        else if (cachedMoveX > 0.01f)
-            adjustedOffset.x = Math.Abs(adjustedOffset.x);
-
+        // Offset is already rotated to facing direction — committed in Attack()
         Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
-            (Vector2)transform.position + adjustedOffset, currentHitboxSize, 0f, attackTargetLayer);
+            (Vector2)transform.position + currentHitboxOffset, currentHitboxSize, 0f, attackTargetLayer);
 
         HashSet<GameObject> notified = new HashSet<GameObject>();
         foreach (var hit in hitObjects)
@@ -598,14 +601,12 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns true if worldPos is on the opposite side to this character's facing direction.
-    /// Uses transform.localScale.x as the facing ground-truth (set by FlipSprite).
+    /// Returns true if worldPos is in the hemisphere behind this character's current facing direction.
     /// </summary>
     public bool IsAttackFromBehind(Vector2 worldPos)
     {
-        float dx = worldPos.x - transform.position.x;
-        bool facingRight = transform.localScale.x >= 0f;
-        return facingRight ? dx < 0f : dx > 0f;
+        Vector2 toAttacker = (worldPos - (Vector2)transform.position).normalized;
+        return Vector2.Dot(toAttacker, FacingDirectionToVector(facingDirection)) < 0f;
     }
 
     /// <summary>
@@ -745,7 +746,7 @@ public class CharacterBase : MonoBehaviour
 
     private IEnumerator StunCoroutine(float duration)
     {
-        canMove = false;
+        Immobilize();
         isBlocking = false;
         isParrying = false;
         lastAttackTime = Time.time + duration;
@@ -764,7 +765,7 @@ public class CharacterBase : MonoBehaviour
         if (animator != null)
             animator.SetBool("Stunned", false);
 
-        canMove = true;
+        Unimmobilize();
     }
 
     #endregion
@@ -792,8 +793,11 @@ public class CharacterBase : MonoBehaviour
                 cachedMoveX = lastMoveDirection.x;
             }
 
+            facingDirection = ComputeFacingDirection(lastMoveDirection);
+
             // Handle sprite flipping — locked while blocking so the shield always faces the attacker
-            if (flipSpriteOnDirection && spriteRenderer != null && !isBlocking)
+            // Skipped in 4D mode (animator blend tree handles direction visually)
+            if (flipSpriteOnDirection && !use4DirectionalSprites && spriteRenderer != null && !isBlocking)
             {
                 if (movement.x > 0.01f)
                 {
@@ -816,22 +820,30 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Immediately face towards a world position, updating sprite flip and cached direction used by hitboxes.
+    /// Immediately face towards a world position, updating all direction state used by hitboxes and animations.
     /// </summary>
     public void FaceTowards(Vector2 worldPosition)
     {
-        if (!flipSpriteOnDirection || spriteRenderer == null || isBlocking) return;
+        if (isBlocking) return;
 
-        float dx = worldPosition.x - transform.position.x;
-        if (Mathf.Abs(dx) < 0.01f) return;
+        Vector2 dir = (worldPosition - (Vector2)transform.position).normalized;
+        if (dir.sqrMagnitude < 0.0001f) return;
 
-        bool facingLeft = dx < 0f;
-        FlipSprite(facingLeft);
+        facingDirection = ComputeFacingDirection(dir);
+        lastMoveDirection = dir;
 
-        cachedMoveX = facingLeft ? -1f : 1f;
-        lastMoveDirection = new Vector2(cachedMoveX, lastMoveDirection.y);
         if (animator != null)
-            animator.SetFloat(LastMoveX, lastMoveDirection.x);
+        {
+            animator.SetFloat(LastMoveX, dir.x);
+            animator.SetFloat(LastMoveY, dir.y);
+        }
+
+        if (flipSpriteOnDirection && !use4DirectionalSprites && spriteRenderer != null)
+        {
+            bool left = facingDirection == FacingDirection.West;
+            FlipSprite(left);
+            cachedMoveX = left ? -1f : 1f;
+        }
     }
 
     private bool _isSprinting = false;
@@ -856,6 +868,7 @@ public class CharacterBase : MonoBehaviour
     public virtual void SetDead(bool isDead)
     {
         SafeSetTrigger(IsDead);
+        _immobilizeCount = 0; // clear any in-flight immobilization
         canMove = !isDead;
         movement = Vector2.zero;
         characterCollider.enabled = !isDead;
@@ -878,6 +891,143 @@ public class CharacterBase : MonoBehaviour
 
     #endregion
 
+    #region Facing Direction
+
+    protected FacingDirection ComputeFacingDirection(Vector2 dir)
+    {
+        if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.y))
+            return dir.x >= 0f ? FacingDirection.East : FacingDirection.West;
+        return dir.y >= 0f ? FacingDirection.North : FacingDirection.South;
+    }
+
+    public Vector2 FacingDirectionToVector(FacingDirection dir) => dir switch
+    {
+        FacingDirection.East  => Vector2.right,
+        FacingDirection.West  => Vector2.left,
+        FacingDirection.North => Vector2.up,
+        _                     => Vector2.down
+    };
+
+    // Rotate a +East offset to match whatever direction we're currently facing.
+    protected Vector2 RotateOffsetToFacing(Vector2 eastOffset) => facingDirection switch
+    {
+        FacingDirection.East  => eastOffset,
+        FacingDirection.West  => new Vector2(-eastOffset.x,  eastOffset.y),
+        FacingDirection.North => new Vector2( eastOffset.y,  eastOffset.x),
+        FacingDirection.South => new Vector2( eastOffset.y, -eastOffset.x),
+        _                     => eastOffset
+    };
+
+    // Swap width/height when the attack is going vertically.
+    protected Vector2 RotateSizeToFacing(Vector2 size)
+    {
+        bool vertical = facingDirection == FacingDirection.North || facingDirection == FacingDirection.South;
+        return vertical ? new Vector2(size.y, size.x) : size;
+    }
+
+    #endregion
+
+    #region Combat Slots
+
+    private static readonly Vector2[] SlotOffsets =
+    {
+        Vector2.up,
+        Vector2.right,
+        Vector2.down,
+        Vector2.left
+    };
+
+    /// <summary>
+    /// Tries to reserve the closest free melee slot on this character for the given claimer.
+    /// Returns true and the world-space slot position if successful.
+    /// </summary>
+    public bool TryClaimSlot(CharacterBase claimer, out Vector2 slotWorldPos)
+    {
+        slotWorldPos = Vector2.zero;
+        ReleaseSlot(claimer); // clear any previous claim by this claimer
+
+        int best = -1;
+        float bestDist = Mathf.Infinity;
+        for (int i = 0; i < 4; i++)
+        {
+            if (_slotOccupants[i] != null) continue;
+            Vector2 wp = (Vector2)transform.position + SlotOffsets[i] * slotDistance;
+            float d = Vector2.Distance(claimer.transform.position, wp);
+            if (d < bestDist) { bestDist = d; best = i; }
+        }
+
+        if (best == -1) return false;
+
+        _slotOccupants[best] = claimer;
+        slotWorldPos = (Vector2)transform.position + SlotOffsets[best] * slotDistance;
+        return true;
+    }
+
+    public void ReleaseSlot(CharacterBase claimer)
+    {
+        for (int i = 0; i < 4; i++)
+            if (_slotOccupants[i] == claimer) _slotOccupants[i] = null;
+    }
+
+    /// <summary>
+    /// Returns the current world-space position of this claimer's reserved slot,
+    /// tracking the host's movement each frame.
+    /// </summary>
+    public Vector2 GetSlotWorldPos(CharacterBase claimer)
+    {
+        for (int i = 0; i < 4; i++)
+            if (_slotOccupants[i] == claimer)
+                return (Vector2)transform.position + SlotOffsets[i] * slotDistance;
+        return (Vector2)transform.position;
+    }
+
+    #endregion
+
+    #region Knockback
+
+    // Reference-counted movement lock — safe to call from overlapping coroutines
+    private void Immobilize()
+    {
+        _immobilizeCount++;
+        canMove = false;
+    }
+
+    private void Unimmobilize()
+    {
+        _immobilizeCount = Mathf.Max(0, _immobilizeCount - 1);
+        if (_immobilizeCount == 0)
+            canMove = true;
+    }
+
+    private void ApplyKnockback(CharacterBase target, Vector2 sourcePosition)
+    {
+        var targetRb = target.GetComponent<Rigidbody2D>();
+        if (targetRb == null) return;
+
+        Vector2 dir = ((Vector2)target.transform.position - sourcePosition).normalized;
+        if (dir.sqrMagnitude < 0.001f) dir = FacingDirectionToVector(facingDirection);
+
+        // Run on target so the coroutine survives if the attacker is destroyed mid-flight
+        target.StartCoroutine(target.KnockbackCoroutine(targetRb, knockbackForce, knockbackDuration, dir));
+    }
+
+    internal System.Collections.IEnumerator KnockbackCoroutine(Rigidbody2D rb, float force, float duration, Vector2 direction)
+    {
+        Immobilize();
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            rb.MovePosition(rb.position + direction * force * Time.fixedDeltaTime);
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+
+        Unimmobilize();
+    }
+
+    #endregion
+
     #region Debug
 
     protected virtual void OnDrawGizmosSelected()
@@ -896,6 +1046,10 @@ public class CharacterBase : MonoBehaviour
             Gizmos.color = Color.red;
             Gizmos.DrawWireCube(currentHitboxPos, currentHitboxSize);
         }
+
+        // Draw facing direction arrow
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(transform.position, (Vector2)transform.position + FacingDirectionToVector(facingDirection) * 0.5f);
 
         // Visualize obstacle check distance
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Orange

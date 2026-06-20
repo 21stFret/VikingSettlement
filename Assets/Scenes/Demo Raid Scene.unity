@@ -92519,6 +92519,7 @@ GameObject:
   - component: {fileID: 755482534}
   - component: {fileID: 755482535}
   - component: {fileID: 755482536}
+  - component: {fileID: 755482537}
   m_Layer: 0
   m_Name: Game Managers
   m_TagString: Untagged
@@ -92679,6 +92680,20 @@ MonoBehaviour:
   winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
   summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
   fireController: {fileID: 0}
+--- !u!114 &755482537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755482530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c6b3c6d4c3d13488694b366f5cd2cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ValkyrieManager
+  valkyrieEffectPrefab: {fileID: 816725256714647730, guid: 2356d05da63d15f4b99a85e1fc61fdb3, type: 3}
+  valkyrieEffectRef: {fileID: 0}
 --- !u!4 &756562262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 490618974392446098, guid: 9885f45d31777c3478463082f11f1391, type: 3}
@@ -113634,6 +113649,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -140242,6 +140258,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -201985,6 +202002,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -266367,6 +266385,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

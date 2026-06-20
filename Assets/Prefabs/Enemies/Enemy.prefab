@@ -11131,7 +11131,7 @@ MonoBehaviour:
   enemyName: Raider
   enemyType: 5
   damage: 2
-  attackRange: 2
+  attackRange: 1.5
   attackCooldown: 1.5
   detectionRange: 10
   weaponName: DSword
@@ -11171,6 +11171,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
+  use4DirectionalSprites: 0
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
   axeAttackSize: {x: 1, y: 1}
@@ -11199,6 +11200,10 @@ MonoBehaviour:
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
+  facingDirection: 3
+  slotDistance: 0.8
+  knockbackForce: 5
+  knockbackDuration: 0.1
 --- !u!114 &6713158499483296687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11219,6 +11224,7 @@ MonoBehaviour:
   targetNearestVillager: 1
   pursueTarget: 1
   faceTargetWhileAttacking: 1
+  useCombatSlots: 0
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:

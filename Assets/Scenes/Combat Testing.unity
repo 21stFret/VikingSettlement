@@ -7046,6 +7046,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shield
       objectReference: {fileID: 0}
+    - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -67066,6 +67070,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shield (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -88398,6 +88406,7 @@ GameObject:
   - component: {fileID: 755482536}
   - component: {fileID: 755482537}
   - component: {fileID: 755482538}
+  - component: {fileID: 755482539}
   m_Layer: 0
   m_Name: Game Managers
   m_TagString: Untagged
@@ -88585,6 +88594,20 @@ MonoBehaviour:
   mainMenuSceneName: MainMenu
   gameSceneName: Combat Testing
   IsGameActive: 1
+--- !u!114 &755482539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755482530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c6b3c6d4c3d13488694b366f5cd2cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ValkyrieManager
+  valkyrieEffectPrefab: {fileID: 816725256714647730, guid: 2356d05da63d15f4b99a85e1fc61fdb3, type: 3}
+  valkyrieEffectRef: {fileID: 0}
 --- !u!4 &756562262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 490618974392446098, guid: 9885f45d31777c3478463082f11f1391, type: 3}
@@ -109025,6 +109048,21 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -134795,6 +134833,21 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -197255,6 +197308,21 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258375,6 +258443,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
+  use4DirectionalSprites: 0
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
   axeAttackSize: {x: 1, y: 1}
@@ -258403,6 +258472,10 @@ MonoBehaviour:
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
+  facingDirection: 3
+  slotDistance: 0.8
+  knockbackForce: 5
+  knockbackDuration: 0.1
 --- !u!1 &694254386365165420
 GameObject:
   m_ObjectHideFlags: 0
@@ -259007,6 +259080,21 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -265876,6 +265964,7 @@ MonoBehaviour:
   targetNearestVillager: 1
   pursueTarget: 1
   faceTargetWhileAttacking: 1
+  useCombatSlots: 0
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:
@@ -266130,7 +266219,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1001 &7736565709177275958
 PrefabInstance:
   m_ObjectHideFlags: 0

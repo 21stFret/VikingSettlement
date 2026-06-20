@@ -96,6 +96,7 @@ public class VillagerController : CharacterBase
         if (target != null && villagerData != null)
         {
             if (target.IsDead()) return;
+            if (isRolling) return;
 
             float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;

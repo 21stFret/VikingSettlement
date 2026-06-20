@@ -17,6 +17,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private bool targetNearestVillager = true;
     [SerializeField] private bool pursueTarget = true;
     [SerializeField] private bool faceTargetWhileAttacking = true;
+    [SerializeField] private bool useCombatSlots = false;
     [SerializeField] private float pursuitRange = 15f; // How far to chase before giving up
     [SerializeField] private float loseTargetTime = 3f; // Time before losing interest
 
@@ -34,6 +35,10 @@ public class EnemyAI : MonoBehaviour
     private float targetLostTimer = 0f;
 
     private AIState currentState = AIState.Idle;
+
+    // Combat slot tracking
+    private CharacterBase _currentSlotHost;
+    private Vector2 _claimedSlotPos;
 
     private enum AIState
     {
@@ -97,44 +102,44 @@ public class EnemyAI : MonoBehaviour
 
     private void UpdateTargetSearch()
     {
-        // Don't search for new targets while attacking
         if (currentState == AIState.Attacking) return;
 
-        // Find nearest villager
+        // When slots are active and we've been redirected to a specific target, keep it
+        // unless that target is gone — don't let nearest-villager logic override the redirect
+        if (useCombatSlots && _currentSlotHost != null)
+        {
+            var slotVillager = _currentSlotHost.GetComponent<Villager>();
+            bool hostAlive = slotVillager != null && !slotVillager.IsDead();
+            if (hostAlive) return;
+            ReleaseCurrentSlot();
+        }
+
         currentTarget = FindNearestVillager();
 
         if (currentTarget != null)
         {
             float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
 
-            // Check if target is in detection range
             if (distanceToTarget <= enemyData.GetDetectionRange())
             {
                 targetLostTimer = 0f;
-
-                // Check if in attack range
-                if (distanceToTarget <= enemyData.GetAttackRange())
-                {
-                    currentState = AIState.Attacking;
-                }
-                else if (currentState != AIState.Attacking)
-                {
+                // State transitions (including Chasing→Attacking) are handled by state handlers
+                if (currentState != AIState.Chasing && currentState != AIState.Attacking)
                     currentState = AIState.Chasing;
-                }
             }
             else if (currentState == AIState.Chasing && distanceToTarget > pursuitRange)
             {
-                // Target too far, lose interest
+                ReleaseCurrentSlot();
                 currentTarget = null;
                 currentState = AIState.Returning;
             }
         }
         else if (currentState == AIState.Chasing || currentState == AIState.Attacking)
         {
-            // Lost target
             targetLostTimer += updateInterval;
             if (targetLostTimer >= loseTargetTime)
             {
+                ReleaseCurrentSlot();
                 currentTarget = null;
                 currentState = AIState.Searching;
             }
@@ -189,6 +194,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (currentTarget == null || currentTarget.GetComponent<Villager>() == null || !pursueTarget)
         {
+            ReleaseCurrentSlot();
             currentState = AIState.Searching;
             return;
         }
@@ -197,21 +203,47 @@ public class EnemyAI : MonoBehaviour
         var villager = currentTarget.GetComponent<Villager>();
         if (villager != null && villager.IsDead())
         {
+            ReleaseCurrentSlot();
             currentTarget = null;
             currentState = AIState.Searching;
             return;
         }
 
-        // Move towards target
-        controller.SetMoveSpeed(enemyData.chaseSpeed);
-        controller.MoveTo(currentTarget.position);
-
-        // Check if close enough to attack
-        float distance = Vector2.Distance(transform.position, currentTarget.position);
-        if (distance <= enemyData.GetAttackRange())
+        // Claim or refresh slot on the target (only when toggled on)
+        if (useCombatSlots)
         {
-            currentState = AIState.Attacking;
-            controller.Stop();
+            var targetCB = currentTarget.GetComponent<CharacterBase>();
+            if (targetCB != null && _currentSlotHost != targetCB)
+                TryClaimEngagementSlot(targetCB);
+        }
+
+        // Move towards slot position (when slots active) or directly to target
+        Vector2 destination;
+        if (useCombatSlots && _currentSlotHost != null)
+        {
+            destination = _currentSlotHost.GetSlotWorldPos(controller);
+            controller.SetMoveSpeed(enemyData.chaseSpeed);
+            controller.MoveTo(destination);
+
+            // Enter attack state only when standing at the slot, not just near the target
+            if (Vector2.Distance(transform.position, destination) <= 0.35f)
+            {
+                currentState = AIState.Attacking;
+                controller.Stop();
+            }
+        }
+        else
+        {
+            destination = (Vector2)currentTarget.position;
+            controller.SetMoveSpeed(enemyData.chaseSpeed);
+            controller.MoveTo(destination);
+
+            float distance = Vector2.Distance(transform.position, currentTarget.position);
+            if (distance <= enemyData.GetAttackRange())
+            {
+                currentState = AIState.Attacking;
+                controller.Stop();
+            }
         }
     }
 
@@ -219,6 +251,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (currentTarget == null)
         {
+            ReleaseCurrentSlot();
             currentState = AIState.Searching;
             return;
         }
@@ -227,24 +260,36 @@ public class EnemyAI : MonoBehaviour
         var villager = currentTarget.GetComponent<Villager>();
         if (villager != null && villager.currentLifeStage == LifeStage.Dead)
         {
+            ReleaseCurrentSlot();
             currentTarget = null;
             currentState = AIState.Searching;
             return;
         }
 
-        float distance = Vector2.Distance(transform.position, currentTarget.position);
-
-        // If target moved out of range, chase again
-        if (distance > enemyData.GetAttackRange())
+        if (useCombatSlots && _currentSlotHost != null)
         {
-            currentState = AIState.Chasing;
-            return;
+            // Stay at the slot; face and attack from there
+            Vector2 slotPos = _currentSlotHost.GetSlotWorldPos(controller);
+            if (Vector2.Distance(transform.position, slotPos) > 0.5f)
+            {
+                // Drifted off the slot — return to Chasing to reposition
+                currentState = AIState.Chasing;
+                return;
+            }
+        }
+        else
+        {
+            float distance = Vector2.Distance(transform.position, currentTarget.position);
+            if (distance > enemyData.GetAttackRange())
+            {
+                currentState = AIState.Chasing;
+                return;
+            }
         }
 
         if (faceTargetWhileAttacking)
             controller.FaceTowards(currentTarget.position);
 
-        // Perform attack
         if (!controller.IsAttacking())
         {
             controller.Attack();
@@ -359,6 +404,43 @@ public class EnemyAI : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    // ── Combat Slot Helpers ───────────────────────────────────────────────────
+
+    private void TryClaimEngagementSlot(CharacterBase target)
+    {
+        if (target.TryClaimSlot(controller, out _claimedSlotPos))
+        {
+            _currentSlotHost = target;
+            return;
+        }
+
+        // All slots on this target are occupied — find another nearby enemy with a free slot
+        Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, enemyData.GetDetectionRange(), controller.attackTargetLayer);
+        foreach (var col in nearby)
+        {
+            var cb = col.GetComponent<CharacterBase>();
+            if (cb == null || cb == target || cb.characterFaction == Faction.Enemy) continue;
+            if (cb.TryClaimSlot(controller, out _claimedSlotPos))
+            {
+                _currentSlotHost = cb;
+                currentTarget = col.transform;
+                return;
+            }
+        }
+        // All slots full — stay in place, retry next update
+    }
+
+    private void ReleaseCurrentSlot()
+    {
+        _currentSlotHost?.ReleaseSlot(controller);
+        _currentSlotHost = null;
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseCurrentSlot();
     }
 
     /// <summary>

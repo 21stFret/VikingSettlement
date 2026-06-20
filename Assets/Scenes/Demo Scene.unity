@@ -1854,6 +1854,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &9725947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10112,6 +10115,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &38778626
 GameObject:
   m_ObjectHideFlags: 0
@@ -15194,6 +15200,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &82335573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16944,6 +16953,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -33242,6 +33254,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &214762316
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43385,6 +43400,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -116791,6 +116809,68 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1001 &329201177
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 636955961}
+    m_Modifications:
+    - target: {fileID: 1666753914516908280, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_Name
+      value: Torch (5)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -18.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -7.09
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+--- !u!4 &329201178 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+  m_PrefabInstance: {fileID: 329201177}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &329827331
 GameObject:
   m_ObjectHideFlags: 0
@@ -117956,6 +118036,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -123013,6 +123096,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -130876,6 +130962,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &424258858
 GameObject:
   m_ObjectHideFlags: 0
@@ -131004,6 +131093,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -139965,6 +140057,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -153860,6 +153955,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &511262754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159651,6 +159749,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &542908672
 GameObject:
   m_ObjectHideFlags: 0
@@ -160963,6 +161064,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -168248,6 +168352,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &600814701
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -170018,6 +170125,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &609685258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -170370,7 +170480,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1344878171}
+    m_TransformParent: {fileID: 636955961}
     m_Modifications:
     - target: {fileID: 1666753914516908280, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
       propertyPath: m_Name
@@ -174223,6 +174333,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &633749599
 Mesh:
   m_ObjectHideFlags: 0
@@ -174641,6 +174754,43 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 399cbd10d29b6174390f5fc0bf9582a1, type: 3}
+--- !u!1 &636955960
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 636955961}
+  m_Layer: 2
+  m_Name: Torches
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &636955961
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 636955960}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1564514206}
+  - {fileID: 1437695986}
+  - {fileID: 379556526}
+  - {fileID: 329201178}
+  - {fileID: 5584409420839690095}
+  - {fileID: 2044673000}
+  m_Father: {fileID: 1344878171}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &639487000 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 4060750634970403037, guid: 07d328f8ba0220b469b2197d10d87de6, type: 3}
@@ -176964,6 +177114,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -180399,6 +180552,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -186638,6 +186794,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &743379648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189306,7 +189465,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1344878171}
+    m_TransformParent: {fileID: 636955961}
     m_Modifications:
     - target: {fileID: 1666753914516908280, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
       propertyPath: m_Name
@@ -192563,6 +192722,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &785008076
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -193772,6 +193934,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -200471,6 +200636,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &837153265
 Transform:
   m_ObjectHideFlags: 0
@@ -203913,6 +204081,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &855292582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204725,6 +204896,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -208194,7 +208368,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1344878171}
+    m_TransformParent: {fileID: 636955961}
     m_Modifications:
     - target: {fileID: 1666753914516908280, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
       propertyPath: m_Name
@@ -221913,6 +222087,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &955865862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223174,6 +223351,46 @@ MonoBehaviour:
     enemyPrefabs:
     - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
     spawnAll: 0
+    potentialLoot:
+    - resourceType: 2
+      amount: 50
+    - resourceType: 3
+      amount: 20
+    - resourceType: 4
+      amount: 30
+  - destinationName: Hard Raid
+    sceneName: Demo Raid Scene
+    description: A Real Fight!
+    timeDilationMultiplier: 1
+    realTimeLimit: 120
+    maxGameDays: 2
+    recommendedPartySize: 4
+    enemyCount: 6
+    enemyPrefabs:
+    - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
+    - {fileID: 7555521055352246155, guid: 33afecf654bf63d47a7fe68c430a33bd, type: 3}
+    - {fileID: 7555521055352246155, guid: 9caff1a25afa72849a53dbc823e16878, type: 3}
+    spawnAll: 0
+    potentialLoot:
+    - resourceType: 2
+      amount: 50
+    - resourceType: 3
+      amount: 20
+    - resourceType: 4
+      amount: 30
+  - destinationName: Time Loop Raid
+    sceneName: Demo Raid Scene
+    description: The smae fight every time!
+    timeDilationMultiplier: 2
+    realTimeLimit: 120
+    maxGameDays: 4
+    recommendedPartySize: 3
+    enemyCount: 6
+    enemyPrefabs:
+    - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
+    - {fileID: 7555521055352246155, guid: 33afecf654bf63d47a7fe68c430a33bd, type: 3}
+    - {fileID: 7555521055352246155, guid: 9caff1a25afa72849a53dbc823e16878, type: 3}
+    spawnAll: 1
     potentialLoot:
     - resourceType: 2
       amount: 50
@@ -225609,6 +225826,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &977151070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -226159,6 +226379,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -236025,6 +236248,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &1059232632
 Mesh:
   m_ObjectHideFlags: 0
@@ -237747,6 +237973,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -241701,6 +241930,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &1069858385
 Mesh:
   m_ObjectHideFlags: 0
@@ -242062,6 +242294,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -247242,6 +247477,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1101334887
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -247709,6 +247947,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -250571,6 +250812,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -268774,6 +269018,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1173293444
 GameObject:
   m_ObjectHideFlags: 0
@@ -274130,6 +274377,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1205348657
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -276007,6 +276257,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -283041,6 +283294,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1277438704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288296,6 +288552,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1320325865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290273,11 +290532,7 @@ Transform:
   - {fileID: 1671736636}
   - {fileID: 1271839033}
   - {fileID: 69051888}
-  - {fileID: 1564514206}
-  - {fileID: 1437695986}
-  - {fileID: 379556526}
-  - {fileID: 5584409420839690095}
-  - {fileID: 2044673000}
+  - {fileID: 636955961}
   - {fileID: 597662811}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -291460,6 +291715,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -294815,6 +295073,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1359363588
 Transform:
   m_ObjectHideFlags: 0
@@ -295385,6 +295646,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -299294,6 +299558,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -310415,6 +310682,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &1476669772
 Mesh:
   m_ObjectHideFlags: 0
@@ -310977,6 +311247,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -323633,6 +323906,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -344229,6 +344505,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1770333523
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -350335,6 +350614,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1811403899
 Transform:
   m_ObjectHideFlags: 0
@@ -354512,6 +354794,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1838405234
 Transform:
   m_ObjectHideFlags: 0
@@ -357430,6 +357715,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -365571,6 +365859,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1934768974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -365991,6 +366282,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -368598,6 +368892,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -379748,6 +380045,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1992254464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386986,6 +387286,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -395234,6 +395537,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &2076587748
 GameObject:
   m_ObjectHideFlags: 0
@@ -397215,6 +397521,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -402406,6 +402715,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &2113583478 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2447677635343834281, guid: 3a8e7d60107d1b44bae064d92810f5b7, type: 3}
@@ -403012,6 +403324,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -404710,6 +405025,9 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -409682,6 +410000,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &581190750838295958
 GameObject:
   m_ObjectHideFlags: 0
@@ -410595,7 +410916,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6801245223655834591, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 47
+      value: 48
       objectReference: {fileID: 0}
     - target: {fileID: 6801245223655834591, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[2]'
@@ -410775,6 +411096,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6801245223655834591, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[46]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6801245223655834591, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[47]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8304187354935667076, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
@@ -412387,7 +412712,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 41
+      value: 42
       objectReference: {fileID: 0}
     - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -412551,6 +412876,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[40]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[41]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5767284595684287826, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
@@ -413970,6 +414299,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &3923939012529434196
 GameObject:
   m_ObjectHideFlags: 0
@@ -414007,7 +414339,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 1344878171}
+    m_TransformParent: {fileID: 636955961}
     m_Modifications:
     - target: {fileID: 1666753914516908280, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
       propertyPath: m_Name
@@ -414267,7 +414599,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 41
+      value: 42
       objectReference: {fileID: 0}
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[39]'
@@ -414275,6 +414607,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[40]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[41]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1212233240117381181, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
@@ -415022,7 +415358,7 @@ Transform:
   - {fileID: 173499799}
   - {fileID: 8929117586474100282}
   - {fileID: 5902395605484041281}
-  m_Father: {fileID: 1344878171}
+  m_Father: {fileID: 636955961}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5749160162549471096
 GameObject:
@@ -421561,7 +421897,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 46
+      value: 47
       objectReference: {fileID: 0}
     - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[5]'
@@ -421725,6 +422061,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[45]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[46]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6770491685014209469, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}

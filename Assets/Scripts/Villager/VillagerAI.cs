@@ -57,6 +57,10 @@ public class VillagerAI : MonoBehaviour
     private Transform currentThreat; // Current enemy target
     private float threatCheckTimer = 0f;
 
+    // Combat slot tracking
+    private CharacterBase _currentSlotHost;
+    private Vector2 _claimedSlotPos;
+
     private float idleTimer = 0f;
     private float nextIdleTime;
     private AIState currentState = AIState.Idle;
@@ -365,6 +369,7 @@ public class VillagerAI : MonoBehaviour
         var enemy = currentThreat.GetComponent<Enemy>();
         if (enemy == null || enemy.IsDead())
         {
+            ReleaseCurrentSlot();
             currentThreat = null;
             currentState = isInRaidMode ? AIState.Following : AIState.Idle;
             return;
@@ -382,34 +387,53 @@ public class VillagerAI : MonoBehaviour
         // Calculate distance to threat
         float distanceToThreat = Vector2.Distance(transform.position, currentThreat.position);
 
-        // If in attack range, stop and attack
-        if (distanceToThreat <= combatEngageRange && controller.weapon != null)
+        // Claim a slot on the threat (release the old one first if target changed)
+        var threatCB = currentThreat.GetComponent<CharacterBase>();
+        if (threatCB != null && _currentSlotHost != threatCB)
         {
-            controller.Stop();
-            controller.Attack();
+            ReleaseCurrentSlot();
+            TryClaimEngagementSlot(threatCB);
         }
-        else if (distanceToThreat > combatEngageRange)
-        {
-            // Approach the threat but offset by separation so allies spread around the target
-            Vector2 approachTarget = (Vector2)currentThreat.position + GetSeparationForce() * separationStrength;
-            controller.MoveTo(approachTarget);
 
-            /*
-            // Move towards threat if combat job, otherwise flee
-            if (IsCombatJob())
+        // Move to slot position (if claimed) and only attack once standing at the slot
+        if (_currentSlotHost != null)
+        {
+            Vector2 slotPos = _currentSlotHost.GetSlotWorldPos(controller);
+            float distToSlot = Vector2.Distance(transform.position, slotPos);
+
+            if (distToSlot <= 0.35f)
             {
-                controller.MoveTo(currentThreat.position);
+                if (controller.weapon != null)
+                {
+                    controller.Stop();
+                    controller.FaceTowards(currentThreat.position);
+                    controller.Attack();
+                }
             }
             else
             {
-                currentState = AIState.Fleeing;
+                controller.MoveTo(slotPos);
             }
-            */
+        }
+        else
+        {
+            // Slot claim failed (all full) — direct engagement as fallback
+            if (distanceToThreat <= combatEngageRange && controller.weapon != null)
+            {
+                controller.Stop();
+                controller.FaceTowards(currentThreat.position);
+                controller.Attack();
+            }
+            else
+            {
+                controller.MoveTo((Vector2)currentThreat.position);
+            }
         }
 
         // If threat is too far, stop engaging
         if (distanceToThreat > threatDetectionRange * 1.5f)
         {
+            ReleaseCurrentSlot();
             currentThreat = null;
             currentState = isInRaidMode ? AIState.Following : AIState.Idle;
         }
@@ -579,6 +603,43 @@ public class VillagerAI : MonoBehaviour
             force += away.normalized * scale;
         }
         return force;
+    }
+
+    // ── Combat Slot Helpers ───────────────────────────────────────────────────
+
+    private void TryClaimEngagementSlot(CharacterBase target)
+    {
+        if (target.TryClaimSlot(controller, out _claimedSlotPos))
+        {
+            _currentSlotHost = target;
+            return;
+        }
+
+        // All slots on this target are occupied — find another nearby enemy with a free slot
+        Collider2D[] nearby = Physics2D.OverlapCircleAll(transform.position, threatDetectionRange, LayerMask.GetMask("Enemy"));
+        foreach (var col in nearby)
+        {
+            var cb = col.GetComponent<CharacterBase>();
+            if (cb == null || cb == target || cb.characterFaction == Faction.Player) continue;
+            if (cb.TryClaimSlot(controller, out _claimedSlotPos))
+            {
+                _currentSlotHost = cb;
+                currentThreat = col.transform;
+                return;
+            }
+        }
+        // All slots full — hold position, retry next update
+    }
+
+    private void ReleaseCurrentSlot()
+    {
+        _currentSlotHost?.ReleaseSlot(controller);
+        _currentSlotHost = null;
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseCurrentSlot();
     }
 
     private void CheckForThreats()
