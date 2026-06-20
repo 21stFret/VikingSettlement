@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class RaidUI : MonoBehaviour
 {
-    public RaidManager raidManager;
+    private RaidManager raidManager;
     public List<RaidOptionItemUI> raidOptionItems;
     public GameObject raidUIPanel;
     public TMP_Text raidAmountText;
@@ -18,10 +18,7 @@ public class RaidUI : MonoBehaviour
 
     private void Start()
     {
-        if (raidManager == null)
-        {
-            raidManager = RaidManager.Instance;
-        }
+        
         raidUIPanel.SetActive(false);
         closeButton.onClick.AddListener(() => CloseRaidUI());
 
@@ -31,13 +28,14 @@ public class RaidUI : MonoBehaviour
             raidPartyUI = GetComponentInChildren<RaidPartyUI>(true);
             if (raidPartyUI == null)
             {
-                raidPartyUI = FindFirstObjectByType<RaidPartyUI>();
+                raidPartyUI = FindAnyObjectByType<RaidPartyUI>();
             }
         }
     }
 
     public void OpenRaidUI()
     {
+        raidManager = RaidManager.Instance;
         raidUIPanel.SetActive(true);
         PopulateRaidOptions();
         raidAmountText.text = "Available Raids: " + raidManager.GetAvailableRaids().Count.ToString();

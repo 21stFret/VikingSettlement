@@ -23,7 +23,7 @@ MonoBehaviour:
   maxWorkers: 2
   productionType: 0
   producedResource: 2
-  productionRate: 2
+  productionRate: 0.5
   productionAmount: 4
   craftingRecipe:
     inputResources: []

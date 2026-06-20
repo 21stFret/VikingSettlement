@@ -29,7 +29,9 @@ public class VillagerWorkerItem : MonoBehaviour
 
         UpdateDisplay();
 
-        if(isAssignedItem)
+        assignButton.onClick.RemoveAllListeners();
+
+        if (isAssignedItem)
         {
             assignButton.onClick.AddListener(OnAssignClicked);
         }

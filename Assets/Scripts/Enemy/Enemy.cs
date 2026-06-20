@@ -1,6 +1,7 @@
-using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Enemy : TargetHealth
 {
@@ -13,6 +14,8 @@ public class Enemy : TargetHealth
     public float attackRange = 1.5f;
     public float attackCooldown = 1.5f;
     public float detectionRange = 10f;
+    public string weaponName="";
+    public string shieldName="";
 
     [Header("Movement")]
     public float moveSpeed = 1.5f;
@@ -34,6 +37,8 @@ public class Enemy : TargetHealth
     private Material materialInstance;
     private Color originalColor;
     public EnemyPersonalUI personalUI;
+
+    private bool initalized;
 
     public enum EnemyType
     {
@@ -64,9 +69,35 @@ public class Enemy : TargetHealth
         InitializeEnemyStats();
     }
 
-    private void InitializeEnemyStats()
+    public void InitializeEnemyStats()
     {
+        if (initalized)
+            return;
+
+        initalized = true;
         currentHealth = maxHealth;
+
+        var ia = GetComponent<ItemAttachment>();
+        if (ia != null)
+        {
+            if(weaponName != null || weaponName != "")
+            {
+                ia.GiveWeaponByName(weaponName);
+            }
+            else
+            {
+                ia.GiveRandomWeapon();
+            }
+
+            if (shieldName != null || shieldName!="")
+            {
+                ia.GiveShieldByName(shieldName);
+            }
+            else
+            {
+                ia.GiveRandomShield();
+            }
+        }
     }
 
     /// <summary>
@@ -112,6 +143,7 @@ public class Enemy : TargetHealth
 
     public override void Die()
     {
+        if (isDead) return;
         base.Die();
 
         if (_controller != null)
@@ -126,7 +158,7 @@ public class Enemy : TargetHealth
         }
 
         // Drop loot
-        if (Random.value < lootChance)
+        if (UnityEngine.Random.value < lootChance)
         {
             DropLoot();
         }

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterBase))]
 [RequireComponent(typeof(Enemy))]
 public class EnemyAI : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     [Header("Combat Settings")]
     [SerializeField] private bool targetNearestVillager = true;
     [SerializeField] private bool pursueTarget = true;
+    [SerializeField] private bool faceTargetWhileAttacking = true;
     [SerializeField] private float pursuitRange = 15f; // How far to chase before giving up
     [SerializeField] private float loseTargetTime = 3f; // Time before losing interest
 
@@ -186,7 +187,7 @@ public class EnemyAI : MonoBehaviour
 
     private void HandleChasingState()
     {
-        if (currentTarget == null || currentTarget.GetComponent<Villager>() == null)
+        if (currentTarget == null || currentTarget.GetComponent<Villager>() == null || !pursueTarget)
         {
             currentState = AIState.Searching;
             return;
@@ -194,7 +195,7 @@ public class EnemyAI : MonoBehaviour
 
         // Check if target is dead
         var villager = currentTarget.GetComponent<Villager>();
-        if (villager != null && villager.currentLifeStage == LifeStage.Dead)
+        if (villager != null && villager.IsDead())
         {
             currentTarget = null;
             currentState = AIState.Searching;
@@ -240,9 +241,8 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // Face the target
-        Vector2 direction = (currentTarget.position - transform.position).normalized;
-        // The animation system will handle sprite flipping
+        if (faceTargetWhileAttacking)
+            controller.FaceTowards(currentTarget.position);
 
         // Perform attack
         if (!controller.IsAttacking())
@@ -286,6 +286,7 @@ public class EnemyAI : MonoBehaviour
 
         // Find nearest
         Transform nearest = null;
+        Transform random = null;
         float nearestDistance = Mathf.Infinity;
 
         if (aliveVillagers.Count == 1)
@@ -293,8 +294,9 @@ public class EnemyAI : MonoBehaviour
             return aliveVillagers[0].transform;
         }
             
-        foreach (var villager in aliveVillagers)
+        for(int i =0; i< aliveVillagers.Count; i++)
         {
+            var villager = aliveVillagers[i];
             float distance = Vector2.Distance(transform.position, villager.transform.position);
 
             if (distance < nearestDistance)
@@ -304,7 +306,16 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        return nearest;
+        random = aliveVillagers[Random.Range(0, aliveVillagers.Count - 1)].transform;
+
+        if(targetNearestVillager)
+        {
+            return nearest;
+        }
+        else
+        {
+            return random;
+        }
     }
 
     private void WanderToRandomPoint()

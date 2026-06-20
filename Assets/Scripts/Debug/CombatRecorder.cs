@@ -36,12 +36,6 @@ public class CombatRecorder : MonoBehaviour
     [Tooltip("Child Camera of the Main Camera. The recorder sets its targetTexture and calls Render() manually — leave it disabled in the Inspector.")]
     [SerializeField] private Camera captureCamera;
 
-    [Header("Combat-End Detection")]
-    [Tooltip("Seconds to wait for enemies to appear before giving up.")]
-    [SerializeField] private float enemyWaitTimeout = 30f;
-    [Tooltip("Seconds between each 'are enemies dead yet?' check.")]
-    [SerializeField] private float pollInterval = 0.5f;
-
     // ── Public API ─────────────────────────────────────────────────────────────
 
     /// <summary>True once <see cref="StopRecording"/> has been called and the frame list is ready.</summary>
@@ -56,7 +50,6 @@ public class CombatRecorder : MonoBehaviour
 
     private readonly List<byte[]> _frames = new List<byte[]>();
     private Coroutine _captureCoroutine;
-    private Coroutine _watchCoroutine;
 
     // Reused GPU/CPU texture resources — allocated once, kept for the session.
     private RenderTexture _renderTex;
@@ -81,15 +74,17 @@ public class CombatRecorder : MonoBehaviour
     private void Start()
     {
         AllocateTextures();
+        if (RaidManager.Instance != null)
+            RaidManager.Instance.OnRaidEnded += HandleRaidEnded;
         StartRecording();
-        _watchCoroutine = StartCoroutine(WatchForCombatEnd());
     }
 
     private void OnDestroy()
     {
+        if (RaidManager.Instance != null)
+            RaidManager.Instance.OnRaidEnded -= HandleRaidEnded;
         if (captureCamera != null) captureCamera.targetTexture = null;
         if (_renderTex != null) _renderTex.Release();
-        // Texture2D objects will be GC'd; explicit Destroy keeps memory tidy.
         if (_readbackTex != null) Destroy(_readbackTex);
         if (_decodeTex   != null) Destroy(_decodeTex);
         if (Instance == this)    Instance = null;
@@ -186,62 +181,10 @@ public class CombatRecorder : MonoBehaviour
         _frames.Add(_readbackTex.EncodeToJPG(jpegQuality));
     }
 
-    // ── Combat-end watcher ─────────────────────────────────────────────────────
+    // ── Combat-end handler ─────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Phase 1: waits up to <see cref="enemyWaitTimeout"/> seconds for any enemy to appear.
-    /// Phase 2: waits until every enemy reports <c>IsDead() == true</c>.
-    /// Then calls <see cref="StopRecording"/>.
-    /// </summary>
-    private IEnumerator WatchForCombatEnd()
+    private void HandleRaidEnded(RaidReport report)
     {
-        // ── Phase 1: wait for enemies to exist ──
-        float elapsed = 0f;
-        Enemy[] enemies;
-
-        while (true)
-        {
-            enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
-            if (enemies.Length > 0) break;
-
-            elapsed += pollInterval;
-            if (elapsed >= enemyWaitTimeout)
-            {
-                Debug.LogWarning("[CombatRecorder] No enemies found within timeout. Recording will continue until manually stopped.");
-                yield break;
-            }
-
-            yield return new WaitForSeconds(pollInterval);
-        }
-
-        Debug.Log($"[CombatRecorder] Detected {enemies.Length} enemies. Watching for combat end.");
-
-        // ── Phase 2: wait until all enemies are dead ──
-        while (true)
-        {
-            yield return new WaitForSeconds(pollInterval);
-
-            // Refresh list each poll — new enemies may have spawned.
-            enemies = FindObjectsByType<Enemy>(FindObjectsSortMode.None);
-
-            if (enemies.Length == 0)
-                break; // All destroyed (shouldn't normally happen, but safe)
-
-            bool allDead = true;
-            foreach (var e in enemies)
-            {
-                if (e != null && !e.IsDead())
-                {
-                    allDead = false;
-                    break;
-                }
-            }
-
-            if (allDead) break;
-        }
-
-        yield return new WaitForSeconds(1f); // Optional buffer to capture post-death animations/effects
-
         StopRecording();
     }
 

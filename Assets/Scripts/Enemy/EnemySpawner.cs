@@ -169,7 +169,7 @@ public class EnemySpawner : MonoBehaviour
     private bool IsValidSpawnPosition(Vector2 position)
     {
         // Check distance from all villagers
-        Villager[] villagers = FindObjectsOfType<Villager>();
+        Villager[] villagers = FindObjectsByType<Villager>();
 
         foreach (var villager in villagers)
         {

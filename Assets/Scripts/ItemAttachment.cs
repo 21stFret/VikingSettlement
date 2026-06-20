@@ -53,13 +53,49 @@ public class ItemAttachment : MonoBehaviour
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.shield = newShield.GetComponent<EquipableItem>();
             CC.shield.isEquipped = true;
             CC.shield.OnBroken += UnequipShield;
         }
+        AttackCooldownUI.Instance.shieldUi.Init();
+    }
+
+    /// <summary>
+    /// Detach the shield to the world so it can be picked up. Does nothing if shield is broken.
+    /// Called on character death for both allies and enemies.
+    /// </summary>
+    public void DropShield()
+    {
+        if (shield == null) return;
+
+        var item = shield.GetComponent<EquipableItem>();
+        if (item != null && item.IsBroken) return;
+
+        CharacterBase cc = GetComponent<CharacterBase>();
+        if (cc != null && cc.shield != null)
+        {
+            cc.shield.OnBroken -= UnequipShield;
+            cc.isBlocking = false;
+            cc.isParrying = false;
+            cc.shield.isEquipped = false;
+            cc.shield = null;
+        }
+
+        shield.transform.SetParent(null);
+        shield.tag = "Shield";
+
+        if (shield.GetComponent<Collider2D>() == null)
+        {
+            var col = shield.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.3f;
+        }
+
+        shield = null;
+        item?.NotifyUnequipped();
     }
 
     /// <summary>
@@ -68,7 +104,7 @@ public class ItemAttachment : MonoBehaviour
     /// </summary>
     public void UnequipShield()
     {
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             // Detach and play both break effects before the shield GO is destroyed
@@ -94,7 +130,7 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.weapon = newWeapon.GetComponent<EquipableItem>();
@@ -105,6 +141,17 @@ public class ItemAttachment : MonoBehaviour
     {
         // This is a placeholder implementation. Replace with actual weapon selection logic.
         EquipableItem randomWeapon = WeaponDatabase.Instance.GetRandomWeapon();
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipWeapon(weaponInstance);
+        }
+    }
+
+    public void GiveWeaponByName(string weaponName)
+    {
+        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetWeaponByName(weaponName);
         if (randomWeapon != null)
         {
             GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
@@ -123,11 +170,22 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
+    public void GiveShieldByName(string weaponName)
+    {
+        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetShieldByName(weaponName);
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipShield(weaponInstance);
+        }
+    }
+
     public void EquipTorch(GameObject newTorch)
     {
         torch = newTorch;
         AttachItem(newTorch.transform, torchAttachPoint);
-        CharacterController CC = GetComponent<CharacterController>();
+        CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
             CC.torch = newTorch.GetComponent<EquipableItem>();

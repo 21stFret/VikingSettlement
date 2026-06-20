@@ -19,7 +19,9 @@ public class Villager : TargetHealth
     public bool isHungry = false;
     public bool isCold = false;
     public bool isOnRaid = false;
-    
+    public float healthRegenFromFood = 1; // Health regained when fed
+    public float moraleRegenFromFood = 5; // Morale regained when fed
+
     [Header("Life Cycle")]
     public Gender gender;
     public float age = 0f; // Age in years
@@ -65,11 +67,11 @@ public class Villager : TargetHealth
     public float _speechMinCooldown = 5f;
     public float _speechMaxCooldown = 10f;
 
-    private CharacterController _controller;
+    private CharacterBase _controller;
 
     public ItemAttachment itemAttachment;
 
-    private void Start()
+    public void Init()
     {
         if (string.IsNullOrEmpty(uniqueId))
         {
@@ -77,8 +79,8 @@ public class Villager : TargetHealth
         }
 
         _settlementManager = SettlementManager.Instance;
-        _material = GetComponentInChildren<Renderer>().material;
-        _controller = GetComponent<CharacterController>();
+        _material = GetComponent<Renderer>().material;
+        _controller = GetComponent<CharacterBase>();
         itemAttachment = GetComponent<ItemAttachment>();
 
         if (string.IsNullOrEmpty(villagerName))
@@ -544,7 +546,7 @@ public class Villager : TargetHealth
         }
         else
         {
-            HealFromFood(1f, 5f); // Heal 1 health and 5 morale when fed
+            HealFromFood(healthRegenFromFood, moraleRegenFromFood);
         }
     }
 
@@ -558,7 +560,7 @@ public class Villager : TargetHealth
 
         if (hungerFraction <= 0f)
         {
-            HealFromFood(1f, 5f);
+            HealFromFood(healthRegenFromFood, moraleRegenFromFood);
             return;
         }
 
@@ -582,6 +584,11 @@ public class Villager : TargetHealth
 
     private void HealFromFood(float healthAmount, float moraleAmount)
     {
+        // Apply Gefjon's Blessing heal speed bonus
+        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+        {
+            healthAmount *= (1f + DeathTypeBuff.Instance.GetHealSpeedPercent() / 100f);
+        }
         Heal(healthAmount);
         ChangeMorale(moraleAmount);
         personalUI.ShowSpeech("That was a good meal!", 2.0f);
@@ -592,17 +599,6 @@ public class Villager : TargetHealth
         _material.SetFloat("_StrongTintFade", 1);
         yield return new WaitForSeconds(0.1f);
         _material.SetFloat("_StrongTintFade", 0f);
-    }
-    
-    public void Heal(float amount)
-    {
-        // Apply Gefjon's Blessing heal speed bonus
-        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-        {
-            amount *= (1f + DeathTypeBuff.Instance.GetHealSpeedPercent() / 100f);
-        }
-
-        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
     }
     
     public void ChangeMorale(float amount)
@@ -632,6 +628,8 @@ public class Villager : TargetHealth
 
             JarlManager.Instance.OnCurrentJarlDied(cause);
         }
+
+        currentLifeStage = LifeStage.Dead;
 
         // Handle villager death
         if (assignedBuilding != null)
@@ -796,6 +794,14 @@ public class Villager : TargetHealth
             SkillTreeManager.Instance.OnSkillUnlocked -= OnSkillTreeChanged;
         }
         ApplySkillBonuses();
+    }
+
+    public void CheckBuildingInteractionZone()
+    {
+        if (!isJarl)
+        {
+            GetComponentInChildren<WorldInteractionZone>().gameObject.SetActive(false);
+        }
     }
 
     #endregion

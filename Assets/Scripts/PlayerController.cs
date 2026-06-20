@@ -12,13 +12,26 @@ public class PlayerController : MonoBehaviour
     [Header("Control Target")]
     [SerializeField] private Villager controlTarget;
 
-    private CharacterController controller;
+    private CharacterBase controller;
     private VillagerAI targetAI;
+    private WeaponSwapper weaponSwapper;
     private Vector2 moveInput;
     private bool inputEnabled = true;
     private bool isAttackHeld = false;
+    private bool isBlockHeld = false;
     private float blockPressTime = -999f;
     [SerializeField] private float parryWindowDuration = 0.3f;
+
+    // Shield pickup
+    private float _pickupCheckTimer;
+    [SerializeField] private float pickupCheckInterval = 0.15f;
+    [SerializeField] private float shieldPickupRadius = 0.5f;
+
+    [Header("Shield Throw")]
+    [SerializeField] private float throwSpeed = 12f;
+    [SerializeField] private float throwRange = 8f;
+    [SerializeField] private float throwCooldown = 5f;
+    private float lastThrowTime = -999f;
 
     // Shield wall
     private bool _shieldWallActive = false;
@@ -46,17 +59,6 @@ public class PlayerController : MonoBehaviour
 
         // Setup Input System
         inputActions = new PlayerInputActions();
-
-        // If we have a control target set in inspector, use it
-        if (controlTarget != null)
-        {
-            SetControlTarget(controlTarget);
-        }
-        else
-        {
-            // Fallback: try to get CharacterController on this object
-            controller = GetComponent<CharacterController>();
-        }
     }
 
     private void OnEnable()
@@ -70,7 +72,12 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed += OnStopMove;
         inputActions.Player.Attack.performed += OnAttack;
         inputActions.Player.Attack.canceled += OnAttackReleased;
+        inputActions.Player.Block.performed += OnBlock;
+        inputActions.Player.Block.canceled += OnBlockReleased;
         inputActions.Player.ShieldWall.performed += OnShieldWall;
+        inputActions.Player.SwapWeapon.performed += OnSwapWeapon;
+        inputActions.Player.Roll.performed += OnRoll;
+        inputActions.Player.ThrowShield.performed += OnThrowShield;
     }
 
     private void OnDisable()
@@ -83,7 +90,12 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.StopMove.performed -= OnStopMove;
         inputActions.Player.Attack.performed -= OnAttack;
         inputActions.Player.Attack.canceled -= OnAttackReleased;
+        inputActions.Player.Block.performed -= OnBlock;
+        inputActions.Player.Block.canceled -= OnBlockReleased;
         inputActions.Player.ShieldWall.performed -= OnShieldWall;
+        inputActions.Player.SwapWeapon.performed -= OnSwapWeapon;
+        inputActions.Player.Roll.performed -= OnRoll;
+        inputActions.Player.ThrowShield.performed -= OnThrowShield;
         inputActions.Disable();
     }
     
@@ -143,6 +155,18 @@ public class PlayerController : MonoBehaviour
         isAttackHeld = false;
     }
 
+    private void OnBlock(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null) return;
+        blockPressTime = Time.time;
+        isBlockHeld = true;
+    }
+
+    private void OnBlockReleased(InputAction.CallbackContext context)
+    {
+        isBlockHeld = false;
+    }
+
     private void OnShieldWall(InputAction.CallbackContext context)
     {
         if (!inputEnabled) return;
@@ -150,6 +174,42 @@ public class PlayerController : MonoBehaviour
             DeactivateShieldWall();
         else
             ActivateShieldWall();
+    }
+
+    private void OnSwapWeapon(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || weaponSwapper == null) return;
+        weaponSwapper.SwapToNext();
+    }
+
+    private void OnRoll(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null) return;
+        Vector2 rollDir = moveInput.magnitude > 0.1f ? moveInput.normalized : controller.GetLastMoveDirection();
+        controller.Roll(rollDir);
+    }
+
+    private void OnThrowShield(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null || controlTarget == null) return;
+        if (controller.shield == null || controller.shield.IsBroken) return;
+        if (Time.time - lastThrowTime < throwCooldown) return;
+
+        lastThrowTime = Time.time;
+
+        GameObject shieldGO = controller.shield.gameObject;
+        EquipableItem shieldItem = controller.shield;
+
+        // Detach from the character, clearing all equipped state
+        controlTarget.itemAttachment.DropShield();
+
+        // Keep isEquipped true so the pickup scanner ignores the shield while it's in flight
+        shieldItem.isEquipped = true;
+
+        Vector2 throwDir = moveInput.magnitude > 0.1f ? moveInput.normalized : controller.GetLastMoveDirection();
+
+        var thrower = shieldGO.AddComponent<ShieldThrow>();
+        thrower.Launch(throwDir, throwSpeed, throwRange, controller);
     }
 
     private void Update()
@@ -160,13 +220,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Block input (right mouse button) — resolved first so movement uses current frame's state
-        var mouse = UnityEngine.InputSystem.Mouse.current;
-        if (mouse != null)
+        // Block — driven by the Block input action (right mouse / gamepad right trigger)
         {
-            if (inputEnabled && mouse.rightButton.wasPressedThisFrame)
-                blockPressTime = Time.time;
-
             bool hasShield = controller.shield != null && !controller.shield.IsBroken;
             bool inParryWindow = inputEnabled && hasShield && (Time.time - blockPressTime) < parryWindowDuration;
 
@@ -179,14 +234,15 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                controller.isBlocking = inParryWindow || (inputEnabled && hasShield && mouse.rightButton.isPressed);
+                controller.isBlocking = inParryWindow || (inputEnabled && hasShield && isBlockHeld);
             }
         }
 
         // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
         if (!useMouseMovement && inputEnabled)
         {
-            controller.SetMovement(moveInput * playerMoveSpeed);
+            bool movementLocked = controller.IsAttacking() || controller.isRolling;
+            controller.SetMovement(movementLocked ? Vector2.zero : moveInput * playerMoveSpeed);
         }
         else if (!inputEnabled)
         {
@@ -200,6 +256,30 @@ public class PlayerController : MonoBehaviour
             controller.Attack();
         }
 
+        // Auto-pickup shields the player walks over
+        _pickupCheckTimer -= Time.deltaTime;
+        if (_pickupCheckTimer <= 0f)
+        {
+            _pickupCheckTimer = pickupCheckInterval;
+            CheckShieldPickup();
+        }
+    }
+
+    private void CheckShieldPickup()
+    {
+        if (controller.shield != null) return;
+        if (controlTarget == null || controlTarget.itemAttachment == null) return;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(controlTarget.transform.position, shieldPickupRadius);
+        foreach (var hit in hits)
+        {
+            if (!hit.CompareTag("Shield")) continue;
+            var item = hit.GetComponent<EquipableItem>();
+            if (item == null || item.isEquipped) continue;
+
+            controlTarget.itemAttachment.EquipShield(hit.gameObject);
+            return;
+        }
     }
     
     /// <summary>
@@ -215,9 +295,9 @@ public class PlayerController : MonoBehaviour
     }
     
     /// <summary>
-    /// Get reference to the underlying CharacterController
+    /// Get reference to the underlying CharacterBase
     /// </summary>
-    public CharacterController GetController()
+    public CharacterBase GetController()
     {
         return controller;
     }
@@ -250,12 +330,13 @@ public class PlayerController : MonoBehaviour
 
         // Set new target
         controlTarget = target;
-        controller = target.GetComponent<CharacterController>();
+        controller = target.GetComponent<CharacterBase>();
         targetAI = target.GetComponent<VillagerAI>();
+        weaponSwapper = target.GetComponent<WeaponSwapper>();
 
         if (controller == null)
         {
-            Debug.LogError($"Control target {target.villagerName} has no CharacterController!");
+            Debug.LogError($"Control target {target.villagerName} has no CharacterBase!");
             return;
         }
 
@@ -295,6 +376,7 @@ public class PlayerController : MonoBehaviour
             // Clear movement and stop character when disabling input
             moveInput = Vector2.zero;
             isAttackHeld = false;
+            isBlockHeld = false;
             if (controller != null)
             {
                 controller.SetMovement(Vector2.zero);

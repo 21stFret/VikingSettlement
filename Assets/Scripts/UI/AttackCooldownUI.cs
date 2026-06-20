@@ -13,6 +13,7 @@ using UnityEngine.UI;
 /// </summary>
 public class AttackCooldownUI : MonoBehaviour
 {
+    public static AttackCooldownUI Instance;
     [Header("References")]
     [Tooltip("Filled Image whose fillAmount represents cooldown progress (0 = just fired, 1 = ready).")]
     [SerializeField] private Image fillImage;
@@ -31,14 +32,29 @@ public class AttackCooldownUI : MonoBehaviour
 
     [SerializeField] private bool doFade;
 
-    private CharacterController _trackedController;
+    private CharacterBase _trackedController;
     private EquipableItem _trackedWeapon;
     private bool _wasReady = true;
     private Tweener _fadeTween;
 
-    private CharacterController currentCC;
+    private CharacterBase currentCC;
 
-    private void Start()
+    public ShieldUI shieldUi;
+
+    private void Awake()
+    {
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("Multiple AttackCooldownUI instances detected. Destroying duplicate.");
+            Destroy(gameObject);
+        }
+    }
+
+    public  void Init()
     {
         // Initialize with the current weapon sprite if possible
         currentCC = PlayerController.Instance != null
@@ -60,11 +76,17 @@ public class AttackCooldownUI : MonoBehaviour
             canvasGroup.alpha = 0f;
         }
         OnChangeWeapon();
+        
+        if(shieldUi !=null)
+        {
+            shieldUi.Init();
+        }
 
     }
 
     public void OnChangeWeapon()
     {
+        if (_trackedController == null) return;
         var currentWeapon = _trackedController.weapon;
         if (currentWeapon != _trackedWeapon)
         {
@@ -84,6 +106,8 @@ public class AttackCooldownUI : MonoBehaviour
             _trackedController = currentCC;
 
         if (_trackedController == null) return;
+
+        OnChangeWeapon();
 
         float progress = _trackedController.GetAttackCooldownProgress();
         if (fillImage != null)

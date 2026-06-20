@@ -82,6 +82,7 @@ public class MainMenuUI : MonoBehaviour
         SetPanelActive(deleteConfirmPanel, false);
         UpdateLoadButtonState();
         UpdateDeleteButtonState();
+        UIFocus.Set(newGameButton?.gameObject);
     }
 
     private void SetPanelActive(GameObject panel, bool active)
@@ -117,6 +118,7 @@ public class MainMenuUI : MonoBehaviour
     {
         isNewGameMode = true;
         ShowSlotSelection("New Game - Select Slot");
+        UIFocus.Set(backButton?.gameObject);
     }
 
     private void OnLoadGameClicked()
@@ -162,6 +164,22 @@ public class MainMenuUI : MonoBehaviour
             CreateSlotButton(slot);
         }
 
+        FocusFirstSlot();
+    }
+
+    private void FocusFirstSlot()
+    {
+        foreach (var itemObj in slotItemPrefab)
+        {
+            if (!itemObj.activeSelf) continue;
+            var slot = itemObj.GetComponent<SaveSlotItemUI>();
+            if (slot != null)
+            {
+                UIFocus.Set(slot.GetButton()?.gameObject);
+                return;
+            }
+        }
+        UIFocus.Set(backButton?.gameObject);
     }
 
     private void CreateSlotButton(SaveSlotInfo slot)
@@ -191,7 +209,7 @@ public class MainMenuUI : MonoBehaviour
 
         if (item != null)
         {
-            item.Setup(autosaveInfo, _ => OnSlotClicked(autosaveInfo.slotNumber)); 
+            item.Setup(autosaveInfo, _ => OnSlotClicked(-1)); 
         }
     }
 
@@ -208,6 +226,7 @@ public class MainMenuUI : MonoBehaviour
                 item.SetSelected(false);
             }
         }
+        UIFocus.Set(loadButton?.gameObject);
     }
 
     private void OnLoadButtonClicked()
@@ -226,6 +245,11 @@ public class MainMenuUI : MonoBehaviour
         }
         else
         {
+            if(selectedSlot == -1)
+            {
+                GameManager.Instance?.LoadAutosave();
+                return;
+            }
             GameManager.Instance?.LoadSlot(selectedSlot);
         }
     }
@@ -237,11 +261,6 @@ public class MainMenuUI : MonoBehaviour
         {
             ShowDeleteConfirmation($"Are you sure you want to delete the save in Slot {selectedSlot}?");
         }
-    }
-
-    private void OnAutosaveClicked()
-    {
-        GameManager.Instance?.LoadAutosave();
     }
 
     public void OnApplicationQuit()
@@ -260,6 +279,7 @@ public class MainMenuUI : MonoBehaviour
     {
         SetPanelActive(deleteConfirmPanel, true);
         if (deleteConfirmText != null) deleteConfirmText.text = message;
+        UIFocus.Push(deleteConfirmNo?.gameObject);
 
         pendingAction = () =>
         {
@@ -280,5 +300,6 @@ public class MainMenuUI : MonoBehaviour
     {
         SetPanelActive(deleteConfirmPanel, false);
         pendingAction = null;
+        UIFocus.Pop();
     }
 }

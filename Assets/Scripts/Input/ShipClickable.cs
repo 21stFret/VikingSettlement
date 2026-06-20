@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -5,7 +6,7 @@ using UnityEngine;
 /// Attach this to your ship GameObject along with a Collider2D.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
-public class ShipClickable : MonoBehaviour, IClickable
+public class ShipClickable : WorldInteractable, IClickable
 {
     [Header("Settings")]
     [SerializeField] private int clickPriority = 10; // Higher than buildings
@@ -47,6 +48,23 @@ public class ShipClickable : MonoBehaviour, IClickable
     private void OnDestroy()
     {
         MouseInputController.UnregisterClickable(this);
+    }
+
+    public override void Interact()
+    {
+        OpenRaidUI();
+        PlayerController.Instance?.SetInputEnabled(false);
+    }
+
+    public override void Deselect()
+    {
+        raidUIPanel.CloseRaidUI();
+        PlayerController.Instance?.SetInputEnabled(true);
+    }
+
+    public override void FocusPanel()
+    {
+        UIFocus.Set(raidUIPanel.raidPartyUI?.startRaidButton.gameObject);
     }
 
     private bool CanBeClicked()

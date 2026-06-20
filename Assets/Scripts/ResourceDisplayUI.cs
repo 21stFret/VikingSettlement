@@ -12,7 +12,6 @@ public class ResourceDisplayUI : MonoBehaviour
     [SerializeField] private List<SingleResourceDisplay> resourceElements = new List<SingleResourceDisplay>();
     
     [Header("Settings")]
-    [SerializeField] private bool hideZeroResources = false;
     [SerializeField] private string numberFormat = "F0"; // How to format numbers (F0 = no decimals, F1 = 1 decimal)
     [SerializeField] private bool showResourceName = true;
     [SerializeField] private float updateInterval = 0.1f; // Update 10 times per second

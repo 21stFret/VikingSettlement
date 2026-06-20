@@ -41,7 +41,10 @@ public class MouseInputController : MonoBehaviour
             return;
         }
         Instance = this;
+    }
 
+    public void Init()
+    {
         // Process any pending registrations
         foreach (var clickable in pendingRegistrations)
         {

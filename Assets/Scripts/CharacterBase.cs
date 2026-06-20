@@ -12,7 +12,7 @@ public enum Faction
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
-public class CharacterController : MonoBehaviour
+public class CharacterBase : MonoBehaviour
 {
     [Header("Movement Settings")]
     protected float moveSpeed = 2f;
@@ -67,6 +67,14 @@ public class CharacterController : MonoBehaviour
     protected float lastAttackTime = 0f;
     protected bool isAttacking = false;
 
+    // Roll
+    [Header("Roll")]
+    [SerializeField] protected float rollSpeed = 6f;
+    [SerializeField] protected float rollDuration = 0.35f;
+    [SerializeField] protected float rollCooldown = 1f;
+    private float lastRollTime = -999f;
+    public bool isRolling { get; private set; }
+
     // Stuck detection
     protected Vector2 lastPosition;
     protected float stuckTimer = 0f;
@@ -87,6 +95,7 @@ public class CharacterController : MonoBehaviour
     protected static readonly int SwordAttackTrigger = Animator.StringToHash("SwordAttack");
     protected static readonly int SpearAttackTrigger = Animator.StringToHash("SpearAttack");
     protected static readonly int AxeAttackTrigger = Animator.StringToHash("AxeAttack");
+    protected static readonly int RollTrigger = Animator.StringToHash("Roll");
 
     [HideInInspector]
     public EquipableItem weapon;
@@ -108,7 +117,7 @@ public class CharacterController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         itemAttachment = GetComponent<ItemAttachment>();
-        characterCollider = GetComponent<Collider2D>();
+        characterCollider = GetComponent<CircleCollider2D>();
 
         if (animator == null)
         {
@@ -360,6 +369,37 @@ public class CharacterController : MonoBehaviour
         movement = moveDir;
     }
 
+    public bool CanRoll() => !isRolling && !isAttacking && canMove && Time.time - lastRollTime >= rollCooldown;
+
+    public virtual void Roll(Vector2 direction)
+    {
+        if (!CanRoll()) return;
+        if (direction == Vector2.zero) direction = lastMoveDirection;
+        if (direction == Vector2.zero) return;
+
+        lastRollTime = Time.time;
+        StartCoroutine(RollCoroutine(direction.normalized));
+    }
+
+    private IEnumerator RollCoroutine(Vector2 direction)
+    {
+        isRolling = true;
+        characterCollider.enabled = false; // Disable collisions during roll
+        SafeSetTrigger(RollTrigger);
+
+        float elapsed = 0f;
+        while (elapsed < rollDuration)
+        {
+            movement = direction * rollSpeed;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        movement = Vector2.zero;
+        isRolling = false;
+        characterCollider.enabled = true;
+    }
+
     #endregion
 
     #region Combat
@@ -430,6 +470,7 @@ public class CharacterController : MonoBehaviour
         if (!CanAttack()) return;
 
         lastAttackTime = Time.time;
+        isAttacking = true;
 
         if (itemAttachment != null)
         {
@@ -495,7 +536,7 @@ public class CharacterController : MonoBehaviour
 
             if (!friendlyFire)
             {
-                var hitController = hit.GetComponent<CharacterController>();
+                var hitController = hit.GetComponent<CharacterBase>();
                 if (hitController != null && hitController.characterFaction == this.characterFaction)
                 {
                     continue; // Skip friendly targets
@@ -506,7 +547,7 @@ public class CharacterController : MonoBehaviour
             {
                 hitGameObjects.Add(hit.gameObject);
                 // Refresh attacker position at the moment of impact
-                var targetCC = hit.GetComponent<CharacterController>();
+                var targetCC = hit.GetComponent<CharacterBase>();
                 if (targetCC != null)
                     targetCC.lastAttackerPosition = (Vector2)transform.position;
                 OnHitTarget(hit);
@@ -521,8 +562,6 @@ public class CharacterController : MonoBehaviour
             if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
                 villager.skills.ImproveSkill(JobType.Warrior);
         }
-
-        isAttacking = true;
     }
 
     /// <summary>
@@ -549,7 +588,7 @@ public class CharacterController : MonoBehaviour
             if (notified.Contains(hit.gameObject)) continue;
             notified.Add(hit.gameObject);
 
-            var targetCC = hit.GetComponent<CharacterController>();
+            var targetCC = hit.GetComponent<CharacterBase>();
             if (targetCC != null)
             {
                 targetCC.lastAttackerPosition = (Vector2)transform.position;
@@ -574,8 +613,14 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     protected virtual void OnHitTarget(Collider2D hit)
     {
+        if (!GameManager.Instance.IsGameActive)
+        {
+            Debug.Log("Hit detected but game is not active, ignoring damage.");
+            return; // Don't apply damage if game is not active (e.g. during scene transitions)
+        }
         var target = hit.GetComponent<TargetHealth>();
         if (target == null || weapon == null) return;
+        if (target.IsDead()) return;
 
         float damage = weapon.strength;
         var villager = GetComponent<Villager>();
@@ -646,9 +691,10 @@ public class CharacterController : MonoBehaviour
     /// Called when an attack hitbox overlaps this character.
     /// If AI reactive blocking is enabled and charges are available, raises shield for this hit.
     /// </summary>
-    public void NotifyIncomingAttack(CharacterController attacker)
+    public void NotifyIncomingAttack(CharacterBase attacker)
     {
         if (!useReactiveBlocking) return;
+        if (!canMove) return;
         if (attacker.characterFaction == characterFaction) return;
         if (shield == null || shield.IsBroken) return;
         if (isOnBlockCooldown || currentBlockCharges <= 0) return;
@@ -680,7 +726,7 @@ public class CharacterController : MonoBehaviour
     /// </summary>
     protected void CheckParryAndStun(Collider2D hit)
     {
-        var targetCC = hit.GetComponent<CharacterController>();
+        var targetCC = hit.GetComponent<CharacterBase>();
         if (targetCC != null && targetCC.isParrying
             && targetCC.shield != null && !targetCC.shield.IsBroken)
         {
@@ -700,6 +746,8 @@ public class CharacterController : MonoBehaviour
     private IEnumerator StunCoroutine(float duration)
     {
         canMove = false;
+        isBlocking = false;
+        isParrying = false;
         lastAttackTime = Time.time + duration;
 
         if (stunEffect != null)
@@ -762,7 +810,28 @@ public class CharacterController : MonoBehaviour
     protected virtual void FlipSprite(bool flip)
     {
         // Can be overridden for different flip methods
-        transform.localScale = new Vector3(flip ? -1f : 1f, 1f, 1f);
+        var cached = transform.localScale;
+        var x = Mathf.Abs(cached.x);
+        transform.localScale = new Vector3(flip ? -x : x, cached.y, cached.z);
+    }
+
+    /// <summary>
+    /// Immediately face towards a world position, updating sprite flip and cached direction used by hitboxes.
+    /// </summary>
+    public void FaceTowards(Vector2 worldPosition)
+    {
+        if (!flipSpriteOnDirection || spriteRenderer == null || isBlocking) return;
+
+        float dx = worldPosition.x - transform.position.x;
+        if (Mathf.Abs(dx) < 0.01f) return;
+
+        bool facingLeft = dx < 0f;
+        FlipSprite(facingLeft);
+
+        cachedMoveX = facingLeft ? -1f : 1f;
+        lastMoveDirection = new Vector2(cachedMoveX, lastMoveDirection.y);
+        if (animator != null)
+            animator.SetFloat(LastMoveX, lastMoveDirection.x);
     }
 
     private bool _isSprinting = false;
@@ -790,14 +859,15 @@ public class CharacterController : MonoBehaviour
         canMove = !isDead;
         movement = Vector2.zero;
         characterCollider.enabled = !isDead;
+        rb.bodyType = RigidbodyType2D.Kinematic;
         if (weapon != null)
         {
             weapon.gameObject.SetActive(!isDead);
         }
-        if (shield != null)
-        {
-            shield.gameObject.SetActive(!isDead);
-        }
+        if (isDead)
+            itemAttachment?.DropShield();
+        else if (shield != null)
+            shield.gameObject.SetActive(true);
 
         if (isDead && stunEffect != null)
         {

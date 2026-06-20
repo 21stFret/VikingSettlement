@@ -4891,7 +4891,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &2053358803852743780
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4937,6 +4937,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 2
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -4968,7 +4969,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &1043158369514062831
 GameObject:
   m_ObjectHideFlags: 0
@@ -5072,6 +5072,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -5291,6 +5292,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4422074882647182026
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5336,6 +5338,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: -1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 0.5803922}
   m_FlipX: 0
@@ -5345,7 +5348,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &4705626474347182015
 GameObject:
@@ -5561,6 +5563,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 1
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: -758993017
@@ -10600,7 +10603,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &7871557351654527374
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10646,6 +10649,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -758993017
   m_SortingLayer: 2
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -10677,7 +10681,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &6924226018349782930
 GameObject:
   m_ObjectHideFlags: 0
@@ -10713,6 +10716,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3368906820991663530
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10758,6 +10762,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 9146166088044349010, guid: 8474fba116e272248a54695103cfc801, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -10767,7 +10772,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &3571301791085971615
 MonoBehaviour:
@@ -10820,6 +10824,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1905987735086670736
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -10865,6 +10870,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -10874,7 +10880,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &3994955867993937104
 MonoBehaviour:
@@ -10912,7 +10917,7 @@ GameObject:
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: ShieldEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10957,6 +10962,7 @@ MonoBehaviour:
   linkedSpriteRenderers: []
 --- !u!212 &7509095397989540202
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -11002,6 +11008,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -2924508640703339208, guid: 8b7dd40313d9ef14bb3eaddeb9a2952b, type: 3}
   m_Color: {r: 0.5943396, g: 0.09251513, b: 0.09251513, a: 1}
   m_FlipX: 0
@@ -11011,7 +11018,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!50 &8629009730597293662
 Rigidbody2D:
@@ -11123,16 +11129,22 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Raider
-  enemyType: 0
+  enemyType: 5
   damage: 2
-  attackRange: 1.5
+  attackRange: 2
   attackCooldown: 1.5
   detectionRange: 10
+  weaponName: DSword
+  shieldName: Shield
   moveSpeed: 1.5
   chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
-  lootTable: []
+  lootTable:
+  - resourceType: 15
+    dropChance: 1
+    minAmount: 5
+    maxAmount: 10
   xpReward: 25
   bloodEffect: {fileID: 8721656231829694241}
   spriteRenderer: {fileID: 0}
@@ -11174,10 +11186,13 @@ MonoBehaviour:
   isParrying: 0
   parryStunDuration: 1.5
   stunEffect: {fileID: 6310073354455067422}
-  useReactiveBlocking: 0
+  useReactiveBlocking: 1
   maxBlockCharges: 1
-  blockCooldown: 5
-  reactiveBlockDuration: 1.5
+  blockCooldown: 8
+  reactiveBlockDuration: 2
+  rollSpeed: 6
+  rollDuration: 0.35
+  rollCooldown: 1
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}
@@ -11203,6 +11218,7 @@ MonoBehaviour:
   idleTimeMax: 3
   targetNearestVillager: 1
   pursueTarget: 1
+  faceTargetWhileAttacking: 1
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:

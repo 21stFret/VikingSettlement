@@ -8,16 +8,17 @@ public class HeatUI : MonoBehaviour
     public Color warm, cold;
 
     public TMP_Text requiredWoodText;
+    public TMP_Text totalRequiredWoodText;
 
-    public void Start()
+    public void Init()
     {
+        UpdateHeatUI(true);
         SeasonManager.Instance.OnWarmthChanged += isWarm => UpdateHeatUI(isWarm);
     }
 
     public void UpdateHeatUI(bool isWarm)
     {
-        requiredWoodText.text = "x" + SeasonManager.Instance.GetWoodNeededPerDay().ToString();
-        if(isWarm)
+        if (isWarm)
         {
             heatText.color = warm;
             heatText.text = "Warm";
@@ -29,5 +30,12 @@ public class HeatUI : MonoBehaviour
             heatText.text = "Cold";
             fireAnimation.SetActive(false);
         }
+        UpdateWoodUI();
+    }
+
+    public void UpdateWoodUI()
+    {
+        requiredWoodText.text = "x" + SeasonManager.Instance.woodPerVillagerPerDay.ToString();
+        totalRequiredWoodText.text = "(" + SeasonManager.Instance.GetWoodNeededPerDay().ToString() + ")";
     }
 }

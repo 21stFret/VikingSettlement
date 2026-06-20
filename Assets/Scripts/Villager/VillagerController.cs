@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class VillagerController : CharacterController
+public class VillagerController : CharacterBase
 {
     private Villager villagerData;
 
@@ -95,6 +95,8 @@ public class VillagerController : CharacterController
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && villagerData != null)
         {
+            if (target.IsDead()) return;
+
             float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;
             float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();

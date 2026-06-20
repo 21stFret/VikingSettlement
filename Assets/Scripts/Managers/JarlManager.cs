@@ -50,49 +50,12 @@ public class JarlManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Init()
     {
         // Find PlayerController if not assigned
         if (playerController == null)
         {
-            playerController = FindAnyObjectByType<PlayerController>();
-        }
-
-        // If we have a current Jarl set in inspector, initialize them
-        if (currentJarl != null)
-        {
-            SetJarl(currentJarl, isInitial: true);
-        }
-        else
-        {
-            // Try to find a villager marked as Jarl
-            FindAndSetInitialJarl();
-        }
-    }
-
-    /// <summary>
-    /// Find a villager already marked as Jarl in the scene
-    /// </summary>
-    private void FindAndSetInitialJarl()
-    {
-        if (SettlementManager.Instance == null) return;
-
-        var allVillagers = SettlementManager.Instance.GetAllVillagers();
-        var existingJarl = allVillagers.FirstOrDefault(v => v.isJarl);
-
-        if (existingJarl != null)
-        {
-            SetJarl(existingJarl, isInitial: true);
-        }
-        else if (allVillagers.Count > 0)
-        {
-            // No Jarl found - select the first mature villager
-            var firstMature = allVillagers.FirstOrDefault(v => v.currentLifeStage == LifeStage.Mature);
-            if (firstMature != null)
-            {
-                Debug.Log($"No Jarl found, selecting {firstMature.villagerName} as initial Jarl");
-                SetJarl(firstMature, isInitial: true);
-            }
+            playerController = PlayerController.Instance;
         }
     }
 
@@ -478,11 +441,43 @@ public class JarlManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>
-    /// Set the initial Jarl (called by VillagerSpawner)
+    /// Set the initial Jarl without firing the OnJarlChanged event.
     /// </summary>
     public void SetInitialJarl(Villager villager)
     {
         SetJarl(villager, isInitial: true);
+    }
+
+    /// <summary>
+    /// For a brand-new game: find whichever villager is already flagged as Jarl, or promote
+    /// the first villager. Called by Bootstrap after villagers have been spawned and
+    /// JarlManager.Init() has wired up PlayerController.
+    /// </summary>
+    public void EnsureInitialJarl()
+    {
+        if (currentJarl != null) return;
+        if (SettlementManager.Instance == null) return;
+
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        foreach (var v in villagers)
+        {
+            if (v != null && v.isJarl)
+            {
+                SetInitialJarl(v);
+                return;
+            }
+        }
+
+        if (villagers.Count > 0 && villagers[0] != null)
+        {
+            Villager newJarl = villagers[0];
+            newJarl.isJarl = true;
+            newJarl.isOfJarlLineage = true;
+            newJarl.generationsFromJarl = 0;
+            SetInitialJarl(newJarl);
+            Debug.Log($"JarlManager: Assigned {newJarl.villagerName} as initial Jarl");
+        }
     }
 
     #region ISaveable

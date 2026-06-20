@@ -4927,7 +4927,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &2684074120278498957
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4973,6 +4973,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 32767
+  m_MaskInteraction: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -5004,7 +5005,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &3123833243525397293
 GameObject:
   m_ObjectHideFlags: 0
@@ -9822,7 +9822,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &1547406226353960520
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -9868,6 +9868,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 32767
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -9899,7 +9900,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &3487882777621808856
 GameObject:
   m_ObjectHideFlags: 0
@@ -14725,7 +14725,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &6728829361620190512
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -14771,6 +14771,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -758993017
   m_SortingLayer: 2
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -14802,7 +14803,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &6070954951895507932
 GameObject:
   m_ObjectHideFlags: 0
@@ -19628,7 +19628,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &445208149051371915
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -19674,6 +19674,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 32767
+  m_MaskInteraction: 0
   m_RenderMode: 1
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -19705,7 +19706,6 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
 --- !u!1 &7332611294401207323
 GameObject:
   m_ObjectHideFlags: 0
@@ -19715,9 +19715,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5026197887127211489}
+  - component: {fileID: 1866138473353848901}
   - component: {fileID: 4747781972132127599}
   - component: {fileID: 4562958567628326634}
-  - component: {fileID: 1866138473353848901}
   - component: {fileID: 5556792805115778626}
   m_Layer: 3
   m_Name: Shield
@@ -19743,8 +19743,40 @@ Transform:
   - {fileID: 4006410505764636210}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1866138473353848901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7332611294401207323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65beee2097ec7484795909c73947e91d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
+  itemType: 4
+  itemName: Shield
+  strength: 1
+  attachPoint: 0
+  isEquipped: 0
+  attackSpeed: 0.5
+  sheildSparkEffect: {fileID: 4031071450496713120}
+  shatterEffect: {fileID: 3197090129028711059}
+  shakeMagnitude: 0.06
+  shakeDuration: 0.18
+  shakeOscillations: 3
+  maxDurability: 20
+  currentDurability: 10
+  itemDamageSprites:
+  - {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
+  - {fileID: 21300000, guid: 749e752fd6e609b488d8d3a3b868ea80, type: 3}
+  - {fileID: 21300000, guid: 0c53781ad4ea6414c86b8204ddc5e62d, type: 3}
+  - {fileID: 21300000, guid: 5c6817f3b22c30145a81a07c4118e609, type: 3}
+  itemSpriteRenderer: {fileID: 0}
 --- !u!212 &4747781972132127599
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -19790,6 +19822,7 @@ SpriteRenderer:
   m_SortingLayerID: -2039122133
   m_SortingLayer: 1
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -19799,7 +19832,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &4562958567628326634
 MonoBehaviour:
@@ -19817,37 +19849,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 90
   linkedSpriteRenderers: []
---- !u!114 &1866138473353848901
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7332611294401207323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65beee2097ec7484795909c73947e91d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
-  itemType: 4
-  itemName: Shield
-  strength: 1
-  attachPoint: 0
-  isEquipped: 0
-  attackSpeed: 0.5
-  sheildSparkEffect: {fileID: 4031071450496713120}
-  shatterEffect: {fileID: 3197090129028711059}
-  shakeMagnitude: 0.06
-  shakeDuration: 0.18
-  shakeOscillations: 3
-  maxDurability: 20
-  currentDurability: 10
-  itemDamageSprites:
-  - {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
-  - {fileID: 21300000, guid: 749e752fd6e609b488d8d3a3b868ea80, type: 3}
-  - {fileID: 21300000, guid: 0c53781ad4ea6414c86b8204ddc5e62d, type: 3}
-  - {fileID: 21300000, guid: 5c6817f3b22c30145a81a07c4118e609, type: 3}
-  itemSpriteRenderer: {fileID: 0}
 --- !u!58 &5556792805115778626
 CircleCollider2D:
   m_ObjectHideFlags: 0

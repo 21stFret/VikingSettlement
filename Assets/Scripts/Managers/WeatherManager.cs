@@ -158,20 +158,14 @@ public class WeatherManager : MonoBehaviour
             isInitialized = false;
             return;
         }
-
-        // Wait a frame for camera to be ready, then initialize
-        StartCoroutine(InitializeForScene());
     }
 
-    private System.Collections.IEnumerator InitializeForScene()
+    public void Initialize()
     {
-        yield return null; // Wait one frame
-
         mainCamera = Camera.main;
         if (mainCamera == null)
         {
             Debug.LogWarning("WeatherManager: No main camera found in scene!");
-            yield break;
         }
 
         SetupWeatherContainer();

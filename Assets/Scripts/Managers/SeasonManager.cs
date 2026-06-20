@@ -150,31 +150,22 @@ public class SeasonManager : MonoBehaviour, ISaveable
         }
     }
 
-    private void Start()
+    public void Initialize()
     {
-        // Subscribe to day change events
         if (DayNightManager.Instance != null)
-        {
             DayNightManager.Instance.OnNewDay += OnNewDay;
-        }
         else
-        {
-            Debug.LogWarning("SeasonManager: DayNightManager not found!");
-        }
+            Debug.LogWarning("SeasonManager: DayNightManager not found during Initialize!");
 
-        // Subscribe to game tick for updates
         if (GameTickManager.Instance != null)
-        {
             GameTickManager.Instance.OnFastUpdate += FastUpdate;
-        }
+        else
+            Debug.LogWarning("SeasonManager: GameTickManager not found during Initialize!");
 
-        // Initialize the current season's effects
         ApplySeasonEffects(currentSeason);
 
         if (fireController != null)
-        {
             fireController.Setup();
-        }
     }
 
     private void OnDestroy()
@@ -364,10 +355,13 @@ public class SeasonManager : MonoBehaviour, ISaveable
                 break;
         }
 
-        DayNightManager.Instance.sunColor = Color.Lerp(
-        DayNightManager.Instance.sunColor, 
-        sunTint, 
-        0.5f * Time.deltaTime);
+        if (DayNightManager.Instance != null)
+        {
+            DayNightManager.Instance.sunColor = Color.Lerp(
+                DayNightManager.Instance.sunColor,
+                sunTint,
+                0.5f * Time.deltaTime);
+        }
     }
 
     private void UpdateSummerEffects()
@@ -590,6 +584,28 @@ public class SeasonManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>
+    /// Advance season tracking by N days without firing per-day events — used by raid return.
+    /// Firewood consumption is already handled by SettlementSimulator for the elapsed period.
+    /// </summary>
+    public void AdvanceDays(int days)
+    {
+        int remaining = days;
+        while (remaining > 0)
+        {
+            if (daysUntilSeasonChange <= 0)
+                ChangeSeason(); // resets daysUntilSeasonChange to daysPerSeason
+
+            int step = Mathf.Min(remaining, daysUntilSeasonChange);
+            daysUntilSeasonChange -= step;
+            remaining -= step;
+
+            if (daysUntilSeasonChange <= 0)
+                ChangeSeason();
+        }
+        Debug.Log($"SeasonManager: Advanced {days} days — now {currentSeason}, {daysUntilSeasonChange} days until season change");
+    }
+
+    /// <summary>
     /// Force a season change (for debugging/testing)
     /// </summary>
     public void ForceSeasonChange()
@@ -757,9 +773,6 @@ public class SeasonManager : MonoBehaviour, ISaveable
         currentSeason = (Season)data.gameState.currentSeason;
         daysUntilSeasonChange = data.gameState.daysUntilSeasonChange;
         currentSolarYear = data.gameState.currentSolarYear;
-
-        // Always apply effects on load - scene may have initialized with wrong visuals
-        ApplySeasonEffects(currentSeason);
     }
 
     #endregion

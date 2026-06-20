@@ -46,7 +46,7 @@ public class DialogueManager : MonoBehaviour
         // Auto-find UI if not assigned
         if (dialogueUI == null)
         {
-            dialogueUI = FindFirstObjectByType<DialogueUI>(FindObjectsInactive.Include);
+            dialogueUI = FindAnyObjectByType<DialogueUI>(FindObjectsInactive.Include);
         }
 
         if (dialogueUI != null)

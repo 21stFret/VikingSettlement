@@ -39,6 +39,8 @@ public class WeaponDatabase : MonoBehaviour
         return availableWeapons[index];
     }
 
+
+
     /// <summary>
     /// Get a random shield from the database
     /// </summary>

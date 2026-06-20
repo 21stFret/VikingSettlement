@@ -25,7 +25,7 @@ public class ShieldUI : MonoBehaviour
     [SerializeField] private float shakeDuration = 0.18f;
     [SerializeField] private int shakeOscillations = 3;
 
-    private CharacterController _trackedCC;
+    private CharacterBase _trackedCC;
     private EquipableItem _trackedShield;
     private RectTransform _rect;
     private Vector2 _originPos;
@@ -36,16 +36,20 @@ public class ShieldUI : MonoBehaviour
         _originPos = _rect.anchoredPosition;
     }
 
-    private void Update()
+    public void Init()
     {
-        var cc = PlayerController.Instance != null ? PlayerController.Instance.GetController() : null;
-        if (cc != _trackedCC)
-            _trackedCC = cc;
+        if (PlayerController.Instance != null)
+        {
+            _trackedCC = PlayerController.Instance.GetController();
+        }
 
         var shield = _trackedCC != null ? _trackedCC.shield : null;
-        if (shield == _trackedShield) return;
 
-        UnsubscribeFromShield();
+        if(shield!=null)
+        {
+            UnsubscribeFromShield();
+        }
+
         _trackedShield = shield;
         SubscribeToShield();
         UpdateSprite();
@@ -56,6 +60,7 @@ public class ShieldUI : MonoBehaviour
         if (_trackedShield == null) return;
         _trackedShield.OnDurabilityChanged += OnShieldDamaged;
         _trackedShield.OnBroken += OnShieldBroken;
+        _trackedShield.OnUnequipped += OnShieldUnequipped;
     }
 
     private void UnsubscribeFromShield()
@@ -63,6 +68,7 @@ public class ShieldUI : MonoBehaviour
         if (_trackedShield == null) return;
         _trackedShield.OnDurabilityChanged -= OnShieldDamaged;
         _trackedShield.OnBroken -= OnShieldBroken;
+        _trackedShield.OnUnequipped -= OnShieldUnequipped;
     }
 
     private void OnShieldDamaged()
@@ -74,12 +80,20 @@ public class ShieldUI : MonoBehaviour
 
     private void OnShieldBroken()
     {
+        if (shieldImage != null)
+            shieldImage.sprite = noShieldSprite;
+    }
+
+    private void OnShieldUnequipped()
+    {
+        UnsubscribeFromShield();
+        _trackedShield = null;
         UpdateSprite();
     }
 
     private void UpdateSprite()
     {
-        bool hasShield = _trackedShield != null && _trackedShield.maxDurability > 0;
+        bool hasShield = _trackedShield != null && _trackedShield.itemSpriteRenderer != null;
 
         if (!hasShield)
         {
@@ -93,14 +107,11 @@ public class ShieldUI : MonoBehaviour
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
 
-        var sprites = _trackedShield.itemDamageSprites;
-        if (sprites == null || sprites.Length == 0 || shieldImage == null) return;
-
-        int damageLevel = Mathf.FloorToInt(
-            ((float)(_trackedShield.maxDurability - _trackedShield.CurrentDurability) / _trackedShield.maxDurability)
-            * sprites.Length);
-        damageLevel = Mathf.Clamp(damageLevel, 0, sprites.Length - 1);
-        shieldImage.sprite = sprites[damageLevel];
+        // Mirror the in-world sprite directly — TakeDurabilityDamage updates
+        // itemSpriteRenderer.sprite before firing OnDurabilityChanged, so this
+        // is always in sync without re-deriving the damage level independently.
+        if (shieldImage != null)
+            shieldImage.sprite = _trackedShield.itemSpriteRenderer.sprite;
     }
 
     private IEnumerator ShakeCoroutine()

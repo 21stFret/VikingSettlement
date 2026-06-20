@@ -32,13 +32,6 @@ public class ShadowMasterEditor : Editor
             EditorUtility.SetDirty(shadowMaster);
         }
         
-        // Button to force cleanup
-        if (GUILayout.Button("Clean Up Duplicate Shadows", GUILayout.Height(30)))
-        {
-            shadowMaster.ForceCleanupAllShadows();
-            EditorUtility.SetDirty(shadowMaster);
-        }
-        
         // Button to force update
         if (GUILayout.Button("Force Update All Shadows", GUILayout.Height(30)))
         {

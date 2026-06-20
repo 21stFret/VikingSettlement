@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 /// <summary>
 /// Manages three types of pause:
@@ -27,13 +29,18 @@ public class PauseManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private CameraController cameraController;
+    [SerializeField] private CanvasGroup savePopupCanvas;
 
     [Header("UI Panels")]
     [SerializeField] private GameObject menuPausePanel;
     [SerializeField] private GameObject strategicPauseIndicator;
+    [SerializeField] private GameObject savePopup;
+    [SerializeField] private TMP_Text savePopupText;
     [SerializeField] private Button saveButton;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button testSceneButton;
+    [SerializeField] private Button closeMenuButton;
 
 
     [Header("Strategic Pause Settings")]
@@ -61,6 +68,8 @@ public class PauseManager : MonoBehaviour
     // Track which state we were in before dialogue (to restore after)
     private PauseState stateBeforeDialogue;
 
+    private Coroutine flashCoroutine;
+
     private void Awake()
     {
         if (Instance == null)
@@ -77,12 +86,12 @@ public class PauseManager : MonoBehaviour
         SetupButtons();
     }
 
-    private void Start()
+    public void Init()
     {
         // Auto-find references if not set
         if (playerController == null)
         {
-            playerController = FindFirstObjectByType<PlayerController>();
+            playerController = FindAnyObjectByType<PlayerController>();
         }
         if (cameraController == null)
         {
@@ -110,13 +119,47 @@ public class PauseManager : MonoBehaviour
 
     }
 
+    private void FlashSavedPopup()
+    {
+        if (savePopup != null)
+        {
+            if (flashCoroutine != null) StopCoroutine(flashCoroutine);
+            flashCoroutine = StartCoroutine(FlashSavedPopupCoroutine());
+        }
+    }
+
+    private System.Collections.IEnumerator FlashSavedPopupCoroutine()
+    {
+        savePopupText.text = $"Game saved to slot {SaveManager.Instance.CurrentSlot} successfully!";
+        savePopupCanvas.alpha = 0f;
+        while (savePopupCanvas.alpha < 1)
+        {
+            savePopupCanvas.alpha += Time.unscaledDeltaTime * 2f; // Fade in over 0.5 seconds
+            yield return null;
+        }
+        yield return new WaitForSecondsRealtime(1f); // Stay visible for 1 second
+        while (savePopupCanvas.alpha > 0)
+        {
+            savePopupCanvas.alpha -= Time.unscaledDeltaTime * 2f; // Fade in over 0.5 seconds
+            yield return null;
+        }
+        yield break;
+    }
+
     private void SetupButtons()
     {
+        if (savePopup != null)
+        {
+            savePopupCanvas = savePopup.GetComponent<CanvasGroup>();
+            savePopupCanvas.alpha = 0f;
+        }
+
         if (saveButton != null)
         {
             saveButton.onClick.AddListener(() =>
             {
                 SaveManager.Instance.SaveToCurrentSlot();
+                FlashSavedPopup();
             });
         }
 
@@ -134,6 +177,22 @@ public class PauseManager : MonoBehaviour
             quitButton.onClick.AddListener(() =>
             {
                 GameManager.Instance.ReturnToMainMenu();
+            });
+        }
+
+        if(testSceneButton != null)
+        {
+            testSceneButton.onClick.AddListener(() =>
+            {
+                SceneManager.LoadScene("Combat Testing");
+            });
+        }
+
+        if (closeMenuButton != null)
+        {
+            closeMenuButton.onClick.AddListener(() =>
+            {
+                ExitMenuPause();
             });
         }
     }

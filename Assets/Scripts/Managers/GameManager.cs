@@ -32,6 +32,10 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool GameInitialized { get; private set; }
 
+    public bool IsGameActive;
+
+    private GameSceneBootstrap GSB;
+
     private void Awake()
     {
         if (Instance == null)
@@ -96,24 +100,23 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void LoadAutosave()
     {
-        // Get the slot number from the autosave
-        var autosaveInfo = SaveManager.Instance?.GetAutosaveInfo();
-        if (autosaveInfo != null && autosaveInfo.exists)
-        {
-            CurrentSlot = autosaveInfo.slotNumber;
-        }
-
         SaveFileToLoad = SaveManager.AUTOSAVE_NAME;
         ShouldLoadSave = true;
         GameInitialized = false;
 
-        if (SaveManager.Instance != null)
-        {
-            SaveManager.Instance.SetCurrentSlot(CurrentSlot);
-        }
-
         Debug.Log($"Loading autosave (slot {CurrentSlot})");
         SceneManager.LoadScene(gameSceneName);
+    }
+
+    /// <summary>
+    /// Prepare for returning from a raid — loads the pre-raid autosave on next scene load.
+    /// </summary>
+    public void PrepareRaidReturn()
+    {
+        ShouldLoadSave = true;
+        SaveFileToLoad = SaveManager.AUTOSAVE_NAME;
+        GameInitialized = false;
+        Debug.Log("GameManager: Prepared for raid return — will load autosave");
     }
 
     /// <summary>
@@ -130,6 +133,10 @@ public class GameManager : MonoBehaviour
     {
         if (scene.name == gameSceneName && !GameInitialized)
         {
+            if(GSB == null)
+            {
+                GSB = FindAnyObjectByType<GameSceneBootstrap>();
+            }
             StartCoroutine(InitializeGameAfterDelay());
         }
     }
@@ -143,6 +150,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log($"Applying save data from: {SaveFileToLoad}");
             SaveManager.Instance.LoadGame(SaveFileToLoad);
+            RaidManager.Instance?.ApplyPendingResults();
         }
         else if (!ShouldLoadSave && SaveManager.Instance != null)
         {
@@ -153,6 +161,11 @@ public class GameManager : MonoBehaviour
         }
 
         GameInitialized = true;
+
+        if(GSB != null)
+        {
+            GSB.Init();
+        }
     }
 
     /// <summary>

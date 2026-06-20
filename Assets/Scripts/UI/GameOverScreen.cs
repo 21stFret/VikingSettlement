@@ -114,13 +114,5 @@ public class GameOverScreen : MonoBehaviour
     private void OnDestroy()
     {
         DOTween.Kill(_instanceMaterial);
-        // Destroy the instance so it doesn't accumulate in memory
-        if (_instanceMaterial != null)
-        {
-            if (Application.isPlaying)
-                Destroy(_instanceMaterial);
-            else
-                DestroyImmediate(_instanceMaterial, true);
-        }
     }
 }

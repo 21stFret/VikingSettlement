@@ -13,7 +13,7 @@ public class RaidPartyUI : MonoBehaviour
     [SerializeField] private GameObject partySelectionPanel;
 
     [Header("Available Villagers Pool")]
-    [SerializeField] private List<RaidPartyMemberItem> availableVillagerPool;
+    [SerializeField] public List<RaidPartyMemberItem> availableVillagerPool;
 
     [Header("Party Members Pool")]
     [SerializeField] private List<RaidPartyMemberItem> partyMemberPool;
@@ -23,7 +23,7 @@ public class RaidPartyUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI totalCombatText;
 
     [Header("Buttons")]
-    [SerializeField] private Button startRaidButton;
+    [SerializeField] public Button startRaidButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private TextMeshProUGUI startButtonText;
 
@@ -33,7 +33,6 @@ public class RaidPartyUI : MonoBehaviour
     // Internal state
     private RaidDestination selectedRaid;
     private List<Villager> raidParty = new List<Villager>();
-
     private RaidUI raidUI;
 
     private void Awake()
@@ -52,7 +51,7 @@ public class RaidPartyUI : MonoBehaviour
         raidUI = GetComponentInParent<RaidUI>();
         if (raidUI == null)
         {
-            raidUI = FindFirstObjectByType<RaidUI>();
+            raidUI = FindAnyObjectByType<RaidUI>();
         }
 
         if (startRaidButton != null)
@@ -125,6 +124,8 @@ public class RaidPartyUI : MonoBehaviour
 
         // Update party stats
         UpdatePartyStats();
+
+        UIFocus.Set(availableVillagerPool[0].gameObject);
     }
 
     /// <summary>

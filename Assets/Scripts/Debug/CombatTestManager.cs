@@ -42,6 +42,8 @@ public class CombatTestManager : MonoBehaviour
     {
         public string label = "Enemy";
         public GameObject prefab;
+        public bool giveWeapon;
+        public bool giveShield;
     }
 
     private Villager _player;
@@ -82,11 +84,12 @@ public class CombatTestManager : MonoBehaviour
         if (ia != null)
         {
             ia.GiveRandomWeapon();
-            ia.GiveRandomShield();
-            ia.GiveRandomTorch();
+            //ia.GiveRandomShield();
+            //ia.GiveRandomTorch();
         }
 
         _player.ApplySkillBonuses();
+        _player.Init();
 
         if (PlayerController.Instance != null)
             PlayerController.Instance.SetControlTarget(_player);
@@ -122,10 +125,11 @@ public class CombatTestManager : MonoBehaviour
             if (ia != null)
             {
                 ia.GiveRandomWeapon();
-                ia.GiveRandomShield();
+                //ia.GiveRandomShield();
             }
 
             villager.ApplySkillBonuses();
+            villager.Init();
 
             // Set raid follow AI — allies follow the player character
             var ai = go.GetComponent<VillagerAI>();
@@ -142,7 +146,7 @@ public class CombatTestManager : MonoBehaviour
     public void ClearAllies()
     {
         PlayerController.Instance?.ClearRaidAllies();
-        foreach (var v in FindObjectsByType<Villager>(FindObjectsSortMode.None))
+        foreach (var v in FindObjectsByType<Villager>())
         {
             if (v != _player)
                 Destroy(v.gameObject);
@@ -162,12 +166,18 @@ public class CombatTestManager : MonoBehaviour
         for (int i = 0; i < _spawnCount; i++)
         {
             var go = Instantiate(enemyTypes[index].prefab, GetSpawnPoint(i), Quaternion.identity);
+            go.GetComponent<Enemy>().InitializeEnemyStats();
+            /*
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)
             {
-                ia.GiveRandomWeapon();
-                ia.GiveRandomShield();
+                if (enemyTypes[index].giveWeapon)
+                    ia.GiveWeaponByName("DSword");
+
+                if (enemyTypes[index].giveShield)
+                    ia.GiveRandomShield();
             }
+            */
         }
             
 
@@ -178,7 +188,7 @@ public class CombatTestManager : MonoBehaviour
 
     public void ClearEnemies()
     {
-        foreach (var e in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
+        foreach (var e in FindObjectsByType<Enemy>())
             Destroy(e.gameObject);
     }
 
@@ -237,7 +247,7 @@ public class CombatTestManager : MonoBehaviour
         if (GUILayout.Button("Respawn Player")) SpawnPlayer();
 
         GUILayout.Space(6);
-        int enemyCount = FindObjectsByType<Enemy>(FindObjectsSortMode.None).Length;
+        int enemyCount = FindObjectsByType<Enemy>().Length;
         GUILayout.Label($"Enemies alive: {enemyCount}");
 
         GUILayout.EndVertical();
@@ -261,7 +271,7 @@ public class CombatTestManager : MonoBehaviour
         GUILayout.Label($"HP:     {_player.currentHealth:F0} / {_player.maxHealth:F0}");
         GUILayout.Label($"Wounds: {_player.activeWounds.Count} / {WoundManager.MAX_WOUNDS}");
 
-        var cc = _player.GetComponent<CharacterController>();
+        var cc = _player.GetComponent<CharacterBase>();
         if (cc == null) return;
 
         // Block / parry state

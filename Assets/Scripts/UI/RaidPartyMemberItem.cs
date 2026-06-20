@@ -21,7 +21,7 @@ public class RaidPartyMemberItem : MonoBehaviour
     [SerializeField] private Color unavailableColor = new Color(0.3f, 0.3f, 0.3f, 0.5f);
 
     private Villager villager;
-    private RaidPartyUI partyUI;
+    public RaidPartyUI partyUI;
     private bool isInParty = false;
 
     public Villager Villager => villager;
@@ -152,13 +152,25 @@ public class RaidPartyMemberItem : MonoBehaviour
     {
         if (partyUI == null || villager == null) return;
 
+        RaidPartyUI ui = partyUI;
+
         if (isInParty)
         {
-            partyUI.RemoveFromParty(villager);
+            ui.RemoveFromParty(villager);
         }
         else
         {
-            partyUI.AddToParty(villager);
+            ui.AddToParty(villager);
+        }
+
+        RaidPartyMemberItem firstActive = ui.availableVillagerPool.Find(item => item != null && item.gameObject.activeSelf);
+        if (firstActive != null)
+        {
+            UIFocus.Set(firstActive.gameObject);
+        }
+        else
+        {
+            UIFocus.Set(ui.startRaidButton.gameObject);
         }
     }
 }

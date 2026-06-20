@@ -22,6 +22,7 @@ public class SaveSlotItemUI : MonoBehaviour
 
     public string SlotName { get; private set; }
     public bool HasSave { get; private set; }
+    public Button GetButton() => button;
 
     private Action<SaveSlotItemUI> onSelected;
     private bool isSelected;
@@ -62,7 +63,7 @@ public class SaveSlotItemUI : MonoBehaviour
         }
 
         SetSelected(false);
-        UpdateBackgroundColor();
+        //UpdateBackgroundColor();
     }
 
     private string FormatSlotName(string slotName)
@@ -88,7 +89,7 @@ public class SaveSlotItemUI : MonoBehaviour
     {
         isSelected = selected;
         if (selectedIndicator != null) selectedIndicator.SetActive(selected);
-        UpdateBackgroundColor();
+        //UpdateBackgroundColor();
     }
 
     private void UpdateBackgroundColor()
