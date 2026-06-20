@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Dummy Enemy
+  - Name: Enemy
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

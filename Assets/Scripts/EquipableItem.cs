@@ -48,6 +48,9 @@ public class EquipableItem : MonoBehaviour
 
     public event System.Action OnBroken;
     public event System.Action OnDurabilityChanged;
+    public event System.Action OnUnequipped;
+
+    public void NotifyUnequipped() => OnUnequipped?.Invoke();
 
     private void Awake()
     {

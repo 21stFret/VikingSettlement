@@ -11129,7 +11129,7 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Raider
-  enemyType: 0
+  enemyType: 5
   damage: 2
   attackRange: 2
   attackCooldown: 1.5
@@ -11190,6 +11190,9 @@ MonoBehaviour:
   maxBlockCharges: 1
   blockCooldown: 5
   reactiveBlockDuration: 1.5
+  rollSpeed: 6
+  rollDuration: 0.35
+  rollCooldown: 1
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}
@@ -11215,6 +11218,7 @@ MonoBehaviour:
   idleTimeMax: 3
   targetNearestVillager: 1
   pursueTarget: 1
+  faceTargetWhileAttacking: 1
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:

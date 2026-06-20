@@ -95,6 +95,7 @@ public class ItemAttachment : MonoBehaviour
         }
 
         shield = null;
+        item?.NotifyUnequipped();
     }
 
     /// <summary>

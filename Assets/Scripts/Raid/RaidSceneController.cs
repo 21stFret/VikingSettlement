@@ -17,13 +17,6 @@ public class RaidSceneController : MonoBehaviour
     [Tooltip("Where enemies spawn")]
     public List<Transform> enemySpawnPoints = new List<Transform>();
 
-    [Header("Enemy Prefabs")]
-    public GameObject draugrPrefab;
-    public GameObject raiderPrefab;
-    public GameObject warriorPrefab;
-    public GameObject berserkerPrefab;
-    public GameObject archerPrefab;
-    public GameObject wolfPrefab;
 
     [Header("Raid State")]
     [SerializeField] private bool raidActive = false;
@@ -112,7 +105,7 @@ public class RaidSceneController : MonoBehaviour
         SpawnParty();
 
         // Spawn enemies
-        SpawnEnemies(destination.enemyCount, destination.primaryEnemyType);
+        SpawnEnemies(destination.enemyCount, destination.enemyPrefabs, destination.spawnAll);
 
         Debug.Log($"Battle started! Party: {partyMembersAlive}, Enemies: {enemiesRemaining}");
     }
@@ -207,44 +200,44 @@ public class RaidSceneController : MonoBehaviour
     }
 
     /// <summary>
-    /// Spawn enemies at designated points
+    /// Spawn enemies at designated points.
+    /// spawnAll: one of each prefab in the list, ignoring count.
+    /// !spawnAll: pick randomly from the list, count times.
     /// </summary>
-    private void SpawnEnemies(int count, Enemy.EnemyType enemyType)
+    private void SpawnEnemies(int count, List<GameObject> prefabs, bool spawnAll)
     {
         spawnedEnemies.Clear();
         enemiesRemaining = 0;
 
-        GameObject prefab = GetEnemyPrefab(enemyType);
-        if (prefab == null)
+        if (prefabs == null || prefabs.Count == 0)
         {
-            Debug.LogError($"No prefab found for enemy type: {enemyType}");
+            Debug.LogError("RaidSceneController: No enemy prefabs assigned on the raid destination.");
             return;
         }
 
-        for (int i = 0; i < count; i++)
+        List<GameObject> toSpawn = spawnAll
+            ? new List<GameObject>(prefabs)
+            : BuildRandomList(prefabs, count);
+
+        for (int i = 0; i < toSpawn.Count; i++)
         {
-            // Get spawn point (cycle through if more enemies than points)
             Transform spawnPoint = enemySpawnPoints.Count > 0
                 ? enemySpawnPoints[i % enemySpawnPoints.Count]
                 : transform;
 
-            // Add some randomness to spawn position
             Vector3 spawnPos = spawnPoint.position + new Vector3(
                 Random.Range(-1f, 1f),
                 Random.Range(-1f, 1f),
                 0
             );
 
-            // Spawn enemy
-            GameObject enemyObj = Instantiate(prefab, spawnPos, Quaternion.identity);
+            GameObject enemyObj = Instantiate(toSpawn[i], spawnPos, Quaternion.identity);
             Enemy enemy = enemyObj.GetComponent<Enemy>();
 
             if (enemy != null)
             {
                 spawnedEnemies.Add(enemy);
                 enemiesRemaining++;
-
-                // Subscribe to death
                 enemy.OnDeath += () => OnEnemyDied(enemy);
             }
         }
@@ -252,21 +245,12 @@ public class RaidSceneController : MonoBehaviour
         OnEnemyCountChanged?.Invoke(enemiesRemaining);
     }
 
-    /// <summary>
-    /// Get the prefab for an enemy type
-    /// </summary>
-    private GameObject GetEnemyPrefab(Enemy.EnemyType type)
+    private List<GameObject> BuildRandomList(List<GameObject> prefabs, int count)
     {
-        switch (type)
-        {
-            case Enemy.EnemyType.Draugr: return draugrPrefab;
-            case Enemy.EnemyType.Raider: return raiderPrefab;
-            case Enemy.EnemyType.Warrior: return warriorPrefab;
-            case Enemy.EnemyType.Berserker: return berserkerPrefab;
-            case Enemy.EnemyType.Archer: return archerPrefab;
-            case Enemy.EnemyType.Wolf: return wolfPrefab;
-            default: return draugrPrefab;
-        }
+        var result = new List<GameObject>(count);
+        for (int i = 0; i < count; i++)
+            result.Add(prefabs[Random.Range(0, prefabs.Count)]);
+        return result;
     }
 
     #endregion

@@ -396,7 +396,9 @@ public class RaidDestination
     [Header("Difficulty")]
     public int recommendedPartySize = 3;
     public int enemyCount = 5;
-    public Enemy.EnemyType primaryEnemyType = Enemy.EnemyType.Draugr;
+    public List<GameObject> enemyPrefabs = new List<GameObject>();
+    [Tooltip("If true, spawns one of each prefab in the list (ignores enemyCount). If false, picks randomly from the list enemyCount times.")]
+    public bool spawnAll = false;
 
     [Header("Rewards")]
     public List<ResourceLoot> potentialLoot = new List<ResourceLoot>();

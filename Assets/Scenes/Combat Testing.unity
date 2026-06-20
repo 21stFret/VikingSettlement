@@ -86413,8 +86413,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.30383328, y: -0.1297019, z: 0.0748674, w: 0.9408814}
   m_LocalPosition: {x: 3.5037355, y: 1.4798095, z: 1.1064905}
-  m_LocalScale: {x: 1.3112624, y: 1.4774786, z: 1.4774783}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 7.36, y: 8.292957, z: 8.292957}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 816856335}
   m_LocalEulerAnglesHint: {x: 8.701, y: 43.988, z: -58.47}
@@ -86434,12 +86434,12 @@ MonoBehaviour:
   m_LightType: 2
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
-  m_Color: {r: 1, g: 0.8625582, b: 0.3915094, a: 0.68235296}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 0.81860375, b: 0.0141509175, a: 1}
+  m_Intensity: 1.39
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000002b777586
-  m_LightCookieSprite: {fileID: 21300000, guid: b90c6332c1c326742b5882aa99e0d188, type: 3}
+  m_LightCookieSprite: {fileID: -521372396, guid: b4c80c731006f32419b061adf6d6dca9, type: 3}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
   m_AlphaBlendOnOverlap: 0
@@ -86447,7 +86447,7 @@ MonoBehaviour:
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
   m_UseNormalMap: 0
-  m_ShadowsEnabled: 1
+  m_ShadowsEnabled: 0
   m_ShadowIntensity: 0.75
   m_ShadowSoftness: 0.3
   m_ShadowSoftnessFalloffIntensity: 0.5
@@ -86455,7 +86455,7 @@ MonoBehaviour:
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 3.755, y: 2.085, z: 0}
+    m_Extent: {x: 0.5, y: 0.5, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
@@ -109874,6 +109874,34 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &955865862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119189,9 +119217,9 @@ MonoBehaviour:
   m_ComponentVersion: 2
   m_LightType: 1
   m_BlendStyleIndex: 0
-  m_FalloffIntensity: 0.576
+  m_FalloffIntensity: 0.594
   m_Color: {r: 1, g: 0.8625582, b: 0.3915094, a: 0.68235296}
-  m_Intensity: 0.64
+  m_Intensity: 0.98
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000002b777586
@@ -119203,15 +119231,15 @@ MonoBehaviour:
   m_NormalMapDistance: 3
   m_NormalMapQuality: 2
   m_UseNormalMap: 0
-  m_ShadowsEnabled: 1
+  m_ShadowsEnabled: 0
   m_ShadowIntensity: 0.75
-  m_ShadowSoftness: 0.3
+  m_ShadowSoftness: 0.484
   m_ShadowSoftnessFalloffIntensity: 0.5
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 2.9805, y: 5.56045, z: 0}
-    m_Extent: {x: 5.5006, y: 9.27875, z: 0}
+    m_Center: {x: 3.0115998, y: 6.01455, z: 0}
+    m_Extent: {x: 5.4699, y: 8.82465, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0
@@ -119222,7 +119250,7 @@ MonoBehaviour:
   m_ShapeLightFalloffSize: 0.83
   m_ShapeLightFalloffOffset: {x: 0, y: 0}
   m_ShapePath:
-  - {x: 1.116648, y: -1.4793272, z: 0.000027349817}
+  - {x: 1.0300424, y: -1.2078773, z: 0.000039506835}
   - {x: 7.651863, y: 13.610446, z: 0}
   - {x: 7.623411, y: 13.704243, z: 0}
   - {x: 7.5772057, y: 13.790686, z: 0}
@@ -119238,22 +119266,18 @@ MonoBehaviour:
   - {x: 6.745736, y: 13.790686, z: 0}
   - {x: 6.6995306, y: 13.704243, z: 0}
   - {x: 6.6710787, y: 13.610446, z: 0}
-  - {x: -1.3908304, y: 2.6049154, z: 0.0001237864}
-  - {x: -1.5925934, y: 2.4550962, z: 0.00011958132}
-  - {x: -1.6921926, y: 1.9876407, z: 0.00011016306}
-  - {x: -1.5462241, y: 1.6454892, z: 0.00010708065}
-  - {x: -1.4875666, y: 1.4179435, z: 0.00010931752}
-  - {x: -1.4872798, y: 1.1576189, z: 0.00011334056}
-  - {x: -1.3412523, y: -0.04492096, z: 0.000038798207}
-  - {x: -0.73327047, y: -0.63644576, z: 0.00003041821}
-  - {x: -0.5849575, y: -1.2179215, z: 0.000009469285}
-  - {x: -0.14749195, y: -1.7787672, z: 0.000024013934}
-  - {x: -0.108758815, y: -2.4349678, z: 0.000033366992}
-  - {x: 0.2785403, y: -2.8742232, z: 0.000047243142}
-  - {x: 0.5850645, y: -2.8889158, z: 0.000016920061}
-  - {x: 0.74015266, y: -2.6142638, z: 0.000018125706}
-  - {x: 0.87187517, y: -2.51337, z: 0.000015716347}
-  - {x: 0.99352777, y: -2.0473914, z: 0.000017400871}
+  - {x: -0.73045856, y: 2.0386405, z: 0.00020441563}
+  - {x: -1.6072917, y: 0.65571344, z: 0.00011948395}
+  - {x: -1.5213494, y: 0.20275615, z: 0.00012331628}
+  - {x: -1.6286224, y: 0.09161857, z: 0.00012702764}
+  - {x: -1.5121524, y: -0.3030014, z: 0.000050935374}
+  - {x: -1.3721604, y: -0.7028354, z: 0.000047501762}
+  - {x: -1.139683, y: -0.6905406, z: 0.00006950406}
+  - {x: -0.9889773, y: -1.1666138, z: 0.000018535657}
+  - {x: -0.7703291, y: -1.2086003, z: 0.00007572167}
+  - {x: -0.45868784, y: -1.9804655, z: 0.00005375445}
+  - {x: -0.07461116, y: -1.9181705, z: 0.00016171702}
+  - {x: 0.8983664, y: -1.5255752, z: 0.00011348934}
 --- !u!4 &1079029355 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4000423818030414218, guid: 398271cdcfc882a4498a346bf1b2ad69, type: 3}
@@ -134770,6 +134794,34 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -197172,6 +197224,34 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222413,6 +222493,9 @@ MonoBehaviour:
   parryWindowDuration: 0.3
   pickupCheckInterval: 0.15
   shieldPickupRadius: 0.5
+  throwSpeed: 12
+  throwRange: 8
+  throwCooldown: 5
   wallSlotSpacing: 1
 --- !u!4 &1757563773
 Transform:
@@ -259355,6 +259438,34 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!224 &2948359121601391322
 RectTransform:
   m_ObjectHideFlags: 0
@@ -265768,6 +265879,7 @@ MonoBehaviour:
   idleTimeMax: 3
   targetNearestVillager: 1
   pursueTarget: 1
+  faceTargetWhileAttacking: 1
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:

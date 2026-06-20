@@ -60,6 +60,7 @@ public class ShieldUI : MonoBehaviour
         if (_trackedShield == null) return;
         _trackedShield.OnDurabilityChanged += OnShieldDamaged;
         _trackedShield.OnBroken += OnShieldBroken;
+        _trackedShield.OnUnequipped += OnShieldUnequipped;
     }
 
     private void UnsubscribeFromShield()
@@ -67,6 +68,7 @@ public class ShieldUI : MonoBehaviour
         if (_trackedShield == null) return;
         _trackedShield.OnDurabilityChanged -= OnShieldDamaged;
         _trackedShield.OnBroken -= OnShieldBroken;
+        _trackedShield.OnUnequipped -= OnShieldUnequipped;
     }
 
     private void OnShieldDamaged()
@@ -80,6 +82,13 @@ public class ShieldUI : MonoBehaviour
     {
         if (shieldImage != null)
             shieldImage.sprite = noShieldSprite;
+    }
+
+    private void OnShieldUnequipped()
+    {
+        UnsubscribeFromShield();
+        _trackedShield = null;
+        UpdateSprite();
     }
 
     private void UpdateSprite()
