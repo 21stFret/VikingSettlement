@@ -610,6 +610,11 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
+    /// Called when this character is hit by an attacker. Override to react to being hit.
+    /// </summary>
+    public virtual void OnHitBy(CharacterBase attacker) { }
+
+    /// <summary>
     /// Override this to handle what happens when hitting a target
     /// </summary>
     protected virtual void OnHitTarget(Collider2D hit)
@@ -659,6 +664,9 @@ public class CharacterBase : MonoBehaviour
         }
 
         target.TakeDamage(damage, weapon);
+
+        // Notify the target who hit them (used by EnemyAI retargetOnHit, etc.)
+        hit.GetComponent<CharacterBase>()?.OnHitBy(this);
 
         // Life steal (Player only)
         if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)

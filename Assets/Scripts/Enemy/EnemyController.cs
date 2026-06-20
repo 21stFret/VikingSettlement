@@ -75,10 +75,16 @@ public class EnemyController : CharacterBase
             float totalDamage = damage + weaponDamage;
             Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
             target.TakeDamage(totalDamage, weapon);
+            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }
     }
 
+
+    public override void OnHitBy(CharacterBase attacker)
+    {
+        GetComponent<EnemyAI>()?.NotifyHitBy(attacker);
+    }
 
     protected override void OnDrawGizmosSelected()
     {

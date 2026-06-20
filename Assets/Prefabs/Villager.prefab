@@ -524,7 +524,7 @@ MonoBehaviour:
   workRadius: 2
   threatDetectionRange: 8
   combatEngageRange: 1
-  fleeHealthThreshold: 30
+  fleeHealthThreshold: -1
   threatCheckInterval: 0.5
   weaponsLayerMask:
     serializedVersion: 2
@@ -576,6 +576,7 @@ MonoBehaviour:
   isHungry: 0
   isCold: 0
   isOnRaid: 0
+  deathCause: 4
   healthRegenFromFood: 1
   moraleRegenFromFood: 5
   gender: 1
@@ -621,6 +622,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
+  use4DirectionalSprites: 0
   swordAttackSize: {x: 1.6, y: 1.4}
   spearAttackSize: {x: 1, y: 1}
   axeAttackSize: {x: 1, y: 1}
@@ -649,6 +651,10 @@ MonoBehaviour:
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
+  facingDirection: 3
+  slotDistance: 0.8
+  knockbackForce: 5
+  knockbackDuration: 0.1
   combatMoveSpeed: 3
   walkMoveSpeed: 2
 --- !u!114 &5493561719251364476

@@ -61,6 +61,10 @@ public class VillagerAI : MonoBehaviour
     private CharacterBase _currentSlotHost;
     private Vector2 _claimedSlotPos;
 
+    // Fight zone (pair-based spatial separation via FightManager)
+    private CharacterBase _registeredThreat;
+    private Vector2 _fightZoneCenter;
+
     private float idleTimer = 0f;
     private float nextIdleTime;
     private AIState currentState = AIState.Idle;
@@ -387,47 +391,49 @@ public class VillagerAI : MonoBehaviour
         // Calculate distance to threat
         float distanceToThreat = Vector2.Distance(transform.position, currentThreat.position);
 
-        // Claim a slot on the threat (release the old one first if target changed)
         var threatCB = currentThreat.GetComponent<CharacterBase>();
-        if (threatCB != null && _currentSlotHost != threatCB)
+        var fm = FightManager.Instance;
+
+        // Register (or retrieve) our shared fight zone with this threat.
+        // If the enemy is already registered with someone else, the zone
+        // will have been placed away from that other fight automatically.
+        if (threatCB != null && threatCB != _registeredThreat)
         {
             ReleaseCurrentSlot();
-            TryClaimEngagementSlot(threatCB);
+            _registeredThreat = threatCB;
+            _fightZoneCenter = fm != null
+                ? fm.RegisterPair(controller, threatCB)
+                : (Vector2)currentThreat.position;
         }
 
-        // Move to slot position (if claimed) and only attack once standing at the slot
-        if (_currentSlotHost != null)
+        // Slots: only activate when a second attacker is arriving on the same target
+        if (fm != null && fm.IsEngaged(threatCB))
         {
-            Vector2 slotPos = _currentSlotHost.GetSlotWorldPos(controller);
-            float distToSlot = Vector2.Distance(transform.position, slotPos);
-
-            if (distToSlot <= 0.35f)
+            if (threatCB != null && _currentSlotHost != threatCB)
             {
-                if (controller.weapon != null)
-                {
-                    controller.Stop();
-                    controller.FaceTowards(currentThreat.position);
-                    controller.Attack();
-                }
-            }
-            else
-            {
-                controller.MoveTo(slotPos);
+                ReleaseCurrentSlot();
+                TryClaimEngagementSlot(threatCB);
             }
         }
         else
         {
-            // Slot claim failed (all full) — direct engagement as fallback
-            if (distanceToThreat <= combatEngageRange && controller.weapon != null)
-            {
-                controller.Stop();
-                controller.FaceTowards(currentThreat.position);
-                controller.Attack();
-            }
-            else
-            {
-                controller.MoveTo((Vector2)currentThreat.position);
-            }
+            ReleaseCurrentSlot();
+        }
+
+        // Slots control approach direction only — attack eligibility is always engage range
+        if (distanceToThreat <= combatEngageRange && controller.weapon != null)
+        {
+            controller.Stop();
+            controller.FaceTowards(currentThreat.position);
+            controller.Attack();
+        }
+        else
+        {
+            // Move toward slot (oversized) or fight zone center (1v1)
+            Vector2 dest = _currentSlotHost != null
+                ? _currentSlotHost.GetSlotWorldPos(controller)
+                : _fightZoneCenter;
+            controller.MoveTo(dest);
         }
 
         // If threat is too far, stop engaging
@@ -635,6 +641,8 @@ public class VillagerAI : MonoBehaviour
     {
         _currentSlotHost?.ReleaseSlot(controller);
         _currentSlotHost = null;
+        FightManager.Instance?.Unregister(controller);
+        _registeredThreat = null;
     }
 
     private void OnDestroy()
@@ -650,28 +658,33 @@ public class VillagerAI : MonoBehaviour
             return;
         }
 
-        // Find all enemies in detection range
         Enemy[] allEnemies = FindObjectsByType<Enemy>();
-        Enemy nearestEnemy = null;
-        float nearestDistance = Mathf.Infinity;
+        Enemy nearestEnemy     = null;
+        Enemy nearestFreeEnemy = null;
+        float nearestDist     = Mathf.Infinity;
+        float nearestFreeDist = Mathf.Infinity;
+        var fm = FightManager.Instance;
 
         foreach (var enemy in allEnemies)
         {
             if (enemy.IsDead()) continue;
-
             float distance = Vector2.Distance(transform.position, enemy.transform.position);
+            if (distance >= threatDetectionRange) continue;
 
-            if (distance < threatDetectionRange && distance < nearestDistance)
-            {
-                nearestDistance = distance;
-                nearestEnemy = enemy;
-            }
+            if (distance < nearestDist) { nearestDist = distance; nearestEnemy = enemy; }
+
+            var cb = enemy.GetComponent<CharacterBase>();
+            bool free = fm == null || !fm.IsEngaged(cb);
+            if (free && distance < nearestFreeDist) { nearestFreeDist = distance; nearestFreeEnemy = enemy; }
         }
 
+        // Prefer an enemy not already locked in a fight; fall back to nearest overall
+        Enemy chosenEnemy = nearestFreeEnemy != null ? nearestFreeEnemy : nearestEnemy;
+
         // If we found a threat
-        if (nearestEnemy != null)
+        if (chosenEnemy != null)
         {
-            currentThreat = nearestEnemy.transform;
+            currentThreat = chosenEnemy.transform;
             if (controller.combatMoveSpeed > 0f)
                 controller.SetMoveSpeed(controller.combatMoveSpeed);
 

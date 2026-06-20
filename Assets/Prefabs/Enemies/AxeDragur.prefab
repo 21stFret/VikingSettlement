@@ -11171,6 +11171,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
+  use4DirectionalSprites: 0
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
   axeAttackSize: {x: 2, y: 2}
@@ -11190,12 +11191,19 @@ MonoBehaviour:
   maxBlockCharges: 1
   blockCooldown: 5
   reactiveBlockDuration: 1.5
+  rollSpeed: 6
+  rollDuration: 0.35
+  rollCooldown: 1
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
+  facingDirection: 3
+  slotDistance: 0.8
+  knockbackForce: 5
+  knockbackDuration: 0.1
 --- !u!114 &6713158499483296687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11215,8 +11223,12 @@ MonoBehaviour:
   idleTimeMax: 3
   targetNearestVillager: 1
   pursueTarget: 1
+  faceTargetWhileAttacking: 1
+  useCombatSlots: 0
   pursuitRange: 15
   loseTargetTime: 3
+  retargetOnNearer: 1
+  retargetOnHit: 1
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
