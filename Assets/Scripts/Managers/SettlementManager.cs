@@ -3,16 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
+[System.Serializable]
+public class DeathRecord
+{
+    public string name;
+    public string uniqueId;
+    public float ageAtDeath;
+    public DeathCause cause;
+    public bool wasJarl;
+    public float timeOfDeath;
+}
+
 public class SettlementManager : MonoBehaviour, ISaveable
 {
     public static SettlementManager Instance { get; private set; }
-    
+
     [Header("Buildings")]
     private List<Building> allBuildings = new List<Building>();
-    
+
     [Header("Villagers")]
     private List<Villager> allVillagers = new List<Villager>();
-    
+    private List<DeathRecord> _deathLog = new List<DeathRecord>();
+
     [Header("Population Statistics")]
     [SerializeField] private int youngCount = 0;
     [SerializeField] private int matureCount = 0;
@@ -397,9 +409,22 @@ public class SettlementManager : MonoBehaviour, ISaveable
         {
             allVillagers.Remove(villager);
             totalDeaths++;
-            Debug.Log($"Unregistered villager: {villager.villagerName} (Age: {villager.age:F1}). Total population: {allVillagers.Count}");
+
+            _deathLog.Add(new DeathRecord
+            {
+                name       = villager.villagerName,
+                uniqueId   = villager.uniqueId,
+                ageAtDeath = villager.age,
+                cause      = villager.deathCause,
+                wasJarl    = villager.isJarl,
+                timeOfDeath = Time.time
+            });
+
+            Debug.Log($"Unregistered villager: {villager.villagerName} (Age: {villager.age:F1}, Cause: {villager.deathCause}). Total population: {allVillagers.Count}");
         }
     }
+
+    public List<DeathRecord> GetDeathLog() => new List<DeathRecord>(_deathLog);
     
     /// <summary>
     /// Get all villagers

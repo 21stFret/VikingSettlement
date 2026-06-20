@@ -109902,6 +109902,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &955865862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134794,6 +134795,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -196375,6 +196377,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -259466,6 +259469,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!224 &2948359121601391322
 RectTransform:
   m_ObjectHideFlags: 0
@@ -259739,14 +259743,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: availableWeapons.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: 'availableWeapons.Array.data[3]'
-      value: 
-      objectReference: {fileID: 8754541858049918560, guid: 3b5258ed17c3a0449a9ae1d69f0c563c, type: 3}
     - target: {fileID: 5278577266530551435, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
       propertyPath: m_Name
       value: WeaponDatabase

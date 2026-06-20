@@ -363,11 +363,14 @@ Material:
     - _RecolorRGBYCPTextureToggle: 0
     - _RectHeight: 100
     - _RectWidth: 100
+    - _ResizableTexture: 0
     - _Saturation: 1
     - _ScreenTilingPixelsPerUnit: 100
     - _ScreenWidthUnits: 10
     - _ShaderFading: 0
     - _ShaderSpace: 0
+    - _ShaderSpacePixelate: 0
+    - _ShaderSpacePixelation: 16
     - _ShadowFade: 1
     - _SharpenFactor: 4
     - _SharpenFade: 1
@@ -591,6 +594,7 @@ Material:
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _ScreenTilingOffset: {r: 0, g: 0, b: 0, a: 0}
     - _ScreenTilingScale: {r: 1, g: 1, b: 0, a: 0}
+    - _ShaderSpaceOffset: {r: 0, g: 0, b: 0, a: 0}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0}
     - _ShadowOffset: {r: 0.05, g: -0.05, b: 0, a: 0}
     - _ShiftingColorA: {r: 1.498039, g: 0, b: 0, a: 0}

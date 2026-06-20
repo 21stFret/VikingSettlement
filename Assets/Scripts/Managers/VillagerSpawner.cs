@@ -74,7 +74,7 @@ public class VillagerSpawner : MonoBehaviour
 
         villager.itemAttachment.GiveRandomWeapon();
         villager.itemAttachment.GiveRandomShield();
-        villager.itemAttachment.GiveRandomTorch();
+        //villager.itemAttachment.GiveRandomTorch();
 
         villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
 

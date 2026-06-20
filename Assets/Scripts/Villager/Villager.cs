@@ -19,6 +19,7 @@ public class Villager : TargetHealth
     public bool isHungry = false;
     public bool isCold = false;
     public bool isOnRaid = false;
+    public DeathCause deathCause = DeathCause.Other;
     public float healthRegenFromFood = 1; // Health regained when fed
     public float moraleRegenFromFood = 5; // Morale regained when fed
 
@@ -612,21 +613,21 @@ public class Villager : TargetHealth
         base.Die();
         Debug.Log($"{villagerName} has died at age {age:F1}");
 
+        // Determine cause of death for all villagers
+        deathCause = DeathCause.Other;
+        if (lastDamageWasCombat)
+            deathCause = DeathCause.Combat;
+        else if (age >= lifeExpectancy)
+            deathCause = DeathCause.OldAge;
+        else if (isHungry)
+            deathCause = DeathCause.Starvation;
+        else if (isCold)
+            deathCause = DeathCause.Cold;
+
         // If the Jarl is dying, trigger succession
         if (isJarl && JarlManager.Instance != null)
         {
-            // Determine cause of death
-            DeathCause cause = DeathCause.Other;
-            if (lastDamageWasCombat)
-                cause = DeathCause.Combat;
-            else if (age >= lifeExpectancy)
-                cause = DeathCause.OldAge;
-            else if (isHungry)
-                cause = DeathCause.Starvation;
-            else if (isCold)
-                cause = DeathCause.Cold;
-
-            JarlManager.Instance.OnCurrentJarlDied(cause);
+            JarlManager.Instance.OnCurrentJarlDied(deathCause);
         }
 
         currentLifeStage = LifeStage.Dead;
@@ -661,11 +662,12 @@ public class Villager : TargetHealth
     }
 
     /// <summary>
-    /// Remove the villager game object at the end of death animation with animation event
+    /// Called by the death animation event — spawns the Valkyrie which handles body removal.
     /// </summary>
-    public void RemoveAtEndofAnimation()
+    public void SpawnValkyrie()
     {
-        Destroy(gameObject, 0.5f);
+        if (ValkyrieManager.Instance != null)
+            ValkyrieManager.Instance.SpawnForVillager(this);
     }
 
     #endregion
