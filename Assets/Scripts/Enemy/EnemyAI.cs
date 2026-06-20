@@ -16,6 +16,7 @@ public class EnemyAI : MonoBehaviour
     [Header("Combat Settings")]
     [SerializeField] private bool targetNearestVillager = true;
     [SerializeField] private bool pursueTarget = true;
+    [SerializeField] private bool faceTargetWhileAttacking = true;
     [SerializeField] private float pursuitRange = 15f; // How far to chase before giving up
     [SerializeField] private float loseTargetTime = 3f; // Time before losing interest
 
@@ -240,9 +241,8 @@ public class EnemyAI : MonoBehaviour
             return;
         }
 
-        // Face the target
-        Vector2 direction = (currentTarget.position - transform.position).normalized;
-        // The animation system will handle sprite flipping
+        if (faceTargetWhileAttacking)
+            controller.FaceTowards(currentTarget.position);
 
         // Perform attack
         if (!controller.IsAttacking())

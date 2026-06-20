@@ -117,7 +117,7 @@ public class CharacterBase : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         itemAttachment = GetComponent<ItemAttachment>();
-        characterCollider = GetComponent<Collider2D>();
+        characterCollider = GetComponent<CircleCollider2D>();
 
         if (animator == null)
         {
@@ -811,6 +811,25 @@ public class CharacterBase : MonoBehaviour
         var cached = transform.localScale;
         var x = Mathf.Abs(cached.x);
         transform.localScale = new Vector3(flip ? -x : x, cached.y, cached.z);
+    }
+
+    /// <summary>
+    /// Immediately face towards a world position, updating sprite flip and cached direction used by hitboxes.
+    /// </summary>
+    public void FaceTowards(Vector2 worldPosition)
+    {
+        if (!flipSpriteOnDirection || spriteRenderer == null || isBlocking) return;
+
+        float dx = worldPosition.x - transform.position.x;
+        if (Mathf.Abs(dx) < 0.01f) return;
+
+        bool facingLeft = dx < 0f;
+        FlipSprite(facingLeft);
+
+        cachedMoveX = facingLeft ? -1f : 1f;
+        lastMoveDirection = new Vector2(cachedMoveX, lastMoveDirection.y);
+        if (animator != null)
+            animator.SetFloat(LastMoveX, lastMoveDirection.x);
     }
 
     private bool _isSprinting = false;
