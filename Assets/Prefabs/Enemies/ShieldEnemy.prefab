@@ -11186,10 +11186,13 @@ MonoBehaviour:
   isParrying: 0
   parryStunDuration: 1.5
   stunEffect: {fileID: 6310073354455067422}
-  useReactiveBlocking: 0
+  useReactiveBlocking: 1
   maxBlockCharges: 1
-  blockCooldown: 5
-  reactiveBlockDuration: 1.5
+  blockCooldown: 8
+  reactiveBlockDuration: 2
+  rollSpeed: 6
+  rollDuration: 0.35
+  rollCooldown: 1
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}
@@ -11215,6 +11218,7 @@ MonoBehaviour:
   idleTimeMax: 3
   targetNearestVillager: 1
   pursueTarget: 1
+  faceTargetWhileAttacking: 1
   pursuitRange: 15
   loseTargetTime: 3
   obstacleLayerMask:

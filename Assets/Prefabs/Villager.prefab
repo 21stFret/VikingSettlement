@@ -345,6 +345,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &8764698263912582825
 SpriteRenderer:
   serializedVersion: 2
@@ -635,9 +637,12 @@ MonoBehaviour:
   parryStunDuration: 1.5
   stunEffect: {fileID: 4112550802723451918}
   useReactiveBlocking: 1
-  maxBlockCharges: 2
+  maxBlockCharges: 1
   blockCooldown: 2
-  reactiveBlockDuration: 1.5
+  reactiveBlockDuration: 0.5
+  rollSpeed: 4
+  rollDuration: 0.2
+  rollCooldown: 1
   weapon: {fileID: 0}
   shield: {fileID: 0}
   torch: {fileID: 0}

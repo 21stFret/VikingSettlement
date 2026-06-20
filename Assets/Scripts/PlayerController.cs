@@ -27,6 +27,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float pickupCheckInterval = 0.15f;
     [SerializeField] private float shieldPickupRadius = 0.5f;
 
+    [Header("Shield Throw")]
+    [SerializeField] private float throwSpeed = 12f;
+    [SerializeField] private float throwRange = 8f;
+    [SerializeField] private float throwCooldown = 5f;
+    private float lastThrowTime = -999f;
+
     // Shield wall
     private bool _shieldWallActive = false;
     private readonly System.Collections.Generic.List<VillagerAI> _raidAllies
@@ -71,6 +77,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.ShieldWall.performed += OnShieldWall;
         inputActions.Player.SwapWeapon.performed += OnSwapWeapon;
         inputActions.Player.Roll.performed += OnRoll;
+        inputActions.Player.ThrowShield.performed += OnThrowShield;
     }
 
     private void OnDisable()
@@ -88,6 +95,7 @@ public class PlayerController : MonoBehaviour
         inputActions.Player.ShieldWall.performed -= OnShieldWall;
         inputActions.Player.SwapWeapon.performed -= OnSwapWeapon;
         inputActions.Player.Roll.performed -= OnRoll;
+        inputActions.Player.ThrowShield.performed -= OnThrowShield;
         inputActions.Disable();
     }
     
@@ -179,6 +187,29 @@ public class PlayerController : MonoBehaviour
         if (!inputEnabled || controller == null) return;
         Vector2 rollDir = moveInput.magnitude > 0.1f ? moveInput.normalized : controller.GetLastMoveDirection();
         controller.Roll(rollDir);
+    }
+
+    private void OnThrowShield(InputAction.CallbackContext context)
+    {
+        if (!inputEnabled || controller == null || controlTarget == null) return;
+        if (controller.shield == null || controller.shield.IsBroken) return;
+        if (Time.time - lastThrowTime < throwCooldown) return;
+
+        lastThrowTime = Time.time;
+
+        GameObject shieldGO = controller.shield.gameObject;
+        EquipableItem shieldItem = controller.shield;
+
+        // Detach from the character, clearing all equipped state
+        controlTarget.itemAttachment.DropShield();
+
+        // Keep isEquipped true so the pickup scanner ignores the shield while it's in flight
+        shieldItem.isEquipped = true;
+
+        Vector2 throwDir = moveInput.magnitude > 0.1f ? moveInput.normalized : controller.GetLastMoveDirection();
+
+        var thrower = shieldGO.AddComponent<ShieldThrow>();
+        thrower.Launch(throwDir, throwSpeed, throwRange, controller);
     }
 
     private void Update()

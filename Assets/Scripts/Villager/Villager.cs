@@ -629,6 +629,8 @@ public class Villager : TargetHealth
             JarlManager.Instance.OnCurrentJarlDied(cause);
         }
 
+        currentLifeStage = LifeStage.Dead;
+
         // Handle villager death
         if (assignedBuilding != null)
         {

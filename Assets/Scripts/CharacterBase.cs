@@ -384,6 +384,7 @@ public class CharacterBase : MonoBehaviour
     private IEnumerator RollCoroutine(Vector2 direction)
     {
         isRolling = true;
+        characterCollider.enabled = false; // Disable collisions during roll
         SafeSetTrigger(RollTrigger);
 
         float elapsed = 0f;
@@ -396,6 +397,7 @@ public class CharacterBase : MonoBehaviour
 
         movement = Vector2.zero;
         isRolling = false;
+        characterCollider.enabled = true;
     }
 
     #endregion
@@ -862,10 +864,10 @@ public class CharacterBase : MonoBehaviour
         {
             weapon.gameObject.SetActive(!isDead);
         }
-        if (shield != null)
-        {
-            shield.gameObject.SetActive(!isDead);
-        }
+        if (isDead)
+            itemAttachment?.DropShield();
+        else if (shield != null)
+            shield.gameObject.SetActive(true);
 
         if (isDead && stunEffect != null)
         {

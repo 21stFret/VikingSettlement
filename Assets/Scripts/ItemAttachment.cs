@@ -64,6 +64,40 @@ public class ItemAttachment : MonoBehaviour
     }
 
     /// <summary>
+    /// Detach the shield to the world so it can be picked up. Does nothing if shield is broken.
+    /// Called on character death for both allies and enemies.
+    /// </summary>
+    public void DropShield()
+    {
+        if (shield == null) return;
+
+        var item = shield.GetComponent<EquipableItem>();
+        if (item != null && item.IsBroken) return;
+
+        CharacterBase cc = GetComponent<CharacterBase>();
+        if (cc != null && cc.shield != null)
+        {
+            cc.shield.OnBroken -= UnequipShield;
+            cc.isBlocking = false;
+            cc.isParrying = false;
+            cc.shield.isEquipped = false;
+            cc.shield = null;
+        }
+
+        shield.transform.SetParent(null);
+        shield.tag = "Shield";
+
+        if (shield.GetComponent<Collider2D>() == null)
+        {
+            var col = shield.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.3f;
+        }
+
+        shield = null;
+    }
+
+    /// <summary>
     /// Remove and destroy the equipped shield, clearing all related state.
     /// Called automatically when shield durability reaches zero.
     /// </summary>
