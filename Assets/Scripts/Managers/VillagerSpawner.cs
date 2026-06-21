@@ -44,17 +44,37 @@ public class VillagerSpawner : MonoBehaviour
             return;
         }
 
+        List<Gender> genders = BuildBalancedGenderList(initialVillagerCount);
+
         for (int i = 0; i < initialVillagerCount; i++)
-            SpawnVillager();
+            SpawnVillager(gender: genders[i]);
 
         Debug.Log($"VillagerSpawner: Spawned {initialVillagerCount} initial villagers");
+    }
+
+    private List<Gender> BuildBalancedGenderList(int count)
+    {
+        var list = new List<Gender>();
+        int half = count / 2;
+        for (int i = 0; i < half; i++) list.Add(Gender.Male);
+        for (int i = 0; i < half; i++) list.Add(Gender.Female);
+        if (count % 2 != 0)
+            list.Add(Random.value > 0.5f ? Gender.Male : Gender.Female);
+
+        // Fisher-Yates shuffle
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+        return list;
     }
 
     /// <summary>
     /// Instantiate a single fresh villager, configure it, and register it with SettlementManager
     /// via Villager.Init().
     /// </summary>
-    public Villager SpawnVillager(Vector3? position = null, Gender? gender = null, float? age = null)
+    public Villager SpawnVillager(Vector3? position = null, Gender? gender = null, float? age = null, bool giveEquipment = true)
     {
         if (villagerPrefab == null) return null;
 
@@ -72,8 +92,11 @@ public class VillagerSpawner : MonoBehaviour
 
         villager.skills.Randomize();
 
-        villager.itemAttachment.GiveRandomWeapon();
-        villager.itemAttachment.GiveRandomShield();
+        if (giveEquipment)
+        {
+            villager.itemAttachment.GiveRandomWeapon();
+            villager.itemAttachment.GiveRandomShield();
+        }
         //villager.itemAttachment.GiveRandomTorch();
 
         villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);

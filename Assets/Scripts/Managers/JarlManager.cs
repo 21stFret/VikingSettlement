@@ -102,7 +102,7 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Update camera
         if (CameraController.Instance != null)
         {
-            CameraController.Instance.SetTarget(villager.transform);
+            CameraController.Instance.SetPlayerTarget(villager.transform);
         }
 
         Debug.Log($"{villager.villagerName} is now the Jarl!");

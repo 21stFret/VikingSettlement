@@ -112,7 +112,7 @@ public class RaidManager : MonoBehaviour
         OnRaidStarted?.Invoke(destination);
 
         if (!string.IsNullOrEmpty(destination.sceneName))
-            SceneManager.LoadScene(destination.sceneName);
+            LoadScene(destination.sceneName);
 
         return true;
     }
@@ -210,7 +210,15 @@ public class RaidManager : MonoBehaviour
     /// </summary>
     public void LoadSettlementScene()
     {
-        SceneManager.LoadScene(settlementSceneName);
+        LoadScene(settlementSceneName);
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        if (LoadingScreenManager.Instance != null)
+            LoadingScreenManager.Instance.LoadScene(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 
     #endregion

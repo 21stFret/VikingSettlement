@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"Starting new game in slot {slotNumber}");
-        SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"Loading slot {slotNumber}");
-        SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour
         GameInitialized = false;
 
         Debug.Log($"Loading autosave (slot {CurrentSlot})");
-        SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour
     {
         GameInitialized = false;
         CurrentSlot = 0;
-        SceneManager.LoadScene(mainMenuSceneName);
+        LoadScene(mainMenuSceneName);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -166,6 +166,14 @@ public class GameManager : MonoBehaviour
         {
             GSB.Init();
         }
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        if (LoadingScreenManager.Instance != null)
+            LoadingScreenManager.Instance.LoadScene(sceneName);
+        else
+            SceneManager.LoadScene(sceneName);
     }
 
     /// <summary>

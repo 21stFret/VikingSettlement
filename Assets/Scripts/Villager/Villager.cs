@@ -350,46 +350,43 @@ public class Villager : TargetHealth
 
     private void CreateChild(Villager mother, Villager father)
     {
-        // Instantiate a new villager (you'll need to have a villager prefab set up)
-        GameObject childObject = Instantiate(gameObject, transform.position + Vector3.right * 0.5f, Quaternion.identity);
-        Villager child = childObject.GetComponent<Villager>();
+        if (VillagerSpawner.Instance == null)
+        {
+            Debug.LogError("VillagerSpawner not found — cannot create child!");
+            return;
+        }
 
-        // Set basic properties
-        child.age = 0f;
-        child.lifeExpectancy = Random.Range(50f, 70f); // Slight variation in lifespan
-        child.gender = Random.value > 0.5f ? Gender.Male : Gender.Female;
-        child.villagerName = VillagerNameGenerator.GenerateNorseName(child.gender);
-        gameObject.name = villagerName;
+        Gender childGender = Random.value > 0.5f ? Gender.Male : Gender.Female;
+        Vector3 spawnPos = transform.position + Vector3.right * 0.5f;
 
-        // Set parents
+        // SpawnVillager handles instantiation from the prefab, AI setup, and Init() (which registers with SettlementManager)
+        Villager child = VillagerSpawner.Instance.SpawnVillager(spawnPos, childGender, age: 0f, giveEquipment: false);
+        if (child == null) return;
+
+        child.lifeExpectancy = Random.Range(50f, 70f);
+
+        // Override the spawner's random name with a freshly generated one (gender already correct)
+        child.villagerName = VillagerNameGenerator.GenerateNorseName(childGender);
+        child.gameObject.name = child.villagerName;
+
         child.parent1 = mother;
         child.parent2 = father;
 
-        // Inherit skills from parents (mean of both parents)
+        // Override randomised skills with inherited values
         child.skills = VillagerSkills.Inherit(mother.skills, father.skills);
 
-        // Apply Education runestone bonus (+2 to 2 random skills)
         if (RunestoneManager.Instance != null)
         {
             int bonus = RunestoneManager.Instance.GetEducationSkillBonus();
             if (bonus > 0)
-            {
                 child.skills.ApplyRandomSkillBonuses(bonus, 2);
-            }
         }
 
-        // Inherit combat stats (mean of both parents)
         child.combatStats.strength = (mother.combatStats.strength + father.combatStats.strength) / 2f;
         child.combatStats.defense = (mother.combatStats.defense + father.combatStats.defense) / 2f;
 
-        // Add some random variation to inherited traits
-        child.skillGainRate = (mother.skillGainRate + father.skillGainRate) / 2f + Random.Range(-0.1f, 0.1f);
-        child.skillGainRate = Mathf.Max(0.5f, child.skillGainRate); // Minimum 0.5
+        child.skillGainRate = Mathf.Max(0.5f, (mother.skillGainRate + father.skillGainRate) / 2f + Random.Range(-0.1f, 0.1f));
 
-        child.currentJob = JobType.None;
-        child.assignedBuilding = null;
-
-        // Track Jarl lineage for inheritance
         if (mother.isJarl || father.isJarl)
         {
             child.isOfJarlLineage = true;
@@ -398,7 +395,6 @@ public class Villager : TargetHealth
         else if (mother.isOfJarlLineage || father.isOfJarlLineage)
         {
             child.isOfJarlLineage = true;
-            // Inherit the closest lineage distance + 1
             int motherGen = mother.generationsFromJarl >= 0 ? mother.generationsFromJarl : int.MaxValue;
             int fatherGen = father.generationsFromJarl >= 0 ? father.generationsFromJarl : int.MaxValue;
             child.generationsFromJarl = Mathf.Min(motherGen, fatherGen) + 1;
@@ -406,7 +402,6 @@ public class Villager : TargetHealth
 
         child.spriteVariant = InheritSpriteVariant(mother.spriteVariant, father.spriteVariant);
         child.ApplySpriteVariant();
-
         child.ApplySkillBonuses();
 
         Debug.Log($"{mother.villagerName} and {father.villagerName} had a child: {child.villagerName}!");

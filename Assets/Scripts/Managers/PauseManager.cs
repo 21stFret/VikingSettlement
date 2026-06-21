@@ -184,7 +184,10 @@ public class PauseManager : MonoBehaviour
         {
             testSceneButton.onClick.AddListener(() =>
             {
-                SceneManager.LoadScene("Combat Testing");
+                if (LoadingScreenManager.Instance != null)
+                    LoadingScreenManager.Instance.LoadScene("Combat Testing");
+                else
+                    SceneManager.LoadScene("Combat Testing");
             });
         }
 

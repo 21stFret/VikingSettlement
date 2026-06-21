@@ -123,14 +123,14 @@ public static class SettlementSimulator
             if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
             {
                 float seasonalMultiplier = building.GetSeasonalMultiplier();
-                float production = completions * data.productionAmount * seasonalMultiplier;
+                int production = Mathf.FloorToInt(completions * data.productionAmount * seasonalMultiplier);
                 report.resourceChanges[data.producedResource] += production;
             }
             // Handle crafting
             else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
             {
                 // Check if resources would be available (simplified - assume they are)
-                float output = completions * data.craftingRecipe.outputAmount;
+                int output = Mathf.FloorToInt(completions * data.craftingRecipe.outputAmount);
                 report.resourceChanges[data.craftingRecipe.outputResource] += output;
 
                 // Consume input resources
@@ -234,7 +234,7 @@ public static class SettlementSimulator
         if (Random.value < GOOD_HARVEST_CHANCE)
         {
             ResourceType bonusType = Random.value > 0.5f ? ResourceType.Wheat : ResourceType.Fish;
-            float bonusAmount = Random.Range(5f, 15f);
+            int bonusAmount = Mathf.FloorToInt(Random.Range(5f, 15f));
             report.resourceChanges[bonusType] += bonusAmount;
             report.moraleChange += 2f;
 
@@ -264,13 +264,13 @@ public static class SettlementSimulator
         {
             // Random resource bonus from trade
             ResourceType tradeResource = GetRandomTradeResource();
-            float tradeAmount = Random.Range(3f, 10f);
+            int tradeAmount = Mathf.FloorToInt(Random.Range(3f, 10f));
             report.resourceChanges[tradeResource] += tradeAmount;
 
             report.events.Add(new SettlementEvent
             {
                 eventName = "Trader Visit",
-                description = $"A traveling trader visited on day {dayNumber}, bringing {tradeAmount:F0} {tradeResource}.",
+                description = $"A traveling trader visited on day {dayNumber}, bringing {tradeAmount} {tradeResource}.",
                 eventType = SettlementEventType.Positive
             });
         }
