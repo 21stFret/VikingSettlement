@@ -64,10 +64,10 @@ public class HolmgangManager : MonoBehaviour
 
     private enum MatchState { Idle, Cinematic, Fighting, Won, Lost }
 
-    private Villager   _player;
-    private Enemy      _opponent;
-    private EnemyAI    _opponentAI;
-    private MatchState _state = MatchState.Idle;
+    private Villager    _player;
+    private Enemy       _opponent;
+    private EnemyAIBase _opponentAI;
+    private MatchState  _state = MatchState.Idle;
     private int        _wins;
     private int        _losses;
 
@@ -197,7 +197,7 @@ public class HolmgangManager : MonoBehaviour
 
         _opponent.InitializeEnemyStats();
 
-        _opponentAI = go.GetComponent<EnemyAI>();
+        _opponentAI = go.GetComponent<EnemyAIBase>();
         if (_opponentAI != null) _opponentAI.enabled = false;
 
         if (config.introductionCutscene != null)

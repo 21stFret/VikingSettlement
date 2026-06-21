@@ -17,8 +17,9 @@ public class EnemyController : CharacterBase
 
     public override float GetAttackDelay()
     {
-        if (weapon != null) return Mathf.Max(0.1f, weapon.attackSpeed);
-        return enemyData != null ? enemyData.attackCooldown : attackDelay;
+        float delay = enemyData != null ? enemyData.attackCooldown : attackDelay;
+        if (weapon != null) delay += weapon.attackSpeed;
+        return Mathf.Max(0.1f, delay);
     }
 
     protected override void Update()
@@ -83,7 +84,7 @@ public class EnemyController : CharacterBase
 
     public override void OnHitBy(CharacterBase attacker)
     {
-        GetComponent<EnemyAI>()?.NotifyHitBy(attacker);
+        GetComponent<EnemyAIBase>()?.NotifyHitBy(attacker);
     }
 
     protected override void OnDrawGizmosSelected()

@@ -11133,7 +11133,7 @@ MonoBehaviour:
   enemyType: 0
   damage: 0
   attackRange: 1.5
-  attackCooldown: 3
+  attackCooldown: 2
   detectionRange: 10
   weaponName: Basic Sword
   shieldName: Shield
@@ -11217,22 +11217,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  enableAI: 1
-  updateInterval: 0.5
+  searchInterval: 0.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
-  targetNearestVillager: 1
-  pursueTarget: 1
-  faceTargetWhileAttacking: 1
-  useCombatSlots: 0
-  pursuitRange: 15
-  loseTargetTime: 3
-  retargetOnNearer: 1
-  retargetOnHit: 1
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
+  pursuitRange: 15
+  loseTargetTime: 3
+  pursueTarget: 1
+  useCombatSlots: 0
+  retargetOnHit: 1
+  retargetOnNearer: 1
 --- !u!114 &102607621922122272
 MonoBehaviour:
   m_ObjectHideFlags: 0

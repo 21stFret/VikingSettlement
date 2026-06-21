@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 /// <summary>
 /// Add to a Raider enemy prefab alongside EnemyAI and EnemyController.
@@ -53,45 +52,46 @@ public class RaiderBehaviour : MonoBehaviour
     {
         yield return new WaitForSeconds(shieldReplaceDelay);
 
-        // Find closest Shield
+        if (!gameObject.activeInHierarchy) yield break;
+
+        var enemy = GetComponent<Enemy>();
+        if (enemy != null && enemy.IsDead()) yield break;
+
+        // Look for a dropped (unequipped) shield nearby
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 5f);
-        float closestDistance = Mathf.Infinity;
-        GameObject _closestShield = null;
-        foreach (var shield in hits)
+        float closestDist  = Mathf.Infinity;
+        GameObject closest = null;
+
+        foreach (var col in hits)
         {
-            if (!shield.CompareTag("Shield")) continue;
-            if (shield.GetComponent<EquipableItem>().isEquipped)
-            {
-                // Already equipped by someone else
-                continue;
-            }
-            float distance = Vector2.Distance(transform.position, shield.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                _closestShield = shield.gameObject;
-            }
-        }
-        if (_closestShield != null)
-        {
-            // Equip the closest shield
-            EnemyController ec = GetComponent<EnemyController>();
-            while(Vector2.Distance(transform.position, _closestShield.transform.position) > 0.09f)
-            {
-                ec.MoveTo(_closestShield.transform.position);
-                if (Vector2.Distance(transform.position, _closestShield.transform.position) < 0.1f)
-                {
-
-                    ec.itemAttachment.EquipShield(_closestShield);
-                }
-            }
-
-
+            if (!col.CompareTag("Shield")) continue;
+            var item = col.GetComponent<EquipableItem>();
+            if (item == null || item.isEquipped) continue;
+            float d = Vector2.Distance(transform.position, col.transform.position);
+            if (d < closestDist) { closestDist = d; closest = col.gameObject; }
         }
 
-        // Re-subscribe to the new shield so the loop continues indefinitely.
+        if (closest != null)
+        {
+            var ec = GetComponent<EnemyController>();
+            while (closest != null
+                && Vector2.Distance(transform.position, closest.transform.position) > 0.1f)
+            {
+                ec.MoveTo(closest.transform.position);
+                yield return null;  // yield each frame so the raider actually moves
+            }
+
+            if (closest != null)
+                _itemAttachment.EquipShield(closest);
+        }
+        else
+        {
+            // No dropped shield in range — grab a fresh one from the database
+            if (WeaponDatabase.Instance != null && WeaponDatabase.Instance.GetRandomShield() != null)
+                _itemAttachment.GiveRandomShield();
+        }
+
         SubscribeToShield();
-
         Debug.Log($"[Raider] {gameObject.name} grabbed a replacement shield.");
     }
 }

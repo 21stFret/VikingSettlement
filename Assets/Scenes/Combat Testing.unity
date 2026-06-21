@@ -64532,6 +64532,7 @@ MonoBehaviour:
   settingsButton: {fileID: 0}
   quitButton: {fileID: 1307423751}
   testSceneButton: {fileID: 0}
+  holmgangSceneButton: {fileID: 0}
   closeMenuButton: {fileID: 289371728}
   cameraPanSpeed: 10
   cameraEdgePanMargin: 50
@@ -104687,6 +104688,10 @@ MonoBehaviour:
     prefab: {fileID: 7555521055352246155, guid: 33afecf654bf63d47a7fe68c430a33bd, type: 3}
     giveWeapon: 1
     giveShield: 0
+  - label: Raider
+    prefab: {fileID: 7555521055352246155, guid: 3587cad2be57f324d9872d36fd284e4c, type: 3}
+    giveWeapon: 1
+    giveShield: 0
   enemySpawnPoints:
   - {fileID: 510074943}
   - {fileID: 2010008329}
@@ -109062,6 +109067,11 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -134869,6 +134879,11 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -196488,6 +196503,11 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -259782,6 +259802,11 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!224 &2948359121601391322
 RectTransform:
   m_ObjectHideFlags: 0
@@ -266180,22 +266205,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  enableAI: 1
-  updateInterval: 0.5
+  searchInterval: 0.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
-  targetNearestVillager: 1
-  pursueTarget: 1
-  faceTargetWhileAttacking: 1
-  useCombatSlots: 0
-  pursuitRange: 15
-  loseTargetTime: 3
-  retargetOnNearer: 0
-  retargetOnHit: 0
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
+  pursuitRange: 15
+  loseTargetTime: 3
+  pursueTarget: 1
+  useCombatSlots: 0
+  retargetOnHit: 0
+  retargetOnNearer: 0
 --- !u!1 &6733835742485573878
 GameObject:
   m_ObjectHideFlags: 0
