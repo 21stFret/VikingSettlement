@@ -56,12 +56,18 @@ namespace Cutscenes
         private bool wasPlayerControlEnabled;
         private bool wasGameClockPaused;
 
+        // Standalone cinematic mode (used by non-cutscene sequences like Holmgang)
+        private bool _cinematicActive;
+        private bool _cinematicWasControlEnabled;
+
         // Letterbox animation
         private Vector2 letterboxTopTarget;
         private Vector2 letterboxBottomTarget;
         private Vector2 letterboxTopHidden;
         private Vector2 letterboxBottomHidden;
         private Coroutine letterboxCoroutine;
+
+        public bool autoplay;
 
         private void Awake()
         {
@@ -81,6 +87,10 @@ namespace Cutscenes
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
             letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
             letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
+            if(autoplay)
+            {
+                PlayTestCutscene();
+            }
         }
 
         private void Update()
@@ -409,6 +419,51 @@ namespace Cutscenes
         /// Get the current cutscene ID
         /// </summary>
         public string CurrentCutsceneId => currentCutsceneId;
+
+        #region Cinematic Mode (standalone, no CutsceneSO required)
+
+        /// <summary>
+        /// Enter letterbox + UI-hide + player-control-off without starting a full cutscene.
+        /// Call ExitCinematicMode() when the sequence is done.
+        /// </summary>
+        public void EnterCinematicMode()
+        {
+            if (_cinematicActive || isPlaying) return;
+            _cinematicActive = true;
+
+            if (PlayerController.Instance != null)
+            {
+                _cinematicWasControlEnabled = PlayerController.Instance.enabled;
+                PlayerController.Instance.enabled = false;
+            }
+
+            if (gameUICanvas != null)
+                gameUICanvas.enabled = false;
+
+            ShowLetterbox(true);
+        }
+
+        /// <summary>
+        /// Reverse EnterCinematicMode — slide letterbox out, restore UI and player control.
+        /// </summary>
+        public void ExitCinematicMode()
+        {
+            if (!_cinematicActive) return;
+            _cinematicActive = false;
+
+            if (PlayerController.Instance != null)
+                PlayerController.Instance.enabled = _cinematicWasControlEnabled;
+
+            if (gameUICanvas != null)
+                gameUICanvas.enabled = true;
+
+            ShowLetterbox(false);
+
+            if (WeatherManager.Instance != null)
+                WeatherManager.Instance.ResumeAutoWeather();
+        }
+
+        #endregion
 
         #region Testing
 

@@ -186,7 +186,9 @@ namespace Cutscenes
     }
 
     /// <summary>
-    /// Move an actor to a position
+    /// Move an actor to a position.
+    /// Uses VillagerAI navigation when available; falls back to direct transform movement
+    /// (required for enemies whose AI is disabled during cutscenes, e.g. Holmgang walk-in).
     /// </summary>
     [Serializable]
     public class ActorMoveAction : CutsceneAction
@@ -194,6 +196,8 @@ namespace Cutscenes
         public ActorReference actor;
         public Vector3 targetPosition;
         public bool useNavigation = true;
+        [Tooltip("Speed used when VillagerAI is unavailable and the actor is moved directly.")]
+        public float moveSpeed = 2.5f;
         public float arrivalThreshold = 0.5f;
 
         private GameObject actorObject;
@@ -208,7 +212,6 @@ namespace Cutscenes
 
             if (villagerAI != null && useNavigation)
             {
-                // Use AI navigation
                 villagerAI.SetCutsceneTarget(targetPosition);
             }
 
@@ -219,8 +222,16 @@ namespace Cutscenes
         {
             if (actorObject == null) return true;
 
-            float distance = Vector2.Distance(actorObject.transform.position, targetPosition);
-            return distance < arrivalThreshold;
+            // When VillagerAI is not handling movement, slide the transform directly
+            if (villagerAI == null || !useNavigation)
+            {
+                actorObject.transform.position = Vector3.MoveTowards(
+                    actorObject.transform.position,
+                    targetPosition,
+                    moveSpeed * Time.deltaTime);
+            }
+
+            return Vector2.Distance(actorObject.transform.position, targetPosition) < arrivalThreshold;
         }
 
         public override void Cancel(CutsceneManager manager)
@@ -319,19 +330,14 @@ namespace Cutscenes
             var actorObj = actor?.Resolve();
             if (actorObj == null) return true;
 
-            var spriteRenderer = actorObj.GetComponent<SpriteRenderer>();
-            if (spriteRenderer == null) return true;
-
             if (faceAnotherActor)
             {
                 var target = targetActor?.Resolve();
                 if (target != null)
-                {
                     faceRight = target.transform.position.x > actorObj.transform.position.x;
-                }
             }
 
-            spriteRenderer.flipX = !faceRight;
+            actorObj.GetComponent<CharacterBase>()?.SetFacingRight(faceRight);
             return true;
         }
     }

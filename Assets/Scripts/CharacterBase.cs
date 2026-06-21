@@ -828,6 +828,11 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
+    /// Public facing setter — routes through FlipSprite so subclass overrides stay consistent.
+    /// </summary>
+    public void SetFacingRight(bool faceRight) => FlipSprite(!faceRight);
+
+    /// <summary>
     /// Immediately face towards a world position, updating all direction state used by hitboxes and animations.
     /// </summary>
     public void FaceTowards(Vector2 worldPosition)

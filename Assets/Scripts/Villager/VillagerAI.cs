@@ -94,8 +94,9 @@ public class VillagerAI : MonoBehaviour
     {
         if (!enableAI) return;
 
-        // Periodically check for threats (only if alive, mature, and not holding formation)
+        // Periodically check for threats (only if alive, mature, not holding formation, and not mid-cutscene)
         if (currentState != AIState.ShieldWall &&
+            !isInCutscene &&
             villagerData != null && villagerData.currentLifeStage == LifeStage.Mature)
         {
             threatCheckTimer += Time.deltaTime;
