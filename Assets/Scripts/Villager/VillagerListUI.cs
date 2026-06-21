@@ -37,7 +37,18 @@ public class VillagerListUI : MonoBehaviour
             }
         }
     }
+
+    public void OnOpen()
+    {
+        RefreshVillagerList();
+        UIFocus.SetNextFrame(gridItems[0].gameObject);
+    }
     
+    public void OnClose()
+    {
+        infoPanel.Hide();
+    }
+
     /// <summary>
     /// Refresh the entire villager list
     /// </summary>

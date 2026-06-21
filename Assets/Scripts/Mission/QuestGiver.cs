@@ -5,7 +5,7 @@ using UnityEngine;
 /// Shows icons above the NPC to indicate quest availability or completion.
 /// Implements IClickable so the player can interact with it.
 /// </summary>
-public class QuestGiver : MonoBehaviour, IClickable
+public class QuestGiver : WorldInteractable, IClickable
 {
     [Header("Missions")]
     [SerializeField] private MissionDefinitionSO[] availableMissions;
@@ -65,6 +65,18 @@ public class QuestGiver : MonoBehaviour, IClickable
             MissionManager.Instance.OnObjectiveUpdated -= OnObjectiveUpdated;
         }
     }
+
+    public override void Interact()
+    {
+        OnClicked();
+        PlayerController.Instance?.SetInputEnabled(false);
+    }
+
+    public override void Deselect()
+    {
+        PlayerController.Instance?.SetInputEnabled(true);
+    }
+
 
     /// <summary>
     /// Called when the player clicks this quest giver

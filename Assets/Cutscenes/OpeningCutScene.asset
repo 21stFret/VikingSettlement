@@ -15,15 +15,30 @@ MonoBehaviour:
   cutsceneId: 1
   displayName: Demo
   disablePlayerControl: 1
-  pauseGame: 1
+  pauseGameClock: 1
   hideUI: 1
   resumeAutoWeather: 1
   actions:
+  - rid: 1090071698288148617
   - rid: 2464580862522687597
   - rid: 2464580862522687598
+  - rid: 1090071698288148618
   references:
     version: 2
     RefIds:
+    - rid: 1090071698288148617
+      type: {class: SetWeatherAction, ns: Cutscenes, asm: Assembly-CSharp}
+      data:
+        actionName: 
+        waitForCompletion: 1
+        weather: 4
+        intensity: 1
+    - rid: 1090071698288148618
+      type: {class: DialogueAction, ns: Cutscenes, asm: Assembly-CSharp}
+      data:
+        actionName: 
+        waitForCompletion: 1
+        dialogue: {fileID: 11400000, guid: 7faa31f22ed9b524ab2df57af77de95f, type: 2}
     - rid: 2464580862522687597
       type: {class: WaitAction, ns: Cutscenes, asm: Assembly-CSharp}
       data:
@@ -40,4 +55,5 @@ MonoBehaviour:
           identifier: 
         targetPosition: {x: 0, y: 0, z: 0}
         useNavigation: 1
+        moveSpeed: 2.5
         arrivalThreshold: 0.5

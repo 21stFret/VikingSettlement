@@ -3,6 +3,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// General-purpose info notification popup.
@@ -48,6 +49,8 @@ public class InfoPopupUI : MonoBehaviour
     private readonly Queue<NotificationEntry> _queue = new Queue<NotificationEntry>();
     private bool _isOpen;
 
+    private PlayerInputActions inputActions;
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()
@@ -56,6 +59,8 @@ public class InfoPopupUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+        inputActions = new PlayerInputActions();
+
     }
 
     private void Start()
@@ -66,7 +71,20 @@ public class InfoPopupUI : MonoBehaviour
         popupPanel.SetActive(false);
         badgeObject.SetActive(false);
 
-        Enqueue(new NotificationEntry("Welcome to Jarlborn", "Lead your settlement, manage your villagers, and survive the harsh winters ahead. Good luck, Jarl.", null));
+        Enqueue(new NotificationEntry("Welcome to Jarlborn", "Lead your settlement, feed your vikings with fish and gather wood survive the harsh winters ahead. Good luck, Jarl.", null));
+        Enqueue(new NotificationEntry("Raiding", "If you don't want to stay here and cut trees go raiding from your longship, bring back some loot. Good luck, Jarl.", null));
+    }
+
+    private void OnEnable()
+    {
+        inputActions.Enable();
+        inputActions.Player.Notifications.performed += GamepadInput;
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Player.Notifications.performed -= GamepadInput;
+        inputActions.Disable();
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -87,6 +105,14 @@ public class InfoPopupUI : MonoBehaviour
 
         // If already open, just update the badge count — player will hit Next
         // If closed, the badge appearing is the prompt to open
+    }
+
+    public void GamepadInput(InputAction.CallbackContext ctx)
+    {
+        if(ctx.performed)
+        {
+            OnNotificationButtonClicked();
+        }
     }
 
     private void OnNotificationButtonClicked()
@@ -111,6 +137,7 @@ public class InfoPopupUI : MonoBehaviour
         popupPanel.SetActive(true);
         popupPanel.transform.localScale = Vector3.zero;
         popupPanel.transform.DOScale(Vector3.one, popupScaleDuration).SetEase(popupEase);
+        PlayerController.Instance?.SetInputEnabled(false);
     }
 
     private void ClosePopup()
@@ -119,6 +146,9 @@ public class InfoPopupUI : MonoBehaviour
         popupPanel.transform.DOScale(Vector3.zero, popupScaleDuration * 0.8f)
             .SetEase(Ease.InBack)
             .OnComplete(() => popupPanel.SetActive(false));
+
+        UIFocus.Clear();
+        PlayerController.Instance?.SetInputEnabled(true);
     }
 
     private void ShowCurrentEntry()
@@ -138,7 +168,9 @@ public class InfoPopupUI : MonoBehaviour
 
         // Label the button based on whether more messages follow
         if (nextButtonLabel != null)
-            nextButtonLabel.text = _queue.Count > 1 ? $"Next ({_queue.Count - 1} more)" : "OK";
+            nextButtonLabel.text = _queue.Count > 1 ? $"Next" : "OK";
+
+        UIFocus.Set(nextButton.gameObject);
 
         RefreshBadge();
     }

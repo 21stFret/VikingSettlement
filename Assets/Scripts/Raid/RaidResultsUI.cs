@@ -73,9 +73,18 @@ public class RaidResultsUI : MonoBehaviour
             }
             else
             {
-                var lines = new System.Text.StringBuilder();
+                // Combine duplicate resource types into a single line each
+                var totals = new Dictionary<string, float>();
                 foreach (var item in report.loot)
-                    lines.AppendLine($"+ {item.amount:F0} {item.resourceType}");
+                {
+                    string key = item.resourceType.ToString();
+                    totals.TryGetValue(key, out float current);
+                    totals[key] = current + item.amount;
+                }
+
+                var lines = new System.Text.StringBuilder();
+                foreach (var kv in totals)
+                    lines.AppendLine($"+ {kv.Value:F0} {kv.Key}");
                 lootText.text = lines.ToString().TrimEnd();
             }
         }

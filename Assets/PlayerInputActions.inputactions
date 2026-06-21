@@ -140,6 +140,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Notifications",
+                    "type": "Button",
+                    "id": "8292f1bb-39fa-4a84-9d51-2e8e8d6fb8b3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VillagerPanel",
+                    "type": "Button",
+                    "id": "70c325bd-f81f-4985-a99e-c91eebee1b5f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ForwardDialogue",
+                    "type": "Button",
+                    "id": "b910aecc-7f0a-47ae-8455-05279080e9f2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -569,6 +596,61 @@
                     "processors": "",
                     "groups": "",
                     "action": "ThrowShield",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "064ca427-fb14-4b8c-be14-7ea0c4eef0ce",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Notifications",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c19df04f-d0a0-43b7-b886-e836aa1916b8",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VillagerPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9ec17578-fa14-4038-8f73-4e58f8e32a7d",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "615f27e8-b016-4d12-81a3-66f3c58853e3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d691593-cbe2-4e53-9076-e5443df9bfff",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

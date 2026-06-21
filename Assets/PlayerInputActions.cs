@@ -226,6 +226,33 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Notifications"",
+                    ""type"": ""Button"",
+                    ""id"": ""8292f1bb-39fa-4a84-9d51-2e8e8d6fb8b3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""VillagerPanel"",
+                    ""type"": ""Button"",
+                    ""id"": ""70c325bd-f81f-4985-a99e-c91eebee1b5f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ForwardDialogue"",
+                    ""type"": ""Button"",
+                    ""id"": ""b910aecc-7f0a-47ae-8455-05279080e9f2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -657,6 +684,61 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ThrowShield"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""064ca427-fb14-4b8c-be14-7ea0c4eef0ce"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Notifications"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c19df04f-d0a0-43b7-b886-e836aa1916b8"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""VillagerPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9ec17578-fa14-4038-8f73-4e58f8e32a7d"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""615f27e8-b016-4d12-81a3-66f3c58853e3"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d691593-cbe2-4e53-9076-e5443df9bfff"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -680,6 +762,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_ClosePanel = m_Player.FindAction("ClosePanel", throwIfNotFound: true);
         m_Player_Roll = m_Player.FindAction("Roll", throwIfNotFound: true);
         m_Player_ThrowShield = m_Player.FindAction("ThrowShield", throwIfNotFound: true);
+        m_Player_Notifications = m_Player.FindAction("Notifications", throwIfNotFound: true);
+        m_Player_VillagerPanel = m_Player.FindAction("VillagerPanel", throwIfNotFound: true);
+        m_Player_ForwardDialogue = m_Player.FindAction("ForwardDialogue", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -775,6 +860,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_ClosePanel;
     private readonly InputAction m_Player_Roll;
     private readonly InputAction m_Player_ThrowShield;
+    private readonly InputAction m_Player_Notifications;
+    private readonly InputAction m_Player_VillagerPanel;
+    private readonly InputAction m_Player_ForwardDialogue;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -847,6 +935,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ThrowShield => m_Wrapper.m_Player_ThrowShield;
         /// <summary>
+        /// Provides access to the underlying input action "Player/Notifications".
+        /// </summary>
+        public InputAction @Notifications => m_Wrapper.m_Player_Notifications;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/VillagerPanel".
+        /// </summary>
+        public InputAction @VillagerPanel => m_Wrapper.m_Player_VillagerPanel;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ForwardDialogue".
+        /// </summary>
+        public InputAction @ForwardDialogue => m_Wrapper.m_Player_ForwardDialogue;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -917,6 +1017,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ThrowShield.started += instance.OnThrowShield;
             @ThrowShield.performed += instance.OnThrowShield;
             @ThrowShield.canceled += instance.OnThrowShield;
+            @Notifications.started += instance.OnNotifications;
+            @Notifications.performed += instance.OnNotifications;
+            @Notifications.canceled += instance.OnNotifications;
+            @VillagerPanel.started += instance.OnVillagerPanel;
+            @VillagerPanel.performed += instance.OnVillagerPanel;
+            @VillagerPanel.canceled += instance.OnVillagerPanel;
+            @ForwardDialogue.started += instance.OnForwardDialogue;
+            @ForwardDialogue.performed += instance.OnForwardDialogue;
+            @ForwardDialogue.canceled += instance.OnForwardDialogue;
         }
 
         /// <summary>
@@ -973,6 +1082,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ThrowShield.started -= instance.OnThrowShield;
             @ThrowShield.performed -= instance.OnThrowShield;
             @ThrowShield.canceled -= instance.OnThrowShield;
+            @Notifications.started -= instance.OnNotifications;
+            @Notifications.performed -= instance.OnNotifications;
+            @Notifications.canceled -= instance.OnNotifications;
+            @VillagerPanel.started -= instance.OnVillagerPanel;
+            @VillagerPanel.performed -= instance.OnVillagerPanel;
+            @VillagerPanel.canceled -= instance.OnVillagerPanel;
+            @ForwardDialogue.started -= instance.OnForwardDialogue;
+            @ForwardDialogue.performed -= instance.OnForwardDialogue;
+            @ForwardDialogue.canceled -= instance.OnForwardDialogue;
         }
 
         /// <summary>
@@ -1118,5 +1236,26 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnThrowShield(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Notifications" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNotifications(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "VillagerPanel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnVillagerPanel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ForwardDialogue" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnForwardDialogue(InputAction.CallbackContext context);
     }
 }

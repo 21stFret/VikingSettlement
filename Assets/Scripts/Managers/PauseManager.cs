@@ -40,6 +40,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button testSceneButton;
+    [SerializeField] private Button holmgangSceneButton;
     [SerializeField] private Button closeMenuButton;
 
 
@@ -191,6 +192,15 @@ public class PauseManager : MonoBehaviour
             });
         }
 
+        if(holmgangSceneButton != null)
+        {
+            holmgangSceneButton.onClick.AddListener(() =>
+            {
+                if (LoadingScreenManager.Instance != null)
+                    LoadingScreenManager.Instance.LoadScene("Holmgang Scene");
+            });
+        }
+
         if (closeMenuButton != null)
         {
             closeMenuButton.onClick.AddListener(() =>
@@ -282,6 +292,7 @@ public class PauseManager : MonoBehaviour
         if (strategicPauseIndicator != null) strategicPauseIndicator.SetActive(false);
 
         OnPauseStateChanged?.Invoke(currentState);
+        UIFocus.Set(settingsButton.gameObject);
         Debug.Log("Entered Menu Pause");
     }
 

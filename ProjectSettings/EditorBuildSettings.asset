@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Combat Testing.unity
     guid: 93b5b5c1b211d8b428200b529afc2269
+  - enabled: 1
+    path: Assets/Scenes/Holmgang Scene.unity
+    guid: ad7fe83485f0d7f42bab209abb127a22
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 49adb4e1a7e46f14497904d6bfd54fc2, type: 3}

@@ -40,6 +40,9 @@ public class HolmgangManager : MonoBehaviour
     [SerializeField] private float betweenLinesSeconds = 0.5f;
     [SerializeField] private float preCombatPauseSeconds = 1.2f;
 
+    public GameObject islandColliders;
+    public GameObject arenaColliders;
+
     [System.Serializable]
     public class OpponentConfig
     {
@@ -87,6 +90,7 @@ public class HolmgangManager : MonoBehaviour
 
         SpawnPlayer();
         InitUI();
+        AttackCooldownUI.Instance?.Init();
     }
 
     private void InitUI()
@@ -206,7 +210,15 @@ public class HolmgangManager : MonoBehaviour
         _opponent.OnDeath += HandleOpponentDeath;
         _state = MatchState.Fighting;
 
+        SwapColliders(true);
+
         Debug.Log($"[Holmgang] Duel started vs {config.label}.");
+    }
+
+    private void SwapColliders(bool value)
+    {
+        islandColliders.SetActive(!value);
+        arenaColliders.SetActive(value);
     }
 
     private void HandleOpponentDeath()
@@ -216,6 +228,8 @@ public class HolmgangManager : MonoBehaviour
         _state = MatchState.Won;
         _opponent = null;
         Debug.Log("[Holmgang] Victory!");
+        SwapColliders(false);
+
     }
 
     // ── Authored CutsceneSO path ─────────────────────────────────────────────────

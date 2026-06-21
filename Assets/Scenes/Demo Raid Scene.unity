@@ -16419,7 +16419,18 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Raid Results
+  m_text: '+ 4 FIsh
+
+    + 4 FIsh
+
+    + 4 FIsh
+
+    + 4 FIsh
+
+    + 4 FIsh
+
+    +
+    4 FIsh'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 97f7714304d6f9d41808a351b968dd42, type: 2}
   m_sharedMaterial: {fileID: 4165414027775526135, guid: 97f7714304d6f9d41808a351b968dd42, type: 2}
@@ -84731,7 +84742,7 @@ RectTransform:
   m_Father: {fileID: 1684863365}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -92520,6 +92531,7 @@ GameObject:
   - component: {fileID: 755482535}
   - component: {fileID: 755482536}
   - component: {fileID: 755482537}
+  - component: {fileID: 755482538}
   m_Layer: 0
   m_Name: Game Managers
   m_TagString: Untagged
@@ -92694,6 +92706,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ValkyrieManager
   valkyrieEffectPrefab: {fileID: 816725256714647730, guid: 2356d05da63d15f4b99a85e1fc61fdb3, type: 3}
   valkyrieEffectRef: {fileID: 0}
+--- !u!114 &755482538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755482530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2693c41d1c3e95c4b849ad4c258379ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FightManager
+  separationRadius: 10
 --- !u!4 &756562262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 490618974392446098, guid: 9885f45d31777c3478463082f11f1391, type: 3}
@@ -113649,6 +113674,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -140258,6 +140285,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -199844,7 +199873,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1373482340
 RectTransform:
   m_ObjectHideFlags: 0
@@ -202002,6 +202031,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -224461,7 +224492,7 @@ RectTransform:
   m_Father: {fileID: 294969165}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -266385,6 +266416,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
