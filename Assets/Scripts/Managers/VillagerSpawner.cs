@@ -99,7 +99,8 @@ public class VillagerSpawner : MonoBehaviour
         }
         //villager.itemAttachment.GiveRandomTorch();
 
-        villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
+        foreach (var ai in villager.GetComponents<VillagerAIBase>())
+            ai.SetVillageCentre(villageCentre, 20f);
 
         villager.ApplySkillBonuses();
         villager.Init();

@@ -84,12 +84,6 @@ public class RaiderBehaviour : MonoBehaviour
             if (closest != null)
                 _itemAttachment.EquipShield(closest);
         }
-        else
-        {
-            // No dropped shield in range — grab a fresh one from the database
-            if (WeaponDatabase.Instance != null && WeaponDatabase.Instance.GetRandomShield() != null)
-                _itemAttachment.GiveRandomShield();
-        }
 
         SubscribeToShield();
         Debug.Log($"[Raider] {gameObject.name} grabbed a replacement shield.");

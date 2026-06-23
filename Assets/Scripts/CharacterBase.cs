@@ -118,9 +118,15 @@ public class CharacterBase : MonoBehaviour
 
     [Header("Combat Slots")]
     [SerializeField] public float slotDistance = 0.8f;
+    [SerializeField] public int MaxAttackers = 2;
     [SerializeField] private float knockbackForce = 5f;
     [SerializeField] private float knockbackDuration = 0.1f;
     private CharacterBase[] _slotOccupants = new CharacterBase[4]; // N, E, S, W
+
+    // Combat events fired by animation event callbacks — subscribe to observe attack phases
+    public event Action OnAttackWindupEvent;
+    public event Action OnAttackWindowEvent;
+    public event Action OnAttackRecoveryEvent;
 
     // Cache of valid animator parameter hashes to avoid errors
     private HashSet<int> validAnimatorParams;
@@ -523,6 +529,7 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual void PerformAttackHitbox()
     {
+        OnAttackWindowEvent?.Invoke();
         if (weapon == null) return;
 
         // Offset is already rotated to facing direction — set when the swing was committed in Attack()
@@ -580,6 +587,8 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual void NotifyAttackWindup()
     {
+        OnAttackWindupEvent?.Invoke();
+
         // Offset is already rotated to facing direction — committed in Attack()
         Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
             (Vector2)transform.position + currentHitboxOffset, currentHitboxSize, 0f, attackTargetLayer);
@@ -686,6 +695,7 @@ public class CharacterBase : MonoBehaviour
     public virtual void StopAttacking()
     {
         isAttacking = false;
+        OnAttackRecoveryEvent?.Invoke();
     }
 
     /// <summary>
@@ -959,6 +969,12 @@ public class CharacterBase : MonoBehaviour
         slotWorldPos = Vector2.zero;
         ReleaseSlot(claimer); // clear any previous claim by this claimer
 
+        // Count current occupants against the MaxAttackers cap
+        int occupied = 0;
+        for (int i = 0; i < 4; i++)
+            if (_slotOccupants[i] != null) occupied++;
+        if (occupied >= MaxAttackers) return false;
+
         int best = -1;
         float bestDist = Mathf.Infinity;
         for (int i = 0; i < 4; i++)
@@ -980,6 +996,12 @@ public class CharacterBase : MonoBehaviour
     {
         for (int i = 0; i < 4; i++)
             if (_slotOccupants[i] == claimer) _slotOccupants[i] = null;
+    }
+
+    public void ReleaseAllSlots()
+    {
+        for (int i = 0; i < 4; i++)
+            _slotOccupants[i] = null;
     }
 
     /// <summary>

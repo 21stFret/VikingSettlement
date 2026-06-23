@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Villager controlTarget;
 
     private CharacterBase controller;
-    private VillagerAI targetAI;
+    private VillagerAIBase targetAI;
     private WeaponSwapper weaponSwapper;
     private Vector2 moveInput;
     private bool inputEnabled = true;
@@ -35,8 +35,8 @@ public class PlayerController : MonoBehaviour
 
     // Shield wall
     private bool _shieldWallActive = false;
-    private readonly System.Collections.Generic.List<VillagerAI> _raidAllies
-        = new System.Collections.Generic.List<VillagerAI>();
+    private readonly System.Collections.Generic.List<VillagerAIBase> _raidAllies
+        = new System.Collections.Generic.List<VillagerAIBase>();
     [Header("Shield Wall")]
     [Tooltip("World-space gap between each villager in the formation.")]
     [SerializeField] private float wallSlotSpacing = 1f;
@@ -331,7 +331,8 @@ public class PlayerController : MonoBehaviour
         // Set new target
         controlTarget = target;
         controller = target.GetComponent<CharacterBase>();
-        targetAI = target.GetComponent<VillagerAI>();
+        var allAIs = target.GetComponents<VillagerAIBase>();
+        targetAI = System.Array.Find(allAIs, ai => ai.enabled) ?? (allAIs.Length > 0 ? allAIs[0] : null);
         weaponSwapper = target.GetComponent<WeaponSwapper>();
 
         if (controller == null)
@@ -409,7 +410,7 @@ public class PlayerController : MonoBehaviour
     /// Register an ally villager's AI so it can be included in shield wall commands.
     /// Call once per ally when spawning/setting up raid mode.
     /// </summary>
-    public void RegisterRaidAlly(VillagerAI ai)
+    public void RegisterRaidAlly(VillagerAIBase ai)
     {
         if (ai != null && !_raidAllies.Contains(ai))
             _raidAllies.Add(ai);
@@ -450,7 +451,7 @@ public class PlayerController : MonoBehaviour
             int magnitude = slotIndex / 2 + 1;
             int side      = slotIndex % 2 == 0 ? 1 : -1;
             ai.wallFormationOffset = perp * (magnitude * side * wallSlotSpacing);
-            ai.SetRaidBehavior(VillagerAI.RaidBehavior.ShieldWall);
+            ai.SetRaidBehavior(RaidBehavior.ShieldWall);
 
             var villager = ai.GetComponent<Villager>();
             villager?.personalUI?.ShowSpeech("Shield Wall!", 2f);
@@ -473,7 +474,7 @@ public class PlayerController : MonoBehaviour
         foreach (var ai in _raidAllies)
         {
             if (ai == null) continue;
-            ai.SetRaidBehavior(VillagerAI.RaidBehavior.Follow);
+            ai.SetRaidBehavior(RaidBehavior.Follow);
         }
 
         _shieldWallActive = false;

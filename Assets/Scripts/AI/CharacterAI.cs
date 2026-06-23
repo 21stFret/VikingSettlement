@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -7,10 +8,11 @@ using UnityEngine;
 ///
 /// Concrete hierarchy:
 ///   CharacterAI  (this)
-///   └── EnemyAIBase   (enemy target finding, ally detection)
-///       └── EnemyAI   (standard enemy — keeps class name for Unity prefab compat)
-///           └── (future) BerserkerAI, WolfAI, ArcherAI …
-///   └── (future) VillagerAIBase
+///   ├── EnemyAIBase   (enemy target finding, ally detection)
+///   │   └── EnemyAI   (standard enemy — keeps class name for Unity prefab compat)
+///   └── VillagerAIBase (villager work/combat/raid logic)
+///       ├── VillagerAI  (standard villager — job-based combat)
+///       └── JarlAI      (always combat, higher detection, lower flee threshold)
 /// </summary>
 public abstract class CharacterAI : MonoBehaviour
 {
@@ -32,6 +34,10 @@ public abstract class CharacterAI : MonoBehaviour
     [Header("AI Core")]
     [SerializeField] private float searchInterval = 0.5f;
 
+    [Header("Reactive Combat")]
+    [SerializeField] public CombatType CombatStyle = CombatType.Melee;
+    [SerializeField] public CombatFighterStats CombatStats;
+
     // ── References ─────────────────────────────────────────────────────────────────
 
     public CharacterBase Controller { get; protected set; }
@@ -44,6 +50,18 @@ public abstract class CharacterAI : MonoBehaviour
 
     private bool  _aiEnabled = true;
     private float _searchTimer;
+
+    // ── Reactive combat ────────────────────────────────────────────────────────────
+
+    public bool IsActionLocked { get; set; }
+    public List<CharacterBase> NearbyAllies  { get; } = new List<CharacterBase>();
+    public List<CharacterBase> NearbyEnemies { get; } = new List<CharacterBase>();
+
+    private CombatAnimationListener _animListener;
+    public CombatAnimationListener AnimListener
+    {
+        get { if (_animListener == null) _animListener = GetComponent<CombatAnimationListener>(); return _animListener; }
+    }
 
     // ── Engagement (FightManager + CharacterBase slot system) ──────────────────────
 
@@ -67,11 +85,14 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (!_aiEnabled) return;
 
-        _searchTimer += Time.deltaTime;
-        if (_searchTimer >= searchInterval)
+        if (!IsActionLocked)
         {
-            _searchTimer = 0f;
-            OnTargetSearchTick();
+            _searchTimer += Time.deltaTime;
+            if (_searchTimer >= searchInterval)
+            {
+                _searchTimer = 0f;
+                OnTargetSearchTick();
+            }
         }
 
         CurrentState?.OnUpdate(this);

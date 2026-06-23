@@ -132,7 +132,7 @@ public class CombatTestManager : MonoBehaviour
             villager.Init();
 
             // Set raid follow AI — allies follow the player character
-            var ai = go.GetComponent<VillagerAI>();
+            var ai = go.GetComponent<VillagerAIBase>();
             if (ai != null && _player != null)
             {
                 ai.SetRaidMode(true, _player.transform);

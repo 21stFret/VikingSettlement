@@ -201,14 +201,14 @@ namespace Cutscenes
         public float arrivalThreshold = 0.5f;
 
         private GameObject actorObject;
-        private VillagerAI villagerAI;
+        private VillagerAIBase villagerAI;
 
         public override bool Execute(CutsceneManager manager)
         {
             actorObject = actor?.Resolve();
             if (actorObject == null) return true;
 
-            villagerAI = actorObject.GetComponent<VillagerAI>();
+            villagerAI = actorObject.GetComponent<VillagerAIBase>();
 
             if (villagerAI != null && useNavigation)
             {

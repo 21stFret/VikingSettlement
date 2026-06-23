@@ -77,12 +77,11 @@ public class JarlManager : MonoBehaviour, ISaveable
             currentJarl.currentJob = JobType.None;
             currentJarl.OnJarlStatusChanged(false);
 
-            // Re-enable AI on previous Jarl
-            var prevAI = currentJarl.GetComponent<VillagerAI>();
-            if (prevAI != null)
-            {
-                prevAI.SetAIEnabled(true);
-            }
+            // Switch previous Jarl back to standard villager AI
+            var prevJarlAI = currentJarl.GetComponent<JarlAI>();
+            if (prevJarlAI != null) prevJarlAI.enabled = false;
+            var prevVillagerAI = currentJarl.GetComponent<VillagerAI>();
+            if (prevVillagerAI != null) prevVillagerAI.enabled = true;
         }
 
         // Set new Jarl
@@ -93,7 +92,13 @@ public class JarlManager : MonoBehaviour, ISaveable
         villager.currentJob = JobType.Jarl;
         villager.OnJarlStatusChanged(true);
 
-        // Transfer player control
+        // Switch new Jarl to dedicated JarlAI
+        var newVillagerAI = villager.GetComponent<VillagerAI>();
+        if (newVillagerAI != null) newVillagerAI.enabled = false;
+        var jarlAI = villager.GetComponent<JarlAI>();
+        if (jarlAI != null) jarlAI.enabled = true;
+
+        // Transfer player control (PlayerController will call SetAIEnabled(false) on JarlAI)
         if (playerController != null)
         {
             playerController.SetControlTarget(villager);

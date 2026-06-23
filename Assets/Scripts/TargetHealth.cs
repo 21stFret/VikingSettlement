@@ -85,6 +85,9 @@ public class TargetHealth : MonoBehaviour
         if (isDead) return;
         isDead = true;
 
+        // Release all attacker slots so orbiters can re-engage a new target
+        GetComponent<CharacterBase>()?.ReleaseAllSlots();
+
         // Fire death event
         OnDeath?.Invoke();
     }

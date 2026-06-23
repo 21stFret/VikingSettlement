@@ -309,7 +309,7 @@ namespace Cutscenes
             {
                 if (villager != null)
                 {
-                    var ai = villager.GetComponent<VillagerAI>();
+                    var ai = villager.GetComponent<VillagerAIBase>();
                     if (ai != null)
                     {
                         ai.ClearCutsceneTarget();

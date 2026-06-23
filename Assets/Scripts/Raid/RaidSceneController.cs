@@ -154,7 +154,7 @@ public class RaidSceneController : MonoBehaviour
         {
             if (villager == null || villager == playerControlled) continue;
 
-            VillagerAI ai = villager.GetComponent<VillagerAI>();
+            VillagerAIBase ai = villager.GetComponent<VillagerAIBase>();
             if (ai != null)
             {
                 ai.SetRaidMode(true, playerControlled.transform);
