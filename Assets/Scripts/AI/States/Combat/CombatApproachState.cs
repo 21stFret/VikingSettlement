@@ -9,8 +9,17 @@ public class CombatApproachState : AIStateBase
     public override void OnEnter(CharacterAI ai)
     {
         var target = ai.CurrentTarget?.GetComponent<CharacterBase>();
-        if (target != null)
-            ai.AnimListener?.SetTarget(target);
+        if (target == null) return;
+
+        ai.AnimListener?.SetTarget(target);
+
+        // Release any slot held on a previous target, then claim on the new one.
+        // If slots are full the orbit loop in OnUpdate will retry each frame.
+        if (ai.CurrentSlotHost != target)
+            ai.ReleaseEngagementSlot();
+
+        if (ai.CurrentSlotHost == null && target.TryClaimSlot(ai.Controller, out _))
+            ai.CurrentSlotHost = target;
     }
 
     public override void OnUpdate(CharacterAI ai)
@@ -19,20 +28,19 @@ public class CombatApproachState : AIStateBase
         {
             ai.ReleaseEngagementSlot();
             ai.CurrentTarget = null;
-            ai.ChangeState(new VillagerIdleState());
+            if (ai is CombatAIBase combat)
+                combat.ForceTargetSearch();
+            else
+                ai.ChangeState(new VillagerIdleState());
             return;
         }
 
         var target = ai.CurrentTarget.GetComponent<CharacterBase>();
         if (target == null) return;
 
-        float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
-
-        // Claim slot if we don't already hold one on this target
-        if (ai.CurrentSlotHost != target)
+        // Slot was full at OnEnter — keep retrying without releasing
+        if (ai.CurrentSlotHost == null)
         {
-            ai.CurrentSlotHost?.ReleaseSlot(ai.Controller);
-            ai.CurrentSlotHost = null;
             if (!target.TryClaimSlot(ai.Controller, out _))
             {
                 OrbitTarget(ai, target);
@@ -41,9 +49,9 @@ public class CombatApproachState : AIStateBase
             ai.CurrentSlotHost = target;
         }
 
-        Vector2 slotPos = ai.CurrentSlotHost != null
-            ? ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller)
-            : (Vector2)ai.CurrentTarget.position;
+        float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
+
+        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
 
         // Within weapon range — separation hysteresis is handled by _fightPushState
         // inside CalculateSeparationForce; no second hysteresis layer needed here.

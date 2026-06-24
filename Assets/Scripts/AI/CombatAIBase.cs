@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -33,38 +34,50 @@ public abstract class CombatAIBase : CharacterAI
     protected override void OnTargetSearchTick()
     {
         RefreshNearbyFighters();
-        if (ShouldAbortSearchTick()) return;
 
-        // Living primary target and not an extra attacker — stay locked
-        if (CurrentTarget != null && !IsTargetDead(CurrentTarget) && !IsExtra) return;
-
-        // Current target just died — find an immediate replacement
+        // Dead target cleanup
         if (CurrentTarget != null && IsTargetDead(CurrentTarget))
         {
             ReleaseEngagementSlot();
-            CharacterBase replacement = SelectBestTarget() ?? InheritAllyTarget();
-            CurrentTarget = replacement?.transform;
-            if (CurrentTarget == null)
-                ChangeState(GetDefaultIdleState());
+            CurrentTarget = null;
+        }
+
+        // No target at all — find one fresh (must come before IsExtra check)
+        if (CurrentTarget == null)
+        {
+            var best = NearbyEnemies
+                .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
+                .OrderBy(e => e.OccupiedCount)
+                .ThenBy(e => Vector2.Distance(transform.position, e.transform.position))
+                .FirstOrDefault();
+
+            if (best != null)
+            {
+                CurrentTarget = best.transform;
+                OnTargetAcquired(best, true);
+            }
+            // No enemies found → stay idle
             return;
         }
 
-        // No current target, or we are an extra — search for the best available
-        CharacterBase best = SelectBestTarget() ?? InheritAllyTarget();
+        // Have a target — stay locked if we are the primary
+        if (!IsExtra) return;
 
-        if (best != null)
+        // IsExtra — only switch for a completely free target
+        var freeTarget = NearbyEnemies
+            .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
+            .Where(e => e.OccupiedCount == 0)
+            .OrderBy(e => Vector2.Distance(transform.position, e.transform.position))
+            .FirstOrDefault();
+
+        if (freeTarget != null && freeTarget.transform != CurrentTarget)
         {
-            bool targetChanged = best.transform != CurrentTarget;
-            CurrentTarget = best.transform;
-            if (targetChanged || !IsInActiveCombatState())
-                OnTargetAcquired(best, targetChanged);
+            ReleaseEngagementSlot();
+            CurrentTarget = freeTarget.transform;
+            ChangeState(new CombatApproachState());
         }
-        else if (CurrentTarget == null || IsTargetDead(CurrentTarget))
-        {
-            CurrentTarget = null;
-            OnNoTargetFound();
-        }
-        // else: SelectBestTarget returned null but CurrentTarget is still alive — keep fighting
+
+        // No free target exists → stay on current target even if IsExtra
     }
 
     // ── Virtual hooks — override in subclasses for faction-specific behaviour ──
@@ -115,6 +128,36 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is CombatRecoveringState      ||
                CurrentState is CombatRetreatState         ||
                CurrentState is VillagerPrepareCombatState;
+    }
+
+    // ── Immediate retarget ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Skips the 0.5s tick and scans for a new target right now.
+    /// Call this when the current target has just died so the fighter re-engages instantly.
+    /// </summary>
+    public void ForceTargetSearch()
+    {
+        RefreshNearbyFighters();
+        if (ShouldAbortSearchTick())
+        {
+            ChangeState(GetDefaultIdleState());
+            return;
+        }
+
+        CharacterBase best = SelectBestTarget() ?? InheritAllyTarget();
+        if (best != null)
+        {
+            CurrentTarget = best.transform;
+            OnTargetAcquired(best, true);
+        }
+        else
+        {
+            CurrentTarget = null;
+            OnNoTargetFound();
+            if (IsInActiveCombatState())
+                ChangeState(GetDefaultIdleState());
+        }
     }
 
     // ── Shared helpers ─────────────────────────────────────────────────────────

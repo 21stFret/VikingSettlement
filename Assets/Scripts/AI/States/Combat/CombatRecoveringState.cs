@@ -21,7 +21,10 @@ public class CombatRecoveringState : AIStateBase
         {
             ai.ReleaseEngagementSlot();
             ai.CurrentTarget = null;
-            ai.ChangeState(new VillagerIdleState());
+            if (ai is CombatAIBase combat)
+                combat.ForceTargetSearch();
+            else
+                ai.ChangeState(new VillagerIdleState());
             return;
         }
 

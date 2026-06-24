@@ -11234,8 +11234,8 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
-  pursuitRange: 15
-  loseTargetTime: 3
+  pursuitRange: 8
+  loseTargetTime: 1
   pursueTarget: 1
   useCombatSlots: 0
   retargetOnNearer: 1

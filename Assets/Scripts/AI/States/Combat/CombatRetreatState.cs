@@ -30,7 +30,10 @@ public class CombatRetreatState : AIStateBase
         if (ai.CurrentTarget == null || IsTargetDead(ai))
         {
             ai.CurrentTarget = null;
-            ai.ChangeState(new VillagerIdleState());
+            if (ai is CombatAIBase combat)
+                combat.ForceTargetSearch();
+            else
+                ai.ChangeState(new VillagerIdleState());
             return;
         }
 
