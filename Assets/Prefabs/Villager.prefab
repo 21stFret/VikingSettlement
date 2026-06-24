@@ -347,6 +347,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &8764698263912582825
 SpriteRenderer:
   serializedVersion: 2
@@ -513,7 +514,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e9dba80671df6e4393e58c026d5813b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VillagerAI
-  enableAI: 1
+  searchInterval: 0.5
+  CombatStyle: 0
+  CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
+  awarenessRadius: 8
+  enterSeparationRange: 2
+  exitSeparationRange: 3
+  commitRange: 0.4
+  driftThreshold: 1.8
+  attackInterval: 1.5
+  retargetOnHit: 1
   idleTimeMin: 2
   idleTimeMax: 5
   wanderRadius: 5
@@ -524,8 +534,7 @@ MonoBehaviour:
   workRadius: 2
   threatDetectionRange: 8
   combatEngageRange: 1
-  fleeHealthThreshold: -1
-  threatCheckInterval: 0.5
+  fleeHealthThreshold: 0
   weaponsLayerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -652,7 +661,9 @@ MonoBehaviour:
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
   facingDirection: 3
+  CurrentTarget: {fileID: 0}
   slotDistance: 0.8
+  MaxAttackers: 2
   knockbackForce: 5
   knockbackDuration: 0.1
   combatMoveSpeed: 3

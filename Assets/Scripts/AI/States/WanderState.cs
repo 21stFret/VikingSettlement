@@ -12,7 +12,7 @@ public class WanderState : AIStateBase
     {
         if (ai.CurrentTarget != null)
         {
-            ai.ChangeState(new ChaseState());
+            ai.ChangeState(new CombatApproachState());
             return;
         }
 

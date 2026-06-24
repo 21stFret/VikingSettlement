@@ -6,7 +6,7 @@ using UnityEngine;
 /// - Enemy threat detection via OverlapCircle (prefer unengaged targets)
 /// - Work state management (assigned building, work radius)
 /// - Raid mode (Follow / ShieldWall / Aggressive)
-/// - Combat slot + fight-zone pair separation (FightManager)
+/// - Combat slot management (angle-bisect spatial system)
 /// - Cutscene movement
 ///
 /// Concrete hierarchy:
@@ -16,7 +16,7 @@ using UnityEngine;
 /// </summary>
 [RequireComponent(typeof(VillagerController))]
 [RequireComponent(typeof(Villager))]
-public abstract class VillagerAIBase : CharacterAI
+public abstract class VillagerAIBase : CombatAIBase
 {
     // ── Config ────────────────────────────────────────────────────────────────
 
@@ -115,160 +115,51 @@ public abstract class VillagerAIBase : CharacterAI
         base.Update();
     }
 
-    // ── Periodic target search ────────────────────────────────────────────────
+    // ── CombatAIBase hook overrides ───────────────────────────────────────────
 
-    protected override void OnTargetSearchTick()
+    protected override bool ShouldAbortSearchTick()
     {
-        if (IsInCutscene) return;
-        if (CurrentState is VillagerShieldWallState) return;
-        if (VillagerData == null || VillagerData.currentLifeStage != LifeStage.Mature) return;
+        if (IsInCutscene) return true;
+        if (CurrentState is VillagerShieldWallState) return true;
+        if (VillagerData == null || VillagerData.currentLifeStage != LifeStage.Mature) return true;
+        return false;
+    }
 
-        // Handle dead current target before searching for a new one
-        if (CurrentTarget != null && CurrentTarget.GetComponent<TargetHealth>()?.IsDead() == true)
+    protected override void OnTargetAcquired(CharacterBase target, bool targetChanged)
+    {
+        if (VillagerController.combatMoveSpeed > 0f)
+            VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
+
+        float hp     = VillagerData.currentHealth / VillagerData.maxHealth * 100f;
+        float fleeAt = isInRaidMode ? 0f : FleeHealthThreshold;
+        if (hp < fleeAt)
         {
-            ReleaseEngagementSlot();
-            CurrentTarget = SwitchToNearestEnemy();
-            if (CurrentTarget == null)
-                ChangeState(new VillagerIdleState());
+            ChangeState(new VillagerFleeState());
             return;
         }
 
-        Transform found = FindNearestTarget();
-
-        if (found != null)
-        {
-            bool targetChanged  = found != CurrentTarget;
-            CurrentTarget       = found;
-
-            if (VillagerController.combatMoveSpeed > 0f)
-                VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
-
-            float hp     = VillagerData.currentHealth / VillagerData.maxHealth * 100f;
-            float fleeAt = isInRaidMode ? 15f : FleeHealthThreshold;
-
-            if (hp < fleeAt)
-            {
-                ChangeState(new VillagerFleeState());
-                return;
-            }
-
-            // Only trigger a new combat state transition when truly entering combat or switching targets
-            if (targetChanged || !IsInActiveCombatState())
-            {
-                if (CombatStyle == CombatType.Ranged)
-                {
-                    ChangeState(new CombatRangedPositioningState());
-                }
-                else if (VillagerController.shield == null && CanFindShield())
-                {
-                    ChangeState(new VillagerPrepareCombatState());
-                }
-                else
-                {
-                    ChangeState(new CombatApproachState());
-                }
-            }
-        }
+        if (CombatStyle == CombatType.Ranged)
+            ChangeState(new CombatRangedPositioningState());
+        else if (VillagerController.shield == null && CanFindShield())
+            ChangeState(new VillagerPrepareCombatState());
         else
-        {
-            CurrentTarget = null;
-            if (VillagerController.walkMoveSpeed > 0f)
-                VillagerController.SetMoveSpeed(VillagerController.walkMoveSpeed);
-
-            if (isInRaidMode && IsInActiveCombatState())
-                ChangeState(new VillagerFollowState());
-
-            // Faction assist: help a nearby ally who is being attacked
-            if (CurrentTarget == null && !isInRaidMode)
-            {
-                foreach (var ally in NearbyAllies)
-                {
-                    if (ally == null) continue;
-                    var allyAI = ally.GetComponent<CharacterAI>();
-                    if (allyAI == null || allyAI.CurrentTarget == null) continue;
-                    if (allyAI.CurrentTarget.GetComponent<TargetHealth>()?.IsDead() == true) continue;
-                    CurrentTarget = allyAI.CurrentTarget;
-                    if (VillagerController.combatMoveSpeed > 0f)
-                        VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
-                    ChangeState(new CombatApproachState());
-                    return;
-                }
-            }
-        }
+            ChangeState(new CombatApproachState());
     }
 
-    protected bool IsInActiveCombatState()
+    protected override void OnNoTargetFound()
     {
-        return CurrentState is CombatApproachState   ||
-               CurrentState is CombatPressureState   ||
-               CurrentState is CombatAttackState     ||
-               CurrentState is CombatBlockState      ||
-               CurrentState is CombatRecoveringState ||
-               CurrentState is CombatRetreatState    ||
-               CurrentState is VillagerCombatState   ||
-               CurrentState is VillagerPrepareCombatState;
+        if (VillagerController.walkMoveSpeed > 0f)
+            VillagerController.SetMoveSpeed(VillagerController.walkMoveSpeed);
+
+        if (isInRaidMode && IsInActiveCombatState())
+            ChangeState(new VillagerFollowState());
     }
 
-    private Transform SwitchToNearestEnemy()
-    {
-        // Prefer an enemy already attacking one of our allies
-        foreach (var enemy in NearbyEnemies)
-        {
-            if (enemy == null) continue;
-            var enemyAI = enemy.GetComponent<CharacterAI>();
-            if (enemyAI == null || enemyAI.CurrentTarget == null) continue;
-            if (enemyAI.CurrentTarget.GetComponent<CharacterBase>()?.characterFaction == Faction.Player)
-                return enemy.transform;
-        }
-        // Fallback: nearest living enemy
-        float closest = Mathf.Infinity;
-        Transform nearest = null;
-        foreach (var enemy in NearbyEnemies)
-        {
-            if (enemy == null) continue;
-            float d = Vector2.Distance(transform.position, enemy.transform.position);
-            if (d < closest) { closest = d; nearest = enemy.transform; }
-        }
-        return nearest;
-    }
+    protected override AIStateBase GetDefaultIdleState() => new VillagerIdleState();
 
-    // ── Target finding ────────────────────────────────────────────────────────
-
-    public override Transform FindNearestTarget()
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, DetectionRange);
-
-        // Refresh awareness lists in the same pass — one scan, one radius, one truth.
-        NearbyAllies.Clear();
-        NearbyEnemies.Clear();
-
-        Enemy nearestEnemy = null, nearestFreeEnemy = null;
-        float nearestDist = Mathf.Infinity, nearestFreeDist = Mathf.Infinity;
-        var fm = FightManager.Instance;
-
-        foreach (var h in hits)
-        {
-            var cb = h.GetComponent<CharacterBase>();
-            if (cb != null && cb != Controller && cb.GetComponent<TargetHealth>()?.IsDead() != true)
-            {
-                if (cb.characterFaction == Controller.characterFaction)
-                    NearbyAllies.Add(cb);
-                else if (cb.characterFaction != Faction.Neutral)
-                    NearbyEnemies.Add(cb);
-            }
-
-            var enemy = h.GetComponent<Enemy>();
-            if (enemy == null || enemy.IsDead()) continue;
-
-            float d = Vector2.Distance(transform.position, h.transform.position);
-            if (d < nearestDist) { nearestDist = d; nearestEnemy = enemy; }
-
-            bool free = fm == null || cb == null || !fm.IsEngaged(cb);
-            if (free && d < nearestFreeDist) { nearestFreeDist = d; nearestFreeEnemy = enemy; }
-        }
-
-        return (nearestFreeEnemy ?? nearestEnemy)?.transform;
-    }
+    // Raid-mode villagers don't inherit an ally's target — they follow the raid leader instead
+    protected override CharacterBase InheritAllyTarget() =>
+        isInRaidMode ? null : base.InheritAllyTarget();
 
     // ── Combat job check ──────────────────────────────────────────────────────
 
@@ -399,29 +290,6 @@ public abstract class VillagerAIBase : CharacterAI
             force += away.normalized * (1f - dist / separationRadius);
         }
         return force;
-    }
-
-    public void TryClaimEngagementSlot(CharacterBase target)
-    {
-        if (target.TryClaimSlot(Controller, out _))
-        {
-            CurrentSlotHost = target;
-            return;
-        }
-
-        Collider2D[] nearby = Physics2D.OverlapCircleAll(
-            transform.position, DetectionRange, Controller.attackTargetLayer);
-        foreach (var col in nearby)
-        {
-            var cb = col.GetComponent<CharacterBase>();
-            if (cb == null || cb == target || cb.characterFaction == Faction.Player) continue;
-            if (cb.TryClaimSlot(Controller, out _))
-            {
-                CurrentSlotHost = cb;
-                CurrentTarget   = col.transform;
-                return;
-            }
-        }
     }
 
     // ── Gizmos ────────────────────────────────────────────────────────────────

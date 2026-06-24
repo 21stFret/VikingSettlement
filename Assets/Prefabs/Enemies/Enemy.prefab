@@ -11130,11 +11130,11 @@ MonoBehaviour:
   currentHealth: 0
   enemyName: Raider
   enemyType: 5
-  damage: 2
+  damage: 1
   attackRange: 1.5
   attackCooldown: 1.5
   detectionRange: 10
-  weaponName: DSword
+  weaponName: Basic Sword
   shieldName: 1
   moveSpeed: 1.5
   chaseSpeed: 2.5
@@ -11201,7 +11201,9 @@ MonoBehaviour:
   lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 2
   facingDirection: 3
+  CurrentTarget: {fileID: 0}
   slotDistance: 0.8
+  MaxAttackers: 4
   knockbackForce: 5
   knockbackDuration: 0.1
 --- !u!114 &6713158499483296687
@@ -11216,22 +11218,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  enableAI: 1
-  updateInterval: 0.5
+  searchInterval: 0.5
+  CombatStyle: 0
+  CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
+  awarenessRadius: 8
+  enterSeparationRange: 2
+  exitSeparationRange: 3
+  commitRange: 0.4
+  driftThreshold: 1.8
+  attackInterval: 1.5
+  retargetOnHit: 1
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
-  targetNearestVillager: 1
-  pursueTarget: 1
-  faceTargetWhileAttacking: 1
-  useCombatSlots: 0
-  pursuitRange: 15
-  loseTargetTime: 3
-  retargetOnNearer: 1
-  retargetOnHit: 1
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
+  pursuitRange: 15
+  loseTargetTime: 3
+  pursueTarget: 1
+  useCombatSlots: 0
+  retargetOnNearer: 1
 --- !u!114 &102607621922122272
 MonoBehaviour:
   m_ObjectHideFlags: 0

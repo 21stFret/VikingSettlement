@@ -52,9 +52,13 @@ public class CombatPressureState : AIStateBase
             return;
         }
 
+        ai.Controller.FaceTowards(ai.CurrentTarget.position);
+
         float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
         if (dist > ai.AttackRange * 1.5f)
         {
+            if (ai.CalculateSeparationForce().magnitude >= 0.1f) return;
+
             ai.ChangeState(new CombatApproachState());
             return;
         }

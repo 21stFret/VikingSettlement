@@ -28,34 +28,46 @@ public class CombatApproachState : AIStateBase
 
         float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
 
-        // Register fight zone once
-        if (ai.RegisteredTarget != target)
-            ai.RegisterFightZone(target);
-
-        // Claim a slot if we don't have one yet
-        if (ai.CurrentSlotHost == null)
+        // Claim slot if we don't already hold one on this target
+        if (ai.CurrentSlotHost != target)
         {
-            if (target.TryClaimSlot(ai.Controller, out _))
-                ai.CurrentSlotHost = target;
-            else
+            ai.CurrentSlotHost?.ReleaseSlot(ai.Controller);
+            ai.CurrentSlotHost = null;
+            if (!target.TryClaimSlot(ai.Controller, out _))
             {
-                // Slots full — orbit at threat circle distance
                 OrbitTarget(ai, target);
                 return;
             }
+            ai.CurrentSlotHost = target;
         }
 
-        // Move toward the claimed slot position
-        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
-        float slotDist  = Vector2.Distance(ai.transform.position, slotPos);
+        Vector2 slotPos = ai.CurrentSlotHost != null
+            ? ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller)
+            : (Vector2)ai.CurrentTarget.position;
 
-        if (slotDist > 0.3f)
-            ai.Controller.MoveTo(slotPos);
-        else if (dist <= ai.AttackRange)
+        // Within weapon range — separation hysteresis is handled by _fightPushState
+        // inside CalculateSeparationForce; no second hysteresis layer needed here.
+        if (dist <= ai.AttackRange)
         {
+            var fights = ai.GetNearbyFightCentres();
+            Vector2 sep = ai.CalculateSeparationForce(fights);
+
+            bool beingPushed = sep.magnitude > 0.01f;
+
+            if (beingPushed)
+            {
+                ai.Controller.MoveTo(
+                    (Vector2)ai.transform.position +
+                    sep.normalized * ai.MoveSpeed * Time.deltaTime * 10f);
+                return;
+            }
+
             ai.Controller.Stop();
             ai.ChangeState(new CombatPressureState());
+            return;
         }
+
+        ai.MoveWithSeparation(slotPos);
     }
 
     public override void OnExit(CharacterAI ai) => ai.Controller.Stop();

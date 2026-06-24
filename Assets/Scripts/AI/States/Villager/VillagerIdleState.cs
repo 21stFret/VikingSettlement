@@ -14,7 +14,12 @@ public class VillagerIdleState : AIStateBase
 
     public override void OnUpdate(CharacterAI ai)
     {
-        var v = (VillagerAIBase)ai;
+        var v = ai as VillagerAIBase;
+        if (v == null)
+        {
+            ai.ChangeState(new IdleState());
+            return;
+        }
 
         if (v.IsInRaidMode && v.FollowTarget != null)
         {

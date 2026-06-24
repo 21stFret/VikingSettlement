@@ -36,6 +36,7 @@ public class CombatTestManager : MonoBehaviour
     [Tooltip("Optional fixed spawn positions. If empty, enemies spawn in a ring around the player.")]
     [SerializeField] private Transform[] enemySpawnPoints;
     [SerializeField] private int defaultSpawnCount = 3;
+    private int enemySpawnedAmount;
 
     [System.Serializable]
     public class EnemySpawnConfig
@@ -52,6 +53,7 @@ public class CombatTestManager : MonoBehaviour
     private void Start()
     {
         _spawnCount = defaultSpawnCount;
+        enemySpawnedAmount = 0;
         SpawnPlayer();
     }
 
@@ -167,6 +169,8 @@ public class CombatTestManager : MonoBehaviour
         {
             var go = Instantiate(enemyTypes[index].prefab, GetSpawnPoint(i), Quaternion.identity);
             go.GetComponent<Enemy>().InitializeEnemyStats();
+            go.gameObject.name = $"{enemyTypes[index].label} ({enemySpawnedAmount+ 1})";
+            enemySpawnedAmount++;
             /*
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)

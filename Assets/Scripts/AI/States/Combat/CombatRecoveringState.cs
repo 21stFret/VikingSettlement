@@ -25,6 +25,8 @@ public class CombatRecoveringState : AIStateBase
             return;
         }
 
+        ai.Controller.FaceTowards(ai.CurrentTarget.position);
+
         _timer += Time.deltaTime;
         if (_timer < _duration) return;
 

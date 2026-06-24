@@ -84,7 +84,7 @@ public class EnemyController : CharacterBase
 
     public override void OnHitBy(CharacterBase attacker)
     {
-        GetComponent<EnemyAIBase>()?.NotifyHitBy(attacker);
+        base.OnHitBy(attacker); // fires OnHitByAttacker → CombatAIBase.HandleHitBy
     }
 
     protected override void OnDrawGizmosSelected()

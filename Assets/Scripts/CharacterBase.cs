@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum Faction
@@ -115,18 +116,21 @@ public class CharacterBase : MonoBehaviour
     public Faction characterFaction = Faction.Neutral;
     [HideInInspector]
     public FacingDirection facingDirection = FacingDirection.South;
+    [HideInInspector]
+    public CharacterBase CurrentTarget;
 
     [Header("Combat Slots")]
     [SerializeField] public float slotDistance = 0.8f;
-    [SerializeField] public int MaxAttackers = 2;
+    [SerializeField] public int MaxAttackers = 4;
     [SerializeField] private float knockbackForce = 5f;
     [SerializeField] private float knockbackDuration = 0.1f;
-    private CharacterBase[] _slotOccupants = new CharacterBase[4]; // N, E, S, W
+    private List<(CharacterBase claimer, float angle)> _occupiedSlots = new List<(CharacterBase, float)>();
 
     // Combat events fired by animation event callbacks — subscribe to observe attack phases
     public event Action OnAttackWindupEvent;
     public event Action OnAttackWindowEvent;
     public event Action OnAttackRecoveryEvent;
+    public event Action<CharacterBase> OnHitByAttacker;
 
     // Cache of valid animator parameter hashes to avoid errors
     private HashSet<int> validAnimatorParams;
@@ -621,7 +625,10 @@ public class CharacterBase : MonoBehaviour
     /// <summary>
     /// Called when this character is hit by an attacker. Override to react to being hit.
     /// </summary>
-    public virtual void OnHitBy(CharacterBase attacker) { }
+    public virtual void OnHitBy(CharacterBase attacker)
+    {
+        OnHitByAttacker?.Invoke(attacker);
+    }
 
     /// <summary>
     /// Override this to handle what happens when hitting a target
@@ -803,28 +810,24 @@ public class CharacterBase : MonoBehaviour
         if (isMoving)
         {
             lastMoveDirection = movement.normalized;
-            animator.SetFloat(LastMoveX, lastMoveDirection.x);
-            animator.SetFloat(LastMoveY, lastMoveDirection.y);
+            Vector2 facing = FacingOverride ?? lastMoveDirection;
 
-            if (lastMoveDirection.x != cachedMoveX && Math.Abs(lastMoveDirection.x) > 0.01f)
-            {
-                cachedMoveX = lastMoveDirection.x;
-            }
+            animator.SetFloat(LastMoveX, facing.x);
+            animator.SetFloat(LastMoveY, facing.y);
 
-            facingDirection = ComputeFacingDirection(lastMoveDirection);
+            if (facing.x != cachedMoveX && Math.Abs(facing.x) > 0.01f)
+                cachedMoveX = facing.x;
+
+            facingDirection = ComputeFacingDirection(facing);
 
             // Handle sprite flipping — locked while blocking so the shield always faces the attacker
             // Skipped in 4D mode (animator blend tree handles direction visually)
             if (flipSpriteOnDirection && !use4DirectionalSprites && spriteRenderer != null && !isBlocking)
             {
-                if (movement.x > 0.01f)
-                {
+                if (facing.x > 0.01f)
                     FlipSprite(false);
-                }
-                else if (movement.x < -0.01f)
-                {
+                else if (facing.x < -0.01f)
                     FlipSprite(true);
-                }
             }
         }
     }
@@ -841,6 +844,12 @@ public class CharacterBase : MonoBehaviour
     /// Public facing setter — routes through FlipSprite so subclass overrides stay consistent.
     /// </summary>
     public void SetFacingRight(bool faceRight) => FlipSprite(!faceRight);
+
+    /// <summary>
+    /// When set, overrides the visual facing direction (animator LastMoveX/Y, sprite flip)
+    /// without changing physical movement. Clear by setting null. Used for backpedalling.
+    /// </summary>
+    public Vector2? FacingOverride { get; set; }
 
     /// <summary>
     /// Immediately face towards a world position, updating all direction state used by hitboxes and animations.
@@ -952,68 +961,67 @@ public class CharacterBase : MonoBehaviour
 
     #region Combat Slots
 
-    private static readonly Vector2[] SlotOffsets =
-    {
-        Vector2.up,
-        Vector2.right,
-        Vector2.down,
-        Vector2.left
-    };
+    public int OccupiedCount => _occupiedSlots.Count;
 
-    /// <summary>
-    /// Tries to reserve the closest free melee slot on this character for the given claimer.
-    /// Returns true and the world-space slot position if successful.
-    /// </summary>
     public bool TryClaimSlot(CharacterBase claimer, out Vector2 slotWorldPos)
     {
-        slotWorldPos = Vector2.zero;
-        ReleaseSlot(claimer); // clear any previous claim by this claimer
+        ReleaseSlot(claimer);
 
-        // Count current occupants against the MaxAttackers cap
-        int occupied = 0;
-        for (int i = 0; i < 4; i++)
-            if (_slotOccupants[i] != null) occupied++;
-        if (occupied >= MaxAttackers) return false;
-
-        int best = -1;
-        float bestDist = Mathf.Infinity;
-        for (int i = 0; i < 4; i++)
+        if (_occupiedSlots.Count >= MaxAttackers)
         {
-            if (_slotOccupants[i] != null) continue;
-            Vector2 wp = (Vector2)transform.position + SlotOffsets[i] * slotDistance;
-            float d = Vector2.Distance(claimer.transform.position, wp);
-            if (d < bestDist) { bestDist = d; best = i; }
+            slotWorldPos = Vector2.zero;
+            return false;
         }
 
-        if (best == -1) return false;
-
-        _slotOccupants[best] = claimer;
-        slotWorldPos = (Vector2)transform.position + SlotOffsets[best] * slotDistance;
+        float newAngle = CalculateBisectAngle();
+        _occupiedSlots.Add((claimer, newAngle));
+        slotWorldPos = GetSlotWorldPos(claimer);
         return true;
+    }
+
+    private float CalculateBisectAngle()
+    {
+        if (_occupiedSlots.Count == 0)
+            return UnityEngine.Random.Range(0f, 360f);
+
+        var angles = _occupiedSlots.Select(s => s.angle).OrderBy(a => a).ToList();
+        float largestGap = 0f;
+        float gapStart = 0f;
+
+        for (int i = 0; i < angles.Count; i++)
+        {
+            float next = angles[(i + 1) % angles.Count];
+            float gap = (next - angles[i] + 360f) % 360f;
+            if (gap > largestGap)
+            {
+                largestGap = gap;
+                gapStart = angles[i];
+            }
+        }
+        return (gapStart + largestGap / 2f) % 360f;
+    }
+
+    public Vector2 GetSlotWorldPos(CharacterBase claimer)
+    {
+        foreach (var slot in _occupiedSlots)
+        {
+            if (slot.claimer == claimer)
+            {
+                float rad = slot.angle * Mathf.Deg2Rad;
+                return (Vector2)transform.position + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * slotDistance;
+            }
+        }
+        return transform.position;
     }
 
     public void ReleaseSlot(CharacterBase claimer)
     {
-        for (int i = 0; i < 4; i++)
-            if (_slotOccupants[i] == claimer) _slotOccupants[i] = null;
+        _occupiedSlots.RemoveAll(s => s.claimer == claimer);
     }
 
     public void ReleaseAllSlots()
     {
-        for (int i = 0; i < 4; i++)
-            _slotOccupants[i] = null;
-    }
-
-    /// <summary>
-    /// Returns the current world-space position of this claimer's reserved slot,
-    /// tracking the host's movement each frame.
-    /// </summary>
-    public Vector2 GetSlotWorldPos(CharacterBase claimer)
-    {
-        for (int i = 0; i < 4; i++)
-            if (_slotOccupants[i] == claimer)
-                return (Vector2)transform.position + SlotOffsets[i] * slotDistance;
-        return (Vector2)transform.position;
+        _occupiedSlots.Clear();
     }
 
     #endregion
@@ -1064,6 +1072,29 @@ public class CharacterBase : MonoBehaviour
     #endregion
 
     #region Debug
+
+    private static readonly Color[] SlotColors = { Color.yellow, Color.magenta, Color.cyan, Color.green };
+
+    private void OnDrawGizmos()
+    {
+        if (_occupiedSlots == null || _occupiedSlots.Count == 0) return;
+
+        for (int i = 0; i < _occupiedSlots.Count; i++)
+        {
+            var (claimer, angle) = _occupiedSlots[i];
+            float rad      = angle * Mathf.Deg2Rad;
+            Vector2 slotWP = (Vector2)transform.position + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * slotDistance;
+
+            Gizmos.color = SlotColors[i % SlotColors.Length];
+            Gizmos.DrawWireSphere(slotWP, 0.15f);
+            Gizmos.DrawLine(transform.position, slotWP);
+
+#if UNITY_EDITOR
+            UnityEditor.Handles.Label(slotWP + Vector2.up * 0.2f,
+                $"{(claimer ? claimer.name : "?")} ({angle:F0}°)");
+#endif
+        }
+    }
 
     protected virtual void OnDrawGizmosSelected()
     {

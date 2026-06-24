@@ -34,13 +34,23 @@ public class CombatRetreatState : AIStateBase
             return;
         }
 
+        if (ai.CurrentTarget != null)
+        {
+            Vector2 toTarget = ((Vector2)ai.CurrentTarget.position - (Vector2)ai.transform.position).normalized;
+            ai.Controller.FacingOverride = toTarget;
+        }
+
         _timer += Time.deltaTime;
         float distToRetreat = Vector2.Distance(ai.transform.position, _retreatPos);
         if (distToRetreat < 0.3f || _timer >= MaxRetreatDuration)
             ai.ChangeState(new CombatApproachState());
     }
 
-    public override void OnExit(CharacterAI ai) => ai.Controller.Stop();
+    public override void OnExit(CharacterAI ai)
+    {
+        ai.Controller.FacingOverride = null;
+        ai.Controller.Stop();
+    }
 
     private static bool IsTargetDead(CharacterAI ai) =>
         ai.CurrentTarget?.GetComponent<TargetHealth>()?.IsDead() == true;
