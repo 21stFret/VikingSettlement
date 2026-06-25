@@ -31,6 +31,7 @@ public abstract class CharacterAI : MonoBehaviour
     public virtual bool       PursueTarget   => true;
     public virtual bool       UseCombatSlots => false;
     public virtual LayerMask  ObstacleLayer  => default;
+    public virtual bool CanFlee => false;
 
     [Header("AI Core")]
     [SerializeField] private float searchInterval = 0.5f;
@@ -149,8 +150,10 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (newState == null) return;
         CurrentState?.OnExit(this);
+        print(this.name + "is leaving" + CurrentState?.ToString());
         CurrentState = newState;
         CurrentState.OnEnter(this);
+        print(this.name + "has entered" + CurrentState.ToString());
     }
 
     protected abstract AIStateBase GetInitialState();

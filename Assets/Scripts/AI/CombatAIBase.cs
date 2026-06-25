@@ -172,7 +172,7 @@ public abstract class CombatAIBase : CharacterAI
         if (!retargetOnHit || attacker == null) return;
         if (Controller != null && attacker.characterFaction == Controller.characterFaction) return;
 
-        CharacterBase best = SelectBestTarget();
+        CharacterBase best = attacker;
         if (best == null || best.transform == CurrentTarget) return;
 
         ReleaseEngagementSlot();
