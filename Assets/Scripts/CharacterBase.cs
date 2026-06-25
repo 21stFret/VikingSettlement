@@ -992,13 +992,18 @@ public class CharacterBase : MonoBehaviour
         {
             float next = angles[(i + 1) % angles.Count];
             float gap = (next - angles[i] + 360f) % 360f;
+            if (angles.Count == 1)
+            {
+                gap = (next + 360f) % 360f;
+            }
             if (gap > largestGap)
             {
                 largestGap = gap;
                 gapStart = angles[i];
             }
         }
-        return (gapStart + largestGap / 2f) % 360f;
+        var value = (gapStart + largestGap / 2f) % 360f;
+        return value;
     }
 
     public Vector2 GetSlotWorldPos(CharacterBase claimer)

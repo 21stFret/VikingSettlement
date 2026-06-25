@@ -38,7 +38,7 @@ public class WeaponSwapper : MonoBehaviour
         {
             return;
         }
-        swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Sword");
+        swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Rare Sword");
         axePrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Axe");
         torchPrefab = WeaponDatabase.Instance.GetWeaponByName("Torch");
 
