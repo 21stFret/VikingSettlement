@@ -63,9 +63,6 @@ public class PauseManager : MonoBehaviour
     private PlayerInputActions inputActions;
     private Vector2 cameraPanInput;
 
-    // Cached state for returning from strategic pause
-    private Transform cachedPlayerTarget;
-
     // Track which state we were in before dialogue (to restore after)
     private PauseState stateBeforeDialogue;
 
@@ -343,12 +340,6 @@ public class PauseManager : MonoBehaviour
             GameTickManager.Instance.SetPaused(true);
         }
 
-        // Cache current camera target (player) for snap-back
-        if (cameraController != null)
-        {
-            cachedPlayerTarget = cameraController.GetCurrentTarget();
-        }
-
         // Enable free camera mode
         if (cameraController != null)
         {
@@ -399,9 +390,9 @@ public class PauseManager : MonoBehaviour
         {
             cameraController.SetFreeCameraMode(false);
 
-            if (snapToPlayer && cachedPlayerTarget != null)
+            if (snapToPlayer && cameraController.playerTarget != null)
             {
-                cameraController.SetTarget(cachedPlayerTarget);
+                cameraController.ReturnToPlayerTarget();
                 cameraController.SnapToTarget();
             }
         }
@@ -414,8 +405,6 @@ public class PauseManager : MonoBehaviour
 
         // Hide strategic pause indicator
         if (strategicPauseIndicator != null) strategicPauseIndicator.SetActive(false);
-
-        cachedPlayerTarget = null;
     }
 
     private void HandleStrategicPauseCameraPan()
