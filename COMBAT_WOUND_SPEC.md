@@ -2,7 +2,25 @@
 **Game:** Jarl-Born
 **Version:** 1.0
 **Date:** February 17, 2026
-**Status:** Ready for Implementation
+
+## Implementation Status (updated 2026-06-27)
+| Component | Status |
+|-----------|--------|
+| Shield system (all combatants, durability tracks) | ✅ Implemented |
+| Shield breakage (shatters at 0 durability) | ✅ Implemented |
+| Villager AI blocking | ✅ Implemented |
+| Wound system — `WoundManager.cs` | ✅ Implemented |
+| Wound effects (6 wound types, penalties applied) | ✅ Implemented |
+| 3-wound max → death rule | ✅ Implemented |
+| Healer Hut building | ✅ Implemented |
+| Shield pickup (villagers grab dropped shields) | ✅ Implemented |
+| Jarl active blocking (right-click hold) | ❓ Verify in PlayerController |
+| Parry system (0.3s timing window, stun) | ❓ Unknown — check PlayerController |
+| Jarl weapon durability (per-swing, forge repair) | ❓ Unknown — check EquipableItem |
+| Post-raid villager weapon breakage roll | ❓ Unknown — check RaidManager |
+| Wound visual indicators on sprites | ❓ Unknown — verify in VillagerPersonalUI |
+
+**Status:** Core implemented. Parry, weapon durability, and post-raid breakage need verification.
 
 ---
 
