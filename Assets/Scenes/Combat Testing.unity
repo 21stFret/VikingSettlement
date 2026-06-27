@@ -46796,6 +46796,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &280060882
 Mesh:
   m_ObjectHideFlags: 0
@@ -88020,6 +88021,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!61 &733365719
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -109687,6 +109689,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -135644,6 +135647,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -198478,6 +198482,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243541,6 +243546,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!61 &1961049945
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -261324,6 +261330,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!224 &2948359121601391322
 RectTransform:
   m_ObjectHideFlags: 0
@@ -261597,22 +261604,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: availableShields.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: availableWeapons.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: 'availableShields.Array.data[1]'
-      value: 
-      objectReference: {fileID: 1866138473353848901, guid: 73e1720b98884de45beed228d317a2da, type: 3}
-    - target: {fileID: 4608577156686420010, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
-      propertyPath: 'availableWeapons.Array.data[2]'
-      value: 
-      objectReference: {fileID: 8754541858049918560, guid: 3103aa2b08d1e6d4f8a056f101253583, type: 3}
     - target: {fileID: 5278577266530551435, guid: 13a23b5b5888e9a488558bd73d4973c7, type: 3}
       propertyPath: m_Name
       value: WeaponDatabase
@@ -267752,6 +267743,7 @@ MonoBehaviour:
   driftThreshold: 1.8
   attackInterval: 1.5
   retargetOnHit: 0
+  showDebug: 0
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3

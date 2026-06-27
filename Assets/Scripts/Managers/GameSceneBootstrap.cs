@@ -25,6 +25,20 @@ public class GameSceneBootstrap : MonoBehaviour
 
         // Layer 2: needs GameTickManager + DayNightManager
         SeasonManager.Instance?.Initialize();
+
+        // ── Calendar stack (order is strict) ──────────────────────────────────────
+        // SeasonManager → CalendarManager → StormScheduler
+        //   SeasonManager must be first: CalendarManager reads season state on first refresh.
+        //   StormScheduler must be last: it subscribes to both SeasonManager.OnSeasonChanged
+        //   and CalendarManager.OnCalendarUpdated, and calls back into both.
+        if (SeasonManager.Instance == null)
+            Debug.LogError("GameSceneBootstrap: SeasonManager is null before CalendarManager.Initialize() — calendar data will be wrong.");
+        if (CalendarManager.Instance == null)
+            Debug.LogError("GameSceneBootstrap: CalendarManager is null — ensure it has a scene GameObject.");
+        CalendarManager.Instance?.Initialize();
+        StormScheduler.Instance?.Initialize();
+        // ──────────────────────────────────────────────────────────────────────────
+
         WeatherManager.Instance?.Initialize();
         SettlementManager.Instance?.Initialize();
         MissionManager.Instance?.Initialize();
@@ -52,6 +66,10 @@ public class GameSceneBootstrap : MonoBehaviour
         CameraController.Instance?.Init();
         PauseManager.Instance?.Init();
         UIManager.Instance?.Init();
+
+        // Refresh wood cost UI now that the full calendar stack (StormScheduler included) is warm.
+        // Guards against UIManager deferring HeatUI.Init() past the point where storm data is available.
+        HeatUI.Instance?.UpdateWoodUI();
 
         if(isNewGame)
             SaveManager.Instance?.SaveToCurrentSlot();

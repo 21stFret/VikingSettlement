@@ -11,8 +11,8 @@ public class SeasonManager : MonoBehaviour, ISaveable
     public static SeasonManager Instance { get; private set; }
 
     [Header("Season Settings")]
-    [Tooltip("Number of days before the season changes")]
-    public int daysPerSeason = 15;
+    [Tooltip("Number of days per season. Age 1 default = 30. Will be driven by Age progression in future.")]
+    public int daysPerSeason = 30;
 
     [Tooltip("Current season")]
     [SerializeField] private Season currentSeason = Season.Summer;
@@ -133,9 +133,6 @@ public class SeasonManager : MonoBehaviour, ISaveable
             return;
         }
 
-        // Initialize days until season change
-        daysUntilSeasonChange = daysPerSeason;
-
         // Auto-populate sun beams from parent if not manually assigned
         if (summerSunBeamsParent != null && summerSunBeams.Count == 0)
         {
@@ -218,8 +215,13 @@ public class SeasonManager : MonoBehaviour, ISaveable
         }
 
         // Calculate wood needed based on population
-        int villagerCount = SettlementManager.Instance.GetPopulation();
-        woodNeededToday = villagerCount * woodPerVillagerPerDay;
+        int   villagerCount    = SettlementManager.Instance.GetPopulation();
+        // Summer burns at half rate — fires still needed but less fierce
+        float seasonMultiplier = (currentSeason == Season.Winter) ? 1.0f : 0.5f;
+        float stormMultiplier  = StormScheduler.Instance != null
+            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
+            : 1.0f;
+        woodNeededToday = villagerCount * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
 
         // Apply Winter's Friend runestone bonus (-30% firewood)
         if (RunestoneManager.Instance != null)
@@ -736,6 +738,22 @@ public class SeasonManager : MonoBehaviour, ISaveable
     public float GetWoodConsumedToday()
     {
         return woodConsumedToday;
+    }
+
+    /// <summary>
+    /// Returns today's effective wood cost without triggering consumption.
+    /// Accounts for season (half rate in summer) and active storm multiplier.
+    /// Safe to call from UI and WeatherManager at any time.
+    /// </summary>
+    public float GetTodayWoodCost()
+    {
+        if (SettlementManager.Instance == null) return 0f;
+        int population = SettlementManager.Instance.GetPopulation();
+        float seasonMultiplier = (currentSeason == Season.Winter) ? 1.0f : 0.5f;
+        float stormMultiplier = StormScheduler.Instance != null
+            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
+            : 1.0f;
+        return population * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
     }
 
     /// <summary>

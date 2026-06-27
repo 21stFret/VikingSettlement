@@ -49,13 +49,12 @@ public class CombatApproachState : AIStateBase
             ai.CurrentSlotHost = target;
         }
 
-        float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
+        Vector2 slotPos    = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
+        float distToSlot   = Vector2.Distance((Vector2)ai.transform.position, slotPos);
 
-        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
-
-        // Within weapon range — separation hysteresis is handled by _fightPushState
-        // inside CalculateSeparationForce; no second hysteresis layer needed here.
-        if (dist <= ai.AttackRange)
+        // Commit only when the fighter has physically reached its assigned slot,
+        // not merely when it's within general attack range of the target.
+        if (distToSlot <= ai.commitRange)
         {
             var fights = ai.GetNearbyFightCentres();
             Vector2 sep = ai.CalculateSeparationForce(fights);

@@ -253,6 +253,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleCalendar"",
+                    ""type"": ""Button"",
+                    ""id"": ""a1c2e3f4-b5d6-4789-8a9b-0c1d2e3f4a5b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -699,7 +708,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c19df04f-d0a0-43b7-b886-e836aa1916b8"",
-                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""path"": ""<Gamepad>/dpad/right"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -739,6 +748,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ForwardDialogue"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2d3e4f5-c6a7-4890-9bcd-1e2f3a4b5c6d"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCalendar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3e4f5a6-d7b8-5901-acde-2f3a4b5c6d7e"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCalendar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -765,6 +796,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Notifications = m_Player.FindAction("Notifications", throwIfNotFound: true);
         m_Player_VillagerPanel = m_Player.FindAction("VillagerPanel", throwIfNotFound: true);
         m_Player_ForwardDialogue = m_Player.FindAction("ForwardDialogue", throwIfNotFound: true);
+        m_Player_ToggleCalendar = m_Player.FindAction("ToggleCalendar", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -863,6 +895,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Notifications;
     private readonly InputAction m_Player_VillagerPanel;
     private readonly InputAction m_Player_ForwardDialogue;
+    private readonly InputAction m_Player_ToggleCalendar;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -947,6 +980,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ForwardDialogue => m_Wrapper.m_Player_ForwardDialogue;
         /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleCalendar".
+        /// </summary>
+        public InputAction @ToggleCalendar => m_Wrapper.m_Player_ToggleCalendar;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1026,6 +1063,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ForwardDialogue.started += instance.OnForwardDialogue;
             @ForwardDialogue.performed += instance.OnForwardDialogue;
             @ForwardDialogue.canceled += instance.OnForwardDialogue;
+            @ToggleCalendar.started += instance.OnToggleCalendar;
+            @ToggleCalendar.performed += instance.OnToggleCalendar;
+            @ToggleCalendar.canceled += instance.OnToggleCalendar;
         }
 
         /// <summary>
@@ -1091,6 +1131,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ForwardDialogue.started -= instance.OnForwardDialogue;
             @ForwardDialogue.performed -= instance.OnForwardDialogue;
             @ForwardDialogue.canceled -= instance.OnForwardDialogue;
+            @ToggleCalendar.started -= instance.OnToggleCalendar;
+            @ToggleCalendar.performed -= instance.OnToggleCalendar;
+            @ToggleCalendar.canceled -= instance.OnToggleCalendar;
         }
 
         /// <summary>
@@ -1257,5 +1300,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnForwardDialogue(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCalendar" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCalendar(InputAction.CallbackContext context);
     }
 }

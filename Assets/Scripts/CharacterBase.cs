@@ -975,6 +975,12 @@ public class CharacterBase : MonoBehaviour
 
         float newAngle = CalculateBisectAngle();
         _occupiedSlots.Add((claimer, newAngle));
+
+        Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
+            $"at angle:{newAngle:F1}° " +
+            $"existing slots:{_occupiedSlots.Count - 1} " +
+            $"existing angles:{string.Join(", ", _occupiedSlots.Where(s => s.claimer != claimer).Select(s => s.angle.ToString("F1")))}");
+
         slotWorldPos = GetSlotWorldPos(claimer);
         return true;
     }

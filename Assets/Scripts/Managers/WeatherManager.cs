@@ -76,6 +76,12 @@ public class WeatherManager : MonoBehaviour
     private float originalSunIntensity = 1f;
     private bool hasDimmedSun = false;
 
+    [Header("Winter Snow")]
+    [Tooltip("Snow emission rate on calm winter days (ambient snowfall)")]
+    [SerializeField] private float ambientWinterSnowRate = 25f;
+    [Tooltip("Snow emission rate during winter storms (blizzard)")]
+    [SerializeField] private float stormSnowRate = 100f;
+
     [Header("Testing")]
     [Tooltip("Select weather type to test")]
     public WeatherType testWeatherType = WeatherType.Clear;
@@ -145,6 +151,7 @@ public class WeatherManager : MonoBehaviour
             if (DayNightManager.Instance != null)
             {
                 DayNightManager.Instance.OnDayNightChanged -= OnDayNightChanged;
+                DayNightManager.Instance.OnNewDay          -= OnWeatherNewDay;
             }
         }
     }
@@ -177,13 +184,19 @@ public class WeatherManager : MonoBehaviour
         {
             DayNightManager.Instance.OnDayNightChanged += OnDayNightChanged;
             DayNightManager.Instance.OnDawnEveningChanged += OnDawnEveningChanged;
+            DayNightManager.Instance.OnNewDay += OnWeatherNewDay;
         }
 
-        // Pick a random weather type for variety between scenes (only in auto mode)
-        if (autoWeather)
-        {
-            SetRandomWeather();
-        }
+        // Disabled — weather now driven by CalendarManager via ApplyWeatherForDay()
+        // if (autoWeather)
+        // {
+        //     SetRandomWeather();
+        // }
+
+        // Apply correct weather immediately so it's right on scene load, not after the first day tick
+        bool initIsStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool initIsWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        ApplyWeatherForDay(initIsStorm, initIsWinter);
     }
 
     private void OnDayNightChanged(bool isDaytime)
@@ -378,6 +391,8 @@ public class WeatherManager : MonoBehaviour
 
     private void UpdateWeatherDuration()
     {
+        // Disabled — weather now driven by CalendarManager via ApplyWeatherForDay()
+        /*
         // Skip auto weather changes when in manual mode
         if (!autoWeather) return;
         if (DayNightManager.Instance == null) return;
@@ -396,6 +411,7 @@ public class WeatherManager : MonoBehaviour
         {
             SetRandomWeather();
         }
+        */
     }
 
     private void UpdateSunDimming()
@@ -521,15 +537,47 @@ public class WeatherManager : MonoBehaviour
         if (enabled)
         {
             instance.SetActive(true);
-            if (!particles.isPlaying)
-            {
+            // isPlaying stays true during StopEmitting drain, so also check isEmitting
+            // to catch the case where DisableAllEffects() and re-enable happen in the same call.
+            if (particles.isStopped || !particles.isEmitting)
                 particles.Play();
-            }
         }
         else
         {
             // Stop emitting but let existing particles fade out
             particles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        }
+    }
+
+    // ── Calendar-driven weather ───────────────────────────────────────────────
+
+    private void OnWeatherNewDay()
+    {
+        bool isStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool isWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        ApplyWeatherForDay(isStorm, isWinter);
+    }
+
+    /// <summary>
+    /// Sets weather for the day based on storm/season state.
+    /// Called by OnWeatherNewDay and during Initialize() for correct scene-load state.
+    /// CalendarManager and StormScheduler are the source of truth; this method only executes.
+    /// </summary>
+    public void ApplyWeatherForDay(bool isStormDay, bool isWinter)
+    {
+        autoWeather = false;
+
+        if (isWinter)
+        {
+            SetWeather(WeatherType.Snow);
+            SetSnowIntensity(isStormDay ? stormSnowRate : ambientWinterSnowRate);
+        }
+        else
+        {
+            if (isStormDay)
+                SetWeather(WeatherType.Storm);  // summer lightning storm
+            else
+                SetWeather(WeatherType.Sunny);  // sun beams + fireflies
         }
     }
 

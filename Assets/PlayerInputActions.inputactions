@@ -167,6 +167,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleCalendar",
+                    "type": "Button",
+                    "id": "a1c2e3f4-b5d6-4789-8a9b-0c1d2e3f4a5b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -613,7 +622,7 @@
                 {
                     "name": "",
                     "id": "c19df04f-d0a0-43b7-b886-e836aa1916b8",
-                    "path": "<Gamepad>/dpad/left",
+                    "path": "<Gamepad>/dpad/right",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -651,6 +660,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b2d3e4f5-c6a7-4890-9bcd-1e2f3a4b5c6d",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCalendar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c3e4f5a6-d7b8-5901-acde-2f3a4b5c6d7e",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCalendar",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

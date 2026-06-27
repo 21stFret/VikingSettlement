@@ -99,6 +99,8 @@ public abstract class CharacterAI : MonoBehaviour
         _currentTarget != null &&
         _currentTarget.GetComponent<CharacterBase>()?.CurrentTarget != Controller;
 
+    public bool showDebug= false;
+
     public struct NearbyFight
     {
         public CharacterBase A;
@@ -150,10 +152,10 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (newState == null) return;
         CurrentState?.OnExit(this);
-        print(this.name + "is leaving" + CurrentState?.ToString());
+        if(showDebug) print(this.name + "is leaving" + CurrentState?.ToString());
         CurrentState = newState;
         CurrentState.OnEnter(this);
-        print(this.name + "has entered" + CurrentState.ToString());
+        if (showDebug) print(this.name + "has entered" + CurrentState.ToString());
     }
 
     protected abstract AIStateBase GetInitialState();
