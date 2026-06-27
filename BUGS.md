@@ -6,25 +6,7 @@ _P0 = breaks correctness. P1 = wrong values. P2 = state desync. P3 = code health
 
 ## P0 — Breaks Correctness
 
-### B4 — `eveningMultiplier` is a dead field (DayNightManager:88)
-SeasonManager writes `DayNightManager.eveningMultiplier` in `ApplySummerLighting` and `ApplyWinterLighting`, but DayNightManager **never reads it** anywhere. Seasonal ambient light multipliers have zero effect at runtime.
-**Fix:** Read `eveningMultiplier` inside DayNightManager's `UpdateAmbientLight`, or remove it and the two SeasonManager callers.
-
-### B31 — Succession timeout is unreachable; game soft-locks if SuccessionUI fails (JarlManager)
-`SuccessionProcess` coroutine: `while (isInSuccession) yield return null;` — the `if (isInSuccession)` auto-select block immediately after it can never execute. If SuccessionUI never fires (e.g. the component is missing), `isInSuccession` stays true forever.
-**Fix:** Replace the while-loop with a real timed loop (e.g. `float t = 0; while (isInSuccession && t < 30f) { t += Time.deltaTime; yield return null; }`) and auto-select below it.
-
-### B32 — Only-children branch exits succession without firing `OnSuccessionEnded` (JarlManager)
-When only underage children remain, `HandleNoHeirs` sets `isInSuccession = false` but never calls `OnSuccessionEnded?.Invoke()`. SuccessionUI never receives the close signal and stays visible.
-**Fix:** Add `OnSuccessionEnded?.Invoke()` before the early return in that branch.
-
-### B28 — At-capacity `SelectRunestone` skips `CompleteSelection`; JarlManager waits forever (RunestoneManager)
-If `SelectRunestone` is called when `activeRunestones.Count >= MAX_ACTIVE_RUNESTONES`, the method silently returns without calling `CompleteSelection()`. JarlManager waits indefinitely for `OnSelectionComplete`.
-**Fix:** Enforce capacity in the UI so this code path is unreachable, or call `CompleteSelection()` when at capacity.
-
-### B37 — Raid Jarl-casualty fires succession before Bootstrap initialises UI (RaidManager / GameManager)
-`GameManager.InitializeGameAfterDelay` calls `RaidManager.ApplyPendingResults()` before `GameSceneBootstrap.Init()`. If the Jarl was a raid casualty, `Villager.Die()` fires `OnJarlDied` → starts `SuccessionProcess` → fires `OnSuccessionStarted` with no SuccessionUI subscribed yet. Succession is silently skipped.
-**Fix:** Move `ApplyPendingResults()` call to after `GameSceneBootstrap.Init()`, or defer the death notifications to a post-Bootstrap frame.
+_All P0 bugs resolved as of 2026-06-27._
 
 ---
 
@@ -120,6 +102,13 @@ Two buildings of the same type (e.g. two LumberCamp) share a name. Workers can b
 
 | Date | Bug | Summary |
 |------|-----|---------|
+| 2026-06-27 | B37 — Raid Jarl-casualty succession fires before UI ready | `ApplyPendingResults()` moved to after `GameSceneBootstrap.Init()` in GameManager. |
+| 2026-06-27 | B4 — `eveningMultiplier` dead field | `ambientLight.intensity` now multiplied by `eveningMultiplier` in `UpdateAmbientLight`. |
+| 2026-06-27 | B5 — Day rollover discards fractional time | `currentTimeOfDay -= 1f` instead of `= 0f`. |
+| 2026-06-27 | B9 — `OnDawnEveningChanged` fires every frame | Added `wasDawnEvening` edge-detection guard. |
+| 2026-06-27 | B28 — At-capacity SelectRunestone skips CompleteSelection | Logs error and leaves selection open so UI can recover; no silent skip. |
+| 2026-06-27 | B31 — Succession timeout unreachable | Real 120 s loop with `Time.unscaledDeltaTime`; auto-selects best candidate on expiry. |
+| 2026-06-27 | B32 — Only-children branch missing `OnSuccessionEnded` | Added `OnSuccessionEnded?.Invoke()` to that branch in `HandleNoHeirs`. |
 | 2026-06-27 | Camera doesn't follow new Jarl after succession | `PauseManager.CleanupStrategicPause` restored a cached pre-succession camera target. Fixed by removing the cache and using `ReturnToPlayerTarget()`. |
 | 2026-06-27 | SeasonManager dead visual-effects layer | Removed 11 fields and 8 methods for particle/light effects that WeatherManager had superseded. Inspector slots were permanently empty. |
 | Earlier | Raid end editor freeze | `SceneManager.LoadScene` called synchronously inside `Enemy.Die()` event chain. Fixed by deferring to a results UI button press. |

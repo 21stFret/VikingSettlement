@@ -20,7 +20,7 @@
 | Ancestors' Fury cooldown reduction (requires Jarl abilities) | ❓ Jarl abilities status unknown |
 | Swift Recovery (halves heal time) | ✅ Implemented via `WoundManager` |
 
-**Known gap:** `SelectRunestone` when at capacity silently skips `CompleteSelection()` — JarlManager waits indefinitely. See BUGS.md #B28.
+**B28 fixed:** `SelectRunestone` at capacity now logs an error and leaves selection open for UI recovery instead of silently skipping `CompleteSelection()`.
 
 ---
 
