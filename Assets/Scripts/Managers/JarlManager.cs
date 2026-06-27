@@ -166,16 +166,18 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Fire succession started event - UI should respond
         OnSuccessionStarted?.Invoke(candidates);
 
-        // Wait for player selection
-        while (isInSuccession)
+        // Wait for player selection — 120 s real-time fallback in case UI never fires
+        float elapsed = 0f;
+        while (isInSuccession && elapsed < 120f)
         {
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        // If still in succession after timeout, auto-select first candidate
+        // Timeout: auto-select best candidate so the game never hard-locks
         if (isInSuccession && candidates.Count > 0)
         {
-            Debug.Log("Succession timeout - auto-selecting best candidate");
+            Debug.LogWarning("Succession timeout — auto-selecting best candidate");
             SelectHeir(candidates[0].Villager);
         }
     }
@@ -411,6 +413,7 @@ public class JarlManager : MonoBehaviour, ISaveable
                 // TODO: Implement regent system
                 Debug.Log("Only children remain - the settlement awaits a new leader...");
                 isInSuccession = false;
+                OnSuccessionEnded?.Invoke();
             }
             else
             {

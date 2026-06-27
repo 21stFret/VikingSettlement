@@ -128,7 +128,13 @@ public class RunestoneManager : MonoBehaviour, ISaveable
             Debug.Log($"Runestone activated: {info.name} - {info.description}");
             CompleteSelection();
         }
-        // If at capacity, UI should call ReplaceRunestone instead
+        else
+        {
+            // At capacity — UI must call ReplaceRunestone instead.
+            // Calling CompleteSelection here would silently skip the replacement step,
+            // so log an error and leave selection open so the UI can recover.
+            Debug.LogError($"SelectRunestone called at capacity ({MAX_ACTIVE_RUNESTONES}). Call ReplaceRunestone to swap an existing stone.");
+        }
     }
 
     public void ReplaceRunestone(RunestoneType toRemove, RunestoneType newType)

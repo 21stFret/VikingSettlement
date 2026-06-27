@@ -87,6 +87,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     public float eveningMultiplier = 1f;
     private bool wasDaytime = true;
+    private bool wasDawnEvening = false;
 
     private void Awake()
     {
@@ -163,7 +164,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
         // Handle day rollover
         if (currentTimeOfDay >= 1f)
         {
-            currentTimeOfDay = 0f;
+            currentTimeOfDay -= 1f;
             currentDay++;
             hasConsumedMealToday = false;
             OnNewDay?.Invoke();
@@ -202,13 +203,16 @@ public class DayNightManager : MonoBehaviour, ISaveable
             OnDayNightChanged?.Invoke(isSunUp);
         }
 
-        // Check for dawn/dusk transitions
-        bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f; // Within 5% of sunrise time
-        bool isDusk = Mathf.Abs(currentTimeOfDay - sunsetTime) < 0.05f;   // Within 5% of sunset time
+        // Check for dawn/dusk transitions — fire once on the edge, not every frame
+        bool isDawnEvening = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f ||
+                             Mathf.Abs(currentTimeOfDay - sunsetTime)  < 0.05f;
+        bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f;
 
-        if (isDawn || isDusk)
+        if (isDawnEvening != wasDawnEvening)
         {
-            OnDawnEveningChanged?.Invoke(isDawn);
+            wasDawnEvening = isDawnEvening;
+            if (isDawnEvening)
+                OnDawnEveningChanged?.Invoke(isDawn);
         }
 
         // Update sun light
@@ -308,8 +312,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
             dayBlend = 0.2f;
         }
 
-        // Smoothly interpolate intensity and color
-        ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend);
+        // Smoothly interpolate intensity and color; eveningMultiplier is set by SeasonManager
+        ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend) * eveningMultiplier;
         ambientLight.color = Color.Lerp(ambientNightColor, ambientDayColor, dayBlend);
     }
 
