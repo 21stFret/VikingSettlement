@@ -146,11 +146,12 @@ public class GameManager : MonoBehaviour
         yield return null;
         yield return null;
 
+        bool didLoadSave = false;
         if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
         {
             Debug.Log($"Applying save data from: {SaveFileToLoad}");
             SaveManager.Instance.LoadGame(SaveFileToLoad);
-            RaidManager.Instance?.ApplyPendingResults();
+            didLoadSave = true;
         }
         else if (!ShouldLoadSave && SaveManager.Instance != null)
         {
@@ -165,6 +166,14 @@ public class GameManager : MonoBehaviour
         if(GSB != null)
         {
             GSB.Init();
+        }
+
+        // Apply pending raid results AFTER Bootstrap has initialized UI and managers —
+        // Jarl-casualty succession fires events that require JarlManager, cameras, and
+        // succession UI to be ready (B37).
+        if (didLoadSave)
+        {
+            RaidManager.Instance?.ApplyPendingResults();
         }
     }
 
