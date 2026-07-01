@@ -76,6 +76,7 @@ public class CalendarManager : MonoBehaviour, ISaveable
     // ── Calendar window ───────────────────────────────────────────────────────────
 
     private CalendarDayData[] _days = new CalendarDayData[30];
+    private bool _loadedFromSave = false;
 
     /// <summary>30-entry calendar window. Index 0 = today, index 29 = furthest day.</summary>
     public CalendarDayData[] Days => _days;
@@ -109,7 +110,17 @@ public class CalendarManager : MonoBehaviour, ISaveable
         else
             Debug.LogWarning("CalendarManager: DayNightManager not found during Initialize!");
 
-        RefreshCalendarData();
+        if (_loadedFromSave)
+        {
+            // Days were restored by LoadSaveData before Bootstrap ran — skip the wipe.
+            // Re-sync metadata in case SeasonManager re-initialised between load and Bootstrap.
+            _loadedFromSave = false;
+            SyncCurrentState();
+        }
+        else
+        {
+            RefreshCalendarData();
+        }
     }
 
     private void OnDestroy()
@@ -262,7 +273,9 @@ public class CalendarManager : MonoBehaviour, ISaveable
         };
         _days = data.calendarDays ?? new CalendarDayData[30];
         SyncCurrentState();
-        OnCalendarUpdated?.Invoke();
+        // Set flag so Initialize() (called later by Bootstrap) skips RefreshCalendarData
+        // and doesn't wipe the days we just restored.
+        _loadedFromSave = true;
     }
     #endregion
 }
