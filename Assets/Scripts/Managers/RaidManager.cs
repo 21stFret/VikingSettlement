@@ -8,33 +8,38 @@ using System.Linq;
 /// Manages offensive raids - leaving settlement, time tracking, and return.
 /// On return, stores a PendingRaidResults snapshot; GameManager loads the pre-raid
 /// autosave then calls ApplyPendingResults() to patch loot/casualties/time on top.
+///
+/// Settlement time lost is determined solely by RaidDestinationData.travelTimeHours
+/// (there and back), not by how long the player spends fighting.
 /// </summary>
 public class RaidManager : MonoBehaviour
 {
     public static RaidManager Instance { get; private set; }
 
     [Header("Raid Settings")]
-    [Tooltip("Available raid destinations")]
-    public List<RaidDestination> raidDestinations = new List<RaidDestination>();
+    [Tooltip("Available raid destinations (ScriptableObject assets)")]
+    public List<RaidDestinationData> raidDestinations = new List<RaidDestinationData>();
 
     [Header("Current Raid State")]
     [SerializeField] private bool isOnRaid = false;
-    [SerializeField] private RaidDestination currentRaid;
+    [SerializeField] private RaidDestinationData currentRaid;
     [SerializeField] private float raidStartTime;
     [SerializeField] private List<Villager> raidParty = new List<Villager>();
+    private int _raidStartAbsoluteDay;
+    private float _raidStartTimeOfDay;
 
     [Header("Scene Names")]
     [Tooltip("Name of the main settlement scene")]
     public string settlementSceneName = "Demo Scene";
 
     // Events
-    public event Action<RaidDestination> OnRaidStarted;
+    public event Action<RaidDestinationData> OnRaidStarted;
     public event Action<RaidReport> OnRaidEnded;
     public event Action<SettlementReport> OnReturnedToSettlement;
 
     // Properties
     public bool IsOnRaid => isOnRaid;
-    public RaidDestination CurrentRaid => currentRaid;
+    public RaidDestinationData CurrentRaid => currentRaid;
     public List<Villager> RaidParty => raidParty;
 
     public bool HasPendingRaidResults => pendingRaidResults != null && pendingRaidResults.hasPendingResults;
@@ -65,7 +70,7 @@ public class RaidManager : MonoBehaviour
 
     #region Starting a Raid
 
-    public bool StartRaid(RaidDestination destination, List<Villager> party)
+    public bool StartRaid(RaidDestinationData destination, List<Villager> party)
     {
         if (isOnRaid)
         {
@@ -93,6 +98,10 @@ public class RaidManager : MonoBehaviour
         // Pause ticks so no production runs during the autosave write
         PauseSettlement();
 
+        // Capture time anchor immediately before the autosave snapshot
+        _raidStartAbsoluteDay = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentAbsoluteDay : 0;
+        _raidStartTimeOfDay   = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentTimeOfDay   : 0f;
+
         // Snapshot full pre-raid settlement state — this is what we restore on return
         SaveManager.Instance?.SaveAuto();
 
@@ -108,7 +117,7 @@ public class RaidManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"Starting raid to {destination.destinationName} with {raidParty.Count} villagers.");
+        Debug.Log($"Starting raid to {destination.destinationName} with {raidParty.Count} villagers. Settlement loses {destination.GetGameDaysPassed():F1} days.");
         OnRaidStarted?.Invoke(destination);
 
         if (!string.IsNullOrEmpty(destination.sceneName))
@@ -135,18 +144,18 @@ public class RaidManager : MonoBehaviour
             return;
         }
 
-        float raidRealTime = Time.time - raidStartTime;
-        float gameDaysPassed = currentRaid.CalculateGameDaysPassed(raidRealTime);
+        float raidRealTime    = Time.time - raidStartTime;
+        float gameDaysPassed  = currentRaid.GetGameDaysPassed(); // fixed by destination, not fight duration
 
         RaidReport raidReport = new RaidReport
         {
-            destination = currentRaid,
-            result = result,
-            realTimeElapsed = raidRealTime,
-            gameDaysPassed = gameDaysPassed,
-            loot = loot ?? new List<ResourceLoot>(),
-            casualties = casualties ?? new List<Villager>(),
-            survivors = new List<Villager>(raidParty)
+            destination      = currentRaid,
+            result           = result,
+            realTimeElapsed  = raidRealTime,
+            gameDaysPassed   = gameDaysPassed,
+            loot             = loot ?? new List<ResourceLoot>(),
+            casualties       = casualties ?? new List<Villager>(),
+            survivors        = new List<Villager>(raidParty)
         };
 
         if (casualties != null)
@@ -155,7 +164,7 @@ public class RaidManager : MonoBehaviour
                 raidReport.survivors.Remove(casualty);
         }
 
-        Debug.Log($"Raid ended: {result}. Real time: {raidRealTime:F1}s, Game days passed: {gameDaysPassed:F2}. Loot: {loot?.Count ?? 0}, Casualties: {casualties?.Count ?? 0}");
+        Debug.Log($"Raid ended: {result}. Real fight time: {raidRealTime:F1}s, Settlement days passed: {gameDaysPassed:F2}. Loot: {loot?.Count ?? 0}, Casualties: {casualties?.Count ?? 0}");
 
         OnRaidEnded?.Invoke(raidReport);
         ReturnToSettlement(raidReport);
@@ -166,18 +175,20 @@ public class RaidManager : MonoBehaviour
         // Package all results as data — scene-local managers are about to be destroyed
         pendingRaidResults = new PendingRaidResults
         {
-            hasPendingResults = true,
-            gameDaysPassed = raidReport.gameDaysPassed,
-            loot = raidReport.loot ?? new List<ResourceLoot>(),
-            casualtyIds = raidReport.casualties?
+            hasPendingResults    = true,
+            gameDaysPassed       = raidReport.gameDaysPassed,
+            loot                 = raidReport.loot ?? new List<ResourceLoot>(),
+            casualtyIds          = raidReport.casualties?
                 .Where(v => v != null)
                 .Select(v => v.uniqueId)
                 .ToList() ?? new List<string>(),
-            survivorHealth = new Dictionary<string, float>(),
-            raidPartyIds = raidParty
+            survivorHealth       = new Dictionary<string, float>(),
+            raidPartyIds         = raidParty
                 .Where(v => v != null)
                 .Select(v => v.uniqueId)
-                .ToList()
+                .ToList(),
+            raidStartAbsoluteDay = _raidStartAbsoluteDay,
+            raidStartTimeOfDay   = _raidStartTimeOfDay
         };
 
         foreach (var survivor in raidReport.survivors)
@@ -186,7 +197,7 @@ public class RaidManager : MonoBehaviour
                 pendingRaidResults.survivorHealth[survivor.uniqueId] = survivor.currentHealth;
         }
 
-        isOnRaid = false;
+        isOnRaid    = false;
         currentRaid = null;
 
         // Destroy DDOL raid party villagers — autosave recreates them at pre-raid state;
@@ -267,19 +278,40 @@ public class RaidManager : MonoBehaviour
                 .Where(v => v != null)
                 .ToList();
 
-            int daysToSimulate = Mathf.CeilToInt(pending.gameDaysPassed);
-            SettlementReport report = SettlementSimulator.SimulateTime(daysToSimulate, absentVillagers, pending.gameDaysPassed);
+            // B25: FloorToInt avoids simulating a phantom extra day; partial day handled inside SimulateTime
+            int daysToSimulate = Mathf.FloorToInt(pending.gameDaysPassed);
+            SettlementReport report = SettlementSimulator.SimulateTime(daysToSimulate, absentVillagers, pending.gameDaysPassed, pending.raidStartAbsoluteDay);
             ApplySettlementReport(report);
             OnReturnedToSettlement?.Invoke(report);
         }
 
         // 5. Advance game time
-        int days = Mathf.CeilToInt(pending.gameDaysPassed);
+        // B25: CeilToInt was causing season clock to advance one extra day — Floor + partial remainder is accurate
+        int days = Mathf.FloorToInt(pending.gameDaysPassed);
         DayNightManager.Instance?.AdvanceDays(days);
         SeasonManager.Instance?.AdvanceDays(days);
 
         // 6. Resume settlement tick (paused in StartRaid)
         ResumeSettlement();
+
+        // 7. Restore time of day and date to post-raid position
+        int   endAbsoluteDay = pending.raidStartAbsoluteDay + Mathf.FloorToInt(pending.gameDaysPassed);
+        float endTimeOfDay   = pending.raidStartTimeOfDay + (pending.gameDaysPassed % 1f);
+        if (endTimeOfDay >= 1f) { endAbsoluteDay++; endTimeOfDay -= 1f; }
+        DayNightManager.Instance?.SetDateTime(endAbsoluteDay, endTimeOfDay);
+
+        // Rebuild calendar window from the new time position. DayNightManager.AdvanceDays and
+        // SeasonManager.AdvanceDays are intentionally silent (no OnNewDay fired), so
+        // CalendarManager never shifts on its own during raid return.
+        CalendarManager.Instance?.RefreshCalendarData();
+
+        // 8. Restore correct weather for this day
+        // Player lands at the correct time of day and weather state — if it was storming all raid, it's still storming on return
+        bool isStormDay    = StormScheduler.Instance != null
+            && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool isWinterReturn = SeasonManager.Instance != null
+            && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        WeatherManager.Instance?.ApplyWeatherForDay(isStormDay, isWinterReturn);
 
         Debug.Log($"Raid results applied: {pending.loot.Count} loot, {pending.casualtyIds.Count} casualties, {days} days simulated.");
     }
@@ -330,7 +362,7 @@ public class RaidManager : MonoBehaviour
 
     #region Public API
 
-    public List<RaidDestination> GetAvailableRaids() => raidDestinations;
+    public List<RaidDestinationData> GetAvailableRaids() => raidDestinations;
 
     public Villager AddVillagerToRaidParty(Villager villager)
     {
@@ -354,27 +386,29 @@ public class RaidManager : MonoBehaviour
         return Time.time - raidStartTime;
     }
 
+    /// <summary>
+    /// Settlement days lost for the current raid — fixed by destination, not fight duration.
+    /// </summary>
     public float GetProjectedGameDays()
     {
         if (!isOnRaid || currentRaid == null) return 0f;
-        return currentRaid.CalculateGameDaysPassed(Time.time - raidStartTime);
+        return currentRaid.GetGameDaysPassed();
     }
 
-    public string GetTimeDilationStatus()
+    public string GetRaidStatus()
     {
         if (!isOnRaid || currentRaid == null) return "";
-
-        float elapsed = GetRaidTimeElapsed();
-        float projectedDays = GetProjectedGameDays();
+        float days      = currentRaid.GetGameDaysPassed();
         float remaining = GetRaidTimeRemaining();
-
-        return $"Time: {elapsed:F0}s | Settlement: {projectedDays:F1} days | Remaining: {remaining:F0}s";
+        return currentRaid.realTimeLimit > 0f
+            ? $"Settlement: {days:F1} days away | Fight remaining: {remaining:F0}s"
+            : $"Settlement: {days:F1} days away";
     }
 
     public bool IsRaidTimeExpired()
     {
         if (!isOnRaid || currentRaid == null) return false;
-        return Time.time - raidStartTime >= currentRaid.realTimeLimit;
+        return currentRaid.realTimeLimit > 0f && Time.time - raidStartTime >= currentRaid.realTimeLimit;
     }
 
     public void Retreat() => EndRaid(RaidResult.Retreat);
@@ -383,41 +417,6 @@ public class RaidManager : MonoBehaviour
 }
 
 #region Data Classes
-
-[System.Serializable]
-public class RaidDestination
-{
-    public string destinationName = "Unknown Land";
-    public string sceneName = "RaidScene";
-    public string description = "A dangerous place to raid.";
-
-    [Header("Time Dilation")]
-    [Tooltip("How fast settlement time passes while on raid (10 = 1 real second = 10 game seconds)")]
-    public float timeDilationMultiplier = 10f;
-
-    [Tooltip("Real-time limit in seconds (0 = no limit)")]
-    public float realTimeLimit = 300f;
-
-    [Tooltip("Maximum game-days that can pass (caps the time even if player is slow)")]
-    public float maxGameDays = 5f;
-
-    [Header("Difficulty")]
-    public int recommendedPartySize = 3;
-    public int enemyCount = 5;
-    public List<GameObject> enemyPrefabs = new List<GameObject>();
-    [Tooltip("If true, spawns one of each prefab in the list (ignores enemyCount). If false, picks randomly from the list enemyCount times.")]
-    public bool spawnAll = false;
-
-    [Header("Rewards")]
-    public List<ResourceLoot> potentialLoot = new List<ResourceLoot>();
-
-    public float CalculateGameDaysPassed(float realSecondsElapsed)
-    {
-        float gameSeconds = realSecondsElapsed * timeDilationMultiplier;
-        float gameDays = gameSeconds / 120f;
-        return Mathf.Min(gameDays, maxGameDays);
-    }
-}
 
 [System.Serializable]
 public class ResourceLoot
@@ -436,7 +435,7 @@ public enum RaidResult
 [System.Serializable]
 public class RaidReport
 {
-    public RaidDestination destination;
+    public RaidDestinationData destination;
     public RaidResult result;
 
     [Header("Time")]
@@ -450,9 +449,8 @@ public class RaidReport
 
     public string GetTimeEfficiencyText()
     {
-        float maxDays = destination?.maxGameDays ?? 5f;
-        float efficiency = 1f - (gameDaysPassed / maxDays);
-        return $"{gameDaysPassed:F1} days passed ({efficiency * 100:F0}% time saved)";
+        float roundTripHours = destination != null ? destination.travelTimeHours * 2f : gameDaysPassed * 24f;
+        return $"{gameDaysPassed:F1} days passed ({roundTripHours:F0}h round trip)";
     }
 }
 
@@ -506,6 +504,8 @@ public class PendingRaidResults
     public List<string> casualtyIds;
     public Dictionary<string, float> survivorHealth;
     public List<string> raidPartyIds;
+    public int raidStartAbsoluteDay;
+    public float raidStartTimeOfDay;
 }
 
 #endregion
