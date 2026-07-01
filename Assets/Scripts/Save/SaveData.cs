@@ -31,6 +31,8 @@ public class SaveData
     public SkillTreeSaveData skillTreeData;
     public RunestoneSaveData runestoneData;
     public DeathTypeBuffSaveData deathBuffData;
+    public CalendarDayData[] calendarDays;
+    public int currentGodiLevel;
 }
 
 [Serializable]

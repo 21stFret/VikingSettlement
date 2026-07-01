@@ -47,7 +47,7 @@ public class CalendarDayData
 /// UI panels subscribe to OnCalendarUpdated (C2).
 /// Event scheduling (storms, raids, etc.) hooks in via the events list in C3+.
 /// </summary>
-public class CalendarManager : MonoBehaviour
+public class CalendarManager : MonoBehaviour, ISaveable
 {
     public static CalendarManager Instance { get; private set; }
 
@@ -75,7 +75,7 @@ public class CalendarManager : MonoBehaviour
 
     // ── Calendar window ───────────────────────────────────────────────────────────
 
-    private readonly CalendarDayData[] _days = new CalendarDayData[30];
+    private CalendarDayData[] _days = new CalendarDayData[30];
 
     /// <summary>30-entry calendar window. Index 0 = today, index 29 = furthest day.</summary>
     public CalendarDayData[] Days => _days;
@@ -241,4 +241,28 @@ public class CalendarManager : MonoBehaviour
     // For now both seasons share daysPerSeason.
     private int GetSeasonLength(SeasonManager.Season _) =>
         Mathf.Max(1, SeasonManager.Instance != null ? SeasonManager.Instance.daysPerSeason : 30);
+
+    #region ISaveable implementation
+    public void PopulateSaveData(SaveData data)
+    {
+        data.calendarDays = _days;
+        data.currentGodiLevel = _godiLevel;
+    }
+
+    public void LoadSaveData(SaveData data)
+    {
+        _godiLevel = data.currentGodiLevel;
+        _scoutedRange = _godiLevel switch
+        {
+            0 => 15,
+            1 => 20,
+            2 => 25,
+            3 => 30,
+            _ => 15
+        };
+        _days = data.calendarDays ?? new CalendarDayData[30];
+        SyncCurrentState();
+        OnCalendarUpdated?.Invoke();
+    }
+    #endregion
 }

@@ -14,7 +14,7 @@ using UnityEngine;
 /// Initialization order in GameSceneBootstrap:
 ///   SeasonManager → CalendarManager → StormScheduler
 /// </summary>
-public class StormScheduler : MonoBehaviour
+public class StormScheduler : MonoBehaviour, ISaveable
 {
     public static StormScheduler Instance { get; private set; }
 
@@ -78,12 +78,14 @@ public class StormScheduler : MonoBehaviour
         else
             Debug.LogError("StormScheduler: CalendarManager is null during Initialize — storm events will not appear on calendar.");
 
-        // Sync with the season that is already active when Initialize is called
-        // (e.g. if the game saves / loads mid-winter).
+        // Sync with the season that is already active when Initialize is called.
+        // Skip schedule generation when loading a save — LoadSaveData() will reconstruct
+        // the schedule from the already-loaded calendar days instead.
         if (SeasonManager.Instance != null)
         {
             _isWinter = SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-            if (_isWinter)
+            bool isNewGame = GameManager.Instance == null || !GameManager.Instance.ShouldLoadSave;
+            if (_isWinter && isNewGame)
             {
                 GenerateStormSchedule();
                 // CalendarManager already fired OnCalendarUpdated during its own Initialize(),
@@ -158,6 +160,49 @@ public class StormScheduler : MonoBehaviour
         }
 
         return 1f;
+    }
+
+    // ── Simulator range query ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns every absolute day in [startDay, endDay] that has a storm, with its wood multiplier.
+    /// startDay/endDay are absolute DayNightManager day numbers.
+    /// The conversion to 1-indexed winter days is done relative to the current winter day and
+    /// current absolute day — call this before SeasonManager.AdvanceDays() to get the correct mapping.
+    /// Returns an empty list if not winter, schedule is empty, or DayNightManager is unavailable.
+    /// </summary>
+    public List<(int day, float woodMultiplier)> GetStormDaysInRange(int startDay, int endDay)
+    {
+        var result = new List<(int day, float woodMultiplier)>();
+        if (!_isWinter || _stormSchedule.Count == 0) return result;
+        if (DayNightManager.Instance == null)
+        {
+            Debug.LogWarning("StormScheduler.GetStormDaysInRange: DayNightManager unavailable — returning no storm days.");
+            return result;
+        }
+
+        int currentWinterDay = GetCurrentWinterDay();
+        int currentAbsDay    = DayNightManager.Instance.CurrentAbsoluteDay;
+        // absolute_day = currentAbsDay + (winterDay - currentWinterDay)
+        // winterDay    = currentWinterDay + (absolute_day - currentAbsDay)
+        int winterStartDay = currentWinterDay + (startDay - currentAbsDay);
+        int winterEndDay   = currentWinterDay + (endDay   - currentAbsDay);
+
+        foreach (var storm in _stormSchedule)
+        {
+            int overlapStart = Mathf.Max(storm.startDay, winterStartDay);
+            int overlapEnd   = Mathf.Min(storm.EndDay,   winterEndDay);
+            for (int winterDay = overlapStart; winterDay <= overlapEnd; winterDay++)
+            {
+                int absDay = currentAbsDay + (winterDay - currentWinterDay);
+                float multiplier = storm.severity == StormSeverity.Heavy
+                    ? stormHeavyWoodMultiplier
+                    : stormLightWoodMultiplier;
+                result.Add((absDay, multiplier));
+            }
+        }
+
+        return result;
     }
 
     // ── Schedule generation ───────────────────────────────────────────────────
@@ -305,5 +350,69 @@ public class StormScheduler : MonoBehaviour
         }
 
         WeatherManager.Instance?.ApplyWeatherForDay(isStormDay: true, isWinter: _isWinter);
+    }
+
+    // ── ISaveable ─────────────────────────────────────────────────────────────
+
+    // Storm events are embedded in the saved CalendarDayData, so no separate
+    // storm fields are written. PopulateSaveData is a no-op; LoadSaveData
+    // reconstructs _stormSchedule from the already-loaded calendar days so that
+    // GetCurrentDayWoodMultiplier() and future WriteStormEventsToCalendar() calls
+    // use the correct schedule rather than a freshly-generated random one.
+    public void PopulateSaveData(SaveData data) { }
+
+    public void LoadSaveData(SaveData data)
+    {
+        _stormSchedule.Clear();
+
+        if (SeasonManager.Instance != null)
+            _isWinter = SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+
+        if (!_isWinter || CalendarManager.Instance == null) return;
+
+        CalendarDayData[] days = CalendarManager.Instance.Days;
+        int currentWinterDay = GetCurrentWinterDay();
+
+        StormEntry? active = null;
+        for (int i = 0; i < days.Length; i++)
+        {
+            CalendarDayData day = days[i];
+            if (day == null || day.season != SeasonManager.Season.Winter || day.isFogged)
+            {
+                if (active.HasValue) { _stormSchedule.Add(active.Value); active = null; }
+                continue;
+            }
+
+            bool hasStorm = false;
+            StormSeverity sev = StormSeverity.Light;
+            foreach (var ev in day.events)
+            {
+                if (ev.eventType == CalendarEventType.Storm)
+                {
+                    hasStorm = true;
+                    if (ev.eventName == "Heavy Storm") sev = StormSeverity.Heavy;
+                    break;
+                }
+            }
+
+            int winterDay = currentWinterDay + i;
+            if (hasStorm)
+            {
+                if (!active.HasValue)
+                    active = new StormEntry { startDay = winterDay, duration = 1, severity = sev };
+                else
+                {
+                    var s = active.Value;
+                    s.duration++;
+                    active = s;
+                }
+            }
+            else if (active.HasValue)
+            {
+                _stormSchedule.Add(active.Value);
+                active = null;
+            }
+        }
+        if (active.HasValue) _stormSchedule.Add(active.Value);
     }
 }

@@ -23,6 +23,9 @@ public class SaveManager : MonoBehaviour
     public const int MAX_SLOTS = 3;
     public const string AUTOSAVE_NAME = "autosave";
 
+    // PlayerPrefs key — survives app restarts and save-file deletion
+    private const string PREFS_LAST_SLOT = "LastPlayedSlot";
+
     /// <summary>
     /// The currently active slot number (1-3).
     /// </summary>
@@ -106,13 +109,23 @@ public class SaveManager : MonoBehaviour
     #region Public API
 
     /// <summary>
-    /// Set the current active slot.
+    /// Set the current active slot. Persists to PlayerPrefs so Continue can resume the last session.
     /// </summary>
     public void SetCurrentSlot(int slotNumber)
     {
         CurrentSlot = slotNumber;
+        if (slotNumber > 0)
+        {
+            PlayerPrefs.SetInt(PREFS_LAST_SLOT, slotNumber);
+            PlayerPrefs.Save();
+        }
         Debug.Log($"Current slot set to {slotNumber}");
     }
+
+    /// <summary>
+    /// Returns the last played slot number (1-3) across app sessions, or 0 if none.
+    /// </summary>
+    public static int GetLastPlayedSlot() => PlayerPrefs.GetInt(PREFS_LAST_SLOT, 0);
 
     /// <summary>
     /// Get the file name for a slot (e.g., "slot1", "slot2").
@@ -338,6 +351,12 @@ public class SaveManager : MonoBehaviour
         if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance is ISaveable deathBuff)
             deathBuff.PopulateSaveData(data);
 
+        if (CalendarManager.Instance != null && CalendarManager.Instance is ISaveable calendar)
+            calendar.PopulateSaveData(data);
+
+        if (StormScheduler.Instance != null && StormScheduler.Instance is ISaveable storm)
+            storm.PopulateSaveData(data);
+
         return data;
     }
 
@@ -376,6 +395,13 @@ public class SaveManager : MonoBehaviour
 
         if (JarlManager.Instance != null && JarlManager.Instance is ISaveable jarl)
             jarl.LoadSaveData(data);
+
+        // Calendar: load before StormScheduler so its days array is ready for schedule reconstruction.
+        if (CalendarManager.Instance != null && CalendarManager.Instance is ISaveable calendar)
+            calendar.LoadSaveData(data);
+
+        if (StormScheduler.Instance != null && StormScheduler.Instance is ISaveable storm)
+            storm.LoadSaveData(data);
     }
 
     #endregion
