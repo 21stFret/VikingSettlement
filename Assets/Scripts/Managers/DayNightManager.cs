@@ -81,6 +81,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
     // Events
     public event Action OnMealTime;
     public event Action OnNewDay;
+    public event Action OnDayEnd;
     public event Action<bool> OnDayNightChanged;
     public event Action<bool> OnDawnEveningChanged;
 
@@ -167,6 +168,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
             currentTimeOfDay -= 1f;
             currentDay++;
             hasConsumedMealToday = false;
+            OnDayEnd?.Invoke();
             OnNewDay?.Invoke();
             Debug.Log($"Day {currentDay} has begun!");
         }

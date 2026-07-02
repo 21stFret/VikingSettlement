@@ -44,9 +44,21 @@ public class StormScheduler : MonoBehaviour, ISaveable
     [SerializeField] private float stormLightWoodMultiplier = 1.5f;
     [SerializeField] private float stormHeavyWoodMultiplier = 2.5f;
 
+    [Header("Cold Day Weights")]
+    [Tooltip("Cold/Frozen roll chance per season quarter (x = Cold, y = Frozen; index 0 = first quarter, 3 = last). " +
+             "Literal probabilities, not normalized — whatever's left over (1 - Cold - Frozen) is a Chilly day " +
+             "(no cold effect), matching the winter shade with no separate indicator needed.")]
+    [SerializeField] private Vector2 q1ColdWeights = new Vector2(0.30f, 0.00f); // Cold, Frozen
+    [SerializeField] private Vector2 q2ColdWeights = new Vector2(0.45f, 0.15f);
+    [SerializeField] private Vector2 q3ColdWeights = new Vector2(0.40f, 0.40f);
+    [SerializeField] private Vector2 q4ColdWeights = new Vector2(0.30f, 0.60f);
+
     // ── Runtime state ─────────────────────────────────────────────────────────
 
     private readonly List<StormEntry> _stormSchedule = new List<StormEntry>();
+    // Cold day type per winter, keyed by absolute DayNightManager day number (unlike _stormSchedule,
+    // which is keyed by 1-indexed winter day). A plain per-day lookup — no range math needed at query time.
+    private readonly Dictionary<int, ColdDayType> _coldDaySchedule = new Dictionary<int, ColdDayType>();
     private bool _isWinter;
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -87,17 +99,13 @@ public class StormScheduler : MonoBehaviour, ISaveable
             bool isNewGame = GameManager.Instance == null || !GameManager.Instance.ShouldLoadSave;
             if (_isWinter && isNewGame)
             {
+                int seasonLen = SeasonManager.Instance.daysPerSeason;
                 GenerateStormSchedule();
+                GenerateColdDaySchedule(seasonLen);
                 // CalendarManager already fired OnCalendarUpdated during its own Initialize(),
-                // before we subscribed — so we missed the handshake. Write storm events directly
+                // before we subscribed — so we missed the handshake. Write storm/cold data directly
                 // now using the same re-entrancy guard the event handler uses.
-                if (CalendarManager.Instance != null && _stormSchedule.Count > 0)
-                {
-                    CalendarManager.Instance.OnCalendarUpdated -= OnCalendarUpdated;
-                    WriteStormEventsToCalendar();
-                    CalendarManager.Instance.NotifyUpdated();
-                    CalendarManager.Instance.OnCalendarUpdated += OnCalendarUpdated;
-                }
+                WriteWinterCalendarDataAndNotify();
             }
         }
     }
@@ -117,21 +125,40 @@ public class StormScheduler : MonoBehaviour, ISaveable
         _isWinter = newSeason == SeasonManager.Season.Winter;
 
         if (_isWinter)
+        {
+            int seasonLen = SeasonManager.Instance != null ? SeasonManager.Instance.daysPerSeason : 30;
             GenerateStormSchedule();
+            GenerateColdDaySchedule(seasonLen);
+        }
         else
+        {
             _stormSchedule.Clear();
+            _coldDaySchedule.Clear(); // Chilly is the default for summer — no schedule needed.
+        }
     }
 
     // ── Calendar events ───────────────────────────────────────────────────────
 
     private void OnCalendarUpdated()
     {
-        if (!_isWinter || _stormSchedule.Count == 0) return;
+        if (!_isWinter) return;
+        WriteWinterCalendarDataAndNotify();
+    }
+
+    /// <summary>
+    /// Writes storm and cold-day data into the calendar window and notifies once.
+    /// Shared by Initialize() (mid-winter new game) and OnCalendarUpdated() (daily shift/rebuild).
+    /// </summary>
+    private void WriteWinterCalendarDataAndNotify()
+    {
+        if (CalendarManager.Instance == null) return;
+        if (_stormSchedule.Count == 0 && _coldDaySchedule.Count == 0) return;
 
         // Unsubscribe before writing so the subsequent NotifyUpdated() call does not
         // re-enter this handler. Resubscribe afterwards so future daily shifts work.
         CalendarManager.Instance.OnCalendarUpdated -= OnCalendarUpdated;
-        WriteStormEventsToCalendar();
+        if (_stormSchedule.Count > 0) WriteStormEventsToCalendar();
+        if (_coldDaySchedule.Count > 0) WriteColdDayTypesToCalendar();
         CalendarManager.Instance.NotifyUpdated();
         CalendarManager.Instance.OnCalendarUpdated += OnCalendarUpdated;
     }
@@ -203,6 +230,99 @@ public class StormScheduler : MonoBehaviour, ISaveable
         }
 
         return result;
+    }
+
+    // ── Cold day type ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the scheduled cold day type for an absolute DayNightManager day number.
+    /// Falls back to Chilly if the day has no entry (summer days, or days outside the
+    /// currently-generated winter schedule) — Chilly is the universal default, not an "unknown" state.
+    /// </summary>
+    public ColdDayType GetColdDayType(int absoluteDay)
+    {
+        return _coldDaySchedule.TryGetValue(absoluteDay, out ColdDayType type) ? type : ColdDayType.Chilly;
+    }
+
+    /// <summary>
+    /// Rolls whether a single winter day is Cold or Frozen. Weights are literal probabilities
+    /// (not normalized to sum to 1) — whatever isn't covered by Cold + Frozen is left unscheduled,
+    /// which GetColdDayType() reports as Chilly (no cold effect) via its default fallback. This is
+    /// the same sparse-schedule shape storms use: most days simply have no entry.
+    /// Weighting skews harsher as the season progresses (four quarters, each with its own weights).
+    /// Frozen is excluded entirely in the first quarter regardless of configured weight.
+    /// TODO (Fimbulwinter / Age progression): scale weights harsher per Age here — see handoff note.
+    /// </summary>
+    private ColdDayType? RollColdDayType(int dayIndex, int seasonLengthDays)
+    {
+        int quarter = Mathf.Clamp(dayIndex * 4 / Mathf.Max(1, seasonLengthDays), 0, 3);
+        Vector2 weights = quarter switch
+        {
+            0 => q1ColdWeights,
+            1 => q2ColdWeights,
+            2 => q3ColdWeights,
+            _ => q4ColdWeights
+        };
+
+        float coldWeight   = weights.x;
+        float frozenWeight = quarter == 0 ? 0f : weights.y; // hard rule: no Frozen in the first quarter
+
+        float roll = UnityEngine.Random.value;
+        if (roll < coldWeight) return ColdDayType.Cold;
+        if (roll < coldWeight + frozenWeight) return ColdDayType.Frozen;
+        return null; // leftover probability — no schedule entry, falls back to Chilly (no cold effect)
+    }
+
+    /// <summary>
+    /// Generates the cold day schedule for the winter that just started, one roll per day.
+    /// Sparse — only days that roll Cold or Frozen get an entry (see RollColdDayType). Keyed by
+    /// absolute day so GetColdDayType() is a plain O(1) lookup with no winter-day math at query
+    /// time — the anchor (season start) is derived once here via GetCurrentWinterDay(), the same
+    /// helper storms use, so it's correct whether called on the transition tick or mid-winter
+    /// (new game started partway through winter).
+    /// </summary>
+    private void GenerateColdDaySchedule(int seasonLengthDays)
+    {
+        _coldDaySchedule.Clear();
+
+        if (DayNightManager.Instance == null)
+        {
+            Debug.LogWarning("StormScheduler: DayNightManager unavailable — cannot generate cold day schedule.");
+            return;
+        }
+
+        int currentAbsDay        = DayNightManager.Instance.CurrentAbsoluteDay;
+        int currentWinterDay     = GetCurrentWinterDay(); // 0 on the transition tick itself
+        int seasonStartAbsoluteDay = currentAbsDay - currentWinterDay;
+
+        for (int dayIndex = 0; dayIndex < seasonLengthDays; dayIndex++)
+        {
+            ColdDayType? type = RollColdDayType(dayIndex, seasonLengthDays);
+            if (type.HasValue)
+                _coldDaySchedule[seasonStartAbsoluteDay + dayIndex] = type.Value;
+        }
+    }
+
+    /// <summary>
+    /// Writes the scheduled cold day type into every winter day currently visible in the
+    /// calendar window. Unlike storms, cold day type is never concealed at the data layer on
+    /// fogged days — DayEntryUI conceals it visually instead (see Change 5) — because every
+    /// winter day has a real type (no "no cold day" state to hide behind hasUnknownEvent).
+    /// </summary>
+    private void WriteColdDayTypesToCalendar()
+    {
+        if (CalendarManager.Instance == null || DayNightManager.Instance == null) return;
+
+        CalendarDayData[] days         = CalendarManager.Instance.Days;
+        int               currentAbsDay = DayNightManager.Instance.CurrentAbsoluteDay;
+
+        for (int i = 0; i < days.Length; i++)
+        {
+            CalendarDayData day = days[i];
+            if (day == null || day.season != SeasonManager.Season.Winter) continue;
+
+            day.coldDayType = GetColdDayType(currentAbsDay + i);
+        }
     }
 
     // ── Schedule generation ───────────────────────────────────────────────────
@@ -316,16 +436,18 @@ public class StormScheduler : MonoBehaviour, ISaveable
 
     // ── ISaveable ─────────────────────────────────────────────────────────────
 
-    // Storm events are embedded in the saved CalendarDayData, so no separate
-    // storm fields are written. PopulateSaveData is a no-op; LoadSaveData
-    // reconstructs _stormSchedule from the already-loaded calendar days so that
-    // GetCurrentDayWoodMultiplier() and future WriteStormEventsToCalendar() calls
-    // use the correct schedule rather than a freshly-generated random one.
+    // Storm events and cold day types are both embedded in the saved CalendarDayData, so no
+    // separate fields are written. PopulateSaveData is a no-op; LoadSaveData reconstructs
+    // _stormSchedule and _coldDaySchedule from the already-loaded calendar days so that
+    // GetCurrentDayWoodMultiplier()/GetColdDayType() (both read live, e.g. by
+    // SettlementManager.ConsumeFirewood each day) use the correct data rather than an
+    // empty/freshly-generated schedule after a load.
     public void PopulateSaveData(SaveData data) { }
 
     public void LoadSaveData(SaveData data)
     {
         _stormSchedule.Clear();
+        _coldDaySchedule.Clear();
 
         if (SeasonManager.Instance != null)
             _isWinter = SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
@@ -334,6 +456,21 @@ public class StormScheduler : MonoBehaviour, ISaveable
 
         CalendarDayData[] days = CalendarManager.Instance.Days;
         int currentWinterDay = GetCurrentWinterDay();
+        int currentAbsDayForColdLoad = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentAbsoluteDay : -1;
+
+        // Cold day type has no "unknown" concealment (see WriteColdDayTypesToCalendar), so it can
+        // be reconstructed directly from every winter day's stored value, fogged or not. Only
+        // Cold/Frozen get an entry — Chilly stays unscheduled, matching the sparse generation model.
+        if (currentAbsDayForColdLoad >= 0)
+        {
+            for (int i = 0; i < days.Length; i++)
+            {
+                CalendarDayData day = days[i];
+                if (day == null || day.season != SeasonManager.Season.Winter) continue;
+                if (day.coldDayType == ColdDayType.Chilly) continue;
+                _coldDaySchedule[currentAbsDayForColdLoad + i] = day.coldDayType;
+            }
+        }
 
         StormEntry? active = null;
         for (int i = 0; i < days.Length; i++)

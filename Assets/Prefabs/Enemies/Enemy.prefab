@@ -10916,6 +10916,7 @@ GameObject:
   - component: {fileID: 6713158499483296687}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
+  - component: {fileID: -8460084806155039212}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -11228,6 +11229,7 @@ MonoBehaviour:
   driftThreshold: 1.8
   attackInterval: 1.5
   retargetOnHit: 1
+  showDebug: 0
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -11296,6 +11298,18 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.2
+--- !u!114 &-8460084806155039212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e8598c676001464980e8b2d162ff039, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatAnimationListener
 --- !u!1 &8320124014034768044
 GameObject:
   m_ObjectHideFlags: 0

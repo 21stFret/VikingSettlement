@@ -311,7 +311,8 @@ public class RaidManager : MonoBehaviour
             && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
         bool isWinterReturn = SeasonManager.Instance != null
             && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        WeatherManager.Instance?.ApplyWeatherForDay(isStormDay, isWinterReturn);
+        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        WeatherManager.Instance?.ApplyWeatherForDay(isStormDay, isWinterReturn, coldLevel);
 
         Debug.Log($"Raid results applied: {pending.loot.Count} loot, {pending.casualtyIds.Count} casualties, {days} days simulated.");
     }

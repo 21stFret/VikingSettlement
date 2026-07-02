@@ -33,6 +33,12 @@ public class DayEntryUI : MonoBehaviour
     [Tooltip("Unknown-event marker shown on fogged days that have hasUnknownEvent set — a '?' or rune glyph.")]
     [SerializeField] private GameObject unknownEventMarker;
 
+    [Tooltip("Icon shown on revealed Cold days (snowflake or similar).")]
+    [SerializeField] private GameObject coldIndicator;
+
+    [Tooltip("Icon shown on revealed Frozen days — distinct from coldIndicator.")]
+    [SerializeField] private GameObject frozenIndicator;
+
     // ─────────────────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -77,5 +83,13 @@ public class DayEntryUI : MonoBehaviour
         // Unknown-event marker: visible on fogged days with something scheduled
         if (unknownEventMarker != null)
             unknownEventMarker.SetActive(fogged && data.hasUnknownEvent);
+
+        // Cold day type: concealed on fogged days — the player shouldn't know exactly how cold
+        // a day is before the Godi scouts it, even though the true value already lives in data.
+        
+        if (coldIndicator != null)
+            coldIndicator.SetActive(!fogged && data.coldDayType == ColdDayType.Cold);
+        if (frozenIndicator != null)
+            frozenIndicator.SetActive(!fogged && data.coldDayType == ColdDayType.Frozen);
     }
 }

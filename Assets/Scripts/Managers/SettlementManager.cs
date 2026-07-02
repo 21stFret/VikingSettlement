@@ -87,7 +87,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         if (DayNightManager.Instance != null)
         {
             DayNightManager.Instance.OnMealTime += HandleMealTime;
-            DayNightManager.Instance.OnNewDay += HandleNewDay;
+            DayNightManager.Instance.OnDayEnd += HandleNewDay;
         }
         else
             Debug.LogWarning("SettlementManager: DayNightManager not found during Initialize!");
@@ -124,7 +124,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         if (DayNightManager.Instance != null)
         {
             DayNightManager.Instance.OnMealTime -= HandleMealTime;
-            DayNightManager.Instance.OnNewDay -= HandleNewDay;
+            DayNightManager.Instance.OnDayEnd -= HandleNewDay;
         }
         if (JarlManager.Instance != null)
         {
@@ -276,11 +276,24 @@ public class SettlementManager : MonoBehaviour, ISaveable
     public float GetTodayWoodCost()
     {
         int population = GetPopulation();
+
+        // Summer still burns at half rate regardless of cold day type — cold days are winter-only.
         float seasonMultiplier = (SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter) ? 1.0f : 0.5f;
-        float stormMultiplier = StormScheduler.Instance != null
-            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
-            : 1.0f;
-        return population * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
+
+        ColdDayType coldDay = StormScheduler.Instance != null && DayNightManager.Instance != null
+            ? StormScheduler.Instance.GetColdDayType(DayNightManager.Instance.CurrentAbsoluteDay)
+            : ColdDayType.Chilly;
+        float coldMultiplier = coldDay switch
+        {
+            ColdDayType.Frozen => 2.5f,
+            ColdDayType.Cold   => 1.5f,
+            _                  => 1.0f
+        };
+
+        // Cold day type and storm are independent — they stack rather than override each other.
+        float stormMultiplier = StormScheduler.Instance != null ? StormScheduler.Instance.GetCurrentDayWoodMultiplier() : 1.0f;
+        float runestoneMultiplier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetWoodConsumptionMultiplier() : 1.0f;
+        return population * woodPerVillagerPerDay * seasonMultiplier * coldMultiplier * stormMultiplier * runestoneMultiplier;
     }
 
     private void ApplyWarmEffects()

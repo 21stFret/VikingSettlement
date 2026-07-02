@@ -196,7 +196,8 @@ public class WeatherManager : MonoBehaviour
         // Apply correct weather immediately so it's right on scene load, not after the first day tick
         bool initIsStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
         bool initIsWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        ApplyWeatherForDay(initIsStorm, initIsWinter);
+        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        ApplyWeatherForDay(initIsStorm, initIsWinter, coldLevel);
     }
 
     private void OnDayNightChanged(bool isDaytime)
@@ -222,7 +223,7 @@ public class WeatherManager : MonoBehaviour
         // Sun beams/dust now handled by UpdateSunBeamTiming based on time window
 
         // Fireflies only at night (when Clear weather)
-        if (currentWeather == WeatherType.Clear)
+        if (currentWeather == WeatherType.Clear && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
         {
             EnableFireflies(!isDawn);
         }
@@ -490,7 +491,10 @@ public class WeatherManager : MonoBehaviour
         {
             case WeatherType.Clear:
                 // Fireflies only at night during clear weather
-                EnableFireflies(!isDaytime);
+                if(SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
+                {
+                    EnableFireflies(!isDaytime);
+                }
                 break;
 
             case WeatherType.Sunny:
@@ -555,7 +559,8 @@ public class WeatherManager : MonoBehaviour
     {
         bool isStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
         bool isWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        ApplyWeatherForDay(isStorm, isWinter);
+        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        ApplyWeatherForDay(isStorm, isWinter, coldLevel);
     }
 
     /// <summary>
@@ -563,22 +568,36 @@ public class WeatherManager : MonoBehaviour
     /// Called by OnWeatherNewDay and during Initialize() for correct scene-load state.
     /// CalendarManager and StormScheduler are the source of truth; this method only executes.
     /// </summary>
-    public void ApplyWeatherForDay(bool isStormDay, bool isWinter)
+    public void ApplyWeatherForDay(bool isStormDay, bool isWinter, int coldLevel)
     {
         autoWeather = false;
 
+        if (isStormDay)
+        {
+            SetWeather(WeatherType.Storm);
+            return;
+        }
+
         if (isWinter)
         {
-            SetWeather(WeatherType.Snow);
-            SetSnowIntensity(isStormDay ? stormSnowRate : ambientWinterSnowRate);
+            if(coldLevel>0)
+            {
+                SetSnowIntensity(coldLevel >1 ? stormSnowRate : ambientWinterSnowRate);
+                SetWeather(WeatherType.Snow);
+                return;
+            }
         }
         else
         {
-            if (isStormDay)
-                SetWeather(WeatherType.Storm);  // summer lightning storm
-            else
+            if(coldLevel<0)
+            {
                 SetWeather(WeatherType.Sunny);  // sun beams + fireflies
+                return;
+            }
+
         }
+        SetWeather(WeatherType.Clear);
+
     }
 
     #region Public API

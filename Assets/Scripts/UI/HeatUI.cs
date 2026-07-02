@@ -14,6 +14,8 @@ public class HeatUI : MonoBehaviour
     // Delta label: difference between actual cost (season + storm) and base cost.
     // Hidden when delta is zero (normal winter with no storm).
     public TMP_Text totalRequiredWoodText;
+    // Today's cold day type — Chilly / Cold / Frozen.
+    public TMP_Text coldDayText;
     private SettlementManager settlementManager;
 
     private void Awake()
@@ -78,5 +80,11 @@ public class HeatUI : MonoBehaviour
         }
 
         totalRequiredWoodText.text = "(" +actualCost.ToString("F0") + ")";
+
+        if (coldDayText != null && StormScheduler.Instance != null && DayNightManager.Instance != null)
+        {
+            ColdDayType coldDay = StormScheduler.Instance.GetColdDayType(DayNightManager.Instance.CurrentAbsoluteDay);
+            coldDayText.text = coldDay.ToString();
+        }
     }
 }

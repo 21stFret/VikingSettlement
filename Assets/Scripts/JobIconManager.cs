@@ -19,6 +19,7 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite stoneIcon;
     [SerializeField] private Sprite ironIcon;
     [SerializeField] private Sprite meadIcon;
+    [SerializeField] private Sprite goldIcon;
     [SerializeField] private Sprite weaponsIcon;
     [SerializeField] private Sprite planksIcon;
 
@@ -67,6 +68,7 @@ public class IconManager : MonoBehaviour
             case ResourceType.Stone: return stoneIcon;
             case ResourceType.Iron: return ironIcon;
             case ResourceType.Mead: return meadIcon;
+            case ResourceType.Gold: return goldIcon;
             case ResourceType.Weapons: return weaponsIcon;
             case ResourceType.Planks: return planksIcon;
             default: return null;

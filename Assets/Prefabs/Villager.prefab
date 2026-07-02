@@ -236,6 +236,7 @@ GameObject:
   - component: {fileID: 3728299144202640379}
   - component: {fileID: 7330671388403268956}
   - component: {fileID: 3195747193457852163}
+  - component: {fileID: 8529674291064553948}
   m_Layer: 6
   m_Name: Villager
   m_TagString: Untagged
@@ -760,6 +761,18 @@ MonoBehaviour:
   swordPrefab: {fileID: 0}
   axePrefab: {fileID: 0}
   torchPrefab: {fileID: 0}
+--- !u!114 &8529674291064553948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983789909891545685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e8598c676001464980e8b2d162ff039, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatAnimationListener
 --- !u!1 &1148867561775107672
 GameObject:
   m_ObjectHideFlags: 0

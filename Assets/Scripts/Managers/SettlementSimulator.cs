@@ -220,14 +220,16 @@ public static class SettlementSimulator
         {
             int   absDay    = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + dayIndex : -1;
             float stormMult = (absDay >= 0 && stormLookup.ContainsKey(absDay)) ? stormLookup[absDay] : 1.0f;
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * runestoneMult;
+            float coldMult  = GetColdMultiplier(absDay);
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * coldMult * stormMult * runestoneMult;
         }
         // Partial day at the end
         if (partialDay > 0f)
         {
             int   absPartialDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + wholeDays : -1;
             float stormMult     = (absPartialDay >= 0 && stormLookup.ContainsKey(absPartialDay)) ? stormLookup[absPartialDay] : 1.0f;
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * runestoneMult * partialDay;
+            float coldMult      = GetColdMultiplier(absPartialDay);
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * coldMult * stormMult * runestoneMult * partialDay;
         }
 
         if (totalWoodNeeded > 0f)
@@ -332,6 +334,23 @@ public static class SettlementSimulator
     }
 
     #region Helpers
+
+    /// <summary>
+    /// Cold day wood multiplier for a simulated day. GetColdDayType is a plain dictionary lookup
+    /// (unlike storms, no range precompute is needed) and isn't gated on a live "is it winter now"
+    /// flag, so it stays correct even if a raid crosses a season boundary — see B52.
+    /// </summary>
+    private static float GetColdMultiplier(int absDay)
+    {
+        if (absDay < 0 || StormScheduler.Instance == null) return 1.0f;
+
+        return StormScheduler.Instance.GetColdDayType(absDay) switch
+        {
+            ColdDayType.Frozen => 2.5f,
+            ColdDayType.Cold   => 1.5f,
+            _                  => 1.0f
+        };
+    }
 
     private static float GetAvailableResource(ResourceType type)
     {

@@ -182,7 +182,7 @@ public class RunestoneManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>Winter's Friend: 0.7x firewood consumption</summary>
-    public float GetFirewoodConsumptionMultiplier()
+    public float GetWoodConsumptionMultiplier()
     {
         return HasRunestone(RunestoneType.WintersFriend) ? 0.7f : 1f;
     }

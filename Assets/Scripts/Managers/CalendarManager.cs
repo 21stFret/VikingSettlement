@@ -14,6 +14,8 @@ public enum CalendarEventType
     RaidThreat
 }
 
+public enum ColdDayType { Chilly, Cold, Frozen }
+
 // ── Data structs ─────────────────────────────────────────────────────────────────
 
 [Serializable]
@@ -33,6 +35,7 @@ public class CalendarDayData
     public RaidThreatLevel         raidThreat;
     public List<CalendarEventData> events;
     public bool                    hasUnknownEvent;    // fogged day with something scheduled
+    public ColdDayType             coldDayType;        // Chilly by default (covers summer too); scheduled per-day by StormScheduler during winter
 }
 
 // ── Manager ───────────────────────────────────────────────────────────────────────
@@ -241,6 +244,11 @@ public class CalendarManager : MonoBehaviour, ISaveable
         }
 
         return entry;
+    }
+
+    public CalendarDayData GetCurrentDayData()
+    {
+        return _days[0];
     }
 
     private static SeasonManager.Season FlipSeason(SeasonManager.Season s) =>
