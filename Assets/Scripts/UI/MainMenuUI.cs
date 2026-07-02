@@ -264,7 +264,7 @@ public class MainMenuUI : MonoBehaviour
             bool slotHasSave = SaveManager.Instance?.SlotHasSave(selectedSlot) ?? false;
             if (slotHasSave)
             {
-                ShowDeleteConfirmation($"Slot {selectedSlot} has a save.\nDelete and start new game?");
+                ShowOverwriteConfirmation($"Slot {selectedSlot} has a save.\nDelete and start new game?");
             }
             else
             {
@@ -312,6 +312,19 @@ public class MainMenuUI : MonoBehaviour
         pendingAction = () =>
         {
             SaveManager.Instance?.DeleteSlot(selectedSlot);
+        };
+    }
+
+    private void ShowOverwriteConfirmation(string message)
+    {
+        SetPanelActive(deleteConfirmPanel, true);
+        if (deleteConfirmText != null) deleteConfirmText.text = message;
+        UIFocus.Push(deleteConfirmNo?.gameObject);
+
+        pendingAction = () =>
+        {
+            SaveManager.Instance?.DeleteSlot(selectedSlot);
+            GameManager.Instance?.StartNewGame(selectedSlot);
         };
     }
 
