@@ -12,33 +12,13 @@ _All P0 bugs resolved as of 2026-06-27._
 
 ## P1 — Wrong Simulation Values
 
-### B8 — SettlementSimulator hard-codes 120-second day
-`float totalSeconds = days * 120f;` — should read `DayNightManager.Instance?.dayLengthInSeconds ?? 120f`. If the inspector value changes, all simulated raid production is wrong.
-
-### B9sim — Simulator uses Wheat as food; live game uses Fish
-`SimulateProductionAndConsumption` drains Fish then Wheat. `SettlementManager.HandleMealTime` only drains Fish. Wheat consumed during raids is never consumed in live play.
-**Fix:** Align Simulator food logic with SettlementManager (Fish only, or whatever food type SettlementManager uses).
-
-### B10sim — Simulator firewood ignores StormScheduler and RunestoneManager multipliers
-Hard-codes `0.5f` per villager instead of reading `SeasonManager.woodPerVillagerPerDay`. Does not apply `StormScheduler.GetCurrentDayWoodMultiplier()` or `RunestoneManager.GetFirewoodConsumptionMultiplier()`. Players with Winter's Friend runestone see inflated simulated wood drain during raids.
-
-### B25 — CeilToInt drifts season/calendar clock from fractional raid days (RaidManager)
-`gameDaysPassed` is a float; `Mathf.CeilToInt` rounds up. Simulator uses the exact float; calendar and SeasonManager advance by a rounded-up integer. Season clock drifts over multiple raids.
-**Fix:** Use `Mathf.RoundToInt` or derive integer days from the same source as the simulator.
+### B52 — StormScheduler frozen `_isWinter` misses season-crossing raids (StormScheduler / SettlementSimulator)
+`GetStormDaysInRange()` gates on `_isWinter`, which only updates via `OnSeasonChanged` — an event that `RaidManager.ApplyPendingResults()` never fires (day/season advancement during raid return is intentionally silent, see fixed-bug entry for calendar/storm sync below). `_isWinter` therefore still reflects the season *at raid departure* when the simulator runs. A raid that departs in Fall and returns after the Fall→Winter boundary has crossed will have `_isWinter == false` for the whole call, so `GetStormDaysInRange` returns an empty list and the simulated firewood consumption skips storm multipliers for the days that were actually in winter by the time the party returned.
+**Fix:** Derive the season for each simulated day from `SeasonManager.daysPerSeason`/season order relative to `raidStartAbsoluteDay + dayIndex`, instead of the single frozen `_isWinter` flag, so a season boundary crossed mid-raid is accounted for.
 
 ---
 
 ## P2 — State Desync
-
-### B5 — Day rollover discards fractional time (DayNightManager)
-`currentTimeOfDay = 0f` on day rollover should be `currentTimeOfDay -= 1f`. Any fraction past 1.0 is lost. Error ≤ 0.8% per day at default 120 s day length.
-
-### B9 — `OnDawnEveningChanged` fires every frame during ±5% sunrise/sunset window (DayNightManager)
-Event should fire once on the transition edge, not every frame during the window. WeatherManager calls `EnableFireflies(!isDawn)` each frame during this period, toggling the particle system many times per second.
-**Fix:** Add a `wasDawnEvening` bool guard (same pattern as `wasDaytime`) and fire the event only on the state change.
-
-### G16 — Storm schedule not saved; randomised on every load mid-winter (StormScheduler)
-`StormScheduler.Initialize()` calls `GenerateStormSchedule()` when `_isWinter` is true. Each load during winter shows different storms than before the save. `_stormSchedule` needs to be serialised or the schedule regenerated from a saved RNG seed.
 
 ### B21 — `ExitDialoguePause` always restores to Playing, ignores `stateBeforeDialogue` (PauseManager)
 `stateBeforeDialogue` is stored in `EnterDialoguePause` but `ExitDialoguePause` always sets `currentState = PauseState.Playing`. If dialogue fires during strategic pause, strategic pause is silently dropped.
@@ -102,6 +82,11 @@ Two buildings of the same type (e.g. two LumberCamp) share a name. Workers can b
 
 | Date | Bug | Summary |
 |------|-----|---------|
+| 2026-07-02 | B8 — SettlementSimulator hard-codes 120-second day | Now reads `DayNightManager.Instance.dayLengthInSeconds`, falls back to 120f with a warning if unavailable. |
+| 2026-07-02 | B9sim — Simulator used Wheat as food; live game uses Fish | Simulator now Fish-only, matching `SettlementManager`. |
+| 2026-07-02 | B10sim — Simulator firewood ignored StormScheduler and RunestoneManager multipliers | Per-day storm lookup via `StormScheduler.GetStormDaysInRange` (keyed off `raidStartAbsoluteDay`, computed before the silent day-advance so the anchor is still valid) plus `RunestoneManager.GetWoodConsumptionMultiplier()` now applied alongside season/storm multipliers. |
+| 2026-07-02 | B25 — CeilToInt drifted season/calendar clock from fractional raid days | `Mathf.FloorToInt` + partial-day remainder used consistently in `RaidManager.ApplyPendingResults` and `SettlementSimulator`. |
+| 2026-07-02 | G16 — Storm schedule not saved; randomised on every load mid-winter | `StormScheduler` and `CalendarManager` implement `ISaveable`; `StormScheduler.LoadSaveData` reconstructs `_stormSchedule` from the loaded calendar days instead of re-rolling. |
 | 2026-06-27 | B37 — Raid Jarl-casualty succession fires before UI ready | `ApplyPendingResults()` moved to after `GameSceneBootstrap.Init()` in GameManager. |
 | 2026-06-27 | B4 — `eveningMultiplier` dead field | `ambientLight.intensity` now multiplied by `eveningMultiplier` in `UpdateAmbientLight`. |
 | 2026-06-27 | B5 — Day rollover discards fractional time | `currentTimeOfDay -= 1f` instead of `= 0f`. |

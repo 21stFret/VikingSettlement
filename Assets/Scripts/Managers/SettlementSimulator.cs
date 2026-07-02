@@ -194,6 +194,9 @@ public static class SettlementSimulator
         bool isWinter = SeasonManager.Instance != null
             && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
         float seasonMult = isWinter ? 1.0f : 0.5f;
+        float runestoneMult = RunestoneManager.Instance != null
+            ? RunestoneManager.Instance.GetWoodConsumptionMultiplier()
+            : 1.0f;
 
         // Build storm lookup keyed by absolute day — O(1) per simulated day
         var stormLookup = new Dictionary<int, float>();
@@ -217,14 +220,14 @@ public static class SettlementSimulator
         {
             int   absDay    = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + dayIndex : -1;
             float stormMult = (absDay >= 0 && stormLookup.ContainsKey(absDay)) ? stormLookup[absDay] : 1.0f;
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult;
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * runestoneMult;
         }
         // Partial day at the end
         if (partialDay > 0f)
         {
             int   absPartialDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + wholeDays : -1;
             float stormMult     = (absPartialDay >= 0 && stormLookup.ContainsKey(absPartialDay)) ? stormLookup[absPartialDay] : 1.0f;
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * partialDay;
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * runestoneMult * partialDay;
         }
 
         if (totalWoodNeeded > 0f)
