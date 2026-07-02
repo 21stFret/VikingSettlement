@@ -10,20 +10,22 @@ public class FireController : MonoBehaviour
 {
     [SerializeField] public GameObject fire;
     [SerializeField] public GameObject fireOut;
+    private SettlementManager settlementManager;
 
     public void Setup()
     {
-        if (SeasonManager.Instance != null)
+        if (SettlementManager.Instance != null)
         {
-            SetFireState(SeasonManager.Instance.IsSettlementWarm());
-            SeasonManager.Instance.OnWarmthChanged += SetFireState;
+            settlementManager = SettlementManager.Instance;
+            SetFireState(settlementManager.IsSettlementWarm());
+            settlementManager.OnWarmthChanged += SetFireState;
         }
     }
 
     private void OnDisable()
     {
-        if (SeasonManager.Instance != null)
-            SeasonManager.Instance.OnWarmthChanged -= SetFireState;
+        if (settlementManager != null)
+            settlementManager.OnWarmthChanged -= SetFireState;
     }
 
     private void SetFireState(bool warm)

@@ -77,13 +77,13 @@ public class VillagerInfoPanel : MonoBehaviour
     public void ShowVillager(Villager villager)
     {
         if (villager == null) return;
-        
+
         currentVillager = villager;
         gameObject.SetActive(true);
-        
+        GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
     }
-    
+
     /// <summary>
     /// Hide the info panel
     /// </summary>
@@ -91,6 +91,7 @@ public class VillagerInfoPanel : MonoBehaviour
     {
         gameObject.SetActive(false);
         currentVillager = null;
+        GameTickManager.Instance?.PopUIPause();
     }
     
     /// <summary>

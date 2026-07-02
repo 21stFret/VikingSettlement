@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c87b9db4b989ea74fad92ad6f4b7b449, type: 3}
   m_Name: CombatFighterStats
   m_EditorClassIdentifier: Assembly-CSharp::CombatFighterStats
-  AggressionLevel: 0.39
+  AggressionLevel: 0.7
   BlockVsDodgeRatio: 1
   ThreatCircleDistance: 2.5
   PressureTime: 1.5
-  RecoveryTime: 4
+  RecoveryTime: 3
   RetreatDistance: 1

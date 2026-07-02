@@ -39,7 +39,7 @@ public class WeaponSwapper : MonoBehaviour
             return;
         }
         swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Rare Sword");
-        axePrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Axe");
+        axePrefab = WeaponDatabase.Instance.GetWeaponByName("Hammer");
         torchPrefab = WeaponDatabase.Instance.GetWeaponByName("Torch");
 
         Transform hand = itemAttachment.rightHandAttachment;

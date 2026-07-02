@@ -12,6 +12,7 @@ public class MainMenuUI : MonoBehaviour
 {
     [Header("Main Buttons Panel")]
     [SerializeField] private GameObject mainButtonsPanel;
+    [SerializeField] private Button continueButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button loadGameButton;
 
@@ -59,6 +60,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void SetupButtonListeners()
     {
+        if (continueButton != null) continueButton.onClick.AddListener(OnContinueClicked);
         if (newGameButton != null) newGameButton.onClick.AddListener(OnNewGameClicked);
         if (loadGameButton != null) loadGameButton.onClick.AddListener(OnLoadGameClicked);
         if (backButton != null) backButton.onClick.AddListener(OnBackClicked);
@@ -82,7 +84,9 @@ public class MainMenuUI : MonoBehaviour
         SetPanelActive(deleteConfirmPanel, false);
         UpdateLoadButtonState();
         UpdateDeleteButtonState();
-        UIFocus.Set(newGameButton?.gameObject);
+        UpdateContinueButtonState();
+        bool continueAvailable = continueButton != null && continueButton.interactable;
+        UIFocus.Set(continueAvailable ? continueButton.gameObject : newGameButton?.gameObject);
     }
 
     private void SetPanelActive(GameObject panel, bool active)
@@ -112,6 +116,30 @@ public class MainMenuUI : MonoBehaviour
 
         bool slotHasSave = SaveManager.Instance.SlotHasSave(selectedSlot);
         deleteButton.interactable = slotHasSave;
+    }
+
+    private void UpdateContinueButtonState()
+    {
+        if (continueButton == null || SaveManager.Instance == null) return;
+
+        bool hasAutosave = SaveManager.Instance.HasAutosave();
+        int lastSlot = SaveManager.GetLastPlayedSlot();
+        bool hasLastSlotSave = lastSlot > 0 && SaveManager.Instance.SlotHasSave(lastSlot);
+        continueButton.interactable = hasAutosave || hasLastSlotSave;
+    }
+
+    private void OnContinueClicked()
+    {
+        if (SaveManager.Instance != null && SaveManager.Instance.HasAutosave())
+        {
+            GameManager.Instance?.LoadAutosave();
+        }
+        else
+        {
+            int lastSlot = SaveManager.GetLastPlayedSlot();
+            if (lastSlot > 0)
+                GameManager.Instance?.LoadSlot(lastSlot);
+        }
     }
 
     private void OnNewGameClicked()

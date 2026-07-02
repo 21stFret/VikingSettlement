@@ -314,44 +314,6 @@ public class StormScheduler : MonoBehaviour, ISaveable
         return SeasonManager.Instance.daysPerSeason - SeasonManager.Instance.GetDaysUntilSeasonChange();
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
-
-    [ContextMenu("Debug: Force Test Storm (2 Days, Heavy)")]
-    private void DebugForceTestStorm()
-    {
-        if (!Application.isPlaying)
-        {
-            Debug.LogWarning("StormScheduler: Debug storm only works in Play mode.");
-            return;
-        }
-
-        if (!_isWinter)
-        {
-            Debug.LogWarning("StormScheduler: Cannot force storm — not currently winter.");
-            return;
-        }
-
-        int today = GetCurrentWinterDay();
-        _stormSchedule.Add(new StormEntry
-        {
-            startDay = today,
-            duration = 2,
-            severity = StormSeverity.Heavy
-        });
-
-        Debug.Log($"[StormScheduler] Debug storm injected: days {today}–{today + 1}, Heavy.");
-
-        if (CalendarManager.Instance != null)
-        {
-            CalendarManager.Instance.OnCalendarUpdated -= OnCalendarUpdated;
-            WriteStormEventsToCalendar();
-            CalendarManager.Instance.NotifyUpdated();
-            CalendarManager.Instance.OnCalendarUpdated += OnCalendarUpdated;
-        }
-
-        WeatherManager.Instance?.ApplyWeatherForDay(isStormDay: true, isWinter: _isWinter);
-    }
-
     // ── ISaveable ─────────────────────────────────────────────────────────────
 
     // Storm events are embedded in the saved CalendarDayData, so no separate

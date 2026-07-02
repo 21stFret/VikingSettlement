@@ -23,10 +23,6 @@ public class RaidSceneController : MonoBehaviour
     [SerializeField] private int enemiesRemaining = 0;
     [SerializeField] private int partyMembersAlive = 0;
 
-    [Header("Loot Settings")]
-    [Tooltip("Loot dropped per enemy killed")]
-    public List<LootTableEntry> lootTable = new List<LootTableEntry>();
-
     [Header("Player Control")]
     [Tooltip("Reference to PlayerController (will auto-find if not set)")]
     public PlayerController playerController;
@@ -305,7 +301,10 @@ public class RaidSceneController : MonoBehaviour
     /// </summary>
     private void GenerateLoot(Enemy enemy)
     {
-        foreach (var entry in lootTable)
+        var destination = RaidManager.Instance?.CurrentRaid;
+        if (destination == null) return;
+
+        foreach (var entry in destination.lootTable)
         {
             if (Random.value <= entry.dropChance)
             {
@@ -402,9 +401,27 @@ public class RaidSceneController : MonoBehaviour
     {
         if (RaidManager.Instance != null)
         {
-            return RaidManager.Instance.GetTimeDilationStatus();
+            return RaidManager.Instance.GetRaidStatus();
         }
         return "";
+    }
+
+    /// <summary>
+    /// Returns collected loot combined by resource type — one entry per type with totals summed.
+    /// Use this for display. The raw per-drop breakdown stays in collectedLoot for debugging.
+    /// </summary>
+    public List<ResourceLoot> GetCombinedLoot()
+    {
+        var totals = new Dictionary<ResourceType, float>();
+        foreach (var item in collectedLoot)
+        {
+            totals.TryGetValue(item.resourceType, out float current);
+            totals[item.resourceType] = current + item.amount;
+        }
+        var result = new List<ResourceLoot>(totals.Count);
+        foreach (var kv in totals)
+            result.Add(new ResourceLoot { resourceType = kv.Key, amount = kv.Value });
+        return result;
     }
 
     /// <summary>

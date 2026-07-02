@@ -522,8 +522,9 @@ MonoBehaviour:
   exitSeparationRange: 3
   commitRange: 0.4
   driftThreshold: 1.8
-  attackInterval: 1.5
+  attackInterval: 1
   retargetOnHit: 1
+  showDebug: 0
   idleTimeMin: 2
   idleTimeMax: 5
   wanderRadius: 5

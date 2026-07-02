@@ -44,26 +44,10 @@ public class SeasonManager : MonoBehaviour, ISaveable
     [Tooltip("Lumber production in winter (harder in snow)")]
     public float winterLumberMultiplier = 0.6f;
 
-    [Header("Warmth System (Winter)")]
-    [Tooltip("Wood consumed per villager per day in winter")]
-    public float woodPerVillagerPerDay = 0.5f;
-    [Tooltip("Morale penalty per day when settlement is cold")]
-    public float coldMoralePenalty = 10f;
-    [Tooltip("Morale bonus per day when settlement is warm")]
-    public float warmthMoraleBonus = 5f;
-    [Tooltip("Health damage per day when settlement is cold (0 to disable)")]
-    public float coldHealthDamage = 0f;
-    [Tooltip("Current warmth status")]
-    [SerializeField] private bool isSettlementWarm = true;
-    [Tooltip("Wood consumed today")]
-    [SerializeField] private float woodConsumedToday = 0f;
-    private float woodNeededToday = 0f;
-
     public FireController fireController;
 
     // Events
     public event Action<Season> OnSeasonChanged;
-    public event Action<bool> OnWarmthChanged; // true = warm, false = cold
 
     private int currentSolarYear = 1;
 
@@ -119,103 +103,8 @@ public class SeasonManager : MonoBehaviour, ISaveable
 
         Debug.Log($"Days until season change: {daysUntilSeasonChange}");
 
-        if (currentSeason == Season.Winter)
-            ConsumeFirewood();
-        else
-            SetWarmthStatus(true);
-
         if (daysUntilSeasonChange <= 0)
             ChangeSeason();
-    }
-
-    private void ConsumeFirewood()
-    {
-        if (SettlementManager.Instance == null || ResourceManager.Instance == null)
-        {
-            SetWarmthStatus(true);
-            return;
-        }
-
-        int   villagerCount    = SettlementManager.Instance.GetPopulation();
-        // Summer burns at half rate — fires still needed but less fierce
-        float seasonMultiplier = (currentSeason == Season.Winter) ? 1.0f : 0.5f;
-        float stormMultiplier  = StormScheduler.Instance != null
-            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
-            : 1.0f;
-        woodNeededToday = villagerCount * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
-
-        if (RunestoneManager.Instance != null)
-            woodNeededToday *= RunestoneManager.Instance.GetFirewoodConsumptionMultiplier();
-
-        float availableWood = ResourceManager.Instance.GetResource(ResourceType.Wood);
-
-        if (availableWood >= woodNeededToday)
-        {
-            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodNeededToday);
-            woodConsumedToday = woodNeededToday;
-            SetWarmthStatus(true);
-            ApplyWarmEffects();
-            Debug.Log($"Winter heating: Consumed {woodNeededToday:F1} wood for {villagerCount} villagers. Settlement is warm.");
-        }
-        else
-        {
-            ResourceManager.Instance.SpendResource(ResourceType.Wood, availableWood);
-            woodConsumedToday = availableWood;
-            SetWarmthStatus(false);
-            ApplyColdEffects();
-            Debug.LogWarning($"Winter heating: Only {availableWood:F1} wood available, needed {woodNeededToday:F1}. Settlement is COLD!");
-        }
-    }
-
-    private void ApplyWarmEffects()
-    {
-        if (SettlementManager.Instance == null) return;
-
-        foreach (var villager in SettlementManager.Instance.GetAllVillagers())
-        {
-            if (villager == null || villager.IsDead()) continue;
-            villager.isCold = false;
-            villager.ChangeMorale(warmthMoraleBonus);
-        }
-
-        Debug.Log("Settlement is warm. No negative effects applied.");
-    }
-
-    private void ApplyColdEffects()
-    {
-        if (SettlementManager.Instance == null) return;
-
-        var villagers = SettlementManager.Instance.GetAllVillagers();
-
-        float percentageCold = woodNeededToday > 0 ? 1f - (woodConsumedToday / woodNeededToday) : 0f;
-        int villagersAffected = (int)(villagers.Count * percentageCold);
-
-        for (int i = 0; i < villagersAffected; i++)
-        {
-            var villager = villagers[i];
-            if (villager == null || villager.IsDead()) continue;
-
-            if (coldMoralePenalty > 0)
-                villager.ChangeMorale(-coldMoralePenalty);
-
-            if (coldHealthDamage > 0)
-                villager.TakeDamage(coldHealthDamage, null, true);
-
-            villager.personalUI.ShowSpeech("I'm freezing!", 2.0f);
-            villager.isCold = true;
-            villager.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Cold);
-        }
-
-        Debug.Log($"Cold effects applied: -{coldMoralePenalty} morale{(coldHealthDamage > 0 ? $", -{coldHealthDamage} health" : "")} to {villagersAffected} villagers");
-    }
-
-    private void SetWarmthStatus(bool isWarm)
-    {
-        if (isSettlementWarm != isWarm)
-        {
-            isSettlementWarm = isWarm;
-            OnWarmthChanged?.Invoke(isWarm);
-        }
     }
 
     private void FastUpdate()
@@ -281,8 +170,6 @@ public class SeasonManager : MonoBehaviour, ISaveable
 
     public int GetCurrentSolarYear() => currentSolarYear;
 
-    public bool IsSettlementWarm() => isSettlementWarm;
-
     /// <summary>
     /// Advance season tracking by N days without firing per-day events — used by raid return.
     /// Firewood consumption is already handled by SettlementSimulator for the elapsed period.
@@ -303,22 +190,6 @@ public class SeasonManager : MonoBehaviour, ISaveable
                 ChangeSeason();
         }
         Debug.Log($"SeasonManager: Advanced {days} days — now {currentSeason}, {daysUntilSeasonChange} days until season change");
-    }
-
-    /// <summary>
-    /// Returns today's effective wood cost without triggering consumption.
-    /// Accounts for season (half rate in summer) and active storm multiplier.
-    /// Safe to call from UI and WeatherManager at any time.
-    /// </summary>
-    public float GetTodayWoodCost()
-    {
-        if (SettlementManager.Instance == null) return 0f;
-        int population = SettlementManager.Instance.GetPopulation();
-        float seasonMultiplier = (currentSeason == Season.Winter) ? 1.0f : 0.5f;
-        float stormMultiplier = StormScheduler.Instance != null
-            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
-            : 1.0f;
-        return population * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
     }
 
     public float GetProductionMultiplier(BuildingType buildingType)

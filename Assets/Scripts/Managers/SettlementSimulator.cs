@@ -21,8 +21,8 @@ public static class SettlementSimulator
     /// <param name="days">Number of whole game-days to simulate (for events)</param>
     /// <param name="absentVillagers">Villagers who are away (on raid)</param>
     /// <param name="exactDays">Exact fractional days for resource calculations (optional)</param>
-    /// <returns>Report of what happened</returns>
-    public static SettlementReport SimulateTime(int days, List<Villager> absentVillagers = null, float exactDays = -1f)
+    /// <param name="raidStartAbsoluteDay">Absolute day the raid began — used for storm lookup. -1 disables storm-aware wood.</param>
+    public static SettlementReport SimulateTime(int days, List<Villager> absentVillagers = null, float exactDays = -1f, int raidStartAbsoluteDay = -1)
     {
         // Use exact days for resource calculations if provided, otherwise use whole days
         float resourceDays = exactDays > 0 ? exactDays : days;
@@ -58,7 +58,7 @@ public static class SettlementSimulator
         var allBuildings = SettlementManager.Instance.GetAllBuildings();
 
         // Calculate production, consumption, and skill gains
-        SimulateProductionAndConsumption(presentVillagers, allBuildings, report, resourceDays);
+        SimulateProductionAndConsumption(presentVillagers, allBuildings, report, resourceDays, raidStartAbsoluteDay);
 
         // Simulate random events for each whole day
         for (int day = 1; day <= days; day++)
@@ -101,10 +101,15 @@ public static class SettlementSimulator
     /// Simulate production and consumption scaled by exact fractional days
     /// Uses same logic as Building.UpdateProduction - progress fills based on rate * skill, produces on 100%
     /// </summary>
-    private static void SimulateProductionAndConsumption(List<Villager> villagers, List<Building> buildings, SettlementReport report, float days)
+    private static void SimulateProductionAndConsumption(List<Villager> villagers, List<Building> buildings, SettlementReport report, float days, int raidStartAbsoluteDay = -1)
     {
-        // Convert days to seconds (assuming 120 second day cycle)
-        float totalSeconds = days * 120f;
+        // B8: use authoritative day length instead of hardcoded 120f
+        float dayLength = DayNightManager.Instance != null
+            ? DayNightManager.Instance.dayLengthInSeconds
+            : 120f;
+        if (DayNightManager.Instance == null)
+            Debug.LogWarning("SettlementSimulator: DayNightManager unavailable, falling back to 120f day length.");
+        float totalSeconds = days * dayLength;
 
         // === PRODUCTION ===
         foreach (var building in buildings)
@@ -154,27 +159,24 @@ public static class SettlementSimulator
         // === CONSUMPTION (scaled by days) ===
         int villagerCount = villagers.Count;
 
-        // Food consumption
-        float foodNeeded = villagerCount * 1f * days;
-        float fishAvailable = GetAvailableResource(ResourceType.Fish);
-        float wheatAvailable = GetAvailableResource(ResourceType.Wheat);
+        // B25: FloorToInt + partial day so production seconds match resource days exactly
+        int   wholeDays  = Mathf.FloorToInt(days);
+        float partialDay = days - wholeDays;
 
-        if (fishAvailable + wheatAvailable >= foodNeeded)
+        // B9sim: Wheat is a raw resource — bread chain not yet implemented, Fish is sole food source
+        float fishPerVillager = SettlementManager.Instance != null
+            ? SettlementManager.Instance.fishPerVillagerPerDay
+            : 1f;
+        float foodNeeded    = villagerCount * fishPerVillager * days; // exact float — partial day already baked in
+        float fishAvailable = GetAvailableResource(ResourceType.Fish);
+
+        if (fishAvailable >= foodNeeded)
         {
-            if (fishAvailable >= foodNeeded)
-            {
-                report.resourceChanges[ResourceType.Fish] -= foodNeeded;
-            }
-            else
-            {
-                report.resourceChanges[ResourceType.Fish] -= fishAvailable;
-                report.resourceChanges[ResourceType.Wheat] -= (foodNeeded - fishAvailable);
-            }
+            report.resourceChanges[ResourceType.Fish] -= foodNeeded;
         }
         else
         {
             report.resourceChanges[ResourceType.Fish] -= fishAvailable;
-            report.resourceChanges[ResourceType.Wheat] -= wheatAvailable;
             report.moraleChange -= 5f * days;
 
             report.events.Add(new SettlementEvent
@@ -185,15 +187,52 @@ public static class SettlementSimulator
             });
         }
 
-        // Winter firewood consumption
-        if (SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter)
-        {
-            float woodNeeded = villagerCount * 0.5f * days;
-            float woodAvailable = GetAvailableResource(ResourceType.Wood);
+        // B10sim: Storm-aware firewood — per-day loop so each day's storm multiplier is respected
+        float woodPerVillagerDay = SettlementManager.Instance != null
+            ? SettlementManager.Instance.woodPerVillagerPerDay
+            : 0.5f;
+        bool isWinter = SeasonManager.Instance != null
+            && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        float seasonMult = isWinter ? 1.0f : 0.5f;
 
-            if (woodAvailable >= woodNeeded)
+        // Build storm lookup keyed by absolute day — O(1) per simulated day
+        var stormLookup = new Dictionary<int, float>();
+        if (raidStartAbsoluteDay >= 0)
+        {
+            if (StormScheduler.Instance != null)
             {
-                report.resourceChanges[ResourceType.Wood] -= woodNeeded;
+                var stormDays = StormScheduler.Instance.GetStormDaysInRange(
+                    raidStartAbsoluteDay, raidStartAbsoluteDay + wholeDays);
+                foreach (var (absDay, mult) in stormDays)
+                    stormLookup[absDay] = mult;
+            }
+            else
+            {
+                Debug.LogWarning("SettlementSimulator: StormScheduler unavailable — firewood storm multiplier defaulting to 1.0");
+            }
+        }
+
+        float totalWoodNeeded = 0f;
+        for (int dayIndex = 0; dayIndex < wholeDays; dayIndex++)
+        {
+            int   absDay    = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + dayIndex : -1;
+            float stormMult = (absDay >= 0 && stormLookup.ContainsKey(absDay)) ? stormLookup[absDay] : 1.0f;
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult;
+        }
+        // Partial day at the end
+        if (partialDay > 0f)
+        {
+            int   absPartialDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + wholeDays : -1;
+            float stormMult     = (absPartialDay >= 0 && stormLookup.ContainsKey(absPartialDay)) ? stormLookup[absPartialDay] : 1.0f;
+            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * stormMult * partialDay;
+        }
+
+        if (totalWoodNeeded > 0f)
+        {
+            float woodAvailable = GetAvailableResource(ResourceType.Wood);
+            if (woodAvailable >= totalWoodNeeded)
+            {
+                report.resourceChanges[ResourceType.Wood] -= totalWoodNeeded;
             }
             else
             {

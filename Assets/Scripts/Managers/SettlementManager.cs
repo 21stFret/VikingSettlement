@@ -53,6 +53,23 @@ public class SettlementManager : MonoBehaviour, ISaveable
     [SerializeField] public float minStarvationDamage = 5f;
     public event Action<bool> OnFoodConsumed;
 
+    [Header("Warmth System (Winter)")]
+    [Tooltip("Wood consumed per villager per day in winter")]
+    public float woodPerVillagerPerDay = 0.5f;
+    [Tooltip("Morale penalty per day when settlement is cold")]
+    public float coldMoralePenalty = 10f;
+    [Tooltip("Morale bonus per day when settlement is warm")]
+    public float warmthMoraleBonus = 5f;
+    [Tooltip("Health damage per day when settlement is cold (0 to disable)")]
+    public float coldHealthDamage = 0f;
+    [Tooltip("Current warmth status")]
+    [SerializeField] private bool isSettlementWarm = true;
+    [Tooltip("Wood consumed today")]
+    [SerializeField] private float woodConsumedToday = 0f;
+    [Tooltip("Wood needed today")]
+    [SerializeField] private float woodNeededToday = 0f;
+    public event Action<bool> OnWarmthChanged; // true = warm, false = cold
+
     private void Awake()
     {
         if (Instance == null)
@@ -68,7 +85,10 @@ public class SettlementManager : MonoBehaviour, ISaveable
     public void Initialize()
     {
         if (DayNightManager.Instance != null)
+        {
             DayNightManager.Instance.OnMealTime += HandleMealTime;
+            DayNightManager.Instance.OnNewDay += HandleNewDay;
+        }
         else
             Debug.LogWarning("SettlementManager: DayNightManager not found during Initialize!");
 
@@ -104,6 +124,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         if (DayNightManager.Instance != null)
         {
             DayNightManager.Instance.OnMealTime -= HandleMealTime;
+            DayNightManager.Instance.OnNewDay -= HandleNewDay;
         }
         if (JarlManager.Instance != null)
         {
@@ -225,6 +246,90 @@ public class SettlementManager : MonoBehaviour, ISaveable
     }
     
     #region Food Consumption
+
+    // Food and wood both consumed here — population resource drain is SettlementManager's responsibility
+    private void HandleNewDay()
+    {
+        ConsumeFirewood();
+    }
+
+    private void ConsumeFirewood()
+    {
+        woodNeededToday = GetTodayWoodCost();
+        float woodAvailable = ResourceManager.Instance.GetResource(ResourceType.Wood);
+        if (woodNeededToday > woodAvailable)
+        {
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodAvailable);
+            woodConsumedToday = woodAvailable;
+            ApplyColdEffects();
+            SetWarmthStatus(false);
+        }
+        else
+        {
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodNeededToday);
+            woodConsumedToday = woodNeededToday;
+            ApplyWarmEffects();
+            SetWarmthStatus(true);
+        }
+    }
+
+    public float GetTodayWoodCost()
+    {
+        int population = GetPopulation();
+        float seasonMultiplier = (SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter) ? 1.0f : 0.5f;
+        float stormMultiplier = StormScheduler.Instance != null
+            ? StormScheduler.Instance.GetCurrentDayWoodMultiplier()
+            : 1.0f;
+        return population * woodPerVillagerPerDay * seasonMultiplier * stormMultiplier;
+    }
+
+    private void ApplyWarmEffects()
+    {
+        foreach (var villager in GetAllVillagers())
+        {
+            if (villager == null || villager.IsDead()) continue;
+            villager.isCold = false;
+            villager.ChangeMorale(warmthMoraleBonus);
+        }
+
+        Debug.Log("Settlement is warm. No negative effects applied.");
+    }
+
+    private void ApplyColdEffects()
+    {
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        float percentageCold = woodNeededToday > 0 ? 1f - (woodConsumedToday / woodNeededToday) : 0f;
+        int villagersAffected = (int)(villagers.Count * percentageCold);
+
+        for (int i = 0; i < villagersAffected; i++)
+        {
+            var villager = villagers[i];
+            if (villager == null || villager.IsDead()) continue;
+
+            if (coldMoralePenalty > 0)
+                villager.ChangeMorale(-coldMoralePenalty);
+
+            if (coldHealthDamage > 0)
+                villager.TakeDamage(coldHealthDamage, null, true);
+
+            villager.personalUI.ShowSpeech("I'm freezing!", 2.0f);
+            villager.isCold = true;
+            villager.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Cold);
+        }
+
+        Debug.Log($"Cold effects applied: -{coldMoralePenalty} morale{(coldHealthDamage > 0 ? $", -{coldHealthDamage} health" : "")} to {villagersAffected} villagers");
+    }
+
+    private void SetWarmthStatus(bool isWarm)
+    {
+        if (isSettlementWarm != isWarm)
+        {
+            isSettlementWarm = isWarm;
+            OnWarmthChanged?.Invoke(isWarm);
+        }
+    }
+    public bool IsSettlementWarm() => isSettlementWarm;
 
     /// <summary>
     /// Handles meal time event from DayNightManager

@@ -99,11 +99,11 @@ public class BuildingInfoPanel : MonoBehaviour
     public void ShowBuilding(Building building, BuildingSelector selector = null)
     {
         if (building == null) return;
-        
+
         currentBuilding = building;
         buildingSelector = selector;
         mainPanel.SetActive(true);
-        
+        GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
     }
     
@@ -126,6 +126,7 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         mainPanel.SetActive(false);
         currentBuilding = null;
+        GameTickManager.Instance?.PopUIPause();
 
         if (PlayerController.Instance != null)
             PlayerController.Instance.SetInputEnabled(true);

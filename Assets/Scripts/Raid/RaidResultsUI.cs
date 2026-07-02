@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -73,18 +72,13 @@ public class RaidResultsUI : MonoBehaviour
             }
             else
             {
-                // Combine duplicate resource types into a single line each
-                var totals = new Dictionary<string, float>();
-                foreach (var item in report.loot)
-                {
-                    string key = item.resourceType.ToString();
-                    totals.TryGetValue(key, out float current);
-                    totals[key] = current + item.amount;
-                }
+                var combined = RaidSceneController.Instance != null
+                    ? RaidSceneController.Instance.GetCombinedLoot()
+                    : report.loot;
 
                 var lines = new System.Text.StringBuilder();
-                foreach (var kv in totals)
-                    lines.AppendLine($"+ {kv.Value:F0} {kv.Key}");
+                foreach (var item in combined)
+                    lines.AppendLine($"+ {item.amount:F0} {item.resourceType}");
                 lootText.text = lines.ToString().TrimEnd();
             }
         }

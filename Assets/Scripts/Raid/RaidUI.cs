@@ -37,19 +37,20 @@ public class RaidUI : MonoBehaviour
     {
         raidManager = RaidManager.Instance;
         raidUIPanel.SetActive(true);
+        GameTickManager.Instance?.PushUIPause();
         PopulateRaidOptions();
         raidAmountText.text = "Available Raids: " + raidManager.GetAvailableRaids().Count.ToString();
     }
 
     private void PopulateRaidOptions()
     {
-        List<RaidDestination> availableRaids = raidManager.GetAvailableRaids();
+        List<RaidDestinationData> availableRaids = raidManager.GetAvailableRaids();
 
         for (int i = 0; i < raidOptionItems.Count; i++)
         {
             if (i < availableRaids.Count)
             {
-                RaidDestination raidOption = availableRaids[i];
+                RaidDestinationData raidOption = availableRaids[i];
                 string rewards = "";
                 for (int j = 0; j < raidOption.potentialLoot.Count; j++)
                 {
@@ -60,11 +61,14 @@ public class RaidUI : MonoBehaviour
                     }
                 }
 
+                string fightLimit = raidOption.realTimeLimit > 0f
+                    ? Mathf.RoundToInt(raidOption.realTimeLimit / 60f) + " min fight"
+                    : "No time limit";
                 raidOptionItems[i].Setup(
                     raidOption.destinationName,
                     raidOption.enemyCount.ToString(),
-                    raidOption.timeDilationMultiplier.ToString("F1") + "x",
-                    raidOption.realTimeLimit + " mins",
+                    raidOption.GetGameDaysPassed().ToString("F1") + " days away",
+                    fightLimit,
                     rewards,
                     i
                 );
@@ -82,7 +86,7 @@ public class RaidUI : MonoBehaviour
     /// </summary>
     public void SelectRaidOption(int raidIndex)
     {
-        List<RaidDestination> availableRaids = raidManager.GetAvailableRaids();
+        List<RaidDestinationData> availableRaids = raidManager.GetAvailableRaids();
 
         if (raidIndex < 0 || raidIndex >= availableRaids.Count)
         {
@@ -91,7 +95,7 @@ public class RaidUI : MonoBehaviour
         }
 
         selectedRaidIndex = raidIndex;
-        RaidDestination selectedRaid = availableRaids[raidIndex];
+        RaidDestinationData selectedRaid = availableRaids[raidIndex];
 
         Debug.Log($"Selected raid: {selectedRaid.destinationName}");
 
@@ -109,11 +113,11 @@ public class RaidUI : MonoBehaviour
     /// <summary>
     /// Get the currently selected raid destination
     /// </summary>
-    public RaidDestination GetSelectedRaid()
+    public RaidDestinationData GetSelectedRaid()
     {
         if (selectedRaidIndex < 0) return null;
 
-        List<RaidDestination> availableRaids = raidManager.GetAvailableRaids();
+        List<RaidDestinationData> availableRaids = raidManager.GetAvailableRaids();
         if (selectedRaidIndex < availableRaids.Count)
         {
             return availableRaids[selectedRaidIndex];
@@ -131,5 +135,6 @@ public class RaidUI : MonoBehaviour
 
         raidUIPanel.SetActive(false);
         selectedRaidIndex = -1;
+        GameTickManager.Instance?.PopUIPause();
     }
 }

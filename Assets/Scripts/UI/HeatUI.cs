@@ -10,10 +10,11 @@ public class HeatUI : MonoBehaviour
     public Color warm, cold;
 
     // Base cost label: population × woodPerVillagerPerDay — neutral number, always shown.
-    public TMP_Text requiredWoodText;
+    public TMP_Text woodPerVillager;
     // Delta label: difference between actual cost (season + storm) and base cost.
     // Hidden when delta is zero (normal winter with no storm).
     public TMP_Text totalRequiredWoodText;
+    private SettlementManager settlementManager;
 
     private void Awake()
     {
@@ -23,7 +24,8 @@ public class HeatUI : MonoBehaviour
     public void Init()
     {
         UpdateHeatUI(true);
-        SeasonManager.Instance.OnWarmthChanged += isWarm => UpdateHeatUI(isWarm);
+        settlementManager = SettlementManager.Instance;
+        settlementManager.OnWarmthChanged += isWarm => UpdateHeatUI(isWarm);
         if (DayNightManager.Instance != null)
             DayNightManager.Instance.OnNewDay += UpdateWoodUI;
     }
@@ -53,32 +55,28 @@ public class HeatUI : MonoBehaviour
 
     public void UpdateWoodUI()
     {
-        if (SeasonManager.Instance == null || SettlementManager.Instance == null) return;
+        if (settlementManager == null) return;
 
-        int   population = SettlementManager.Instance.GetPopulation();
-        float baseCost   = population * SeasonManager.Instance.woodPerVillagerPerDay;
-        float actualCost = SeasonManager.Instance.GetTodayWoodCost();
+        int   population = settlementManager.GetPopulation();
+        float baseCost   = population * settlementManager.woodPerVillagerPerDay;
+        float actualCost = settlementManager.GetTodayWoodCost();
         float delta      = Mathf.Round((actualCost - baseCost) * 10f) / 10f;
 
-        requiredWoodText.text = baseCost.ToString("F1");
+        woodPerVillager.text = "x " + settlementManager.woodPerVillagerPerDay.ToString("F0");
 
-        if (Mathf.Approximately(delta, 0f))
+        if (delta > 0f)
         {
-            totalRequiredWoodText.gameObject.SetActive(false);
+            totalRequiredWoodText.color = Color.red;
         }
         else
         {
-            totalRequiredWoodText.gameObject.SetActive(true);
-            if (delta > 0f)
-            {
-                totalRequiredWoodText.color = Color.red;
-                totalRequiredWoodText.text  = "+" + delta.ToString("F1");
-            }
-            else
-            {
-                totalRequiredWoodText.color = Color.green;
-                totalRequiredWoodText.text  = delta.ToString("F1");
-            }
+            totalRequiredWoodText.color = Color.green;
         }
+        if(delta==0)
+        {
+            totalRequiredWoodText.color = Color.white;
+        }
+
+        totalRequiredWoodText.text = "(" +actualCost.ToString("F0") + ")";
     }
 }

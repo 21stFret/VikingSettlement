@@ -325,6 +325,28 @@ public class DayNightManager : MonoBehaviour, ISaveable
         OnMealTime?.Invoke();
     }
 
+    // Change 1: expose current state as properties for simulator and raid return
+    public int CurrentAbsoluteDay => currentDay;
+    public float CurrentTimeOfDay => currentTimeOfDay;
+
+    /// <summary>
+    /// Teleports the clock to an exact position without firing OnNewDay.
+    /// Used by raid return to restore the post-raid time of day and date.
+    /// </summary>
+    public void SetDateTime(int absoluteDay, float timeOfDay)
+    {
+        currentDay = absoluteDay;
+        currentTimeOfDay = Mathf.Clamp01(timeOfDay);
+        hasConsumedMealToday = currentTimeOfDay > mealTime;
+        UpdateLighting();
+    }
+
+    [ContextMenu("Debug: Set Midday")]
+    private void DebugSetMidday() => SetDateTime(currentDay, 0.5f);
+
+    [ContextMenu("Debug: Set Midnight")]
+    private void DebugSetMidnight() => SetDateTime(currentDay, 0f);
+
     /// <summary>
     /// Get the current time of day (0-1)
     /// </summary>

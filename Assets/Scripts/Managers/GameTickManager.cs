@@ -24,6 +24,10 @@ public class GameTickManager : MonoBehaviour
     [SerializeField] private int totalTicks = 0;
     [SerializeField] private float timeSinceLastTick = 0f;
 
+    // Counts how many UI panels are currently open and want the clock stopped.
+    // Independent of isPaused so PauseManager and UI panels don't fight each other.
+    private int _uiPauseCount = 0;
+
     // Events for different systems to subscribe to
     public event Action<float> OnGameTick;      // Fires every game tick with deltaTime since last tick
     public event Action OnFastUpdate;           // Fires every frame for smooth updates (lighting, etc.)
@@ -63,7 +67,7 @@ public class GameTickManager : MonoBehaviour
 
     private void Update()
     {
-        if (isPaused) return;
+        if (isPaused || _uiPauseCount > 0) return;
 
         float scaledDeltaTime = Time.deltaTime * timeScale;
 
@@ -101,6 +105,23 @@ public class GameTickManager : MonoBehaviour
     public void SetTimeScale(float newTimeScale)
     {
         timeScale = Mathf.Max(0f, newTimeScale);
+    }
+
+    /// <summary>
+    /// Call when a UI panel opens to stop the game clock. Must be paired with PopUIPause.
+    /// Uses a reference count so overlapping panels are handled correctly.
+    /// </summary>
+    public void PushUIPause()
+    {
+        _uiPauseCount++;
+    }
+
+    /// <summary>
+    /// Call when a UI panel closes to resume the game clock (only resumes when all panels close).
+    /// </summary>
+    public void PopUIPause()
+    {
+        _uiPauseCount = Mathf.Max(0, _uiPauseCount - 1);
     }
 
     /// <summary>
