@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -92,6 +93,9 @@ public abstract class CharacterAI : MonoBehaviour
 
     private int MaxBlockCharges => CombatStats != null ? CombatStats.MaxBlockCharges : 1;
 
+    /// <summary>Fired with the current charge count whenever a charge is spent or restored — drives personal-UI block pips.</summary>
+    public event Action<int> OnBlockChargesChanged;
+
     /// <summary>Override to scale block-charge recovery time (e.g. by combat skill).</summary>
     protected virtual float GetEffectiveBlockCooldown() => CombatStats != null ? CombatStats.BlockCooldown : 5f;
 
@@ -103,6 +107,7 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (_blockCharges < 0) _blockCharges = MaxBlockCharges;
         _blockCharges = Mathf.Max(0, _blockCharges - 1);
+        OnBlockChargesChanged?.Invoke(_blockCharges);
 
         if (_blockCharges == 0 && !_blockOnCooldown)
         {
@@ -120,6 +125,7 @@ public abstract class CharacterAI : MonoBehaviour
         {
             _blockOnCooldown = false;
             _blockCharges    = MaxBlockCharges;
+            OnBlockChargesChanged?.Invoke(_blockCharges);
         }
     }
 
@@ -159,6 +165,7 @@ public abstract class CharacterAI : MonoBehaviour
     protected virtual void Awake()
     {
         SpawnPoint = transform.position;
+        _blockCharges = MaxBlockCharges;
     }
 
     protected virtual void Start()
@@ -248,6 +255,11 @@ public abstract class CharacterAI : MonoBehaviour
             .ToList();
         foreach (var key in staleKeys)
             _fightPushState.Remove(key);
+    }
+
+    public int GetBlockCount()
+    {
+        return _blockCharges;
     }
 
     public List<NearbyFight> GetNearbyFightCentres()

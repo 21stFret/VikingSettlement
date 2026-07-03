@@ -115,7 +115,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.955}
+  m_AnchoredPosition: {x: 0, y: 1.9550171}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7047273987675100712
@@ -164,7 +164,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &845906088802135087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,6 +209,10 @@ MonoBehaviour:
   speechText: {fileID: 1592773680251225363}
   healthBar: {fileID: 2839520981381194381}
   healthFill: {fileID: 6999148255037712428}
+  blockCounters:
+  - {fileID: 7558316328734638400}
+  - {fileID: 7888555397659984602}
+  - {fileID: 505514042365219867}
 --- !u!1 &2839520981381194381
 GameObject:
   m_ObjectHideFlags: 0

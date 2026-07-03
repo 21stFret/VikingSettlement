@@ -26,16 +26,29 @@ public class VillagerPersonalUI : MonoBehaviour
     public CanvasGroup statusImageCanvas;
     public Image statusEffectIcon;
     public Sprite[] satusEffectIcons;
+    public CanvasGroup blockCounterCanvas;
+    public GameObject[] blockCounters;
     private Coroutine speechCoroutine;
     private Coroutine statusEffectCoroutine;
     private Coroutine healthbarCoroutine;
     private Coroutine moraleCoroutine;
+    private Coroutine blockCounterCoroutine;
+    private CharacterAI _ai;
 
     private void Awake()
     {
         _villager = GetComponentInParent<Villager>(true);
         _villager.personalUI = this;
+        _ai = GetComponentInParent<CharacterAI>(true);
+        if (_ai != null)
+            _ai.OnBlockChargesChanged += UpdateBlockCounter;
         enabled = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (_ai != null)
+            _ai.OnBlockChargesChanged -= UpdateBlockCounter;
     }
 
     void Start()
@@ -43,6 +56,8 @@ public class VillagerPersonalUI : MonoBehaviour
         UpdateBars(true, true);
         statusImageCanvas.alpha = 0;
         textCanvas.alpha = 0;
+        if (blockCounterCanvas != null)
+            blockCounterCanvas.alpha = 0;
     }
 
     public void UpdateBars(bool health, bool morale)
@@ -142,6 +157,20 @@ public class VillagerPersonalUI : MonoBehaviour
         }
     }
 
+    public void UpdateBlockCounter(int amount)
+    {
+        if (blockCounterCanvas == null || blockCounters == null) return;
+
+        for (int i = 0; i < blockCounters.Length; i++)
+            blockCounters[i].SetActive(i < amount);
+
+        if (blockCounterCoroutine != null)
+        {
+            StopCoroutine(blockCounterCoroutine);
+        }
+        blockCounterCoroutine = StartCoroutine(HideAfterDelay(3f, blockCounterCanvas));
+    }
+
     private IEnumerator HideAfterDelay(float delay, CanvasGroup _canvasGroup)
     {
         _canvasGroup.DOFade(1, 0.1f);
@@ -155,6 +184,8 @@ public class VillagerPersonalUI : MonoBehaviour
         healthBar.DOFade(0, 0.5f);
         moraleBar.DOFade(0, 0.5f);
         statusImageCanvas.DOFade(0, 0.5f);
+        if (blockCounterCanvas != null)
+            blockCounterCanvas.DOFade(0, 0.5f);
     }
 
 }

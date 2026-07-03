@@ -13,19 +13,30 @@ public class EnemyPersonalUI : MonoBehaviour
     private CanvasGroup _canvasGroup;
     private bool _enabled = true;
     public GameObject[] blockCounters;
+    private CharacterAI _ai;
 
     private void Awake()
     {
         _enemy = GetComponentInParent<Enemy>(true);
         _enemy.personalUI = this;
+        _ai = GetComponentInParent<CharacterAI>(true);
+        if (_ai != null)
+            _ai.OnBlockChargesChanged += UpdateBlockCounter;
         transform.SetParent(null); // Detach from enemy to avoid scaling issues
         _canvasGroup = GetComponent<CanvasGroup>();
         enabled = true;
     }
 
+    private void OnDestroy()
+    {
+        if (_ai != null)
+            _ai.OnBlockChargesChanged -= UpdateBlockCounter;
+    }
+
     void Start()
     {
         UpdateBars(true, true);
+        UpdateBlockCounter(_ai.GetBlockCount());
     }
 
     void Update()
@@ -63,16 +74,25 @@ public class EnemyPersonalUI : MonoBehaviour
                 }
             }
             StopAllCoroutines();
-            StartCoroutine(HideAfterDelay(3f));
+            StartCoroutine(HideAfterDelay(10f));
         }
     }
 
     public void UpdateBlockCounter(int amount)
     {
-        foreach(GameObject block in blockCounters)
+        if (_canvasGroup.alpha == 0)
         {
-
+            _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
+            {
+                _canvasGroup.alpha = 1;
+            });
         }
+
+        for (int i = 0; i < blockCounters.Length; i++)
+            blockCounters[i].SetActive(i < amount);
+
+        StopAllCoroutines();
+        StartCoroutine(HideAfterDelay(3f));
     }
 
     public void ShowSpeech(string message, float duration = 2.0f)
