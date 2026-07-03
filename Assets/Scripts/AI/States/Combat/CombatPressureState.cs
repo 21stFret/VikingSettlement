@@ -57,8 +57,10 @@ public class CombatPressureState : AIStateBase
 
         ai.Controller.FaceTowards(ai.CurrentTarget.position);
 
-        float dist = Vector2.Distance(ai.transform.position, ai.CurrentTarget.position);
-        if (dist > ai.AttackRange)
+        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
+        float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
+
+        if (distToSlot > ai.AttackRange)
         {
             if (ai.CalculateSeparationForce().magnitude >= 0.1f) return;
 

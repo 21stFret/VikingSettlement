@@ -525,7 +525,7 @@ MonoBehaviour:
   driftThreshold: 1.8
   attackInterval: 1
   retargetOnHit: 1
-  showDebug: 0
+  showDebug: 1
   idleTimeMin: 2
   idleTimeMax: 5
   wanderRadius: 5

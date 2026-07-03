@@ -152,7 +152,7 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (newState == null) return;
         CurrentState?.OnExit(this);
-        if(showDebug) print(this.name + "is leaving" + CurrentState?.ToString());
+        //if(showDebug) print(this.name + "is leaving" + CurrentState?.ToString());
         CurrentState = newState;
         CurrentState.OnEnter(this);
         if (showDebug) print(this.name + "has entered" + CurrentState.ToString());

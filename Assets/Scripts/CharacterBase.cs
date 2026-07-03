@@ -945,8 +945,8 @@ public class CharacterBase : MonoBehaviour
     {
         FacingDirection.East  => eastOffset,
         FacingDirection.West  => new Vector2(-eastOffset.x,  eastOffset.y),
-        FacingDirection.North => new Vector2( eastOffset.y,  eastOffset.x),
-        FacingDirection.South => new Vector2( eastOffset.y, -eastOffset.x),
+        FacingDirection.North => new Vector2(0,  eastOffset.x),
+        FacingDirection.South => new Vector2(0, -eastOffset.x),
         _                     => eastOffset
     };
 
