@@ -19,8 +19,17 @@ public class CombatBlockState : AIStateBase
             ai.Controller.FaceTowards(ai.CurrentTarget.position);
 
         float ratio = ai.CombatStats != null ? ai.CombatStats.BlockVsDodgeRatio : 1f;
+
+
         if (UnityEngine.Random.value <= ratio)
         {
+            if (ai.Controller.shield != null)
+            {
+                ai.Controller.isBlocking = false;
+                ai.IsActionLocked = false;
+                ai.ChangeState(new CombatPressureState());
+                return;
+            }
             ai.Controller.isBlocking = true;
         }
         else

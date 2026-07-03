@@ -973,7 +973,7 @@ public class CharacterBase : MonoBehaviour
             return false;
         }
 
-        float newAngle = CalculateBisectAngle();
+        float newAngle = CalculateBisectAngle(claimer);
         _occupiedSlots.Add((claimer, newAngle));
 
         Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
@@ -985,10 +985,16 @@ public class CharacterBase : MonoBehaviour
         return true;
     }
 
-    private float CalculateBisectAngle()
+    private float CalculateBisectAngle(CharacterBase claimer)
     {
         if (_occupiedSlots.Count == 0)
-            return UnityEngine.Random.Range(0f, 360f);
+        {
+            var dir = claimer.lastPosition - lastPosition.normalized;
+            var facing = ComputeFacingDirection(dir);
+            var initAngle = 90 * (int)facing;
+            return initAngle;
+        }
+
 
         var angles = _occupiedSlots.Select(s => s.angle).OrderBy(a => a).ToList();
         float largestGap = 0f;

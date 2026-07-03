@@ -57,15 +57,18 @@ public class CombatPressureState : AIStateBase
 
         ai.Controller.FaceTowards(ai.CurrentTarget.position);
 
-        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
-        float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
-
-        if (distToSlot > ai.AttackRange)
+        if(ai.CurrentSlotHost != null)
         {
-            if (ai.CalculateSeparationForce().magnitude >= 0.1f) return;
+            Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
+            float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
 
-            ai.ChangeState(new CombatApproachState());
-            return;
+            if (distToSlot > ai.AttackRange)
+            {
+                if (ai.CalculateSeparationForce().magnitude >= 0.1f) return;
+
+                ai.ChangeState(new CombatApproachState());
+                return;
+            }
         }
 
         float pressureTime = ai.CombatStats != null ? ai.CombatStats.PressureTime : 1.5f;
