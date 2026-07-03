@@ -785,7 +785,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
             // Debug: Log weapon/shield being saved
             if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
             {
-                Debug.Log($"Saving {v.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
+                //Debug.Log($"Saving {v.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
             }
 
             villagerSaves.Add(vs);

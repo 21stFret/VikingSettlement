@@ -82,10 +82,11 @@ public class RaidChainPickerUI : MonoBehaviour, IRaidOptionSelector
     private string BuildRewardsText(RaidDestinationData destination)
     {
         var sb = new StringBuilder();
-        for (int j = 0; j < destination.potentialLoot.Count; j++)
+        List<ResourceLoot> potentialLoot = destination.GetPotentialLoot();
+        for (int j = 0; j < potentialLoot.Count; j++)
         {
-            sb.Append(destination.potentialLoot[j].resourceType).Append(" x").Append(destination.potentialLoot[j].amount);
-            if (j < destination.potentialLoot.Count - 1)
+            sb.Append(potentialLoot[j].resourceType).Append(" x").Append(potentialLoot[j].amount);
+            if (j < potentialLoot.Count - 1)
                 sb.Append('\n');
         }
         return sb.ToString();

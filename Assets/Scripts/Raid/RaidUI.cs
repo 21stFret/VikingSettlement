@@ -52,10 +52,11 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
             {
                 RaidDestinationData raidOption = availableRaids[i];
                 string rewards = "";
-                for (int j = 0; j < raidOption.potentialLoot.Count; j++)
+                List<ResourceLoot> potentialLoot = raidOption.GetPotentialLoot();
+                for (int j = 0; j < potentialLoot.Count; j++)
                 {
-                    rewards += raidOption.potentialLoot[j].resourceType.ToString() + " x" + raidOption.potentialLoot[j].amount.ToString();
-                    if (raidOption.potentialLoot.Count > 1 && j < raidOption.potentialLoot.Count - 1)
+                    rewards += potentialLoot[j].resourceType.ToString() + " x" + potentialLoot[j].amount.ToString();
+                    if (potentialLoot.Count > 1 && j < potentialLoot.Count - 1)
                     {
                         rewards += "\n";
                     }

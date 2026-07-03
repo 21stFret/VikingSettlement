@@ -20,7 +20,8 @@ public class PauseManager : MonoBehaviour
         Playing,
         DialoguePause,
         StrategicPause,
-        MenuPause
+        MenuPause,
+        RaidReportPause
     }
 
     [Header("Current State")]
@@ -451,6 +452,61 @@ public class PauseManager : MonoBehaviour
 
     #endregion
 
+    #region Raid Report Pause
+
+    /// <summary>
+    /// Enter raid report pause - freezes everything (Time.timeScale = 0) for the
+    /// homecoming report screen. No side-panel/camera changes, unlike Menu/Strategic pause.
+    /// </summary>
+    public void EnterRaidReportPause()
+    {
+        if (currentState == PauseState.RaidReportPause) return;
+
+        currentState = PauseState.RaidReportPause;
+
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.SetPaused(true);
+        }
+
+        // Disable player movement during Pause
+        if (playerController != null)
+        {
+            playerController.SetInputEnabled(false);
+        }
+
+        OnPauseStateChanged?.Invoke(currentState);
+        Debug.Log("Entered Raid Report Pause");
+    }
+
+    /// <summary>
+    /// Resume game from raid report pause
+    /// </summary>
+    public void ExitRaidReportPause()
+    {
+        if (currentState != PauseState.RaidReportPause) return;
+
+        currentState = PauseState.Playing;
+
+        Time.timeScale = 1f;
+
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.SetPaused(false);
+        }
+
+        // Disable player movement during dialogue
+        if (playerController != null)
+        {
+            playerController.SetInputEnabled(true);
+        }
+
+        OnPauseStateChanged?.Invoke(currentState);
+        Debug.Log("Exited Raid Report Pause");
+    }
+
+    #endregion
+
     #region Dialogue Pause
 
     /// <summary>
@@ -536,6 +592,8 @@ public class PauseManager : MonoBehaviour
                     ExitStrategicPause();
                 else if (currentState == PauseState.DialoguePause)
                     ExitDialoguePause();
+                else if (currentState == PauseState.RaidReportPause)
+                    ExitRaidReportPause();
                 break;
             case PauseState.MenuPause:
                 EnterMenuPause();
@@ -549,6 +607,9 @@ public class PauseManager : MonoBehaviour
                 break;
             case PauseState.DialoguePause:
                 EnterDialoguePause();
+                break;
+            case PauseState.RaidReportPause:
+                EnterRaidReportPause();
                 break;
         }
     }

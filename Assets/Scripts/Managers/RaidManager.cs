@@ -384,7 +384,7 @@ public class RaidManager : MonoBehaviour
             // B25: FloorToInt avoids simulating a phantom extra day; partial day handled inside SimulateTime
             int daysToSimulate = Mathf.FloorToInt(pending.gameDaysPassed);
             SettlementReport report = SettlementSimulator.SimulateTime(daysToSimulate, absentVillagers, pending.gameDaysPassed, pending.raidStartAbsoluteDay);
-            ApplySettlementReport(report);
+            ApplySettlementReport(report, absentVillagers);
             OnReturnedToSettlement?.Invoke(report);
         }
 
@@ -394,8 +394,6 @@ public class RaidManager : MonoBehaviour
         DayNightManager.Instance?.AdvanceDays(days);
         SeasonManager.Instance?.AdvanceDays(days);
 
-        // 6. Resume settlement tick (paused in StartRaid)
-        ResumeSettlement();
 
         // 7. Restore time of day and date to post-raid position
         int   endAbsoluteDay = pending.raidStartAbsoluteDay + Mathf.FloorToInt(pending.gameDaysPassed);
@@ -420,7 +418,7 @@ public class RaidManager : MonoBehaviour
         Debug.Log($"Raid results applied: {pending.loot.Count} loot, {pending.casualtyIds.Count} casualties, {days} days simulated.");
     }
 
-    private void ApplySettlementReport(SettlementReport report)
+    private void ApplySettlementReport(SettlementReport report, List<Villager> absentVillagers)
     {
         if (ResourceManager.Instance == null) return;
 
@@ -437,29 +435,22 @@ public class RaidManager : MonoBehaviour
             var villagers = SettlementManager.Instance.GetAllVillagers();
             float damagePerVillager = report.villagerDamage / Mathf.Max(1, villagers.Count);
 
+            // Villagers are freshly restored from the pre-raid autosave here, so their
+            // isOnRaid flag is always false (it's never part of VillagerSave and the
+            // snapshot predates the party leaving anyway). Use the actual raid party
+            // list instead of the stale flag to exclude returning raiders from
+            // "damage while you were away" — otherwise it hits everyone equally.
             foreach (var villager in villagers)
             {
-                if (villager != null && !villager.IsDead() && !villager.isOnRaid)
+                if (villager != null && !villager.IsDead() && !absentVillagers.Contains(villager))
                     villager.TakeDamage(damagePerVillager, null, true);
-            }
-        }
 
-        if (SettlementManager.Instance != null)
-        {
-            foreach (var villager in SettlementManager.Instance.GetAllVillagers())
-            {
                 if (villager != null && !villager.IsDead())
                     villager.ChangeMorale(report.moraleChange);
             }
         }
 
         Debug.Log($"Settlement report applied: {report.events.Count} events occurred while away.");
-    }
-
-    private void ResumeSettlement()
-    {
-        if (GameTickManager.Instance != null)
-            GameTickManager.Instance.SetPaused(false);
     }
 
     #endregion

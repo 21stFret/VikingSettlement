@@ -279,8 +279,8 @@ public class RaidSceneController : MonoBehaviour
         enemiesRemaining--;
         OnEnemyCountChanged?.Invoke(enemiesRemaining);
 
-        // Generate loot
-        GenerateLoot(enemy);
+        // Enemy "pocket" loot (Enemy.lootTable) drops as a physical pickup via
+        // LootDropManager and feeds into collectedLoot on pickup — see LootDrop.OnTriggerEnter2D.
 
         Debug.Log($"Enemy killed! {enemiesRemaining} remaining.");
 
@@ -315,9 +315,11 @@ public class RaidSceneController : MonoBehaviour
     }
 
     /// <summary>
-    /// Generate loot from killed enemy
+    /// Loot the camp's chests — rolled once when the camp is cleared. Represents what you
+    /// could already see waiting at the camp (RaidDestinationData.lootTable / GetPotentialLoot),
+    /// as opposed to enemy "pocket" loot which is hidden until you kill them.
     /// </summary>
-    private void GenerateLoot(Enemy enemy)
+    private void RollDestinationLoot()
     {
         var destination = RaidManager.Instance?.CurrentRaid;
         if (destination == null) return;
@@ -327,13 +329,9 @@ public class RaidSceneController : MonoBehaviour
             if (Random.value <= entry.dropChance)
             {
                 float amount = Random.Range(entry.minAmount, entry.maxAmount + 1);
-                collectedLoot.Add(new ResourceLoot
-                {
-                    resourceType = entry.resourceType,
-                    amount = amount
-                });
+                AddLoot(entry.resourceType, amount);
 
-                Debug.Log($"Loot: +{amount} {entry.resourceType}");
+                Debug.Log($"Camp loot: +{amount} {entry.resourceType}");
             }
         }
     }
@@ -350,6 +348,9 @@ public class RaidSceneController : MonoBehaviour
         if (!raidActive) return;
         raidActive = false;
         GameManager.Instance.IsGameActive = false;
+
+        // Camp cleared — loot the chests on top of whatever enemy pocket loot was collected.
+        RollDestinationLoot();
 
         Debug.Log($"VICTORY! Collected {collectedLoot.Count} loot items. Casualties: {casualties.Count}");
 

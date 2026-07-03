@@ -30,10 +30,24 @@ public class RaidDestinationData : ScriptableObject
     public bool spawnAll = false;
 
     [Header("Rewards")]
-    [Tooltip("Display-only loot shown in the raid selection UI.")]
-    public List<ResourceLoot> potentialLoot = new List<ResourceLoot>();
-    [Tooltip("Per-enemy kill loot table used during the raid scene.")]
+    [Tooltip("Chest loot at this camp — known in advance, rolled once on Victory. " +
+             "Enemy \"pocket\" loot (Enemy.lootTable) is separate and not previewed.")]
     public List<LootTableEntry> lootTable = new List<LootTableEntry>();
+
+    /// <summary>
+    /// Display-only preview of this destination's chest loot ("what they have at the camp"),
+    /// derived from lootTable so the UI can never drift out of sync with the actual roll.
+    /// Shows each possible resource at its maximum roll amount, ignoring drop chance.
+    /// </summary>
+    public List<ResourceLoot> GetPotentialLoot()
+    {
+        var result = new List<ResourceLoot>();
+        foreach (var entry in lootTable)
+        {
+            result.Add(new ResourceLoot { resourceType = entry.resourceType, amount = entry.maxAmount });
+        }
+        return result;
+    }
 
     /// <summary>
     /// Total game days the settlement loses for this raid (travel there + travel back).
