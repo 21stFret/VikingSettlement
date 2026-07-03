@@ -32,9 +32,6 @@ public class CombatDummy : MonoBehaviour
     {
         _cc = GetComponent<CharacterBase>();
 
-        // We control blocking manually — disable reactive blocking
-        _cc.useReactiveBlocking = false;
-
         // Freeze position so SetMovement (used only for facing/hitbox direction)
         // does not actually slide the dummy around the scene
         var rb = GetComponent<Rigidbody2D>();

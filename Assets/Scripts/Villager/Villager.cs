@@ -166,11 +166,7 @@ public class Villager : TargetHealth
     }
 
     public float GetSkillMultiplier(JobType job)
-    {
-        float baseSkill = skills.GetSkillForJob(job);
-        float moraleModifier = morale / 100f;
-        return (1f + baseSkill * 0.5f) * moraleModifier;
-    }
+        => SettlementFormulas.GetSkillMultiplier(skills.GetSkillForJob(job), morale);
 
     public void UpdateLife(float deltaTime)
     {
@@ -561,32 +557,28 @@ public class Villager : TargetHealth
         }
 
         float minDmg = SettlementManager.Instance != null ? SettlementManager.Instance.minStarvationDamage : 5f;
-        float fullDamage = Mathf.Max(currentHealth / 2f, minDmg);
-        TakeDamage(fullDamage * hungerFraction, null, true);
-        ChangeMorale(-10f * hungerFraction);
+        var effect = SettlementFormulas.GetSharedHungerEffect(currentHealth, minDmg, hungerFraction);
+        TakeDamage(effect.healthDamage, null, true);
+        ChangeMorale(effect.moraleDelta);
         personalUI.ShowSpeech(hungerFraction >= 1f ? "I'm starving..." : "I'm hungry...", 2.0f);
     }
 
     private void ReduceHealthAndMoraleDueToHunger()
     {
-        // Reduce health and morale due to hunger
-        int minDmg = SettlementManager.Instance != null ? Mathf.FloorToInt(SettlementManager.Instance.minStarvationDamage) : 5;
-        int hungerDamage = Mathf.FloorToInt(currentHealth / 2);
-        hungerDamage = Mathf.Max(hungerDamage, minDmg);
-        TakeDamage(hungerDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
-        ChangeMorale(-10f); // Lose 10 morale due to hunger
+        float minDmg = SettlementManager.Instance != null ? SettlementManager.Instance.minStarvationDamage : 5f;
+        var effect = SettlementFormulas.GetPrioritizedHungerEffect(currentHealth, minDmg);
+        TakeDamage(effect.healthDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
+        ChangeMorale(effect.moraleDelta);
         personalUI.ShowSpeech("I'm starving...", 2.0f);
     }
 
     private void HealFromFood(float healthAmount, float moraleAmount)
     {
-        // Apply Gefjon's Blessing heal speed bonus
-        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-        {
-            healthAmount *= (1f + DeathTypeBuff.Instance.GetHealSpeedPercent() / 100f);
-        }
-        Heal(healthAmount);
-        ChangeMorale(moraleAmount);
+        bool gefjonActive = DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive;
+        float gefjonHealPct = gefjonActive ? DeathTypeBuff.Instance.GetHealSpeedPercent() : 0f;
+        var (healthGain, moraleGain) = SettlementFormulas.GetFoodHealEffect(healthAmount, moraleAmount, gefjonActive, gefjonHealPct);
+        Heal(healthGain);
+        ChangeMorale(moraleGain);
         personalUI.ShowSpeech("That was a good meal!", 2.0f);
     }
     

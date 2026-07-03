@@ -81,6 +81,48 @@ public abstract class CharacterAI : MonoBehaviour
 
     public CharacterBase CurrentSlotHost { get; set; }
 
+    // ── Reactive block economy ──────────────────────────────────────────────────
+    // Charges limit how many times CombatBlockState can raise a reactive block before
+    // the guard breaks and needs to recover — the mechanism that lets a player eventually
+    // break through a heavily-blocking enemy.
+
+    private int _blockCharges = -1; // -1 = not yet initialised from CombatStats
+    private float _blockCooldownTimer;
+    private bool _blockOnCooldown;
+
+    private int MaxBlockCharges => CombatStats != null ? CombatStats.MaxBlockCharges : 1;
+
+    /// <summary>Override to scale block-charge recovery time (e.g. by combat skill).</summary>
+    protected virtual float GetEffectiveBlockCooldown() => CombatStats != null ? CombatStats.BlockCooldown : 5f;
+
+    /// <summary>True if a reactive block charge is available right now.</summary>
+    public bool CanBlock => (_blockCharges < 0 ? MaxBlockCharges : _blockCharges) > 0;
+
+    /// <summary>Spends one reactive-block charge; starts the recovery cooldown once depleted.</summary>
+    public void ConsumeBlockCharge()
+    {
+        if (_blockCharges < 0) _blockCharges = MaxBlockCharges;
+        _blockCharges = Mathf.Max(0, _blockCharges - 1);
+
+        if (_blockCharges == 0 && !_blockOnCooldown)
+        {
+            _blockOnCooldown    = true;
+            _blockCooldownTimer = GetEffectiveBlockCooldown();
+        }
+    }
+
+    private void TickBlockCooldown()
+    {
+        if (!_blockOnCooldown) return;
+
+        _blockCooldownTimer -= Time.deltaTime;
+        if (_blockCooldownTimer <= 0f)
+        {
+            _blockOnCooldown = false;
+            _blockCharges    = MaxBlockCharges;
+        }
+    }
+
     // ── Spatial AI ─────────────────────────────────────────────────────────────────
 
     [Header("Spatial AI")]
@@ -126,6 +168,8 @@ public abstract class CharacterAI : MonoBehaviour
 
     protected virtual void Update()
     {
+        TickBlockCooldown();
+
         if (!_aiEnabled) return;
 
         if (!IsActionLocked)

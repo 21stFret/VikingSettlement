@@ -23,14 +23,16 @@ public class CombatBlockState : AIStateBase
 
         if (UnityEngine.Random.value <= ratio)
         {
-            if (ai.Controller.shield != null)
+            if (ai.Controller.shield == null || !ai.CanBlock)
             {
+                // No shield, or guard broken (out of block charges) — the hit gets through.
                 ai.Controller.isBlocking = false;
                 ai.IsActionLocked = false;
                 ai.ChangeState(new CombatPressureState());
                 return;
             }
             ai.Controller.isBlocking = true;
+            ai.ConsumeBlockCharge();
         }
         else
         {

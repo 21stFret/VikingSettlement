@@ -51,16 +51,6 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected float parryStunDuration = 1.5f;
     [SerializeField] private ParticleSystem stunEffect;
 
-    [Header("AI Blocking")]
-    public bool useReactiveBlocking = false;
-    public int maxBlockCharges = 1;
-    [SerializeField] private float blockCooldown = 5f;
-    [Tooltip("How long a reactive block holds before auto-clearing if no hit lands. Should match the attack animation's windup duration.")]
-    [SerializeField] protected float reactiveBlockDuration = 1.5f;
-    private int currentBlockCharges;
-    private float blockCooldownTimer;
-    private bool isOnBlockCooldown;
-
     protected Rigidbody2D rb;
     protected Collider2D characterCollider;
     protected Vector2 movement;
@@ -160,8 +150,6 @@ public class CharacterBase : MonoBehaviour
         // Configure Rigidbody2D for top-down movement
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        currentBlockCharges = maxBlockCharges;
     }
 
     /// <summary>
@@ -192,17 +180,6 @@ public class CharacterBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        // Tick AI block cooldown regardless of movement state
-        if (isOnBlockCooldown)
-        {
-            blockCooldownTimer -= Time.deltaTime;
-            if (blockCooldownTimer <= 0f)
-            {
-                isOnBlockCooldown = false;
-                currentBlockCharges = maxBlockCharges;
-            }
-        }
-
         if (!canMove)
         {
             movement = Vector2.zero;
@@ -584,33 +561,14 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Scans the attack area and notifies targets that an attack is incoming so they can
-    /// raise their shield reactively. No damage is dealt here.
-    /// Call this from an animation event at the START of the attack windup, before
-    /// PerformAttackHitbox fires at the actual hit frame.
+    /// Fired at the START of the attack windup, before PerformAttackHitbox fires at the actual
+    /// hit frame. Combat AI states listen to this (via CombatAnimationListener) to react to an
+    /// opponent's incoming swing — e.g. CombatPressureState transitioning to CombatBlockState.
+    /// Call this from an animation event.
     /// </summary>
     public virtual void NotifyAttackWindup()
     {
         OnAttackWindupEvent?.Invoke();
-
-        // Offset is already rotated to facing direction — committed in Attack()
-        Collider2D[] hitObjects = Physics2D.OverlapBoxAll(
-            (Vector2)transform.position + currentHitboxOffset, currentHitboxSize, 0f, attackTargetLayer);
-
-        HashSet<GameObject> notified = new HashSet<GameObject>();
-        foreach (var hit in hitObjects)
-        {
-            if (hit.gameObject == this.gameObject) continue;
-            if (notified.Contains(hit.gameObject)) continue;
-            notified.Add(hit.gameObject);
-
-            var targetCC = hit.GetComponent<CharacterBase>();
-            if (targetCC != null)
-            {
-                targetCC.lastAttackerPosition = (Vector2)transform.position;
-                targetCC.NotifyIncomingAttack(this);
-            }
-        }
     }
 
     /// <summary>
@@ -712,40 +670,6 @@ public class CharacterBase : MonoBehaviour
     {
         return isAttacking;
     }
-
-    /// <summary>
-    /// Called when an attack hitbox overlaps this character.
-    /// If AI reactive blocking is enabled and charges are available, raises shield for this hit.
-    /// </summary>
-    public void NotifyIncomingAttack(CharacterBase attacker)
-    {
-        if (!useReactiveBlocking) return;
-        if (!canMove) return;
-        if (attacker.characterFaction == characterFaction) return;
-        if (shield == null || shield.IsBroken) return;
-        if (isOnBlockCooldown || currentBlockCharges <= 0) return;
-
-        isBlocking = true;
-        currentBlockCharges--;
-        StartCoroutine(ClearBlockAfterDelay(reactiveBlockDuration));
-
-        if (currentBlockCharges <= 0)
-        {
-            isOnBlockCooldown = true;
-            blockCooldownTimer = GetEffectiveBlockCooldown();
-        }
-    }
-
-    private IEnumerator ClearBlockAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        isBlocking = false;
-    }
-
-    /// <summary>
-    /// Override in subclasses to scale block cooldown with character stats.
-    /// </summary>
-    protected virtual float GetEffectiveBlockCooldown() => blockCooldown;
 
     /// <summary>
     /// If the target was parrying when we hit them, stun ourselves. Call after TakeDamage.

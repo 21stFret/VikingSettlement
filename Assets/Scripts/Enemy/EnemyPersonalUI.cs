@@ -9,11 +9,10 @@ public class EnemyPersonalUI : MonoBehaviour
     public TMP_Text speechText;
     public GameObject healthBar;
     public Image healthFill;
-    public GameObject moraleBar;
-    public Image moraleFill;
     private Enemy _enemy;
     private CanvasGroup _canvasGroup;
     private bool _enabled = true;
+    public GameObject[] blockCounters;
 
     private void Awake()
     {
@@ -68,6 +67,14 @@ public class EnemyPersonalUI : MonoBehaviour
         }
     }
 
+    public void UpdateBlockCounter(int amount)
+    {
+        foreach(GameObject block in blockCounters)
+        {
+
+        }
+    }
+
     public void ShowSpeech(string message, float duration = 2.0f)
     {
         if (_canvasGroup.alpha == 0)
@@ -95,7 +102,6 @@ public class EnemyPersonalUI : MonoBehaviour
             {
                 speechText.gameObject.SetActive(false);
                 healthBar.SetActive(false);
-                if (moraleBar != null) moraleBar.SetActive(false);
                 _canvasGroup.alpha = 0;
             });
         }
@@ -111,7 +117,6 @@ public class EnemyPersonalUI : MonoBehaviour
             {
                 speechText.gameObject.SetActive(false);
                 healthBar.SetActive(false);
-                if (moraleBar != null) moraleBar.SetActive(false);
                 _canvasGroup.alpha = 0;
             });
         }

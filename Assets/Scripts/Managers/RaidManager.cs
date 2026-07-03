@@ -384,7 +384,7 @@ public class RaidManager : MonoBehaviour
             // B25: FloorToInt avoids simulating a phantom extra day; partial day handled inside SimulateTime
             int daysToSimulate = Mathf.FloorToInt(pending.gameDaysPassed);
             SettlementReport report = SettlementSimulator.SimulateTime(daysToSimulate, absentVillagers, pending.gameDaysPassed, pending.raidStartAbsoluteDay);
-            ApplySettlementReport(report, absentVillagers);
+            ApplySettlementReport(report);
             OnReturnedToSettlement?.Invoke(report);
         }
 
@@ -418,7 +418,7 @@ public class RaidManager : MonoBehaviour
         Debug.Log($"Raid results applied: {pending.loot.Count} loot, {pending.casualtyIds.Count} casualties, {days} days simulated.");
     }
 
-    private void ApplySettlementReport(SettlementReport report, List<Villager> absentVillagers)
+    private void ApplySettlementReport(SettlementReport report)
     {
         if (ResourceManager.Instance == null) return;
 
@@ -430,27 +430,51 @@ public class RaidManager : MonoBehaviour
                 ResourceManager.Instance.SpendResource(change.Key, -change.Value);
         }
 
-        if (SettlementManager.Instance != null && report.villagerDamage > 0)
+        if (SettlementManager.Instance == null) return;
+
+        // Skill gains accrued during the simulation (deferred so the day loop never mutates live state).
+        foreach (var gain in report.skillGains)
         {
-            var villagers = SettlementManager.Instance.GetAllVillagers();
-            float damagePerVillager = report.villagerDamage / Mathf.Max(1, villagers.Count);
-
-            // Villagers are freshly restored from the pre-raid autosave here, so their
-            // isOnRaid flag is always false (it's never part of VillagerSave and the
-            // snapshot predates the party leaving anyway). Use the actual raid party
-            // list instead of the stale flag to exclude returning raiders from
-            // "damage while you were away" — otherwise it hits everyone equally.
-            foreach (var villager in villagers)
-            {
-                if (villager != null && !villager.IsDead() && !absentVillagers.Contains(villager))
-                    villager.TakeDamage(damagePerVillager, null, true);
-
-                if (villager != null && !villager.IsDead())
-                    villager.ChangeMorale(report.moraleChange);
-            }
+            Villager v = SettlementManager.Instance.GetVillagerById(gain.villagerId);
+            if (v == null || v.IsDead()) continue;
+            for (int i = 0; i < gain.completions; i++)
+                v.skills.ImproveSkill(gain.jobType);
         }
 
-        Debug.Log($"Settlement report applied: {report.events.Count} events occurred while away.");
+        // Per-villager outcomes — report.villagerOutcomes only ever contains villagers the simulator
+        // seeded from "present" (non-raid-party) villagers, so raid-party members never appear here.
+        int deaths = 0;
+        foreach (var outcome in report.villagerOutcomes)
+        {
+            Villager v = SettlementManager.Instance.GetVillagerById(outcome.villagerId);
+            if (v == null) continue;
+
+            if (outcome.died)
+            {
+                if (!v.IsDead())
+                {
+                    v.currentHealth = 0f;
+                    v.Die(); // fires JarlManager succession, RemoveWorker, UnregisterVillager, etc.
+                    v.deathCause = outcome.deathCause; // simulator-computed cause overrides Die()'s own guess,
+                                                        // since live isHungry/isCold/lastDamageWasCombat
+                                                        // reflect pre-raid state, not what happened during the sim
+                    deaths++;
+                }
+                continue;
+            }
+
+            if (v.IsDead()) continue;
+
+            if (outcome.healthDelta < 0f)
+                v.TakeDamage(-outcome.healthDelta, null, true);
+            else if (outcome.healthDelta > 0f)
+                v.Heal(outcome.healthDelta);
+
+            if (outcome.moraleDelta != 0f)
+                v.ChangeMorale(outcome.moraleDelta);
+        }
+
+        Debug.Log($"Settlement report applied: {report.events.Count} events, {deaths} deaths while away.");
     }
 
     #endregion
@@ -587,8 +611,8 @@ public class SettlementReport
     public int daysPassed;
     public float exactDaysPassed;
     public Dictionary<ResourceType, float> resourceChanges = new Dictionary<ResourceType, float>();
-    public float villagerDamage;
-    public float moraleChange;
+    public List<VillagerOutcome> villagerOutcomes = new List<VillagerOutcome>();
+    public List<SkillGain> skillGains = new List<SkillGain>();
     public List<SettlementEvent> events = new List<SettlementEvent>();
 
     public string GetSummaryText()
@@ -610,6 +634,28 @@ public class SettlementEvent
     public string eventName;
     public string description;
     public SettlementEventType eventType;
+}
+
+/// <summary>
+/// Per-villager result of a settlement simulation — replaces the old pooled villagerDamage/moraleChange
+/// even-split so deaths and health/morale deltas apply to the specific villager the simulation affected.
+/// </summary>
+[System.Serializable]
+public class VillagerOutcome
+{
+    public string villagerId;
+    public float healthDelta;    // ignored if died == true
+    public float moraleDelta;
+    public bool died;
+    public DeathCause deathCause; // Combat / Cold / Starvation / Other only — simulator never assigns OldAge
+}
+
+[System.Serializable]
+public class SkillGain
+{
+    public string villagerId;
+    public JobType jobType;
+    public int completions;
 }
 
 public enum SettlementEventType

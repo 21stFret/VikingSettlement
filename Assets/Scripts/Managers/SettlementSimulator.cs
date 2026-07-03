@@ -3,28 +3,50 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// Simulates settlement activity over a period of time (for when player is away on raids)
-/// Calculates: production, consumption, random events
+/// Simulates settlement activity day-by-day for the time the player was away on a raid — production,
+/// consumption, and random events resolve in the same per-day order the live game would (production →
+/// events → wood/cold → food/hunger → death check), so a villager who dies partway through the raid stops
+/// producing/consuming for the remaining simulated days, and shortage checks see stock already adjusted
+/// by that same day's production. Builds a single SettlementReport applied atomically at the end —
+/// nothing in this file ever calls a live mutating method (TakeDamage, SpendResource, Die, ShowSpeech,
+/// coroutines, etc.) from inside the day loop.
 /// </summary>
 public static class SettlementSimulator
 {
-    // Event chances per day
+    // Event chances per simulated day
     private const float WOLF_ATTACK_CHANCE = 0.1f;      // 10% per day
     private const float GOOD_HARVEST_CHANCE = 0.15f;    // 15% per day
     private const float VILLAGER_SICK_CHANCE = 0.05f;   // 5% per day
     private const float TRADER_VISIT_CHANCE = 0.1f;     // 10% per day
-    private const float BIRTH_CHANCE = 0.05f;           // 5% per day (if eligible couples)
+    private const float HIGH_SPIRITS_CHANCE = 0.1f;     // 10% per day
 
     /// <summary>
-    /// Simulate what happens at the settlement over a number of days
+    /// Per-villager health/morale tracked individually across the day loop, seeded from real current
+    /// values. Never written back to the live Villager until the report is applied by the caller.
     /// </summary>
-    /// <param name="days">Number of whole game-days to simulate (for events)</param>
-    /// <param name="absentVillagers">Villagers who are away (on raid)</param>
+    private class VillagerSimState
+    {
+        public Villager liveRef;
+        public float startHealth, startMorale; // seeded snapshot — used to compute deltas at the end
+        public float health, maxHealth;
+        public float morale, maxMorale;
+        public bool isDead;
+        public DeathCause deathCause;    // Combat / Starvation / Cold / Other only — no OldAge (out of scope)
+        public bool isHungry, isCold;    // mirror live flags, refreshed every simulated day
+        public bool lastDamageWasCombat; // mirrors TargetHealth.lastDamageWasCombat — last write wins, same
+                                          // as live TakeDamage's unconditional overwrite on every hit
+        public JobType jobType;          // cached from currentJob at seed time (stable for raid duration)
+    }
+
+    /// <summary>
+    /// Simulate what happens at the settlement over a number of days.
+    /// </summary>
+    /// <param name="days">Number of whole game-days to simulate (for events/day loop)</param>
+    /// <param name="absentVillagers">Villagers who are away (on raid) — excluded entirely from the simulation</param>
     /// <param name="exactDays">Exact fractional days for resource calculations (optional)</param>
-    /// <param name="raidStartAbsoluteDay">Absolute day the raid began — used for storm lookup. -1 disables storm-aware wood.</param>
+    /// <param name="raidStartAbsoluteDay">Absolute day the raid began — used for season/storm lookahead. -1 disables it.</param>
     public static SettlementReport SimulateTime(int days, List<Villager> absentVillagers = null, float exactDays = -1f, int raidStartAbsoluteDay = -1)
     {
-        // Use exact days for resource calculations if provided, otherwise use whole days
         float resourceDays = exactDays > 0 ? exactDays : days;
 
         SettlementReport report = new SettlementReport
@@ -32,16 +54,14 @@ public static class SettlementSimulator
             daysPassed = days,
             exactDaysPassed = resourceDays,
             resourceChanges = new Dictionary<ResourceType, float>(),
-            events = new List<SettlementEvent>()
+            events = new List<SettlementEvent>(),
+            villagerOutcomes = new List<VillagerOutcome>(),
+            skillGains = new List<SkillGain>()
         };
 
-        // Initialize resource changes to 0
         foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
-        {
             report.resourceChanges[type] = 0f;
-        }
 
-        // Get settlement state
         if (SettlementManager.Instance == null)
         {
             Debug.LogWarning("SettlementSimulator: No SettlementManager found!");
@@ -57,155 +77,75 @@ public static class SettlementSimulator
 
         var allBuildings = SettlementManager.Instance.GetAllBuildings();
 
-        // Calculate production, consumption, and skill gains
-        SimulateProductionAndConsumption(presentVillagers, allBuildings, report, resourceDays, raidStartAbsoluteDay);
-
-        // Simulate random events for each whole day
-        for (int day = 1; day <= days; day++)
+        // ---- Seed per-villager sim state (pure, read-only snapshot). Order preserved from
+        // GetAllVillagers() registration order — required so the cold-effects "first N" selection
+        // matches live SettlementManager.ApplyColdEffects exactly. ----
+        var orderedStates = new List<VillagerSimState>();
+        var stateByVillager = new Dictionary<Villager, VillagerSimState>();
+        foreach (var v in presentVillagers)
         {
-            SimulateRandomEvents(day, presentVillagers, report);
+            var state = new VillagerSimState
+            {
+                liveRef = v,
+                startHealth = v.currentHealth, health = v.currentHealth, maxHealth = v.maxHealth,
+                startMorale = v.morale, morale = v.morale, maxMorale = v.maxMorale,
+                isDead = false, isHungry = v.isHungry, isCold = v.isCold, lastDamageWasCombat = false,
+                jobType = v.currentJob
+            };
+            orderedStates.Add(state);
+            stateByVillager[v] = state;
         }
 
-        return report;
-    }
-
-    /// <summary>
-    /// Calculate how many production completions a building would have over a time period
-    /// </summary>
-    private static int CalculateBuildingCompletions(Building building, float totalSeconds)
-    {
-        if (building == null || building.data == null) return 0;
-        if (building.assignedWorkers.Count == 0) return 0;
-
-        // Get production rate based on building type
-        float baseRate = building.data.productionType == ProductionType.Crafting
-            ? building.data.craftingRecipe?.craftingRate ?? 0f
-            : building.data.productionRate;
-
-        if (baseRate <= 0) return 0;
-
-        // Calculate production speed same as Building.GetProductionSpeed
-        float productionSpeed = 0f;
-        foreach (var worker in building.assignedWorkers)
+        // ---- Per-building worker roster — simulator-owned, mutated only in simulator memory, never
+        // touches the live Building.assignedWorkers list. Skips buildings needing repair, matching live
+        // Building.UpdateProduction's guard (the previous simulator didn't check this). ----
+        var buildingRoster = new Dictionary<Building, List<Villager>>();
+        foreach (var b in allBuildings)
         {
-            if (worker == null || worker.IsDead()) continue;
-            productionSpeed += baseRate * worker.GetSkillMultiplier(building.data.assignedJobType);
+            if (b == null || !b.isConstructed || b.needsRepair) continue;
+            buildingRoster[b] = b.assignedWorkers.Where(w => w != null && stateByVillager.ContainsKey(w)).ToList();
         }
 
-        // Calculate total progress and completions
-        float totalProgress = productionSpeed * totalSeconds;
-        return Mathf.FloorToInt(totalProgress / 100f);
-    }
+        // Deferred skill-gain bookkeeping — completions are tallied here and applied once, atomically, by
+        // the caller (RaidManager.ApplySettlementReport), never mutated live from inside this loop.
+        var skillCompletionsAccrued = new Dictionary<Villager, int>();
 
-    /// <summary>
-    /// Simulate production and consumption scaled by exact fractional days
-    /// Uses same logic as Building.UpdateProduction - progress fills based on rate * skill, produces on 100%
-    /// </summary>
-    private static void SimulateProductionAndConsumption(List<Villager> villagers, List<Building> buildings, SettlementReport report, float days, int raidStartAbsoluteDay = -1)
-    {
-        // B8: use authoritative day length instead of hardcoded 120f
-        float dayLength = DayNightManager.Instance != null
-            ? DayNightManager.Instance.dayLengthInSeconds
-            : 120f;
+        // ---- Read-only global snapshots — treated as constant for the raid's duration, same
+        // simplification the previous simulator already made for Runestone multipliers. ----
+        float dayLength = DayNightManager.Instance != null ? DayNightManager.Instance.dayLengthInSeconds : 120f;
         if (DayNightManager.Instance == null)
             Debug.LogWarning("SettlementSimulator: DayNightManager unavailable, falling back to 120f day length.");
-        float totalSeconds = days * dayLength;
 
-        // === PRODUCTION ===
-        foreach (var building in buildings)
-        {
-            if (building == null || !building.isConstructed) continue;
-            if (building.assignedWorkers.Count == 0) continue;
+        float fishPerVillagerBase = SettlementManager.Instance.fishPerVillagerPerDay;
+        float woodPerVillagerBase = SettlementManager.Instance.woodPerVillagerPerDay;
+        HungerDistributionMode hungerMode = SettlementManager.Instance.GetHungerMode();
+        float minStarvationDamage = SettlementManager.Instance.minStarvationDamage;
+        float coldMoralePenalty = SettlementManager.Instance.coldMoralePenalty;
+        float coldHealthDamage = SettlementManager.Instance.coldHealthDamage;
+        float warmthMoraleBonus = SettlementManager.Instance.warmthMoraleBonus;
 
-            var data = building.data;
-            if (data == null) continue;
+        float rationingModifier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetFoodConsumptionModifier() : 0f;
+        float productionSpeedMult = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetProductionSpeedMultiplier() : 1f;
+        float woodConsumptionMult = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetWoodConsumptionMultiplier() : 1f;
 
-            // Calculate completions for this building
-            int completions = CalculateBuildingCompletions(building, totalSeconds);
-            if (completions <= 0) continue;
+        bool gefjonActive = DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive;
+        float gefjonHealPct = gefjonActive ? DeathTypeBuff.Instance.GetHealSpeedPercent() : 0f;
+        float gefjonFoodPct = gefjonActive ? DeathTypeBuff.Instance.GetFoodProductionPercent() : 0f;
 
-            // Handle resource gathering
-            if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
-            {
-                float seasonalMultiplier = building.GetSeasonalMultiplier();
-                int production = Mathf.FloorToInt(completions * data.productionAmount * seasonalMultiplier);
-                report.resourceChanges[data.producedResource] += production;
-            }
-            // Handle crafting
-            else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
-            {
-                // Check if resources would be available (simplified - assume they are)
-                int output = Mathf.FloorToInt(completions * data.craftingRecipe.outputAmount);
-                report.resourceChanges[data.craftingRecipe.outputResource] += output;
+        // B25: FloorToInt so production seconds match resource days exactly; caller already floors `days`
+        // the same way, computed defensively here too.
+        int wholeDays = Mathf.FloorToInt(resourceDays);
+        float partialDay = resourceDays - wholeDays;
 
-                // Consume input resources
-                foreach (var input in data.craftingRecipe.inputResources)
-                {
-                    report.resourceChanges[input.resourceType] -= input.amount * completions;
-                }
-            }
-
-            // Skill gains for workers (each completion = 1 ImproveSkill per worker)
-            foreach (var worker in building.assignedWorkers)
-            {
-                if (worker == null || worker.IsDead()) continue;
-                for (int i = 0; i < completions; i++)
-                {
-                    worker.skills.ImproveSkill(data.assignedJobType);
-                }
-            }
-        }
-
-        // === CONSUMPTION (scaled by days) ===
-        int villagerCount = villagers.Count;
-
-        // B25: FloorToInt + partial day so production seconds match resource days exactly
-        int   wholeDays  = Mathf.FloorToInt(days);
-        float partialDay = days - wholeDays;
-
-        // B9sim: Wheat is a raw resource — bread chain not yet implemented, Fish is sole food source
-        float fishPerVillager = SettlementManager.Instance != null
-            ? SettlementManager.Instance.fishPerVillagerPerDay
-            : 1f;
-        float foodNeeded    = villagerCount * fishPerVillager * days; // exact float — partial day already baked in
-        float fishAvailable = GetAvailableResource(ResourceType.Fish);
-
-        if (fishAvailable >= foodNeeded)
-        {
-            report.resourceChanges[ResourceType.Fish] -= foodNeeded;
-        }
-        else
-        {
-            report.resourceChanges[ResourceType.Fish] -= fishAvailable;
-            report.moraleChange -= 5f * days;
-
-            report.events.Add(new SettlementEvent
-            {
-                eventName = "Food Shortage",
-                description = "The settlement didn't have enough food while you were away.",
-                eventType = SettlementEventType.Negative
-            });
-        }
-
-        // B10sim: Storm-aware firewood — per-day loop so each day's storm multiplier is respected
-        float woodPerVillagerDay = SettlementManager.Instance != null
-            ? SettlementManager.Instance.woodPerVillagerPerDay
-            : 0.5f;
-        bool isWinter = SeasonManager.Instance != null
-            && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        float seasonMult = isWinter ? 1.0f : 0.5f;
-        float runestoneMult = RunestoneManager.Instance != null
-            ? RunestoneManager.Instance.GetWoodConsumptionMultiplier()
-            : 1.0f;
-
-        // Build storm lookup keyed by absolute day — O(1) per simulated day
+        // Storm schedule is precomputed ahead of time for the whole winter, so future-day queries within
+        // the raid are valid. Must be read before SeasonManager.AdvanceDays() shifts the window — same as
+        // the previous simulator already did.
         var stormLookup = new Dictionary<int, float>();
         if (raidStartAbsoluteDay >= 0)
         {
             if (StormScheduler.Instance != null)
             {
-                var stormDays = StormScheduler.Instance.GetStormDaysInRange(
-                    raidStartAbsoluteDay, raidStartAbsoluteDay + wholeDays);
+                var stormDays = StormScheduler.Instance.GetStormDaysInRange(raidStartAbsoluteDay, raidStartAbsoluteDay + wholeDays);
                 foreach (var (absDay, mult) in stormDays)
                     stormLookup[absDay] = mult;
             }
@@ -215,56 +155,347 @@ public static class SettlementSimulator
             }
         }
 
-        float totalWoodNeeded = 0f;
+        // Carries fractional production progress between simulated days, mirroring live
+        // Building.productionProgress -= 100f overflow. Without this a per-day floor would discard more
+        // precision than the old single end-of-period floor.
+        var progressCarry = new Dictionary<Building, float>();
+
+        // ================= WHOLE-DAY LOOP =================
         for (int dayIndex = 0; dayIndex < wholeDays; dayIndex++)
         {
-            int   absDay    = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + dayIndex : -1;
-            float stormMult = (absDay >= 0 && stormLookup.ContainsKey(absDay)) ? stormLookup[absDay] : 1.0f;
-            float coldMult  = GetColdMultiplier(absDay);
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * coldMult * stormMult * runestoneMult;
+            int absDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + dayIndex : -1;
+            SeasonManager.Season season = SeasonManager.Instance != null
+                ? SeasonManager.Instance.GetSeasonForDayOffset(dayIndex)
+                : SeasonManager.Season.Summer;
+            ColdDayType coldDay = (absDay >= 0 && StormScheduler.Instance != null)
+                ? StormScheduler.Instance.GetColdDayType(absDay)
+                : ColdDayType.Chilly;
+            float stormMul = (absDay >= 0 && stormLookup.TryGetValue(absDay, out float sm)) ? sm : 1f;
+
+            // Snapshot of who's alive at the START of this day — production/events/wood/food all operate
+            // on this same set; the death check at the end catches anyone whose health reached 0 today.
+            var aliveStates = orderedStates.Where(s => !s.isDead).ToList();
+            int population = aliveStates.Count;
+
+            // ---- STEP A: PRODUCTION ----
+            foreach (var kvp in buildingRoster)
+            {
+                Building building = kvp.Key;
+                List<Villager> workers = kvp.Value;
+                if (workers.Count == 0) continue;
+
+                var data = building.data;
+                if (data == null) continue;
+
+                float baseRate = data.productionType == ProductionType.Crafting
+                    ? data.craftingRecipe?.craftingRate ?? 0f
+                    : data.productionRate;
+                if (baseRate <= 0f) continue;
+
+                float productionSpeed = 0f;
+                foreach (var w in workers)
+                {
+                    var s = stateByVillager[w];
+                    productionSpeed += baseRate * SettlementFormulas.GetSkillMultiplier(w.skills.GetSkillForJob(data.assignedJobType), s.morale);
+                }
+                productionSpeed *= productionSpeedMult; // Tireless Workers, applied once to the summed speed
+
+                float carry = progressCarry.TryGetValue(building, out float c) ? c : 0f;
+                carry += productionSpeed * dayLength;
+                int completions = Mathf.FloorToInt(carry / 100f);
+                carry -= completions * 100f;
+                progressCarry[building] = carry;
+
+                if (completions <= 0) continue;
+
+                if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
+                {
+                    float seasonalMult = SeasonManager.Instance != null
+                        ? SeasonManager.Instance.GetProductionMultiplierForDayOffset(data.buildingType, dayIndex)
+                        : 1f;
+                    int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
+                        data.producedResource, data.productionAmount, seasonalMult, gefjonActive, gefjonFoodPct);
+                    report.resourceChanges[data.producedResource] += perCompletion * completions;
+                }
+                else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
+                {
+                    // Crafting inputs assumed always available — matches original simulator's explicit
+                    // "simplified" comment; out of scope to fix here.
+                    int output = Mathf.FloorToInt(completions * data.craftingRecipe.outputAmount);
+                    report.resourceChanges[data.craftingRecipe.outputResource] += output;
+                    foreach (var input in data.craftingRecipe.inputResources)
+                        report.resourceChanges[input.resourceType] -= input.amount * completions;
+                }
+
+                foreach (var w in workers)
+                    skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + completions;
+            }
+
+            // ---- STEP B: RANDOM EVENTS (per-villager identity) ----
+            SimulateRandomEventsForDay(dayIndex + 1, aliveStates, report);
+
+            // ---- STEP C: WOOD / COLD ----
+            float woodNeeded = SettlementFormulas.GetWoodCost(population, woodPerVillagerBase, season, coldDay, stormMul, woodConsumptionMult);
+            if (woodNeeded > 0f)
+            {
+                // Available stock adjusted for production/consumption already resolved earlier THIS raid
+                // (fixes the pre-raid-only-stock shortage bug).
+                float woodAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Wood) + report.resourceChanges[ResourceType.Wood]);
+                if (woodAvailable >= woodNeeded)
+                {
+                    report.resourceChanges[ResourceType.Wood] -= woodNeeded;
+                    foreach (var s in aliveStates)
+                    {
+                        s.isCold = false;
+                        s.morale = Mathf.Clamp(s.morale + warmthMoraleBonus, 0, s.maxMorale);
+                    }
+                }
+                else
+                {
+                    report.resourceChanges[ResourceType.Wood] -= woodAvailable;
+                    int affectedCount = SettlementFormulas.GetColdAffectedCount(population, woodNeeded, woodAvailable);
+                    for (int i = 0; i < Mathf.Min(affectedCount, aliveStates.Count); i++)
+                    {
+                        var s = aliveStates[i]; // first N in seed/registration order — matches live exactly
+                        if (coldMoralePenalty > 0) s.morale = Mathf.Clamp(s.morale - coldMoralePenalty, 0, s.maxMorale);
+                        if (coldHealthDamage > 0) { s.health -= coldHealthDamage; s.lastDamageWasCombat = false; }
+                        s.isCold = true;
+                    }
+
+                    report.events.Add(new SettlementEvent
+                    {
+                        eventName = "Freezing Winter",
+                        description = $"The settlement ran out of firewood on day {dayIndex + 1}. Villagers suffered from the cold.",
+                        eventType = SettlementEventType.Negative
+                    });
+                }
+            }
+
+            // ---- STEP D: FOOD / HUNGER ----
+            float effectiveFish = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(population, effectiveFish);
+            if (totalFishNeeded > 0f)
+            {
+                float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
+                if (fishAvailable >= totalFishNeeded)
+                {
+                    report.resourceChanges[ResourceType.Fish] -= totalFishNeeded;
+                    foreach (var s in aliveStates)
+                    {
+                        ApplyFedHeal(s, gefjonActive, gefjonHealPct);
+                        s.isHungry = false;
+                    }
+                }
+                else
+                {
+                    report.resourceChanges[ResourceType.Fish] -= fishAvailable;
+
+                    if (hungerMode == HungerDistributionMode.Shared)
+                    {
+                        float fraction = SettlementFormulas.GetSharedHungerFraction(fishAvailable, effectiveFish, population);
+                        foreach (var s in aliveStates)
+                        {
+                            if (fraction <= 0f)
+                            {
+                                ApplyFedHeal(s, gefjonActive, gefjonHealPct);
+                                s.isHungry = false;
+                            }
+                            else
+                            {
+                                var effect = SettlementFormulas.GetSharedHungerEffect(s.health, minStarvationDamage, fraction);
+                                s.health -= effect.healthDamage;
+                                s.morale = Mathf.Clamp(s.morale + effect.moraleDelta, 0, s.maxMorale);
+                                s.isHungry = true;
+                                s.lastDamageWasCombat = false;
+                            }
+                        }
+                    }
+                    else // Prioritized
+                    {
+                        int fedCount = SettlementFormulas.GetFedCount(fishAvailable, effectiveFish, population);
+                        var shuffled = aliveStates.OrderBy(_ => Random.value).ToList(); // fresh shuffle each simulated day, matches live's per-mealtime shuffle
+                        for (int i = 0; i < shuffled.Count; i++)
+                        {
+                            var s = shuffled[i];
+                            if (i < fedCount)
+                            {
+                                ApplyFedHeal(s, gefjonActive, gefjonHealPct);
+                                s.isHungry = false;
+                            }
+                            else
+                            {
+                                var effect = SettlementFormulas.GetPrioritizedHungerEffect(s.health, minStarvationDamage);
+                                s.health -= effect.healthDamage;
+                                s.morale = Mathf.Clamp(s.morale + effect.moraleDelta, 0, s.maxMorale);
+                                s.isHungry = true;
+                                s.lastDamageWasCombat = false;
+                            }
+                        }
+                    }
+
+                    report.events.Add(new SettlementEvent
+                    {
+                        eventName = "Food Shortage",
+                        description = $"The settlement didn't have enough food on day {dayIndex + 1} while you were away.",
+                        eventType = SettlementEventType.Negative
+                    });
+                }
+            }
+
+            // ---- STEP E: DEATH CHECK ----
+            foreach (var s in aliveStates)
+            {
+                if (s.health <= 0f && !s.isDead)
+                {
+                    s.isDead = true;
+                    s.deathCause = s.lastDamageWasCombat ? DeathCause.Combat
+                        : s.isHungry ? DeathCause.Starvation
+                        : s.isCold ? DeathCause.Cold
+                        : DeathCause.Other;
+                    // No OldAge — aging/old-age death is explicitly out of scope for this simulator.
+
+                    // Simulator-local roster only — next day's production naturally uses the reduced list.
+                    // Building.assignedWorkers (live) is never touched inside the loop.
+                    foreach (var roster in buildingRoster.Values)
+                        roster.Remove(s.liveRef);
+                }
+            }
         }
-        // Partial day at the end
+
+        // ================= PARTIAL DAY (resource deltas only — no events, no death, no hunger/cold health/morale) =================
         if (partialDay > 0f)
         {
-            int   absPartialDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + wholeDays : -1;
-            float stormMult     = (absPartialDay >= 0 && stormLookup.ContainsKey(absPartialDay)) ? stormLookup[absPartialDay] : 1.0f;
-            float coldMult      = GetColdMultiplier(absPartialDay);
-            totalWoodNeeded += villagerCount * woodPerVillagerDay * seasonMult * coldMult * stormMult * runestoneMult * partialDay;
-        }
+            int dayIndex = wholeDays;
+            int absDay = raidStartAbsoluteDay >= 0 ? raidStartAbsoluteDay + wholeDays : -1;
+            SeasonManager.Season season = SeasonManager.Instance != null
+                ? SeasonManager.Instance.GetSeasonForDayOffset(dayIndex)
+                : SeasonManager.Season.Summer;
+            ColdDayType coldDay = (absDay >= 0 && StormScheduler.Instance != null)
+                ? StormScheduler.Instance.GetColdDayType(absDay)
+                : ColdDayType.Chilly;
+            float stormMul = (absDay >= 0 && stormLookup.TryGetValue(absDay, out float sm)) ? sm : 1f;
 
-        if (totalWoodNeeded > 0f)
-        {
-            float woodAvailable = GetAvailableResource(ResourceType.Wood);
-            if (woodAvailable >= totalWoodNeeded)
-            {
-                report.resourceChanges[ResourceType.Wood] -= totalWoodNeeded;
-            }
-            else
-            {
-                report.resourceChanges[ResourceType.Wood] -= woodAvailable;
-                report.moraleChange -= 10f;
-                report.villagerDamage += villagerCount * 2f * days;
+            var aliveStates = orderedStates.Where(s => !s.isDead).ToList();
+            int population = aliveStates.Count;
 
-                report.events.Add(new SettlementEvent
+            // Production, scaled by partialDay, using post-whole-day-loop skill/morale/roster state.
+            foreach (var kvp in buildingRoster)
+            {
+                Building building = kvp.Key;
+                List<Villager> workers = kvp.Value;
+                if (workers.Count == 0) continue;
+
+                var data = building.data;
+                if (data == null) continue;
+
+                float baseRate = data.productionType == ProductionType.Crafting
+                    ? data.craftingRecipe?.craftingRate ?? 0f
+                    : data.productionRate;
+                if (baseRate <= 0f) continue;
+
+                float productionSpeed = 0f;
+                foreach (var w in workers)
                 {
-                    eventName = "Freezing Winter",
-                    description = "The settlement ran out of firewood. Villagers suffered from the cold.",
-                    eventType = SettlementEventType.Negative
-                });
+                    var s = stateByVillager[w];
+                    productionSpeed += baseRate * SettlementFormulas.GetSkillMultiplier(w.skills.GetSkillForJob(data.assignedJobType), s.morale);
+                }
+                productionSpeed *= productionSpeedMult;
+
+                float carry = progressCarry.TryGetValue(building, out float c) ? c : 0f;
+                carry += productionSpeed * dayLength * partialDay;
+                int completions = Mathf.FloorToInt(carry / 100f);
+                // Final pass — no need to persist the remainder further.
+
+                if (completions <= 0) continue;
+
+                if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
+                {
+                    float seasonalMult = SeasonManager.Instance != null
+                        ? SeasonManager.Instance.GetProductionMultiplierForDayOffset(data.buildingType, dayIndex)
+                        : 1f;
+                    int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
+                        data.producedResource, data.productionAmount, seasonalMult, gefjonActive, gefjonFoodPct);
+                    report.resourceChanges[data.producedResource] += perCompletion * completions;
+                }
+                else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
+                {
+                    int output = Mathf.FloorToInt(completions * data.craftingRecipe.outputAmount);
+                    report.resourceChanges[data.craftingRecipe.outputResource] += output;
+                    foreach (var input in data.craftingRecipe.inputResources)
+                        report.resourceChanges[input.resourceType] -= input.amount * completions;
+                }
+
+                foreach (var w in workers)
+                    skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + completions;
+            }
+
+            // Wood — deduct only, capped at what's available.
+            float woodNeeded = SettlementFormulas.GetWoodCost(population, woodPerVillagerBase, season, coldDay, stormMul, woodConsumptionMult) * partialDay;
+            if (woodNeeded > 0f)
+            {
+                float woodAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Wood) + report.resourceChanges[ResourceType.Wood]);
+                report.resourceChanges[ResourceType.Wood] -= Mathf.Min(woodNeeded, woodAvailable);
+            }
+
+            // Food — deduct only, capped at what's available.
+            float effectiveFish = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(population, effectiveFish) * partialDay;
+            if (totalFishNeeded > 0f)
+            {
+                float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
+                report.resourceChanges[ResourceType.Fish] -= Mathf.Min(totalFishNeeded, fishAvailable);
             }
         }
+
+        // ================= BUILD REPORT (still pure — no live mutation) =================
+        foreach (var s in orderedStates)
+        {
+            report.villagerOutcomes.Add(new VillagerOutcome
+            {
+                villagerId = s.liveRef.uniqueId,
+                died = s.isDead,
+                deathCause = s.deathCause,
+                healthDelta = s.isDead ? 0f : (s.health - s.startHealth),
+                moraleDelta = s.isDead ? 0f : (s.morale - s.startMorale)
+            });
+        }
+        foreach (var kvp in skillCompletionsAccrued)
+        {
+            if (stateByVillager[kvp.Key].isDead) continue;
+            report.skillGains.Add(new SkillGain
+            {
+                villagerId = kvp.Key.uniqueId,
+                jobType = stateByVillager[kvp.Key].jobType,
+                completions = kvp.Value
+            });
+        }
+
+        return report;
     }
 
     /// <summary>
-    /// Simulate random events for a single day
+    /// Mirrors Villager.HealFromFood — applies Gefjon's Blessing heal-speed bonus, heals, restores morale.
     /// </summary>
-    private static void SimulateRandomEvents(int dayNumber, List<Villager> villagers, SettlementReport report)
+    private static void ApplyFedHeal(VillagerSimState s, bool gefjonActive, float gefjonHealPct)
     {
-        // Wolf attack
-        if (Random.value < WOLF_ATTACK_CHANCE)
+        var (healthGain, moraleGain) = SettlementFormulas.GetFoodHealEffect(
+            s.liveRef.healthRegenFromFood, s.liveRef.moraleRegenFromFood, gefjonActive, gefjonHealPct);
+        s.health = Mathf.Min(s.maxHealth, s.health + healthGain);
+        s.morale = Mathf.Clamp(s.morale + moraleGain, 0, s.maxMorale);
+    }
+
+    /// <summary>
+    /// Random events for a single simulated day, applied directly to per-villager sim state so casualties
+    /// and morale changes carry into the rest of that same day's (and subsequent days') processing.
+    /// </summary>
+    private static void SimulateRandomEventsForDay(int dayNumber, List<VillagerSimState> aliveStates, SettlementReport report)
+    {
+        // Wolf attack — one random victim takes the full damage.
+        if (aliveStates.Count > 0 && Random.value < WOLF_ATTACK_CHANCE)
         {
-            float damage = Random.Range(10f, 25f);
-            report.villagerDamage += damage;
+            var victim = aliveStates[Random.Range(0, aliveStates.Count)];
+            victim.health -= Random.Range(10f, 25f);
+            victim.lastDamageWasCombat = true;
 
             report.events.Add(new SettlementEvent
             {
@@ -274,13 +505,12 @@ public static class SettlementSimulator
             });
         }
 
-        // Good harvest bonus
+        // Good harvest bonus — resource-only.
         if (Random.value < GOOD_HARVEST_CHANCE)
         {
             ResourceType bonusType = Random.value > 0.5f ? ResourceType.Wheat : ResourceType.Fish;
             int bonusAmount = Mathf.FloorToInt(Random.Range(5f, 15f));
             report.resourceChanges[bonusType] += bonusAmount;
-            report.moraleChange += 2f;
 
             report.events.Add(new SettlementEvent
             {
@@ -290,10 +520,12 @@ public static class SettlementSimulator
             });
         }
 
-        // Villager gets sick
-        if (Random.value < VILLAGER_SICK_CHANCE && villagers.Count > 0)
+        // Villager gets sick — one random victim, non-combat damage.
+        if (aliveStates.Count > 0 && Random.value < VILLAGER_SICK_CHANCE)
         {
-            report.villagerDamage += Random.Range(5f, 15f);
+            var victim = aliveStates[Random.Range(0, aliveStates.Count)];
+            victim.health -= Random.Range(5f, 15f);
+            victim.lastDamageWasCombat = false;
 
             report.events.Add(new SettlementEvent
             {
@@ -303,10 +535,9 @@ public static class SettlementSimulator
             });
         }
 
-        // Trader visit
+        // Trader visit — resource-only.
         if (Random.value < TRADER_VISIT_CHANCE)
         {
-            // Random resource bonus from trade
             ResourceType tradeResource = GetRandomTradeResource();
             int tradeAmount = Mathf.FloorToInt(Random.Range(3f, 10f));
             report.resourceChanges[tradeResource] += tradeAmount;
@@ -319,10 +550,11 @@ public static class SettlementSimulator
             });
         }
 
-        // Good spirits / morale boost
-        if (Random.value < 0.1f)
+        // Good spirits / morale boost — applies to everyone alive that day.
+        if (aliveStates.Count > 0 && Random.value < HIGH_SPIRITS_CHANCE)
         {
-            report.moraleChange += 5f;
+            foreach (var s in aliveStates)
+                s.morale = Mathf.Clamp(s.morale + 5f, 0, s.maxMorale);
 
             report.events.Add(new SettlementEvent
             {
@@ -334,23 +566,6 @@ public static class SettlementSimulator
     }
 
     #region Helpers
-
-    /// <summary>
-    /// Cold day wood multiplier for a simulated day. GetColdDayType is a plain dictionary lookup
-    /// (unlike storms, no range precompute is needed) and isn't gated on a live "is it winter now"
-    /// flag, so it stays correct even if a raid crosses a season boundary — see B52.
-    /// </summary>
-    private static float GetColdMultiplier(int absDay)
-    {
-        if (absDay < 0 || StormScheduler.Instance == null) return 1.0f;
-
-        return StormScheduler.Instance.GetColdDayType(absDay) switch
-        {
-            ColdDayType.Frozen => 2.5f,
-            ColdDayType.Cold   => 1.5f,
-            _                  => 1.0f
-        };
-    }
 
     private static float GetAvailableResource(ResourceType type)
     {

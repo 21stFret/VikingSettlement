@@ -277,23 +277,16 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         int population = GetPopulation();
 
-        // Summer still burns at half rate regardless of cold day type — cold days are winter-only.
-        float seasonMultiplier = (SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter) ? 1.0f : 0.5f;
+        SeasonManager.Season season = SeasonManager.Instance.GetCurrentSeason();
 
         ColdDayType coldDay = StormScheduler.Instance != null && DayNightManager.Instance != null
             ? StormScheduler.Instance.GetColdDayType(DayNightManager.Instance.CurrentAbsoluteDay)
             : ColdDayType.Chilly;
-        float coldMultiplier = coldDay switch
-        {
-            ColdDayType.Frozen => 2.5f,
-            ColdDayType.Cold   => 1.5f,
-            _                  => 1.0f
-        };
 
         // Cold day type and storm are independent — they stack rather than override each other.
         float stormMultiplier = StormScheduler.Instance != null ? StormScheduler.Instance.GetCurrentDayWoodMultiplier() : 1.0f;
         float runestoneMultiplier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetWoodConsumptionMultiplier() : 1.0f;
-        return population * woodPerVillagerPerDay * seasonMultiplier * coldMultiplier * stormMultiplier * runestoneMultiplier;
+        return SettlementFormulas.GetWoodCost(population, woodPerVillagerPerDay, season, coldDay, stormMultiplier, runestoneMultiplier);
     }
 
     private void ApplyWarmEffects()
@@ -312,8 +305,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         var villagers = SettlementManager.Instance.GetAllVillagers();
 
-        float percentageCold = woodNeededToday > 0 ? 1f - (woodConsumedToday / woodNeededToday) : 0f;
-        int villagersAffected = (int)(villagers.Count * percentageCold);
+        int villagersAffected = SettlementFormulas.GetColdAffectedCount(villagers.Count, woodNeededToday, woodConsumedToday);
 
         for (int i = 0; i < villagersAffected; i++)
         {
@@ -353,16 +345,10 @@ public class SettlementManager : MonoBehaviour, ISaveable
             return;
 
         int villagerCount = allVillagers.Count;
-        float effectiveFishPerVillager = fishPerVillagerPerDay;
+        float rationingModifier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetFoodConsumptionModifier() : 0f;
+        float effectiveFishPerVillager = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerPerDay, rationingModifier);
 
-        // Apply Rationing runestone bonus (-1 food per villager)
-        if (RunestoneManager.Instance != null)
-        {
-            effectiveFishPerVillager += RunestoneManager.Instance.GetFoodConsumptionModifier();
-            effectiveFishPerVillager = Mathf.Max(0f, effectiveFishPerVillager);
-        }
-
-        totalFishNeeded = villagerCount * effectiveFishPerVillager;
+        totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(villagerCount, effectiveFishPerVillager);
 
         if (totalFishNeeded <= 0)
         {
@@ -404,7 +390,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     /// </summary>
     private void ApplyPrioritizedHunger(float availableFish, float fishPerVillager)
     {
-        int fedCount = fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : allVillagers.Count;
+        int fedCount = SettlementFormulas.GetFedCount(availableFish, fishPerVillager, allVillagers.Count);
         print($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
 
         List<Villager> shuffled = allVillagers.OrderBy(v => UnityEngine.Random.value).ToList();
@@ -420,8 +406,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         if (fishPerVillager <= 0f || allVillagers.Count == 0) return;
 
+        float hungerFraction = SettlementFormulas.GetSharedHungerFraction(availableFish, fishPerVillager, allVillagers.Count);
         float foodPerVillager = availableFish / allVillagers.Count;
-        float hungerFraction = Mathf.Clamp01((fishPerVillager - foodPerVillager) / fishPerVillager);
 
         Debug.LogWarning($"Shared hunger: {foodPerVillager:F2}/{fishPerVillager:F2} food each ({hungerFraction * 100f:F0}% shortage).");
 

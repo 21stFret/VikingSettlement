@@ -33,7 +33,7 @@ public class Enemy : TargetHealth
     [SerializeField] private ParticleSystem bloodEffect;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    private EnemyController _controller;
+    public EnemyController _controller;
     private Material materialInstance;
     private Color originalColor;
     public EnemyPersonalUI personalUI;

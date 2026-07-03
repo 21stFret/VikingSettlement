@@ -13,14 +13,13 @@ public class VillagerController : CharacterBase
         base.Awake();
         villagerData = GetComponent<Villager>();
         characterFaction = Faction.Player;
-        useReactiveBlocking = true;
     }
 
     /// <summary>
     /// Combat skill multiplier — scales attack speed, damage, and block cooldown.
     /// Ranges from 0.5× at skill 1 to 1.5× at skill 10.
     /// </summary>
-    private float GetCombatSkillMultiplier()
+    public float GetCombatSkillMultiplier()
     {
         if (villagerData == null) return 0.5f;
         return Mathf.Lerp(0.5f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
@@ -32,14 +31,6 @@ public class VillagerController : CharacterBase
     public override float GetAttackDelay()
     {
         return base.GetAttackDelay() / GetCombatSkillMultiplier();
-    }
-
-    /// <summary>
-    /// Block cooldown reduced by combat skill — higher skill = charges refill faster.
-    /// </summary>
-    protected override float GetEffectiveBlockCooldown()
-    {
-        return base.GetEffectiveBlockCooldown() / GetCombatSkillMultiplier();
     }
 
     protected override void Update()

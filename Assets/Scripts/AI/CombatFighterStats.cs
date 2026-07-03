@@ -22,4 +22,10 @@ public class CombatFighterStats : ScriptableObject
 
     [Tooltip("Distance to step back during retreat.")]
     public float RetreatDistance = 3f;
+
+    [Tooltip("How many reactive blocks this fighter can raise before its guard breaks.")]
+    public int MaxBlockCharges = 1;
+
+    [Tooltip("Seconds to fully recover block charges once depleted.")]
+    public float BlockCooldown = 5f;
 }

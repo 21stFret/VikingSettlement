@@ -319,10 +319,9 @@ public class PlayerController : MonoBehaviour
             targetAI.SetAIEnabled(true);
         }
 
-        // Restore reactive blocking on old target and clear its block state
+        // Clear block state on old target — reactive blocking resumes automatically once its AI re-enables
         if (controller != null)
         {
-            controller.useReactiveBlocking = true;
             controller.isBlocking = false;
             controller.isParrying = false;
             controller.Stop();
@@ -341,8 +340,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Disable reactive blocking and AI on new target (player controls this villager)
-        controller.useReactiveBlocking = false;
+        // Disable AI on new target (player controls this villager)
         if (targetAI != null)
         {
             targetAI.SetAIEnabled(false);

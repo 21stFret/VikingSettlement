@@ -12,7 +12,6 @@ public class EnemyController : CharacterBase
         base.Awake();
         enemyData = GetComponent<Enemy>();
         characterFaction = Faction.Enemy;
-        useReactiveBlocking = true;
     }
 
     public override float GetAttackDelay()

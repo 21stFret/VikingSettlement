@@ -64,6 +64,10 @@ public abstract class VillagerAIBase : CombatAIBase
 
     public virtual float FleeHealthThreshold => fleeHealthThreshold;
 
+    /// <summary>Block cooldown reduced by combat skill — higher skill = charges refill faster.</summary>
+    protected override float GetEffectiveBlockCooldown()
+        => base.GetEffectiveBlockCooldown() / VillagerController.GetCombatSkillMultiplier();
+
     // ── References ────────────────────────────────────────────────────────────
 
     public Villager           VillagerData       { get; private set; }

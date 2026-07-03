@@ -235,17 +235,9 @@ public class Building : MonoBehaviour
     private void CompleteResourceGathering()
     {
         // Use the pre-calculated adjusted amount (already set in UpdateResourceGathering)
-        float amount = adjustedProductionAmount;
-
-        // Apply Gefjon's Blessing food production bonus
-        if (data.producedResource == ResourceType.Fish || data.producedResource == ResourceType.Wheat)
-        {
-            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-            {
-                amount *= (1f + DeathTypeBuff.Instance.GetFoodProductionPercent() / 100f);
-            }
-        }
-
+        bool gefjonActive = DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive;
+        float gefjonFoodPct = gefjonActive ? DeathTypeBuff.Instance.GetFoodProductionPercent() : 0f;
+        float amount = SettlementFormulas.ApplyGefjonFoodBonus(data.producedResource, adjustedProductionAmount, gefjonActive, gefjonFoodPct);
         int finalAmount = Mathf.RoundToInt(amount);
         ResourceManager.Instance.AddResource(data.producedResource, finalAmount);
 
