@@ -33,6 +33,12 @@ public class RaidSceneController : MonoBehaviour
     private List<ResourceLoot> collectedLoot = new List<ResourceLoot>();
     private List<Villager> casualties = new List<Villager>();
 
+    // Villagers are DontDestroyOnLoad and can now outlive this controller instance across
+    // multiple raid-scene loads in a chain — track exact delegate instances so they can be
+    // precisely unsubscribed in OnDestroy, otherwise a later leg's death event would fire
+    // this (destroyed) controller's stale handler.
+    private readonly Dictionary<Villager, System.Action> _deathHandlers = new Dictionary<Villager, System.Action>();
+
     // Events
     public event System.Action OnRaidVictory;
     public event System.Action OnRaidDefeat;
@@ -42,6 +48,16 @@ public class RaidSceneController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var kvp in _deathHandlers)
+        {
+            if (kvp.Key != null)
+                kvp.Key.OnDeath -= kvp.Value;
+        }
+        _deathHandlers.Clear();
     }
 
     private void Start()
@@ -132,8 +148,10 @@ public class RaidSceneController : MonoBehaviour
             villager.transform.position = spawnPoint.position;
             villager.gameObject.SetActive(true);
 
-            // Subscribe to death
-            villager.OnDeath += () => OnPartyMemberDied(villager);
+            // Subscribe to death — store the exact delegate so it can be unsubscribed in OnDestroy
+            System.Action deathHandler = () => OnPartyMemberDied(villager);
+            _deathHandlers[villager] = deathHandler;
+            villager.OnDeath += deathHandler;
 
             partyMembersAlive++;
 
@@ -337,10 +355,10 @@ public class RaidSceneController : MonoBehaviour
 
         OnRaidVictory?.Invoke();
 
-        // End raid with results
+        // Resolve this leg — player chooses Keep Sailing or Go Home next
         if (RaidManager.Instance != null)
         {
-            RaidManager.Instance.EndRaid(RaidResult.Victory, collectedLoot, casualties);
+            RaidManager.Instance.ResolveLeg(RaidResult.Victory, collectedLoot, casualties);
         }
     }
 
@@ -373,10 +391,10 @@ public class RaidSceneController : MonoBehaviour
 
         Debug.Log($"RETREAT! Collected {collectedLoot.Count} loot. Casualties: {casualties.Count}");
 
-        // End raid
+        // Resolve this leg — player chooses Keep Sailing or Go Home next
         if (RaidManager.Instance != null)
         {
-            RaidManager.Instance.EndRaid(RaidResult.Retreat, collectedLoot, casualties);
+            RaidManager.Instance.ResolveLeg(RaidResult.Retreat, collectedLoot, casualties);
         }
     }
 

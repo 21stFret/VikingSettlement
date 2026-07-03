@@ -66,8 +66,6 @@ public class WeatherManager : MonoBehaviour
     [Tooltip("Maximum weather duration in days (1.0 = full day)")]
     public float maxWeatherDuration = 1f;
     [SerializeField] private float currentWeatherDuration = 0f;
-    [SerializeField] private float weatherTimeElapsed = 0f;
-    private float lastTimeOfDay = 0f;
 
     [Header("Rain/Storm Effects")]
     [Tooltip("Sun intensity multiplier during rain/storm (0.5 = 50% darker)")]
@@ -267,11 +265,6 @@ public class WeatherManager : MonoBehaviour
 
         // Set random duration and reset timer
         currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-        weatherTimeElapsed = 0f;
-        if (DayNightManager.Instance != null)
-        {
-            lastTimeOfDay = DayNightManager.Instance.GetTimeOfDay();
-        }
 
         Debug.Log($"WeatherManager: Weather set to {randomWeather} for {currentWeatherDuration:F2} days");
     }
@@ -774,12 +767,7 @@ public class WeatherManager : MonoBehaviour
     {
         autoWeather = true;
         // Reset the timer so we get a full duration before next change
-        weatherTimeElapsed = 0f;
         currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-        if (DayNightManager.Instance != null)
-        {
-            lastTimeOfDay = DayNightManager.Instance.GetTimeOfDay();
-        }
     }
 
     /// <summary>

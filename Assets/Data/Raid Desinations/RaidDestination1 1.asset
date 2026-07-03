@@ -26,3 +26,8 @@ MonoBehaviour:
   potentialLoot:
   - resourceType: 15
     amount: 20
+  lootTable:
+  - resourceType: 15
+    dropChance: 1
+    minAmount: 20
+    maxAmount: 30

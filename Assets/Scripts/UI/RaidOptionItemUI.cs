@@ -3,6 +3,16 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
+/// <summary>
+/// Implemented by any panel that lists RaidOptionItemUI rows and needs to know which
+/// index was clicked — lets RaidChainPickerUI reuse this row prefab without depending
+/// on the concrete RaidUI type.
+/// </summary>
+public interface IRaidOptionSelector
+{
+    void SelectRaidOption(int index);
+}
+
 public class RaidOptionItemUI : MonoBehaviour
 {
     public TMP_Text RaidNameText;
@@ -30,10 +40,10 @@ public class RaidOptionItemUI : MonoBehaviour
 
     private void OnSelectRaid()
     {
-        RaidUI raidUI = GetComponentInParent<RaidUI>();
-        if (raidUI != null && raidIndex >= 0)
+        IRaidOptionSelector selector = GetComponentInParent<IRaidOptionSelector>();
+        if (selector != null && raidIndex >= 0)
         {
-            raidUI.SelectRaidOption(raidIndex);
+            selector.SelectRaidOption(raidIndex);
         }
     }
 }

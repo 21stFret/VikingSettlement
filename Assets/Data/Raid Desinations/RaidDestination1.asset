@@ -18,7 +18,7 @@ MonoBehaviour:
   travelTimeHours: 1
   realTimeLimit: 300
   recommendedPartySize: 3
-  enemyCount: 5
+  enemyCount: 2
   enemyPrefabs:
   - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
   - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}

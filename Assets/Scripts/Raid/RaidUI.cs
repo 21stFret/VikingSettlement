@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RaidUI : MonoBehaviour
+public class RaidUI : MonoBehaviour, IRaidOptionSelector
 {
     private RaidManager raidManager;
     public List<RaidOptionItemUI> raidOptionItems;

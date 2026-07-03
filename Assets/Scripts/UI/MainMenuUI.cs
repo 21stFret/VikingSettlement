@@ -130,16 +130,23 @@ public class MainMenuUI : MonoBehaviour
 
     private void OnContinueClicked()
     {
-        if (SaveManager.Instance != null && SaveManager.Instance.HasAutosave())
-        {
+        if (SaveManager.Instance == null) return;
+
+        // Continue should resume wherever the player actually left off — that can be either
+        // the shared autosave or a manual save in the last-played slot, whichever is newer.
+        SaveSlotInfo autosaveInfo = SaveManager.Instance.GetAutosaveInfo();
+        int lastSlot = SaveManager.GetLastPlayedSlot();
+        SaveSlotInfo slotInfo = lastSlot > 0 ? SaveManager.Instance.GetSaveInfo(SaveManager.GetSlotName(lastSlot)) : null;
+
+        bool slotIsNewer = slotInfo != null && slotInfo.exists
+            && SaveManager.GetTimestamp(slotInfo) > SaveManager.GetTimestamp(autosaveInfo);
+
+        if (slotIsNewer)
+            GameManager.Instance?.LoadSlot(lastSlot);
+        else if (autosaveInfo.exists)
             GameManager.Instance?.LoadAutosave();
-        }
-        else
-        {
-            int lastSlot = SaveManager.GetLastPlayedSlot();
-            if (lastSlot > 0)
-                GameManager.Instance?.LoadSlot(lastSlot);
-        }
+        else if (slotInfo != null && slotInfo.exists)
+            GameManager.Instance?.LoadSlot(lastSlot);
     }
 
     private void OnNewGameClicked()

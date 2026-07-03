@@ -316,6 +316,18 @@ public class SaveManager : MonoBehaviour
         return GetSaveInfo(AUTOSAVE_NAME);
     }
 
+    /// <summary>
+    /// Parses a SaveSlotInfo's timestamp for freshness comparisons. Returns DateTime.MinValue
+    /// for a missing/corrupted save so it always sorts as older than any real save.
+    /// </summary>
+    public static DateTime GetTimestamp(SaveSlotInfo info)
+    {
+        if (info == null || !info.exists || string.IsNullOrEmpty(info.saveTimestamp))
+            return DateTime.MinValue;
+
+        return DateTime.TryParse(info.saveTimestamp, out DateTime result) ? result : DateTime.MinValue;
+    }
+
     #endregion
 
     #region Gather Save Data

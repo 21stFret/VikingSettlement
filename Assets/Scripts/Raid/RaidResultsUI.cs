@@ -1,11 +1,16 @@
+using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
 /// Raid scene results popup. Assign panel references in the Inspector.
-/// Subscribe to RaidManager.OnRaidEnded automatically — just place this in the raid scene.
-/// Clicking the return button calls RaidManager.LoadSettlementScene().
+/// Two modes on the same panel:
+///  - Leg resolved (RaidManager.OnLegResolved): chain still open — shows "Keep Sailing"
+///    (disabled with "No further targets" once every destination is visited) and "Go Home".
+///  - Trip over (RaidManager.OnRaidEnded): shows the aggregated trip totals with a single
+///    "Return" button that loads the settlement scene.
 /// </summary>
 public class RaidResultsUI : MonoBehaviour
 {
@@ -22,8 +27,14 @@ public class RaidResultsUI : MonoBehaviour
     [Header("Casualties")]
     public TMP_Text casualtiesText;
 
-    [Header("Button")]
+    [Header("Trip Over")]
     public Button returnButton;
+
+    [Header("Chain Choice")]
+    public Button keepSailingButton;
+    public TMP_Text keepSailingButtonLabel;
+    public Button goHomeButton;
+    public RaidChainPickerUI chainPickerUI;
 
     private void Start()
     {
@@ -33,16 +44,30 @@ public class RaidResultsUI : MonoBehaviour
         if (returnButton != null)
             returnButton.onClick.AddListener(OnReturnClicked);
 
+        if (keepSailingButton != null)
+            keepSailingButton.onClick.AddListener(OnKeepSailingClicked);
+
+        if (goHomeButton != null)
+            goHomeButton.onClick.AddListener(OnGoHomeClicked);
+
         if (RaidManager.Instance != null)
+        {
             RaidManager.Instance.OnRaidEnded += ShowResults;
+            RaidManager.Instance.OnLegResolved += ShowLegChoice;
+        }
         else
+        {
             Debug.LogWarning("RaidResultsUI: RaidManager not found — results panel won't show.");
+        }
     }
 
     private void OnDestroy()
     {
         if (RaidManager.Instance != null)
+        {
             RaidManager.Instance.OnRaidEnded -= ShowResults;
+            RaidManager.Instance.OnLegResolved -= ShowLegChoice;
+        }
     }
 
     private void ShowResults(RaidReport report)
@@ -65,40 +90,57 @@ public class RaidResultsUI : MonoBehaviour
             timeSummaryText.text = $"{report.gameDaysPassed:F1} days passed";
 
         if (lootText != null)
-        {
-            if (report.loot == null || report.loot.Count == 0)
-            {
-                lootText.text = "No loot collected.";
-            }
-            else
-            {
-                var combined = RaidSceneController.Instance != null
-                    ? RaidSceneController.Instance.GetCombinedLoot()
-                    : report.loot;
-
-                var lines = new System.Text.StringBuilder();
-                foreach (var item in combined)
-                    lines.AppendLine($"+ {item.amount:F0} {item.resourceType}");
-                lootText.text = lines.ToString().TrimEnd();
-            }
-        }
+            lootText.text = FormatLoot(report.loot);
 
         if (casualtiesText != null)
-        {
-            if (report.casualties == null || report.casualties.Count == 0)
-            {
-                casualtiesText.text = "No casualties.";
-            }
-            else
-            {
-                var lines = new System.Text.StringBuilder();
-                foreach (var v in report.casualties)
-                    if (v != null) lines.AppendLine(v.villagerName);
-                casualtiesText.text = lines.ToString().TrimEnd();
-            }
-        }
+            casualtiesText.text = FormatCasualties(report.casualties);
+
+        if (returnButton != null) returnButton.gameObject.SetActive(true);
+        if (keepSailingButton != null) keepSailingButton.gameObject.SetActive(false);
+        if (goHomeButton != null) goHomeButton.gameObject.SetActive(false);
 
         UIFocus.Set(returnButton.gameObject);
+    }
+
+    private void ShowLegChoice(LegReport report)
+    {
+        if (resultsPanel != null)
+            resultsPanel.SetActive(true);
+
+        if (resultHeaderText != null)
+        {
+            resultHeaderText.text = report.result switch
+            {
+                RaidResult.Victory => "Victory!",
+                RaidResult.Retreat => "Retreat",
+                _                  => "Raid Over"
+            };
+        }
+
+        if (timeSummaryText != null)
+            timeSummaryText.text = $"{report.totalTimeAwaySoFar:F1} days away so far";
+
+        if (lootText != null)
+            lootText.text = FormatLoot(report.legLoot);
+
+        if (casualtiesText != null)
+            casualtiesText.text = FormatCasualties(report.legCasualties);
+
+        if (returnButton != null) returnButton.gameObject.SetActive(false);
+        if (goHomeButton != null) goHomeButton.gameObject.SetActive(true);
+
+        if (keepSailingButton != null)
+        {
+            keepSailingButton.gameObject.SetActive(true);
+            keepSailingButton.interactable = report.canContinue;
+            if (keepSailingButtonLabel != null)
+                keepSailingButtonLabel.text = report.canContinue ? "Keep Sailing" : "No further targets";
+        }
+
+        GameObject focusTarget = (report.canContinue && keepSailingButton != null)
+            ? keepSailingButton.gameObject
+            : goHomeButton.gameObject;
+        UIFocus.Set(focusTarget);
     }
 
     private void OnReturnClicked()
@@ -107,5 +149,51 @@ public class RaidResultsUI : MonoBehaviour
             RaidManager.Instance.LoadSettlementScene();
         else
             Debug.LogError("RaidResultsUI: RaidManager gone — cannot load settlement.");
+    }
+
+    private void OnKeepSailingClicked()
+    {
+        if (resultsPanel != null)
+            resultsPanel.SetActive(false);
+
+        if (chainPickerUI != null)
+            chainPickerUI.Open();
+        else
+            Debug.LogError("RaidResultsUI: chainPickerUI not assigned — cannot continue the raid chain.");
+    }
+
+    private void OnGoHomeClicked()
+    {
+        // Synchronously fires RaidManager.OnRaidEnded -> ShowResults re-shows the panel in trip-over mode.
+        RaidManager.Instance?.GoHome();
+    }
+
+    private string FormatLoot(List<ResourceLoot> loot)
+    {
+        if (loot == null || loot.Count == 0)
+            return "No loot collected.";
+
+        var totals = new Dictionary<ResourceType, float>();
+        foreach (var item in loot)
+        {
+            totals.TryGetValue(item.resourceType, out float current);
+            totals[item.resourceType] = current + item.amount;
+        }
+
+        var lines = new StringBuilder();
+        foreach (var kv in totals)
+            lines.AppendLine($"+ {kv.Value:F0} {kv.Key}");
+        return lines.ToString().TrimEnd();
+    }
+
+    private string FormatCasualties(List<Villager> casualties)
+    {
+        if (casualties == null || casualties.Count == 0)
+            return "No casualties.";
+
+        var lines = new StringBuilder();
+        foreach (var v in casualties)
+            if (v != null) lines.AppendLine(v.villagerName);
+        return lines.ToString().TrimEnd();
     }
 }

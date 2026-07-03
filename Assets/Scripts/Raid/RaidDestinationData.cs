@@ -39,4 +39,10 @@ public class RaidDestinationData : ScriptableObject
     /// Total game days the settlement loses for this raid (travel there + travel back).
     /// </summary>
     public float GetGameDaysPassed() => (travelTimeHours * 2f) / 24f;
+
+    /// <summary>
+    /// One-way game days for this destination — used as D1 (first leg) and D_current
+    /// (final "go home" leg) in the raid chain formula.
+    /// </summary>
+    public float GetOneWayGameDays() => travelTimeHours / 24f;
 }

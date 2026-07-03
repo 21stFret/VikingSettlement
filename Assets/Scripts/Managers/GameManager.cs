@@ -104,6 +104,17 @@ public class GameManager : MonoBehaviour
         ShouldLoadSave = true;
         GameInitialized = false;
 
+        // The autosave is a single shared file — it isn't per-slot. Its slot number is
+        // embedded in the save data itself, so recover it here rather than leaving
+        // CurrentSlot at its stale/default value (B2: previously left CurrentSlot at 0,
+        // silently breaking QuickSave and auto-save resumption for the rest of the session).
+        if (SaveManager.Instance != null)
+        {
+            int slot = SaveManager.Instance.GetAutosaveInfo().slotNumber;
+            CurrentSlot = slot;
+            SaveManager.Instance.SetCurrentSlot(slot);
+        }
+
         Debug.Log($"Loading autosave (slot {CurrentSlot})");
         LoadScene(gameSceneName);
     }
