@@ -225,6 +225,9 @@ public abstract class CharacterAI : MonoBehaviour
         CurrentSlotHost = null;
     }
 
+    /// <summary>Keeps the claimed slot's compass direction in sync with live position, same cadence as FaceTowards.</summary>
+    public void RefreshEngagementSlot() => CurrentSlotHost?.UpdateSlotAngle(Controller);
+
     // ── Spatial AI helpers ──────────────────────────────────────────────────────────
 
     public void RefreshNearbyFighters()

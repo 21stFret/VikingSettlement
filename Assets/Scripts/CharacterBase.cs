@@ -684,6 +684,11 @@ public class CharacterBase : MonoBehaviour
         }
     }
 
+    /// <summary>Fired when ApplyStun starts a stun window — AI subscribes to force a CombatStunnedState.</summary>
+    public event Action<float> OnStunned;
+
+    public bool IsStunned { get; private set; }
+
     /// <summary>
     /// Stun the character for duration seconds — used by parry and Heavy Strike.
     /// Prevents movement and attacks for the duration.
@@ -695,6 +700,7 @@ public class CharacterBase : MonoBehaviour
 
     private IEnumerator StunCoroutine(float duration)
     {
+        IsStunned = true;
         Immobilize();
         isBlocking = false;
         isParrying = false;
@@ -706,6 +712,8 @@ public class CharacterBase : MonoBehaviour
         if (animator != null)
             animator.SetBool("Stunned", true);
 
+        OnStunned?.Invoke(duration);
+
         yield return new WaitForSeconds(duration);
 
         if (stunEffect != null)
@@ -715,6 +723,7 @@ public class CharacterBase : MonoBehaviour
             animator.SetBool("Stunned", false);
 
         Unimmobilize();
+        IsStunned = false;
     }
 
     #endregion
@@ -912,12 +921,7 @@ public class CharacterBase : MonoBehaviour
     private float CalculateBisectAngle(CharacterBase claimer)
     {
         if (_occupiedSlots.Count == 0)
-        {
-            var dir = claimer.lastPosition - lastPosition.normalized;
-            var facing = ComputeFacingDirection(dir);
-            var initAngle = 90 * (int)facing;
-            return initAngle;
-        }
+            return ComputeSlotAngleTo(claimer);
 
 
         var angles = _occupiedSlots.Select(s => s.angle).OrderBy(a => a).ToList();
@@ -940,6 +944,32 @@ public class CharacterBase : MonoBehaviour
         }
         var value = (gapStart + largestGap / 2f) % 360f;
         return value;
+    }
+
+    /// <summary>
+    /// Compass angle (unit-circle degrees, matching GetSlotWorldPos) from this character
+    /// towards claimer's live position, snapped to one of the 4 facing directions.
+    /// </summary>
+    private float ComputeSlotAngleTo(CharacterBase claimer)
+    {
+        Vector2 dir = (Vector2)claimer.transform.position - (Vector2)transform.position;
+        if (dir.sqrMagnitude < 0.0001f) dir = Vector2.right;
+
+        var facing = ComputeFacingDirection(dir.normalized);
+        var facingVector = FacingDirectionToVector(facing);
+        return Mathf.Atan2(facingVector.y, facingVector.x) * Mathf.Rad2Deg;
+    }
+
+    /// <summary>
+    /// Re-snaps a claimer's slot to whichever compass direction it's currently standing in,
+    /// so a locked-in pair stays on opposite sides as the fight drifts. Only applies to a
+    /// clean 1-on-1 (single occupant) — with 2+ attackers the bisected spread from
+    /// TryClaimSlot is left alone so they don't drift onto the same side of the target.
+    /// </summary>
+    public void UpdateSlotAngle(CharacterBase claimer)
+    {
+        if (_occupiedSlots.Count != 1 || _occupiedSlots[0].claimer != claimer) return;
+        _occupiedSlots[0] = (claimer, ComputeSlotAngleTo(claimer));
     }
 
     public Vector2 GetSlotWorldPos(CharacterBase claimer)

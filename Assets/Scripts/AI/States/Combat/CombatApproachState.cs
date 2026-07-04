@@ -38,6 +38,8 @@ public class CombatApproachState : AIStateBase
         var target = ai.CurrentTarget.GetComponent<CharacterBase>();
         if (target == null) return;
 
+        ai.RefreshEngagementSlot();
+
         // Slot was full at OnEnter — keep retrying without releasing
         if (ai.CurrentSlotHost == null)
         {

@@ -16,6 +16,7 @@ public class CombatAttackState : AIStateBase
 
         if (ai.CurrentTarget != null)
             ai.Controller.FaceTowards(ai.CurrentTarget.position);
+        ai.RefreshEngagementSlot();
 
         _onSelfRecovery = () => ai.ChangeState(new CombatRecoveringState());
         ai.Controller.OnAttackRecoveryEvent += _onSelfRecovery;

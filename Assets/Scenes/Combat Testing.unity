@@ -7048,7 +7048,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -46797,6 +46797,56 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &280060882
 Mesh:
   m_ObjectHideFlags: 0
@@ -67349,11 +67399,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.6229591
+      value: 2.3570404
       objectReference: {fileID: 0}
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.2804947
+      value: 5.390495
       objectReference: {fileID: 0}
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -67393,7 +67443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -88022,6 +88072,56 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!61 &733365719
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -89108,6 +89208,13 @@ MonoBehaviour:
   totalFishNeeded: 0
   hungerMode: 0
   minStarvationDamage: 5
+  woodPerVillagerPerDay: 0.5
+  coldMoralePenalty: 10
+  warmthMoraleBonus: 5
+  coldHealthDamage: 0
+  isSettlementWarm: 1
+  woodConsumedToday: 0
+  woodNeededToday: 0
 --- !u!114 &755482534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -89133,6 +89240,7 @@ MonoBehaviour:
   stoneIcon: {fileID: 21300000, guid: d4752bbcb4922324aa3b98640d34498a, type: 2}
   ironIcon: {fileID: 21300000, guid: 9ba53a2c96c27b44198cb0b80888ee14, type: 2}
   meadIcon: {fileID: 21300000, guid: d3b85c8927f107f4cb981e0b03ba145d, type: 2}
+  goldIcon: {fileID: 0}
   weaponsIcon: {fileID: 21300000, guid: fb4040088e87e3945abb21e948cdec36, type: 2}
   planksIcon: {fileID: 21300000, guid: fd7d2888bb01c2d46915d99537c2c574, type: 2}
 --- !u!114 &755482535
@@ -89168,37 +89276,16 @@ MonoBehaviour:
   daysPerSeason: 3
   currentSeason: 1
   daysUntilSeasonChange: 0
-  summerSunBeamsParent: {fileID: 763243730}
-  sunDustParticleSystem: {fileID: 297498475}
-  fireFliesParticleSystem: {fileID: 797612876}
-  summerSunBeams: []
-  sunBeamIntensity: 2
-  animateSunBeams: 1
-  sunBeamAnimationSpeed: 2
-  snowParticleSystem: {fileID: 0}
-  varySnowWithTimeOfDay: 1
-  baseSnowEmissionRate: 50
-  maxSnowEmissionRate: 100
-  transitionDuration: 5
-  isTransitioning: 0
-  transitionProgress: 0
   summerAmbientMultiplier: 0.3
   winterAmbientMultiplier: 0.8
+  winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
+  summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
   summerFarmMultiplier: 1
   summerFishingMultiplier: 0.8
   summerLumberMultiplier: 1
   winterFarmMultiplier: 0.25
   winterFishingMultiplier: 1.2
   winterLumberMultiplier: 0.6
-  woodPerVillagerPerDay: 0.5
-  coldMoralePenalty: 10
-  warmthMoraleBonus: 5
-  coldHealthDamage: 0
-  isSettlementWarm: 1
-  woodConsumedToday: 0
-  woodNeededToday: 0
-  winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
-  summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
   fireController: {fileID: 0}
 --- !u!114 &755482537
 MonoBehaviour:
@@ -109689,6 +109776,56 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -135647,6 +135784,56 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -198483,6 +198670,56 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224086,7 +224323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -243547,6 +243784,56 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!61 &1961049945
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -250905,11 +251192,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.45
+      value: 1.53
       objectReference: {fileID: 0}
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.23
+      value: 0.88
       objectReference: {fileID: 0}
     - target: {fileID: 5026197887127211489, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -250949,7 +251236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7332611294401207323, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -260057,10 +260344,6 @@ MonoBehaviour:
   isParrying: 0
   parryStunDuration: 1.5
   stunEffect: {fileID: 6310073355931264781}
-  useReactiveBlocking: 0
-  maxBlockCharges: 2
-  blockCooldown: 2
-  reactiveBlockDuration: 1.5
   rollSpeed: 6
   rollDuration: 0.35
   rollCooldown: 1
@@ -260206,6 +260489,7 @@ MonoBehaviour:
   xpReward: 25
   bloodEffect: {fileID: 8721656232232151858}
   spriteRenderer: {fileID: 0}
+  _controller: {fileID: 0}
   personalUI: {fileID: 0}
 --- !u!224 &1176998147793345777
 RectTransform:
@@ -260591,8 +260875,7 @@ MonoBehaviour:
   speechText: {fileID: 4814409752981608292}
   healthBar: {fileID: 9078686601730313517}
   healthFill: {fileID: 4302063913405777804}
-  moraleBar: {fileID: 0}
-  moraleFill: {fileID: 0}
+  blockCounters: []
 --- !u!4 &2447677634900610156
 Transform:
   m_ObjectHideFlags: 0
@@ -260680,6 +260963,56 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

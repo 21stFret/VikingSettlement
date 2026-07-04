@@ -19,14 +19,20 @@ public abstract class CombatAIBase : CharacterAI
     protected override void Start()
     {
         if (Controller != null)
+        {
             Controller.OnHitByAttacker += HandleHitBy;
+            Controller.OnStunned       += HandleStunned;
+        }
         base.Start();
     }
 
     private void OnDestroy()
     {
         if (Controller != null)
+        {
             Controller.OnHitByAttacker -= HandleHitBy;
+            Controller.OnStunned       -= HandleStunned;
+        }
     }
 
     // ── Unified target search tick ─────────────────────────────────────────────
@@ -125,6 +131,7 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is CombatPressureState        ||
                CurrentState is CombatAttackState          ||
                CurrentState is CombatBlockState           ||
+               CurrentState is CombatStunnedState         ||
                CurrentState is CombatRecoveringState      ||
                CurrentState is CombatRetreatState         ||
                CurrentState is VillagerPrepareCombatState;
@@ -180,4 +187,13 @@ public abstract class CombatAIBase : CharacterAI
         if (!IsInActiveCombatState())
             ChangeState(new CombatApproachState());
     }
+
+    // ── Stun ───────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called from CharacterBase.OnStunned (e.g. self-stun from swinging into a parry).
+    /// Overrides whatever combat state is active — a stunned fighter can't attack, block,
+    /// or dodge regardless of what the FSM was mid-way through doing.
+    /// </summary>
+    private void HandleStunned(float duration) => ChangeState(new CombatStunnedState(duration));
 }

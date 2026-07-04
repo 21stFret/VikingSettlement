@@ -517,7 +517,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VillagerAI
   searchInterval: 0.5
   CombatStyle: 0
-  CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
+  CombatStats: {fileID: 11400000, guid: 1d12b1657a094f24aa3fb72b4a7c45d4, type: 2}
   awarenessRadius: 8
   enterSeparationRange: 2
   exitSeparationRange: 3
@@ -649,10 +649,6 @@ MonoBehaviour:
   isParrying: 0
   parryStunDuration: 1.5
   stunEffect: {fileID: 4112550802723451918}
-  useReactiveBlocking: 1
-  maxBlockCharges: 1
-  blockCooldown: 2
-  reactiveBlockDuration: 0.5
   rollSpeed: 4
   rollDuration: 0.2
   rollCooldown: 1
@@ -6429,6 +6425,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 86a42f34180a38346b02a0bda63f79e1, type: 3}
   - {fileID: 21300000, guid: a684677a001dfdb42b13d036c22ac81f, type: 3}
   - {fileID: 21300000, guid: 4c53168398dcdaf46a6393ccafaf236e, type: 3}
+  blockCounterCanvas: {fileID: 0}
+  blockCounters: []
 --- !u!1 &7482109668657429947
 GameObject:
   m_ObjectHideFlags: 0

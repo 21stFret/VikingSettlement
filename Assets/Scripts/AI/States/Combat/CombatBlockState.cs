@@ -17,6 +17,7 @@ public class CombatBlockState : AIStateBase
 
         if (ai.CurrentTarget != null)
             ai.Controller.FaceTowards(ai.CurrentTarget.position);
+        ai.RefreshEngagementSlot();
 
         float ratio = ai.CombatStats != null ? ai.CombatStats.BlockVsDodgeRatio : 1f;
 

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c87b9db4b989ea74fad92ad6f4b7b449, type: 3}
-  m_Name: CombatFighterStats
+  m_Name: CombatFighterStats 1
   m_EditorClassIdentifier: Assembly-CSharp::CombatFighterStats
   AggressionLevel: 0.7
   BlockVsDodgeRatio: 1
   ThreatCircleDistance: 2.5
-  PressureTime: 2
-  RecoveryTime: 0.3
+  PressureTime: 1
+  RecoveryTime: 0.2
   RetreatDistance: 1
-  MaxBlockCharges: 1
-  BlockCooldown: 5
+  MaxBlockCharges: 2
+  BlockCooldown: 3

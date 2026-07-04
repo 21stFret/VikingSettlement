@@ -58,7 +58,7 @@ public class WeaponSwapper : MonoBehaviour
         {
             if (prefabs[i] == null)
             {
-                Debug.LogWarning($"WeaponSwapper: slot {i} prefab is not assigned.");
+                //Debug.LogWarning($"WeaponSwapper: slot {i} prefab is not assigned.");
                 continue;
             }
             slots[i] = Instantiate(prefabs[i].gameObject, hand);

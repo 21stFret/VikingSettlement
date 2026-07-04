@@ -56,6 +56,7 @@ public class CombatPressureState : AIStateBase
         }
 
         ai.Controller.FaceTowards(ai.CurrentTarget.position);
+        ai.RefreshEngagementSlot();
 
         if(ai.CurrentSlotHost != null)
         {
