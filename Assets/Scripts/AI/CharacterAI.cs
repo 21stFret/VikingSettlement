@@ -143,10 +143,6 @@ public abstract class CharacterAI : MonoBehaviour
     private Dictionary<(CharacterBase, CharacterBase), bool> _fightPushState
         = new Dictionary<(CharacterBase, CharacterBase), bool>();
 
-    public bool IsExtra =>
-        _currentTarget != null &&
-        _currentTarget.GetComponent<CharacterBase>()?.CurrentTarget != Controller;
-
     public bool showDebug= false;
 
     public struct NearbyFight
@@ -333,12 +329,34 @@ public abstract class CharacterAI : MonoBehaviour
 
     public void MoveWithSeparation(Vector2 destination)
     {
-        Vector2 toTarget = destination - (Vector2)transform.position;
+        Vector2 currentPos = transform.position;
+        Vector2 toTarget = destination - currentPos;
         if (toTarget.sqrMagnitude < 0.0001f) return;
         Vector2 dir      = toTarget.normalized;
         Vector2 sep      = CalculateSeparationForce();
+
+        // A straight line to an off-side slot (e.g. directly opposite another attacker) can cut
+        // right through the host's own body. Push away from the host if the path's closest
+        // approach comes inside its body radius, so the fighter arcs around instead of walking
+        // through it.
+        if (CurrentSlotHost != null)
+        {
+            Vector2 hostPos     = CurrentSlotHost.transform.position;
+            Vector2 toHost      = hostPos - currentPos;
+            float bodyRadius    = CurrentSlotHost.slotDistance * 0.6f;
+            float along         = Mathf.Clamp(Vector2.Dot(toHost, dir), 0f, toTarget.magnitude);
+            Vector2 closestPoint = currentPos + dir * along;
+            float clearance     = Vector2.Distance(closestPoint, hostPos);
+
+            if (clearance < bodyRadius && toHost.sqrMagnitude > 0.0001f)
+            {
+                Vector2 away = -toHost.normalized;
+                sep += away * ((bodyRadius - clearance) / bodyRadius) * 2f;
+            }
+        }
+
         Vector2 finalDir = sep.magnitude > 0.01f ? (dir + sep).normalized : dir;
-        Controller.MoveTo((Vector2)transform.position + finalDir * MoveSpeed * Time.deltaTime * 10f);
+        Controller.MoveTo(currentPos + finalDir * MoveSpeed * Time.deltaTime * 10f);
     }
 
     public bool IsSlotClearOfFights(Vector2 position)

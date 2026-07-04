@@ -931,11 +931,11 @@ public class CharacterBase : MonoBehaviour
         for (int i = 0; i < angles.Count; i++)
         {
             float next = angles[(i + 1) % angles.Count];
-            float gap = (next - angles[i] + 360f) % 360f;
-            if (angles.Count == 1)
-            {
-                gap = (next + 360f) % 360f;
-            }
+            // With a single occupant, (i+1)%count wraps back to the same element, so the
+            // generic formula collapses to a 0° gap. The whole circle is actually free
+            // (the lone occupant has zero angular width), so treat it as a full 360° gap —
+            // this places the second claimant directly opposite the first.
+            float gap = angles.Count == 1 ? 360f : (next - angles[i] + 360f) % 360f;
             if (gap > largestGap)
             {
                 largestGap = gap;

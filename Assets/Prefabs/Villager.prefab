@@ -521,7 +521,7 @@ MonoBehaviour:
   awarenessRadius: 8
   enterSeparationRange: 2
   exitSeparationRange: 3
-  commitRange: 0.4
+  commitRange: 0.2
   driftThreshold: 1.8
   attackInterval: 1
   retargetOnHit: 1

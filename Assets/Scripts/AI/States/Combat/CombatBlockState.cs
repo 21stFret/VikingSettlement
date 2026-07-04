@@ -58,7 +58,21 @@ public class CombatBlockState : AIStateBase
         }
     }
 
-    public override void OnUpdate(CharacterAI ai) { }
+    public override void OnUpdate(CharacterAI ai)
+    {
+        // Target may die mid-windup, switching straight to a death animation and never firing
+        // the StopAttacking event this state is waiting on — without this check the blocker
+        // would stay IsActionLocked forever, holding its engagement slot on the corpse.
+        if (ai.CurrentTarget == null || IsTargetDead(ai))
+        {
+            ai.ReleaseEngagementSlot();
+            ai.CurrentTarget = null;
+            if (ai is CombatAIBase combat)
+                combat.ForceTargetSearch();
+            else
+                ai.ChangeState(new VillagerIdleState());
+        }
+    }
 
     public override void OnExit(CharacterAI ai)
     {
@@ -70,4 +84,7 @@ public class CombatBlockState : AIStateBase
             listener.OnAttackRecovery -= _onTargetRecovery;
         _onTargetRecovery = null;
     }
+
+    private static bool IsTargetDead(CharacterAI ai) =>
+        ai.CurrentTarget?.GetComponent<TargetHealth>()?.IsDead() == true;
 }

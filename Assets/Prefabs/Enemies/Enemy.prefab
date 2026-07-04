@@ -10529,6 +10529,7 @@ MonoBehaviour:
   xpReward: 25
   bloodEffect: {fileID: 8721656231829694241}
   spriteRenderer: {fileID: 0}
+  _controller: {fileID: 0}
   personalUI: {fileID: 0}
 --- !u!114 &638782563166323672
 MonoBehaviour:
@@ -10601,7 +10602,7 @@ MonoBehaviour:
   awarenessRadius: 8
   enterSeparationRange: 2
   exitSeparationRange: 3
-  commitRange: 0.4
+  commitRange: 0.2
   driftThreshold: 1.8
   attackInterval: 1.5
   retargetOnHit: 1

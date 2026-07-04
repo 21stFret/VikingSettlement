@@ -10602,7 +10602,7 @@ MonoBehaviour:
   awarenessRadius: 8
   enterSeparationRange: 3
   exitSeparationRange: 4
-  commitRange: 0.4
+  commitRange: 0.2
   driftThreshold: 1.8
   attackInterval: 1.5
   retargetOnHit: 1

@@ -88,6 +88,11 @@ public class TargetHealth : MonoBehaviour
         // Release all attacker slots so orbiters can re-engage a new target
         GetComponent<CharacterBase>()?.ReleaseAllSlots();
 
+        // Release the slot this character itself was holding on its own target — its own
+        // Update loop stops running once dead, so without this the claim would otherwise only
+        // clear via OnDestroy, which can be long-delayed (corpse/removal effects) or never fire.
+        GetComponent<CharacterAI>()?.ReleaseEngagementSlot();
+
         // Fire death event
         OnDeath?.Invoke();
     }

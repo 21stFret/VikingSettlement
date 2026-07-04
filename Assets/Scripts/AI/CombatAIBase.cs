@@ -48,42 +48,32 @@ public abstract class CombatAIBase : CharacterAI
             CurrentTarget = null;
         }
 
-        // No target at all — find one fresh (must come before IsExtra check)
-        if (CurrentTarget == null)
-        {
-            var best = NearbyEnemies
-                .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
-                .OrderBy(e => e.OccupiedCount)
-                .ThenBy(e => Vector2.Distance(transform.position, e.transform.position))
-                .FirstOrDefault();
+        // Already holding a slot on someone — genuinely engaged, stay in that fight.
+        // (A target's CurrentTarget field can only name one attacker back, so it can't be used
+        // to detect "is this fighter already engaged" once 2+ attackers legitimately share a
+        // target — CurrentSlotHost is the real signal. See bug history 2026-07-04.)
+        if (CurrentSlotHost != null) return;
 
-            if (best != null)
-            {
-                CurrentTarget = best.transform;
-                OnTargetAcquired(best, true);
-            }
-            // No enemies found → stay idle
-            return;
-        }
+        // Not engaged yet — always pick whichever nearby valid target currently has the fewest
+        // combatants (0 if a completely free one exists). Re-evaluated every tick until a slot
+        // is secured, so an attacker approaching a target that fills up before it arrives will
+        // split off toward a less-contested one instead of piling on.
+        CharacterBase best = SelectBestTarget();
+        if (best == null) return; // no enemies found → stay idle
 
-        // Have a target — stay locked if we are the primary
-        if (!IsExtra) return;
-
-        // IsExtra — only switch for a completely free target
-        var freeTarget = NearbyEnemies
-            .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
-            .Where(e => e.OccupiedCount == 0)
-            .OrderBy(e => Vector2.Distance(transform.position, e.transform.position))
-            .FirstOrDefault();
-
-        if (freeTarget != null && freeTarget.transform != CurrentTarget)
+        bool targetChanged = best.transform != CurrentTarget;
+        if (targetChanged)
         {
             ReleaseEngagementSlot();
-            CurrentTarget = freeTarget.transform;
-            ChangeState(new CombatApproachState());
+            CurrentTarget = best.transform;
+            OnTargetAcquired(best, true);
         }
-
-        // No free target exists → stay on current target even if IsExtra
+        else if (!IsInActiveCombatState())
+        {
+            // Same target as before but not actively pursuing it (e.g. very first tick) —
+            // start the approach. Doesn't re-fire every tick once approach is under way.
+            OnTargetAcquired(best, false);
+        }
     }
 
     // ── Virtual hooks — override in subclasses for faction-specific behaviour ──
