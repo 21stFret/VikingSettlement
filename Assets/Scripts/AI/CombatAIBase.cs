@@ -48,6 +48,21 @@ public abstract class CombatAIBase : CharacterAI
             CurrentTarget = null;
         }
 
+        // Give up on a target that's fled beyond PursuitRange for too long — fires even while
+        // genuinely engaged (CurrentSlotHost != null), since that's exactly the case that would
+        // otherwise be stuck chasing a target that's no longer there.
+        if (CurrentTarget != null)
+        {
+            float dist = Vector2.Distance(transform.position, CurrentTarget.position);
+            if (dist <= PursuitRange)
+                LastTargetInRangeTime = Time.time;
+            else if (Time.time - LastTargetInRangeTime >= LoseTargetTime)
+            {
+                ReleaseEngagementSlot();
+                CurrentTarget = null;
+            }
+        }
+
         // Already holding a slot on someone — genuinely engaged, stay in that fight.
         // (A target's CurrentTarget field can only name one attacker back, so it can't be used
         // to detect "is this fighter already engaged" once 2+ attackers legitimately share a
@@ -127,6 +142,46 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is VillagerPrepareCombatState;
     }
 
+    // ── Reciprocal engagement ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Forces this fighter to immediately commit to <paramref name="attacker"/>, via the same
+    /// subclass-specific OnTargetAcquired hook the normal search tick uses — so villager
+    /// flee-checks, ranged positioning, and shield-prep still apply. Does NOT construct
+    /// CombatApproachState directly, since a low-HP villager should flee instead of engaging.
+    /// Releases any slot held on a previous target up front — OnTargetAcquired can route
+    /// somewhere other than CombatApproachState (flee, ranged positioning, shield-prep),
+    /// which wouldn't otherwise clear the stale claim on the old host.
+    /// </summary>
+    public void ForceReciprocalEngagement(CharacterBase attacker)
+    {
+        if (ShouldAbortSearchTick()) return;
+        ReleaseEngagementSlot();
+        CurrentTarget = attacker.transform;
+        OnTargetAcquired(attacker, true);
+    }
+
+    /// <summary>
+    /// Attempts to make <paramref name="target"/> commit back to <paramref name="me"/>, unless
+    /// target is already pursuing <paramref name="me"/>, or is the SOLE attacker engaged in its
+    /// current fight (peeling it off would leave that host completely unattended — the genuine
+    /// 1v1 case must never be hijacked). If target is one of several attackers piled onto the
+    /// same host (its current host's OccupiedCount > 1), it's expendable there and gets pulled
+    /// off onto this fresh, otherwise-unengaged opponent instead — e.g. the "extra" 2nd attacker
+    /// in a 2v1 should peel off onto a newly-arrived opponent rather than dog-piling forever.
+    /// No-op if target has no combat AI. Called whenever a fighter newly claims an engagement
+    /// slot, so a first-come pairing snaps into a mutual, non-crossed bond before other
+    /// independent search ticks can produce a scrambled configuration.
+    /// </summary>
+    internal static void TryForceReciprocalLock(CharacterBase me, CharacterBase target)
+    {
+        var targetAI = target.GetComponent<CombatAIBase>();
+        if (targetAI == null) return;
+        if (targetAI.CurrentTarget == me.transform) return;
+        if (targetAI.CurrentSlotHost != null && targetAI.CurrentSlotHost.OccupiedCount <= 1) return;
+        targetAI.ForceReciprocalEngagement(me);
+    }
+
     // ── Immediate retarget ─────────────────────────────────────────────────────
 
     /// <summary>
@@ -168,14 +223,20 @@ public abstract class CombatAIBase : CharacterAI
     {
         if (!retargetOnHit || attacker == null) return;
         if (Controller != null && attacker.characterFaction == Controller.characterFaction) return;
+        if (attacker.transform == CurrentTarget) return; // already fighting them, no-op
 
-        CharacterBase best = attacker;
-        if (best == null || best.transform == CurrentTarget) return;
-
+        // Always re-enter cleanly via the subclass hook, even if already mid-engagement —
+        // previously this only transitioned state when NOT already in active combat, which left
+        // an already-fighting character with CurrentTarget silently swapped but its FSM state
+        // (and animation listener) still watching the OLD target. Routing through
+        // OnTargetAcquired reuses the same CombatApproachState entry as a normal acquisition,
+        // which also attempts a reciprocal lock on the attacker (see TryForceReciprocalLock) —
+        // so getting hit cleanly hands aggro to whoever's actually landing hits, and the
+        // abandoned former target is freed (via ReleaseEngagementSlot) to re-engage someone else
+        // rather than being left as a stuck "extra".
         ReleaseEngagementSlot();
-        CurrentTarget = best.transform;
-        if (!IsInActiveCombatState())
-            ChangeState(new CombatApproachState());
+        CurrentTarget = attacker.transform;
+        OnTargetAcquired(attacker, true);
     }
 
     // ── Stun ───────────────────────────────────────────────────────────────────

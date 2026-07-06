@@ -36,7 +36,6 @@ public abstract class EnemyAIBase : CombatAIBase
     [SerializeField] private bool  pursueTarget   = true;
 
     [Header("Combat")]
-    [SerializeField] private bool useCombatSlots   = false;
     [SerializeField] private bool retargetOnNearer = false;
     // retargetOnHit lives on CharacterAI base — defaults false for enemies via inspector
 
@@ -46,7 +45,6 @@ public abstract class EnemyAIBase : CombatAIBase
     public override float     PursuitRange    => pursuitRange;
     public override float     LoseTargetTime  => loseTargetTime;
     public override bool      PursueTarget    => pursueTarget;
-    public override bool      UseCombatSlots  => useCombatSlots;
     public override LayerMask ObstacleLayer   => obstacleLayerMask;
     public          bool      RetargetOnNearer => retargetOnNearer;
 

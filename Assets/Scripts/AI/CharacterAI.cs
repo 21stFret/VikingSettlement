@@ -30,7 +30,6 @@ public abstract class CharacterAI : MonoBehaviour
     public virtual float      PursuitRange   => 15f;
     public virtual float      LoseTargetTime => 3f;
     public virtual bool       PursueTarget   => true;
-    public virtual bool       UseCombatSlots => false;
     public virtual LayerMask  ObstacleLayer  => default;
     public virtual bool CanFlee => false;
 
@@ -55,8 +54,14 @@ public abstract class CharacterAI : MonoBehaviour
             _currentTarget = value;
             if (Controller != null)
                 Controller.CurrentTarget = value?.GetComponent<CharacterBase>();
+            if (value != null) LastTargetInRangeTime = Time.time;
         }
     }
+
+    /// <summary>Timestamp of the last time CurrentTarget was within PursuitRange (or newly
+    /// assigned) — CombatAIBase.OnTargetSearchTick uses this to give up a target that's fled
+    /// beyond PursuitRange for longer than LoseTargetTime.</summary>
+    public float LastTargetInRangeTime { get; protected set; }
 
     // ── FSM ────────────────────────────────────────────────────────────────────────
 
@@ -136,24 +141,20 @@ public abstract class CharacterAI : MonoBehaviour
     public float enterSeparationRange = 3.0f;
     public float exitSeparationRange  = 4.0f;
     public float commitRange          = 0.4f;
-    public float driftThreshold       = 1.8f;
     public float attackInterval       = 1.5f;
+    public float separationForceStrength = 2f;
+    public float separationSmoothingRate = 8f; // higher = snappier, lower = smoother/laggier
     public bool  retargetOnHit        = true;
 
-    private Dictionary<(CharacterBase, CharacterBase), bool> _fightPushState
-        = new Dictionary<(CharacterBase, CharacterBase), bool>();
+    private Vector2 _smoothedSeparationForce;
+    private int     _lastSeparationForceFrame = -1;
 
     public bool showDebug= false;
 
     public struct NearbyFight
     {
-        public CharacterBase A;
-        public CharacterBase B;
+        public CharacterBase Host;
         public Vector2 Centre;
-        public (CharacterBase, CharacterBase) Key
-        {
-            get { return A.GetInstanceID() < B.GetInstanceID() ? (A, B) : (B, A); }
-        }
     }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────────────
@@ -202,7 +203,12 @@ public abstract class CharacterAI : MonoBehaviour
         //if(showDebug) print(this.name + "is leaving" + CurrentState?.ToString());
         CurrentState = newState;
         CurrentState.OnEnter(this);
-        if (showDebug) print(this.name + "has entered" + CurrentState.ToString());
+        // Log the state THIS call entered (newState), not the live CurrentState field — OnEnter
+        // can itself call ChangeState reentrantly (e.g. CombatBlockState bailing straight to
+        // CombatPressureState when the guard is broken), which reassigns CurrentState before
+        // this line runs. Reading the field here would misattribute the nested transition's
+        // target state to this (outer) call's log line.
+        if (showDebug) print(this.name + "has entered" + newState.ToString());
     }
 
     protected abstract AIStateBase GetInitialState();
@@ -245,15 +251,6 @@ public abstract class CharacterAI : MonoBehaviour
             else
                 NearbyAllies.Add(cb);
         }
-
-        // Purge stale fight-push entries where either fighter is destroyed or dead
-        var staleKeys = _fightPushState.Keys
-            .Where(k => k.Item1 == null || k.Item2 == null ||
-                        k.Item1.GetComponent<TargetHealth>()?.IsDead() == true ||
-                        k.Item2.GetComponent<TargetHealth>()?.IsDead() == true)
-            .ToList();
-        foreach (var key in staleKeys)
-            _fightPushState.Remove(key);
     }
 
     public int GetBlockCount()
@@ -266,39 +263,23 @@ public abstract class CharacterAI : MonoBehaviour
         var result = new List<NearbyFight>();
         if (Controller == null) return result;
 
-        var seen = new HashSet<CharacterBase>();
-        var myTargetCB = _currentTarget?.GetComponent<CharacterBase>();
-
         foreach (var fighter in NearbyFighters)
         {
-            if (seen.Contains(fighter)) continue;
+            if (fighter == null) continue;
+            if (fighter.OccupiedCount <= 0) continue;   // not hosting an active fight
+            if (fighter == Controller) continue;        // my own fight (I'm the host)
+            if (fighter == CurrentSlotHost) continue;    // my own fight (I'm an attacker in it)
 
-            CharacterBase theirTarget = fighter.CurrentTarget;
+            // Collapse mutual 1-1 duels (both sides host each other's slot) into one entry —
+            // otherwise a symmetric duel counts twice (once per host) and pushes observers
+            // twice as hard as a one-sided N-attacker fight.
+            var mutualPartner = fighter.CurrentTarget;
+            if (mutualPartner != null && mutualPartner.CurrentTarget == fighter
+                && mutualPartner.OccupiedCount > 0
+                && fighter.GetHashCode() > mutualPartner.GetHashCode())
+                continue;
 
-            bool fighterIsMyTarget     = fighter     == myTargetCB;
-            bool theirTargetIsMyTarget = theirTarget == myTargetCB;
-            bool fighterIsSelf         = fighter     == Controller;
-            bool theirTargetIsSelf     = theirTarget == Controller;
-
-            if (theirTarget == null)       continue;
-            if (fighterIsSelf)             continue;
-            if (theirTargetIsSelf)         continue;
-            if (fighterIsMyTarget)         continue;
-            if (theirTargetIsMyTarget)     continue;
-
-            if (theirTarget.CurrentTarget != fighter) continue;
-
-            float dist = Vector2.Distance(fighter.transform.position, theirTarget.transform.position);
-            if (dist > Controller.slotDistance * 2f) continue;
-
-            result.Add(new NearbyFight
-            {
-                A      = fighter,
-                B      = theirTarget,
-                Centre = ((Vector2)fighter.transform.position + (Vector2)theirTarget.transform.position) / 2f
-            });
-            seen.Add(fighter);
-            seen.Add(theirTarget);
+            result.Add(new NearbyFight { Host = fighter, Centre = fighter.transform.position });
         }
 
         return result;
@@ -307,72 +288,118 @@ public abstract class CharacterAI : MonoBehaviour
     public Vector2 CalculateSeparationForce(List<NearbyFight> fights)
     {
         Vector2 force = Vector2.zero;
+        Vector2 myPos = transform.position;
+
         foreach (var fight in fights)
         {
-            var key  = fight.Key;
-            float dist = Vector2.Distance(transform.position, fight.Centre);
+            Vector2 away = myPos - fight.Centre;
+            float dist = away.magnitude;
 
-            if (!_fightPushState.ContainsKey(key)) _fightPushState[key] = false;
-            if (!_fightPushState[key] && dist < enterSeparationRange)  _fightPushState[key] = true;
-            if (_fightPushState[key]  && dist > exitSeparationRange)   _fightPushState[key] = false;
+            // 1 at/inside enterSeparationRange, 0 at/beyond exitSeparationRange, linear between.
+            float t = Mathf.Clamp01((exitSeparationRange - dist) / (exitSeparationRange - enterSeparationRange));
+            if (t <= 0f) continue;
 
-            if (_fightPushState[key])
-            {
-                Vector2 away = (Vector2)transform.position - fight.Centre;
-                force += away.normalized * (1f / Mathf.Max(dist, 0.1f));
-            }
+            Vector2 dir = dist > 0.001f ? away / dist : Vector2.up;
+            force += dir * t * separationForceStrength;
         }
-        return force;
+
+        // Each fight's contribution is individually normalized (t in [0,1]) but nothing bounds
+        // the SUM across multiple simultaneous nearby fights — in a busy scene (3+ fights in
+        // range) this scaled linearly with fight count, well past the single-fight magnitude the
+        // rest of the code assumes (SeparationClearThreshold, the avoidOtherFights blend in
+        // MoveWithSeparation). Clamp the total so it stays bounded regardless of how many fights
+        // contribute, while still summing directions from multiple sources.
+        return Vector2.ClampMagnitude(force, separationForceStrength);
     }
 
-    public Vector2 CalculateSeparationForce() => CalculateSeparationForce(GetNearbyFightCentres());
+    /// <summary>
+    /// Smoothed version of the raw per-fight separation force. GetNearbyFightCentres() depends on
+    /// other live characters' positions who are themselves reacting the same way — an unsmoothed
+    /// instantaneous read here creates a live multi-agent feedback loop that swings the resulting
+    /// movement direction every frame (the "runs around in strange patterns" jitter seen once a
+    /// second nearby fight exists). Cached once per frame so both same-frame callers (the
+    /// clearOfFights gate in CombatApproachState and MoveWithSeparation below) see one value.
+    /// </summary>
+    public Vector2 CalculateSeparationForce()
+    {
+        if (Time.frameCount != _lastSeparationForceFrame)
+        {
+            Vector2 raw = CalculateSeparationForce(GetNearbyFightCentres());
+            float t = 1f - Mathf.Exp(-separationSmoothingRate * Time.deltaTime);
+            _smoothedSeparationForce = Vector2.Lerp(_smoothedSeparationForce, raw, t);
+            _lastSeparationForceFrame = Time.frameCount;
+        }
+        return _smoothedSeparationForce;
+    }
 
-    public void MoveWithSeparation(Vector2 destination)
+    /// <summary>
+    /// Moves toward destination in a straight line, with an optional inter-fight separation
+    /// push blended in. Host-body arc-around avoidance (not walking through your own target)
+    /// always applies regardless — that's about not clipping the fight you're heading INTO, not
+    /// about avoiding OTHER fights.
+    /// </summary>
+    /// <param name="avoidOtherFights">
+    /// Whether to blend in CalculateSeparationForce() (push away from OTHER nearby fights).
+    /// Should be false while still travelling to reach your own assigned slot — you're not yet
+    /// genuinely locked into that engagement, and blending in a push-away force while your
+    /// destination is already a specific, correct point just fights the straight-line pull and
+    /// produces jitter. Should be true only once you've actually arrived and a different fight's
+    /// zone is still crowding that position — that's the case where moving away makes sense.
+    /// </param>
+    public void MoveWithSeparation(Vector2 destination, bool avoidOtherFights = true)
     {
         Vector2 currentPos = transform.position;
-        Vector2 toTarget = destination - currentPos;
-        if (toTarget.sqrMagnitude < 0.0001f) return;
-        Vector2 dir      = toTarget.normalized;
-        Vector2 sep      = CalculateSeparationForce();
+        Vector2 toDestination = destination - currentPos;
+        if (toDestination.sqrMagnitude < 0.0001f) return;
 
-        // A straight line to an off-side slot (e.g. directly opposite another attacker) can cut
-        // right through the host's own body. Push away from the host if the path's closest
-        // approach comes inside its body radius, so the fighter arcs around instead of walking
-        // through it.
-        if (CurrentSlotHost != null)
-        {
-            Vector2 hostPos     = CurrentSlotHost.transform.position;
-            Vector2 toHost      = hostPos - currentPos;
-            float bodyRadius    = CurrentSlotHost.slotDistance * 0.6f;
-            float along         = Mathf.Clamp(Vector2.Dot(toHost, dir), 0f, toTarget.magnitude);
-            Vector2 closestPoint = currentPos + dir * along;
-            float clearance     = Vector2.Distance(closestPoint, hostPos);
+        Vector2 dir  = toDestination.normalized;
+        Vector2 push = Vector2.zero;
 
-            if (clearance < bodyRadius && toHost.sqrMagnitude > 0.0001f)
-            {
-                Vector2 away = -toHost.normalized;
-                sep += away * ((bodyRadius - clearance) / bodyRadius) * 2f;
-            }
-        }
+        if (avoidOtherFights)
+            push += CalculateSeparationForce();
 
-        Vector2 finalDir = sep.magnitude > 0.01f ? (dir + sep).normalized : dir;
+        push += CalculateHostBodyAvoidance(currentPos, dir, toDestination.magnitude);
+
+        // Guard on the vector we're actually about to normalize, not a proxy for it (e.g. push's
+        // own magnitude) — if push happens to land nearly opposite dir, dir+push can be a tiny,
+        // numerically noisy vector even when push itself isn't small. Normalizing that noise
+        // produces an unstable direction that changes wildly frame to frame; falling back to the
+        // plain destination direction is more predictable than steering by rounding error.
+        Vector2 combined = dir + push;
+        Vector2 finalDir = combined.sqrMagnitude > 0.0001f ? combined.normalized : dir;
+
         Controller.MoveTo(currentPos + finalDir * MoveSpeed * Time.deltaTime * 10f);
     }
 
-    public bool IsSlotClearOfFights(Vector2 position)
+    /// <summary>
+    /// A straight line to an off-side slot (e.g. directly opposite another attacker) can cut
+    /// right through the host's own body. Returns a push away from the host if the path's
+    /// closest approach comes inside its body radius, so the fighter arcs around instead of
+    /// walking through it — Vector2.zero if there's no host, or no clipping risk.
+    /// </summary>
+    private Vector2 CalculateHostBodyAvoidance(Vector2 currentPos, Vector2 dir, float distanceToDestination)
     {
-        foreach (var fight in GetNearbyFightCentres())
-        {
-            var key  = fight.Key;
-            float dist = Vector2.Distance(position, fight.Centre);
+        if (CurrentSlotHost == null) return Vector2.zero;
 
-            if (!_fightPushState.ContainsKey(key)) _fightPushState[key] = false;
-            if (!_fightPushState[key] && dist < enterSeparationRange)  _fightPushState[key] = true;
-            if (_fightPushState[key]  && dist > exitSeparationRange)   _fightPushState[key] = false;
+        Vector2 hostPos = CurrentSlotHost.transform.position;
+        Vector2 toHost  = hostPos - currentPos;
 
-            if (_fightPushState[key]) return false;
-        }
-        return true;
+        // How far along our travel direction the host sits. If it's behind us (<= 0), we're
+        // already moving away from it — no clipping risk, regardless of how close we currently
+        // happen to be standing to it.
+        float along = Vector2.Dot(toHost, dir);
+        if (along <= 0f) return Vector2.zero;
+
+        along = Mathf.Min(along, distanceToDestination); // don't project past the destination itself
+        Vector2 closestPoint = currentPos + dir * along;
+        float clearance = Vector2.Distance(closestPoint, hostPos);
+
+        float bodyRadius = CurrentSlotHost.slotDistance * 0.6f;
+        if (clearance >= bodyRadius) return Vector2.zero;
+        if (toHost.sqrMagnitude < 0.0001f) return Vector2.zero; // standing on the host — no defined direction to push
+
+        float strength = (bodyRadius - clearance) / bodyRadius; // 0..1, 1 = dead centre
+        return -toHost.normalized * strength * 2f;
     }
 
     public CharacterBase SelectBestTarget()
@@ -381,8 +408,26 @@ public abstract class CharacterAI : MonoBehaviour
         return NearbyEnemies
             .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
             .OrderBy(e => e.OccupiedCount)
+            .ThenBy(e => IsCommittedElsewhere(e) ? 1 : 0)
             .ThenBy(e => Vector2.Distance(transform.position, e.transform.position))
             .FirstOrDefault();
+    }
+
+    /// <summary>
+    /// True if <paramref name="candidate"/> is currently mid-attack-swing, mid-block, or stunned
+    /// — a sub-action that's actually locked, as opposed to just approaching/holding range.
+    /// Used as a SelectBestTarget tiebreak so a fresh attacker prefers picking off whichever
+    /// member of an existing pile-on is safe to redirect (still in CombatApproachState/
+    /// CombatPressureState) over one that's actively swinging — otherwise raw distance decided
+    /// this arbitrarily, and TryForceReciprocalLock could just as easily yank the "main" attacker
+    /// out of a committed action as the genuinely idle "extra".
+    /// </summary>
+    private static bool IsCommittedElsewhere(CharacterBase candidate)
+    {
+        var ai = candidate.GetComponent<CombatAIBase>();
+        return ai != null && (ai.CurrentState is CombatAttackState
+                            || ai.CurrentState is CombatBlockState
+                            || ai.CurrentState is CombatStunnedState);
     }
 
     // ── AI toggle ──────────────────────────────────────────────────────────────────

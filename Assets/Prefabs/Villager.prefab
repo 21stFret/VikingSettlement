@@ -522,8 +522,9 @@ MonoBehaviour:
   enterSeparationRange: 2
   exitSeparationRange: 3
   commitRange: 0.2
-  driftThreshold: 1.8
   attackInterval: 1
+  separationForceStrength: 2
+  separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 1
   idleTimeMin: 2
@@ -660,7 +661,7 @@ MonoBehaviour:
   characterFaction: 2
   facingDirection: 3
   CurrentTarget: {fileID: 0}
-  slotDistance: 0.8
+  slotDistance: 1
   MaxAttackers: 2
   knockbackForce: 5
   knockbackDuration: 0.1

@@ -10580,8 +10580,8 @@ MonoBehaviour:
   characterFaction: 2
   facingDirection: 3
   CurrentTarget: {fileID: 0}
-  slotDistance: 0.8
-  MaxAttackers: 4
+  slotDistance: 1
+  MaxAttackers: 2
   knockbackForce: 5
   knockbackDuration: 0.1
 --- !u!114 &6713158499483296687
@@ -10600,11 +10600,12 @@ MonoBehaviour:
   CombatStyle: 0
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
   awarenessRadius: 8
-  enterSeparationRange: 2
-  exitSeparationRange: 3
+  enterSeparationRange: 4
+  exitSeparationRange: 5
   commitRange: 0.2
-  driftThreshold: 1.8
   attackInterval: 1.5
+  separationForceStrength: 2
+  separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 1
   wanderRadius: 5
@@ -10616,7 +10617,6 @@ MonoBehaviour:
   pursuitRange: 8
   loseTargetTime: 1
   pursueTarget: 1
-  useCombatSlots: 0
   retargetOnNearer: 1
 --- !u!114 &102607621922122272
 MonoBehaviour:

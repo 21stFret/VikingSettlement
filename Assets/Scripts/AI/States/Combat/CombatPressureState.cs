@@ -65,8 +65,6 @@ public class CombatPressureState : AIStateBase
 
             if (distToSlot > ai.AttackRange)
             {
-                if (ai.CalculateSeparationForce().magnitude >= 0.1f) return;
-
                 ai.ChangeState(new CombatApproachState());
                 return;
             }

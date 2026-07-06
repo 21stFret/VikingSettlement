@@ -207,6 +207,15 @@ public class CombatTestManager : MonoBehaviour
         return centre + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * 5f;
     }
 
+    // ── Fights ─────────────────────────────────────────────────
+
+    public void PlaySetFight()
+    {
+        ClearEnemies();
+        SpawnEnemyType(0);
+        SpawnAllies();
+    }
+
     // ── On-screen debug panel ─────────────────────────────────────────────────
 
     private void OnGUI()
@@ -238,6 +247,9 @@ public class CombatTestManager : MonoBehaviour
 
         GUILayout.Space(4);
         if (GUILayout.Button("Clear Enemies")) ClearEnemies();
+
+        GUILayout.Space(4);
+        if (GUILayout.Button("Test Fight")) PlaySetFight();
 
         if (allyPrefab != null)
         {

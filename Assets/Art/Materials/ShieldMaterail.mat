@@ -7,12 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PickuPGlowing Mat
+  m_Name: ShieldMaterail
   m_Shader: {fileID: 4800000, guid: da8efd605fdd20949a21be6242000625, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLESINEGLOW_ON
+  - _ENABLEBLACKTINT_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_UV
   - _TEXTURELAYER1SHEETTOGGLE_ON
@@ -134,9 +134,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - PixelSnap: 0
     - _AddColorContrast: 0.5
     - _AddColorContrastToggle: 0
-    - _AddColorFade: 1
+    - _AddColorFade: 0.59
     - _AddColorMaskToggle: 0
     - _AddHueBrightness: 2
     - _AddHueContrast: 0.5
@@ -148,15 +149,15 @@ Material:
     - _AlphaTintFade: 1
     - _AlphaTintMinAlpha: 0.02
     - _BakedMaterial: 0
-    - _BlackTintFade: 1
-    - _BlackTintPower: 4
+    - _BlackTintFade: 0
+    - _BlackTintPower: 15
     - _Brightness: 1
     - _BurnEdgeNoiseFactor: 0.5
     - _BurnFade: 1
     - _BurnInsideContrast: 2
     - _BurnInsideNoiseFactor: 0.2
-    - _BurnRadius: 5
-    - _BurnSwirlFactor: 1
+    - _BurnRadius: 6.7
+    - _BurnSwirlFactor: 3.72
     - _BurnWidth: 0.1
     - _CamouflageAnimationToggle: 0
     - _CamouflageContrast: 1
@@ -194,7 +195,7 @@ Material:
     - _EnableAddColor: 0
     - _EnableAddHue: 0
     - _EnableAlphaTint: 0
-    - _EnableBlackTint: 0
+    - _EnableBlackTint: 1
     - _EnableBrightness: 0
     - _EnableBurn: 0
     - _EnableCamouflage: 0
@@ -236,7 +237,7 @@ Material:
     - _EnableShiftHue: 0
     - _EnableShifting: 0
     - _EnableShine: 0
-    - _EnableSineGlow: 1
+    - _EnableSineGlow: 0
     - _EnableSineMove: 0
     - _EnableSineRotate: 0
     - _EnableSineScale: 0
@@ -392,11 +393,11 @@ Material:
     - _ShineSpeed: 5
     - _ShineWidth: 0.1
     - _SineGlowContrast: 1
-    - _SineGlowFade: 0.39
+    - _SineGlowFade: 1
     - _SineGlowFrequency: 4
     - _SineGlowMaskToggle: 0
-    - _SineGlowMax: 1.2
-    - _SineGlowMin: 0.6
+    - _SineGlowMax: 1
+    - _SineGlowMin: 0
     - _SineMoveFade: 1
     - _SineRotateAngle: 15
     - _SineRotateFade: 1
@@ -492,15 +493,15 @@ Material:
     - _WorldTilingPixelsPerUnit: 100
     - _ZWrite: 0
     m_Colors:
-    - _AddColorColor: {r: 2.996078, g: 0, b: 0, a: 0}
+    - _AddColorColor: {r: 0.13413943, g: 0.33066928, b: 0.32445017, a: 0}
     - _AlphaTintColor: {r: 95.87451, g: 5.019608, b: 95.87451, a: 0}
-    - _BlackTintColor: {r: 0, g: 0, b: 1, a: 0}
+    - _BlackTintColor: {r: 0.44215024, g: 0.6337423, b: 0.6509434, a: 0}
     - _BurnEdgeColor: {r: 11.98431, g: 1.129412, b: 0.1254902, a: 0}
     - _BurnEdgeNoiseScale: {r: 0.3, g: 0.3, b: 0, a: 0}
     - _BurnInsideColor: {r: 0.75, g: 0.5625, b: 0.525, a: 0}
     - _BurnInsideNoiseColor: {r: 3084.047, g: 257.0039, b: 0, a: 0}
-    - _BurnInsideNoiseScale: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _BurnPosition: {r: 0, g: 5, b: 0, a: 0}
+    - _BurnInsideNoiseScale: {r: 0.5, g: 0.96, b: 0, a: 0}
+    - _BurnPosition: {r: 5.7, g: -2.44, b: 0, a: 0}
     - _BurnSwirlNoiseScale: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _CamouflageBaseColor: {r: 0.7450981, g: 0.7254902, b: 0.5686274, a: 0}
     - _CamouflageColorA: {r: 0.62745106, g: 0.5882353, b: 0.43137258, a: 0}
@@ -560,8 +561,8 @@ Material:
     - _InnerOutlineNoiseScale: {r: 4, g: 4, b: 0, a: 0}
     - _InnerOutlineNoiseSpeed: {r: 0, g: 0.1, b: 0, a: 0}
     - _InnerOutlineTextureSpeed: {r: 0.5, g: 0, b: 0, a: 0}
-    - _MetalColor: {r: 5.992157, g: 3.639216, b: 0.3137255, a: 1}
-    - _MetalHighlightColor: {r: 5.992157, g: 3.796078, b: 0.6588235, a: 1}
+    - _MetalColor: {r: 3.6027055, g: 4.1509433, b: 4.087965, a: 1}
+    - _MetalHighlightColor: {r: 6.5660377, g: 6.2344565, b: 5.760769, a: 1}
     - _MetalNoiseDistortion: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _MetalNoiseDistortionScale: {r: 0.2, g: 0.2, b: 0, a: 0}
     - _MetalNoiseDistortionSpeed: {r: -0.05, g: -0.05, b: 0, a: 0}
@@ -599,7 +600,7 @@ Material:
     - _ShiftingColorA: {r: 1.498039, g: 0, b: 0, a: 0}
     - _ShiftingColorB: {r: 1.498039, g: 0.7490196, b: 0, a: 0}
     - _ShineColor: {r: 11.98431, g: 11.98431, b: 11.98431, a: 0}
-    - _SineGlowColor: {r: 2.2540493, g: 1.0263022, b: 0, a: 0}
+    - _SineGlowColor: {r: 0, g: 2.007843, b: 2.996078, a: 0}
     - _SineMoveFrequency: {r: 1, g: 1, b: 0, a: 0}
     - _SineMoveOffset: {r: 0, g: 0.5, b: 0, a: 0}
     - _SineRotatePivot: {r: 0.5, g: 0.5, b: 0, a: 0}
