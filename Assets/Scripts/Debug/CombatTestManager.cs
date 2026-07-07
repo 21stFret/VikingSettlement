@@ -117,9 +117,9 @@ public class CombatTestManager : MonoBehaviour
             return;
         }
 
-        foreach (var point in allySpawnPoints)
+        for(int i = 0; i < _spawnCount; i++)
         {
-            var go = Instantiate(allyPrefab, point.position, Quaternion.identity);
+            var go = Instantiate(allyPrefab, allySpawnPoints[i].position, Quaternion.identity);
             var villager = go.GetComponent<Villager>();
             if (villager == null) continue;
 

@@ -1,8 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Brief cooldown after an attack. Returns to CombatPressureState or CombatRetreatState
-/// based on aggression level.
+/// Brief cooldown after an attack, then back to CombatPressureState.
 /// </summary>
 public class CombatRecoveringState : AIStateBase
 {
@@ -34,17 +33,7 @@ public class CombatRecoveringState : AIStateBase
         _timer += Time.deltaTime;
         if (_timer < _duration) return;
 
-        if (ai.CanFlee)
-        {
-            float aggression = ai.CombatStats != null ? ai.CombatStats.AggressionLevel : 0.5f;
-            ai.ChangeState(UnityEngine.Random.value > aggression
-                ? (AIStateBase)new CombatRetreatState()
-                : new CombatPressureState());
-        }
-        else
-        {
-            ai.ChangeState(new CombatPressureState());
-        }
+        ai.ChangeState(new CombatPressureState());
     }
 
     private static bool IsTargetDead(CharacterAI ai) =>

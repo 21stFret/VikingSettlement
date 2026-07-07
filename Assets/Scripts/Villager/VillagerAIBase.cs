@@ -9,10 +9,10 @@ using UnityEngine;
 /// - Combat slot management (angle-bisect spatial system)
 /// - Cutscene movement
 ///
-/// Concrete hierarchy:
+/// Every villager is a combatant — there is no non-combat job gate. Concrete hierarchy:
 ///   VillagerAIBase (this)
-///   ├── VillagerAI  — standard villager (job-based combat check)
-///   └── JarlAI      — always combat-ready, higher detection, lower flee threshold
+///   ├── VillagerAI  — standard villager
+///   └── JarlAI      — same combat behaviour, distinct only where JarlAI overrides apply
 /// </summary>
 [RequireComponent(typeof(VillagerController))]
 [RequireComponent(typeof(Villager))]
@@ -35,10 +35,7 @@ public abstract class VillagerAIBase : CombatAIBase
     [SerializeField] private float workRadius = 2f;
 
     [Header("Combat Behavior")]
-    [SerializeField] private float threatDetectionRange = 8f;
     [SerializeField] private float combatEngageRange = 6f;
-    [SerializeField] private float fleeHealthThreshold = 30f;
-    public LayerMask weaponsLayerMask;
     public LayerMask movementLayerMask;
 
     [Header("Raid Behavior")]
@@ -58,11 +55,8 @@ public abstract class VillagerAIBase : CombatAIBase
     public override float     WanderRadius   => wanderRadius;
     public override float     IdleTimeMin    => idleTimeMin;
     public override float     IdleTimeMax    => idleTimeMax;
-    public override float     DetectionRange => threatDetectionRange;
     public override float     AttackRange    => combatEngageRange;
     public override LayerMask ObstacleLayer  => VillagerController != null ? VillagerController.obstacleLayer : default;
-
-    public virtual float FleeHealthThreshold => fleeHealthThreshold;
 
     /// <summary>Block cooldown reduced by combat skill — higher skill = charges refill faster.</summary>
     protected override float GetEffectiveBlockCooldown()
@@ -134,14 +128,6 @@ public abstract class VillagerAIBase : CombatAIBase
         if (VillagerController.combatMoveSpeed > 0f)
             VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
 
-        float hp     = VillagerData.currentHealth / VillagerData.maxHealth * 100f;
-        float fleeAt = isInRaidMode ? 0f : FleeHealthThreshold;
-        if (hp < fleeAt)
-        {
-            ChangeState(new VillagerFleeState());
-            return;
-        }
-
         if (CombatStyle == CombatType.Ranged)
             ChangeState(new CombatRangedPositioningState());
         else if (VillagerController.shield == null && CanFindShield())
@@ -164,16 +150,6 @@ public abstract class VillagerAIBase : CombatAIBase
     // Raid-mode villagers don't inherit an ally's target — they follow the raid leader instead
     protected override CharacterBase InheritAllyTarget() =>
         isInRaidMode ? null : base.InheritAllyTarget();
-
-    // ── Combat job check ──────────────────────────────────────────────────────
-
-    public virtual bool IsCombatJob()
-    {
-        if (VillagerData == null) return false;
-        return VillagerData.currentJob == JobType.Warrior
-            || VillagerData.currentJob == JobType.Archer
-            || VillagerData.currentJob == JobType.Jarl;
-    }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -308,9 +284,6 @@ public abstract class VillagerAIBase : CombatAIBase
             Gizmos.color = Color.blue;
             Gizmos.DrawWireSphere(workLocation.position, workRadius);
         }
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, threatDetectionRange);
 
         Gizmos.color = Color.orange;
         Gizmos.DrawWireSphere(transform.position, combatEngageRange);

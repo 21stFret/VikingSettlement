@@ -90,12 +90,9 @@ public class EnemyController : CharacterBase
     {
         base.OnDrawGizmosSelected();
 
-        // Draw enemy-specific detection ranges
+        // Draw enemy-specific attack range
         if (enemyData != null)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, enemyData.GetDetectionRange());
-
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, enemyData.GetAttackRange());
         }

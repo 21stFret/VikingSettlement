@@ -3,10 +3,9 @@ using UnityEngine;
 
 /// <summary>
 /// Enemy-specific AI base. Extends CharacterAI with:
-/// - Enemy component stat delegation (detection/attack range, speeds)
-/// - Villager target finding (nearest from awareness list)
+/// - Enemy component stat delegation (attack range, speeds)
 /// - Ally awareness (same EnemyType pack behaviour)
-/// - Retargeting on hit and on nearer target appearing
+/// - Retargeting on hit (shared CombatAIBase.HandleHitBy — off by default via inspector)
 ///
 /// Concrete subclasses (EnemyAI, BerserkerAI, WolfAI, etc.) extend this and
 /// call GetInitialState() to define their starting state.
@@ -19,7 +18,6 @@ public abstract class EnemyAIBase : CombatAIBase
     public EnemyController EnemyController { get; private set; }
 
     // Delegate CharacterAI virtual config to Enemy component
-    public override float DetectionRange => EnemyData != null ? EnemyData.GetDetectionRange() : base.DetectionRange;
     public override float AttackRange    => EnemyData != null ? EnemyData.GetAttackRange()    : base.AttackRange;
     public override float MoveSpeed      => EnemyData != null ? EnemyData.moveSpeed           : base.MoveSpeed;
     public override float ChaseSpeed     => EnemyData != null ? EnemyData.chaseSpeed          : base.ChaseSpeed;
@@ -33,10 +31,6 @@ public abstract class EnemyAIBase : CombatAIBase
     [Header("Pursuit")]
     [SerializeField] private float pursuitRange   = 15f;
     [SerializeField] private float loseTargetTime = 3f;
-    [SerializeField] private bool  pursueTarget   = true;
-
-    [Header("Combat")]
-    [SerializeField] private bool retargetOnNearer = false;
     // retargetOnHit lives on CharacterAI base — defaults false for enemies via inspector
 
     public override float     WanderRadius    => wanderRadius;
@@ -44,9 +38,7 @@ public abstract class EnemyAIBase : CombatAIBase
     public override float     IdleTimeMax     => idleTimeMax;
     public override float     PursuitRange    => pursuitRange;
     public override float     LoseTargetTime  => loseTargetTime;
-    public override bool      PursueTarget    => pursueTarget;
     public override LayerMask ObstacleLayer   => obstacleLayerMask;
-    public          bool      RetargetOnNearer => retargetOnNearer;
 
     // ── Lifecycle ───────────────────────────────────────────────────────────────
 
@@ -101,9 +93,6 @@ public abstract class EnemyAIBase : CombatAIBase
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(SpawnPoint, WanderRadius);
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, DetectionRange);
 
         Gizmos.color = Color.orange;
         Gizmos.DrawWireSphere(transform.position, PursuitRange);

@@ -12,15 +12,14 @@ using UnityEngine;
 ///   CharacterAI  (this)
 ///   ├── EnemyAIBase   (enemy target finding, ally detection)
 ///   │   └── EnemyAI   (standard enemy — keeps class name for Unity prefab compat)
-///   └── VillagerAIBase (villager work/combat/raid logic)
-///       ├── VillagerAI  (standard villager — job-based combat)
-///       └── JarlAI      (always combat, higher detection, lower flee threshold)
+///   └── VillagerAIBase (villager work/combat/raid logic — every villager is a combatant)
+///       ├── VillagerAI  (standard villager)
+///       └── JarlAI      (same combat behaviour, distinct only where JarlAI overrides apply)
 /// </summary>
 public abstract class CharacterAI : MonoBehaviour
 {
     // ── Config — virtual so concrete subclasses can back them with [SerializeField] ──
 
-    public virtual float      DetectionRange => 8f;
     public virtual float      AttackRange    => 1.5f;
     public virtual float      MoveSpeed      => 2f;
     public virtual float      ChaseSpeed     => 3f;
@@ -29,9 +28,7 @@ public abstract class CharacterAI : MonoBehaviour
     public virtual float      IdleTimeMax    => 3f;
     public virtual float      PursuitRange   => 15f;
     public virtual float      LoseTargetTime => 3f;
-    public virtual bool       PursueTarget   => true;
     public virtual LayerMask  ObstacleLayer  => default;
-    public virtual bool CanFlee => false;
 
     [Header("AI Core")]
     [SerializeField] private float searchInterval = 0.5f;
@@ -141,7 +138,6 @@ public abstract class CharacterAI : MonoBehaviour
     public float enterSeparationRange = 3.0f;
     public float exitSeparationRange  = 4.0f;
     public float commitRange          = 0.4f;
-    public float attackInterval       = 1.5f;
     public float separationForceStrength = 2f;
     public float separationSmoothingRate = 8f; // higher = snappier, lower = smoother/laggier
     public bool  retargetOnHit        = true;
@@ -216,8 +212,6 @@ public abstract class CharacterAI : MonoBehaviour
     // ── Target search — override in subclasses ─────────────────────────────────────
 
     protected virtual void OnTargetSearchTick() { }
-
-    public virtual Transform FindNearestTarget() => null;
 
     // ── Engagement helpers ──────────────────────────────────────────────────────────
 
@@ -406,28 +400,26 @@ public abstract class CharacterAI : MonoBehaviour
     {
         if (NearbyEnemies.Count == 0) return null;
         return NearbyEnemies
-            .Where(e => e.GetComponent<TargetHealth>()?.IsDead() != true)
             .OrderBy(e => e.OccupiedCount)
-            .ThenBy(e => IsCommittedElsewhere(e) ? 1 : 0)
+            .ThenBy(e => IsEngaged(e) ? 1 : 0)
             .ThenBy(e => Vector2.Distance(transform.position, e.transform.position))
             .FirstOrDefault();
     }
 
     /// <summary>
-    /// True if <paramref name="candidate"/> is currently mid-attack-swing, mid-block, or stunned
-    /// — a sub-action that's actually locked, as opposed to just approaching/holding range.
-    /// Used as a SelectBestTarget tiebreak so a fresh attacker prefers picking off whichever
-    /// member of an existing pile-on is safe to redirect (still in CombatApproachState/
-    /// CombatPressureState) over one that's actively swinging — otherwise raw distance decided
-    /// this arbitrarily, and TryForceReciprocalLock could just as easily yank the "main" attacker
-    /// out of a committed action as the genuinely idle "extra".
+    /// True if candidate is in a genuine mutual engagement — it holds a slot on some host, and
+    /// that host's own CurrentTarget points back at candidate. At most one attacker per host can
+    /// ever be true (a host's CurrentTarget can only name one attacker back), so every other
+    /// attacker piled onto the same host is, by definition, the peelable "extra." Deliberately
+    /// keyed off CurrentTarget rather than slot occupancy: a villager routed through
+    /// VillagerPrepareCombatState (finding a shield before engaging) has CurrentTarget set via
+    /// ForceReciprocalEngagement immediately, before it's claimed a slot back — checking slot
+    /// occupancy here would transiently misreport it as an unengaged extra.
     /// </summary>
-    private static bool IsCommittedElsewhere(CharacterBase candidate)
+    private static bool IsEngaged(CharacterBase candidate)
     {
-        var ai = candidate.GetComponent<CombatAIBase>();
-        return ai != null && (ai.CurrentState is CombatAttackState
-                            || ai.CurrentState is CombatBlockState
-                            || ai.CurrentState is CombatStunnedState);
+        var ai = candidate.GetComponent<CharacterAI>();
+        return ai != null && ai.CurrentSlotHost != null && ai.CurrentSlotHost.CurrentTarget == candidate;
     }
 
     // ── AI toggle ──────────────────────────────────────────────────────────────────

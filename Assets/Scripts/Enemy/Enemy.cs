@@ -13,7 +13,6 @@ public class Enemy : TargetHealth
     public float damage = 10f;
     public float attackRange = 1.5f;
     public float attackCooldown = 1.5f;
-    public float detectionRange = 10f;
     public string weaponName="";
     public string shieldName="";
 
@@ -202,14 +201,6 @@ public class Enemy : TargetHealth
     public float GetAttackRange()
     {
         return attackRange;
-    }
-
-    /// <summary>
-    /// Get the detection range of this enemy
-    /// </summary>
-    public float GetDetectionRange()
-    {
-        return detectionRange;
     }
 
 }

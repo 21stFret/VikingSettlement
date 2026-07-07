@@ -138,7 +138,6 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is CombatBlockState           ||
                CurrentState is CombatStunnedState         ||
                CurrentState is CombatRecoveringState      ||
-               CurrentState is CombatRetreatState         ||
                CurrentState is VillagerPrepareCombatState;
     }
 
