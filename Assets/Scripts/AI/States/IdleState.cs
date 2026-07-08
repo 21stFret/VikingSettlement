@@ -10,6 +10,7 @@ public class IdleState : AIStateBase
         ai.Controller?.Stop();
         _timer    = 0f;
         _duration = Random.Range(ai.IdleTimeMin, ai.IdleTimeMax);
+        ai.Controller.FacingOverride = Vector2.zero;
     }
 
     public override void OnUpdate(CharacterAI ai)

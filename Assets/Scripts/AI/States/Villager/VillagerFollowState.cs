@@ -2,6 +2,11 @@ using UnityEngine;
 
 public class VillagerFollowState : AIStateBase
 {
+    public override void OnEnter(CharacterAI ai)
+    {
+        ai.Controller.FacingOverride = Vector2.zero;
+    }
+
     public override void OnUpdate(CharacterAI ai)
     {
         var v = (VillagerAIBase)ai;

@@ -760,9 +760,14 @@ public class CharacterBase : MonoBehaviour
             animator.SetFloat(LastMoveX, facing.x);
             animator.SetFloat(LastMoveY, facing.y);
 
+            if (FacingOverride != Vector2.zero)
+            {
+                return; // Don't update facing direction if override is zero
+            }
+
             if (facing.x != cachedMoveX && Math.Abs(facing.x) > 0.01f)
                 cachedMoveX = facing.x;
-
+  
             facingDirection = ComputeFacingDirection(facing);
 
             // Handle sprite flipping — locked while blocking so the shield always faces the attacker
@@ -821,6 +826,7 @@ public class CharacterBase : MonoBehaviour
             FlipSprite(left);
             cachedMoveX = left ? -1f : 1f;
         }
+        FacingOverride = dir;
     }
 
     private bool _isSprinting = false;

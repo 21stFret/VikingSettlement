@@ -20,11 +20,7 @@ public class CombatApproachState : AIStateBase
         if (target == null) return;
 
         ai.AnimListener?.SetTarget(target);
-
-        // CombatAIBase.OnCurrentTargetChanged already claimed (or attempted to claim) the slot
-        // the instant this target was committed to — CurrentSlotHost is already resolved here,
-        // or correctly still null because the target was at capacity (OnUpdate's orbit-and-retry
-        // loop below is the fallback for that case).
+        ai.Controller.FaceTowards(ai.CurrentTarget.position);
     }
 
     public override void OnUpdate(CharacterAI ai)

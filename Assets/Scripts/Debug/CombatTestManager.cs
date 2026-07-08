@@ -212,6 +212,7 @@ public class CombatTestManager : MonoBehaviour
     public void PlaySetFight()
     {
         ClearEnemies();
+        ClearAllies();
         SpawnEnemyType(0);
         SpawnAllies();
     }
