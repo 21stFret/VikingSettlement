@@ -1055,13 +1055,16 @@ public class CharacterBase : MonoBehaviour
     public void ReleaseSlot(CharacterBase claimer)
     {
         _occupiedSlots.RemoveAll(s => s.claimer == claimer);
-        FightManager.Instance.NotifyOccupancyChanged(this);
+        // Guarded (unlike TryClaimSlot's call above): reachable from CharacterAI.OnDestroy() via
+        // ReleaseEngagementSlot(), which can fire during scene teardown after FightManager's own
+        // OnDestroy already ran — Instance would otherwise spin up a fresh one mid-unload.
+        if (FightManager.Exists) FightManager.Instance.NotifyOccupancyChanged(this);
     }
 
     public void ReleaseAllSlots()
     {
         _occupiedSlots.Clear();
-        FightManager.Instance.NotifyOccupancyChanged(this);
+        if (FightManager.Exists) FightManager.Instance.NotifyOccupancyChanged(this);
     }
 
     #endregion

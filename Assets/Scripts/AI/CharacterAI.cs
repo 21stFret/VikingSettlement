@@ -206,6 +206,7 @@ public abstract class CharacterAI : MonoBehaviour
     private void OnDestroy()
     {
         ReleaseEngagementSlot();
+        if (FightManager.Exists) FightManager.Instance.RemoveFighterView(this);
     }
 
     // ── FSM ────────────────────────────────────────────────────────────────────────
@@ -275,64 +276,13 @@ public abstract class CharacterAI : MonoBehaviour
         return _blockCharges;
     }
 
-    private readonly List<NearbyFight> _cachedNearbyFights = new List<NearbyFight>();
-    private int _lastNearbyFightsFrame = -1;
-
     /// <summary>
-    /// Nearby active fights (excluding my own), rebuilt at most once per frame no matter how many
-    /// times/callers ask this frame — e.g. multiple attackers piled onto the same target commonly
-    /// all query that target's CharacterAI in the same frame (see CombatApproachState's give-way
-    /// check), which previously recomputed the same list redundantly for each one.
-    ///
-    /// Sources candidates from FightManager.Instance.ActiveHosts (only characters actually
-    /// hosting a fight right now) rather than scanning every nearby character — most nearby
-    /// characters aren't fighting at all, so this skips re-filtering the whole crowd down to the
-    /// handful that matter, every call.
+    /// Nearby active fights (excluding my own). Pure lookup — all the actual filtering (dedup,
+    /// distance, own-fight exclusions) lives in FightManager now, memoized per-observer-per-frame
+    /// there, so multiple callers asking about the same or different observers in the same frame
+    /// don't redo shared work (see FightManager.GetFightsFor / GetCanonicalFights).
     /// </summary>
-    public List<NearbyFight> GetNearbyFightCentres()
-    {
-        if (Time.frameCount == _lastNearbyFightsFrame) return _cachedNearbyFights;
-        _lastNearbyFightsFrame = Time.frameCount;
-        _cachedNearbyFights.Clear();
-        if (Controller == null) return _cachedNearbyFights;
-
-        foreach (var fighter in FightManager.Instance.ActiveHosts)
-        {
-            if (fighter == null) continue;
-            if (fighter.OccupiedCount <= 0) continue;   // stale entry mid-transition; skip defensively
-            if (fighter == Controller) continue;        // my own fight (I'm the host)
-            if (fighter == CurrentSlotHost) continue;    // my own fight (I'm an attacker in it)
-            if (fighter.characterFaction == Controller.characterFaction) continue;
-
-            float dist = Vector2.Distance(transform.position, fighter.transform.position);
-            if (dist > awarenessRadius) continue;
-
-            // fighter is also attacking MY host (e.g. it's the reciprocally-engaged main
-            // attacker while I'm the "extra" piling onto the same target) — that's the same
-            // fight I'm joining, not a rival one. Without this, a fresh attacker approaching a
-            // pile-on target perceives its own host's other attacker as a separate fight to
-            // avoid — and since that attacker stands right next to the shared host, the
-            // avoidance zone covers the very slot position it's trying to reach, producing a
-            // tug-of-war that only resolves once CombatApproachState's ForceCommitTimeout forces
-            // it to commit anyway.
-            if (CurrentSlotHost != null
-                && fighter.AI?.CurrentSlotHost == CurrentSlotHost)
-                continue;
-
-            // Collapse mutual 1-1 duels (both sides host each other's slot) into one entry —
-            // otherwise a symmetric duel counts twice (once per host) and pushes observers
-            // twice as hard as a one-sided N-attacker fight.
-            var mutualPartner = fighter.CurrentTarget;
-            if (mutualPartner != null && mutualPartner.CurrentTarget == fighter
-                && mutualPartner.OccupiedCount > 0
-                && fighter.GetHashCode() > mutualPartner.GetHashCode())
-                continue;
-
-            _cachedNearbyFights.Add(new NearbyFight { Host = fighter, Centre = fighter.transform.position });
-        }
-
-        return _cachedNearbyFights;
-    }
+    public List<NearbyFight> GetNearbyFightCentres() => FightManager.Instance.GetFightsFor(this);
 
     public Vector2 CalculateSeparationForce(List<NearbyFight> fights)
     {
