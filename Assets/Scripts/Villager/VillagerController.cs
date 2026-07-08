@@ -95,6 +95,7 @@ public class VillagerController : CharacterBase
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
 
             target.TakeDamage(damage, weapon);
+            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }
     }

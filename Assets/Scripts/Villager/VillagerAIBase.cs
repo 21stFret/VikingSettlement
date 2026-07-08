@@ -128,9 +128,7 @@ public abstract class VillagerAIBase : CombatAIBase
         if (VillagerController.combatMoveSpeed > 0f)
             VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
 
-        if (CombatStyle == CombatType.Ranged)
-            ChangeState(new CombatRangedPositioningState());
-        else if (VillagerController.shield == null && CanFindShield())
+        if (VillagerController.shield == null && CanFindShield())
             ChangeState(new VillagerPrepareCombatState());
         else
             ChangeState(new CombatApproachState());

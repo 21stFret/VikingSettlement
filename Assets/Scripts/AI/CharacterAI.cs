@@ -34,7 +34,6 @@ public abstract class CharacterAI : MonoBehaviour
     [SerializeField] private float searchInterval = 0.5f;
 
     [Header("Reactive Combat")]
-    [SerializeField] public CombatType CombatStyle = CombatType.Melee;
     [SerializeField] public CombatFighterStats CombatStats;
 
     // ── References ─────────────────────────────────────────────────────────────────
@@ -49,9 +48,14 @@ public abstract class CharacterAI : MonoBehaviour
         set
         {
             _currentTarget = value;
+            CharacterBase targetCB = value?.GetComponent<CharacterBase>();
             if (Controller != null)
-                Controller.CurrentTarget = value?.GetComponent<CharacterBase>();
-            if (value != null) LastTargetInRangeTime = Time.time;
+                Controller.CurrentTarget = targetCB;
+            if (value != null)
+            {
+                LastTargetInRangeTime = Time.time;
+                if (targetCB != null) OnCurrentTargetChanged(targetCB);
+            }
         }
     }
 
@@ -59,6 +63,14 @@ public abstract class CharacterAI : MonoBehaviour
     /// assigned) — CombatAIBase.OnTargetSearchTick uses this to give up a target that's fled
     /// beyond PursuitRange for longer than LoseTargetTime.</summary>
     public float LastTargetInRangeTime { get; protected set; }
+
+    /// <summary>
+    /// Fired whenever CurrentTarget is assigned a non-null value. Overridden by CombatAIBase to
+    /// claim an engagement slot immediately at the moment of commitment, rather than deferring it
+    /// to whichever FSM state target acquisition happens to route through — see
+    /// CombatAIBase.OnCurrentTargetChanged for why that timing gap mattered.
+    /// </summary>
+    protected virtual void OnCurrentTargetChanged(CharacterBase newTarget) { }
 
     // ── FSM ────────────────────────────────────────────────────────────────────────
 
@@ -138,9 +150,16 @@ public abstract class CharacterAI : MonoBehaviour
     public float enterSeparationRange = 3.0f;
     public float exitSeparationRange  = 4.0f;
     public float commitRange          = 0.4f;
+    public float holdTimeout          = 2.0f;
     public float separationForceStrength = 2f;
     public float separationSmoothingRate = 8f; // higher = snappier, lower = smoother/laggier
     public bool  retargetOnHit        = true;
+
+    /// <summary>Shared "clear of other fights" magnitude threshold for CalculateSeparationForce().</summary>
+    public const float SeparationClearThreshold = 0.15f;
+
+    /// <summary>True if this fighter's own separation push from OTHER nearby fights is negligible.</summary>
+    public bool NoNearbyFights => CalculateSeparationForce().magnitude < SeparationClearThreshold;
 
     private Vector2 _smoothedSeparationForce;
     private int     _lastSeparationForceFrame = -1;
@@ -224,6 +243,13 @@ public abstract class CharacterAI : MonoBehaviour
     /// <summary>Keeps the claimed slot's compass direction in sync with live position, same cadence as FaceTowards.</summary>
     public void RefreshEngagementSlot() => CurrentSlotHost?.UpdateSlotAngle(Controller);
 
+    /// <summary>
+    /// True if I'm in a genuine mutual engagement with my current host — it holds my slot AND its
+    /// own CurrentTarget points back at me. False if I merely hold a slot as an unengaged "extra"
+    /// piled onto a host that's committed to fighting someone else (or I hold no slot at all).
+    /// </summary>
+    public bool IsEngagedWithHost => CurrentSlotHost != null && CurrentSlotHost.CurrentTarget == Controller;
+
     // ── Spatial AI helpers ──────────────────────────────────────────────────────────
 
     public void RefreshNearbyFighters()
@@ -264,6 +290,18 @@ public abstract class CharacterAI : MonoBehaviour
             if (fighter == Controller) continue;        // my own fight (I'm the host)
             if (fighter == CurrentSlotHost) continue;    // my own fight (I'm an attacker in it)
 
+            // fighter is also attacking MY host (e.g. it's the reciprocally-engaged main
+            // attacker while I'm the "extra" piling onto the same target) — that's the same
+            // fight I'm joining, not a rival one. Without this, a fresh attacker approaching a
+            // pile-on target perceives its own host's other attacker as a separate fight to
+            // avoid — and since that attacker stands right next to the shared host, the
+            // avoidance zone covers the very slot position it's trying to reach, producing a
+            // tug-of-war that only resolves once CombatApproachState's ForceCommitTimeout forces
+            // it to commit anyway.
+            if (CurrentSlotHost != null
+                && fighter.GetComponent<CharacterAI>()?.CurrentSlotHost == CurrentSlotHost)
+                continue;
+
             // Collapse mutual 1-1 duels (both sides host each other's slot) into one entry —
             // otherwise a symmetric duel counts twice (once per host) and pushes observers
             // twice as hard as a one-sided N-attacker fight.
@@ -289,10 +327,20 @@ public abstract class CharacterAI : MonoBehaviour
             Vector2 away = myPos - fight.Centre;
             float dist = away.magnitude;
 
-            // 1 at/inside enterSeparationRange, 0 at/beyond exitSeparationRange, linear between.
-            float t = Mathf.Clamp01((exitSeparationRange - dist) / (exitSeparationRange - enterSeparationRange));
-            if (t <= 0f) continue;
+            // dist is measured to the host's raw position, but that fight's actual attacker can
+            // stand up to fight.Host.slotDistance closer to me — its slot angle live-tracks its
+            // real bearing (ComputeSlotAngleTo/UpdateSlotAngle, CharacterBase.cs), so it can point
+            // anywhere, including straight at us. Buffer the comparison so enter/exitSeparationRange
+            // measure the true gap between fight footprints, not raw centres. Only the OTHER
+            // fight's radius is subtracted: myPos already fully reflects my own slot offset (it's
+            // my real position, not an estimate), so there's nothing to buffer on my own side
+            // without double-counting.
+            float effectiveDist = dist - fight.Host.slotDistance;
 
+            // 1 at/inside enterSeparationRange, 0 at/beyond exitSeparationRange, linear between.
+            float t = Mathf.Clamp01((exitSeparationRange - effectiveDist) / (exitSeparationRange - enterSeparationRange));
+            if (t <= 0f) continue;
+            print($"{this.name} is pushing away from {fight.Host.name} with t={t:F2} (effectiveDist={effectiveDist:F2})");
             Vector2 dir = dist > 0.001f ? away / dist : Vector2.up;
             force += dir * t * separationForceStrength;
         }
@@ -386,14 +434,27 @@ public abstract class CharacterAI : MonoBehaviour
 
         along = Mathf.Min(along, distanceToDestination); // don't project past the destination itself
         Vector2 closestPoint = currentPos + dir * along;
-        float clearance = Vector2.Distance(closestPoint, hostPos);
+        Vector2 fromHostToPath = closestPoint - hostPos;
+        float clearance = fromHostToPath.magnitude;
 
         float bodyRadius = CurrentSlotHost.slotDistance * 0.6f;
         if (clearance >= bodyRadius) return Vector2.zero;
-        if (toHost.sqrMagnitude < 0.0001f) return Vector2.zero; // standing on the host — no defined direction to push
+
+        // Push perpendicular to the travel direction (away from the host, sideways), not along
+        // -toHost — when a slot sits on the far side of the host (common once 2+ attackers are
+        // bisected around it), the straight path runs nearly through the host's centre, so
+        // toHost ends up nearly parallel to dir. Pushing -toHost in that case fights dir almost
+        // head-on and can overpower it, reversing the fighter's travel entirely instead of
+        // arcing it sideways around the body — read as "runs away/opposite direction before
+        // joining the fight." fromHostToPath is, by construction, the perpendicular offset from
+        // the host to the closest point on the path, so pushing along it can only ever deflect
+        // dir sideways, never cancel or reverse it.
+        Vector2 lateral = clearance > 0.0001f
+            ? fromHostToPath.normalized
+            : new Vector2(-dir.y, dir.x); // path runs dead through centre — pick an arbitrary side
 
         float strength = (bodyRadius - clearance) / bodyRadius; // 0..1, 1 = dead centre
-        return -toHost.normalized * strength * 2f;
+        return lateral * strength * 2f;
     }
 
     public CharacterBase SelectBestTarget()
@@ -417,10 +478,7 @@ public abstract class CharacterAI : MonoBehaviour
     /// occupancy here would transiently misreport it as an unengaged extra.
     /// </summary>
     private static bool IsEngaged(CharacterBase candidate)
-    {
-        var ai = candidate.GetComponent<CharacterAI>();
-        return ai != null && ai.CurrentSlotHost != null && ai.CurrentSlotHost.CurrentTarget == candidate;
-    }
+        => candidate.GetComponent<CharacterAI>()?.IsEngagedWithHost ?? false;
 
     // ── AI toggle ──────────────────────────────────────────────────────────────────
 

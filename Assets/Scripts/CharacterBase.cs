@@ -4,11 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// Numeric values pinned explicitly: Player/Neutral keep their original values so any already-
+// serialized prefab/scene data referencing them doesn't silently shift meaning. Enemy (1) is
+// retired — no code depends on that generic bucket anymore, each hostile clan gets its own
+// value instead, so e.g. Raider and Draugr are no longer forced into the same faction.
 public enum Faction
 {
-    Player,
-    Enemy,
-    Neutral
+    Player  = 0,
+    Neutral = 2,
+    Draugr  = 3,
+    Raider1 = 4,
+    Raider2 = 5
 }
 
 public enum FacingDirection { East, West, North, South }
@@ -41,6 +47,10 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected Vector2 swordAttackOffset = new Vector2(1f, 0f);
     [SerializeField] protected Vector2 spearAttackOffset = new Vector2(1f, 0f);
     [SerializeField] protected Vector2 axeAttackOffset = new Vector2(1f, 0f);
+    [Tooltip("Extra vertical bias applied only when facing North/South. The sprite is anchored at the character's feet, so the lift needed to line up an up/down swing isn't the same amount as the offset.y lift used for East/West — this is a separately tunable value rather than reusing offset.x/y.")]
+    [SerializeField] protected float swordVerticalAttackOffset = 0f;
+    [SerializeField] protected float spearVerticalAttackOffset = 0f;
+    [SerializeField] protected float axeVerticalAttackOffset = 0f;
     [SerializeField] public LayerMask attackTargetLayer;
     [SerializeField] public float attackDelay = 1f;
     public bool friendlyFire = false;
@@ -102,7 +112,9 @@ public class CharacterBase : MonoBehaviour
     public ItemAttachment itemAttachment;
     [HideInInspector]
     public Vector2 lastAttackerPosition;
-    [HideInInspector]
+    // No longer hidden: previously always force-overwritten in code (VillagerController →
+    // Player, EnemyController → Enemy) so exposing it was pointless — now that enemies keep
+    // whatever faction is set here, it needs to be an actual Inspector-editable choice.
     public Faction characterFaction = Faction.Neutral;
     [HideInInspector]
     public FacingDirection facingDirection = FacingDirection.South;
@@ -487,19 +499,19 @@ public class CharacterBase : MonoBehaviour
                 {
                     SafeSetTrigger(SwordAttackTrigger);
                     currentHitboxSize   = RotateSizeToFacing(swordAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset);
+                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Spear)
                 {
                     SafeSetTrigger(SpearAttackTrigger);
                     currentHitboxSize   = RotateSizeToFacing(spearAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(spearAttackOffset);
+                    currentHitboxOffset = RotateOffsetToFacing(spearAttackOffset, spearVerticalAttackOffset);
                 }
                 else if (weapon.itemType == EquipableItem.ItemType.Axe)
                 {
                     SafeSetTrigger(AxeAttackTrigger);
                     currentHitboxSize   = RotateSizeToFacing(axeAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(axeAttackOffset);
+                    currentHitboxOffset = RotateOffsetToFacing(axeAttackOffset, axeVerticalAttackOffset);
                 }
             }
         }
@@ -873,13 +885,18 @@ public class CharacterBase : MonoBehaviour
         _                     => Vector2.down
     };
 
-    // Rotate a +East offset to match whatever direction we're currently facing.
-    protected Vector2 RotateOffsetToFacing(Vector2 eastOffset) => facingDirection switch
+    // Rotate a +East offset to match whatever direction we're currently facing. eastOffset.y is
+    // a vertical lift used only for East/West (the sprite is feet-anchored, so the swing needs
+    // lifting off the ground) — it doesn't carry over to North/South, since there the reach
+    // itself (eastOffset.x) already becomes the vertical component. verticalFacingOffset is the
+    // separate North/South equivalent: a fixed vertical bias (also compensating for the
+    // feet-anchored origin) that the up/down reach is then added to or subtracted from.
+    protected Vector2 RotateOffsetToFacing(Vector2 eastOffset, float verticalFacingOffset = 0f) => facingDirection switch
     {
         FacingDirection.East  => eastOffset,
         FacingDirection.West  => new Vector2(-eastOffset.x,  eastOffset.y),
-        FacingDirection.North => new Vector2(0,  eastOffset.x),
-        FacingDirection.South => new Vector2(0, -eastOffset.x),
+        FacingDirection.North => new Vector2(0,  verticalFacingOffset + eastOffset.x),
+        FacingDirection.South => new Vector2(0,  verticalFacingOffset - eastOffset.x),
         _                     => eastOffset
     };
 
@@ -909,10 +926,13 @@ public class CharacterBase : MonoBehaviour
         float newAngle = CalculateBisectAngle(claimer);
         _occupiedSlots.Add((claimer, newAngle));
 
-        Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
-            $"at angle:{newAngle:F1}° " +
-            $"existing slots:{_occupiedSlots.Count - 1} " +
-            $"existing angles:{string.Join(", ", _occupiedSlots.Where(s => s.claimer != claimer).Select(s => s.angle.ToString("F1")))}");
+        if (claimer.GetComponent<CharacterAI>()?.showDebug == true)
+        {
+            Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
+                $"at angle:{newAngle:F1}° " +
+                $"existing slots:{_occupiedSlots.Count - 1} " +
+                $"existing angles:{string.Join(", ", _occupiedSlots.Where(s => s.claimer != claimer).Select(s => s.angle.ToString("F1")))}");
+        }
 
         slotWorldPos = GetSlotWorldPos(claimer);
         return true;
@@ -961,15 +981,48 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Re-snaps a claimer's slot to whichever compass direction it's currently standing in,
-    /// so a locked-in pair stays on opposite sides as the fight drifts. Only applies to a
-    /// clean 1-on-1 (single occupant) — with 2+ attackers the bisected spread from
-    /// TryClaimSlot is left alone so they don't drift onto the same side of the target.
+    /// Re-snaps every occupied slot's angle to the current live layout. The "main" occupant —
+    /// whichever claimer this host is itself reciprocally engaged with (CurrentTarget) — always
+    /// tracks its own live bearing from this host, same as the old single-occupant case. Every
+    /// other ("extra") occupant is then defined purely as a fixed angular offset from that live
+    /// main angle, evenly spread around the remaining arc, so extras follow along for free as
+    /// the engaged pair circles each other, instead of each one independently re-bisecting
+    /// against the others' shifting positions (which is what made live-tracking multi-occupant
+    /// angles unstable before — see bug-history "second attacker's bisect angle" fix).
     /// </summary>
     public void UpdateSlotAngle(CharacterBase claimer)
     {
-        if (_occupiedSlots.Count != 1 || _occupiedSlots[0].claimer != claimer) return;
-        _occupiedSlots[0] = (claimer, ComputeSlotAngleTo(claimer));
+        if (_occupiedSlots.Count == 0) return;
+        if (!_occupiedSlots.Any(s => s.claimer == claimer)) return;
+
+        int mainIndex = _occupiedSlots.FindIndex(s => s.claimer == CurrentTarget);
+
+        if (mainIndex < 0)
+        {
+            // No reciprocally-engaged occupant to anchor extras to yet. A lone occupant still
+            // tracks its own live bearing regardless (matches the old single-occupant case);
+            // with 2+ occupants and no main yet, leave claim-time angles alone until one of them
+            // becomes genuinely engaged.
+            if (_occupiedSlots.Count == 1)
+                _occupiedSlots[0] = (_occupiedSlots[0].claimer, ComputeSlotAngleTo(_occupiedSlots[0].claimer));
+            return;
+        }
+
+        float mainAngle = ComputeSlotAngleTo(_occupiedSlots[mainIndex].claimer);
+        _occupiedSlots[mainIndex] = (_occupiedSlots[mainIndex].claimer, mainAngle);
+
+        int extraCount = _occupiedSlots.Count - 1;
+        if (extraCount <= 0) return;
+
+        float step = 360f / (extraCount + 1);
+        int slot = 0;
+        for (int i = 0; i < _occupiedSlots.Count; i++)
+        {
+            if (i == mainIndex) continue;
+            slot++;
+            float angle = (mainAngle + step * slot) % 360f;
+            _occupiedSlots[i] = (_occupiedSlots[i].claimer, angle);
+        }
     }
 
     public Vector2 GetSlotWorldPos(CharacterBase claimer)

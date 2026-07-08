@@ -80,6 +80,16 @@ public class EnemyPersonalUI : MonoBehaviour
 
     public void UpdateBlockCounter(int amount)
     {
+        // No shield equipped means no charges can actually be spent blocking — don't show pips
+        // implying a block is available.
+        bool hasShield = _ai != null && _ai.Controller != null && _ai.Controller.shield != null;
+        int activeCount = hasShield ? amount : 0;
+
+        for (int i = 0; i < blockCounters.Length; i++)
+            blockCounters[i].SetActive(i < activeCount);
+
+        if (!hasShield) return;
+
         if (_canvasGroup.alpha == 0)
         {
             _canvasGroup.DOFade(1, 0.2f).OnComplete(() =>
@@ -87,9 +97,6 @@ public class EnemyPersonalUI : MonoBehaviour
                 _canvasGroup.alpha = 1;
             });
         }
-
-        for (int i = 0; i < blockCounters.Length; i++)
-            blockCounters[i].SetActive(i < amount);
 
         StopAllCoroutines();
         StartCoroutine(HideAfterDelay(3f));

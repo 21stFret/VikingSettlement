@@ -62,8 +62,7 @@ public class CombatPressureState : AIStateBase
         {
             Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
             float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
-
-            if (distToSlot > ai.AttackRange)
+            if (distToSlot > ai.AttackRange || !ai.NoNearbyFights || !ai.CurrentTarget.GetComponent<CharacterAI>().NoNearbyFights)
             {
                 ai.ChangeState(new CombatApproachState());
                 return;

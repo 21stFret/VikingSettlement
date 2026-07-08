@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// Enemy-specific AI base. Extends CharacterAI with:
 /// - Enemy component stat delegation (attack range, speeds)
-/// - Ally awareness (same EnemyType pack behaviour)
 /// - Retargeting on hit (shared CombatAIBase.HandleHitBy — off by default via inspector)
 ///
 /// Concrete subclasses (EnemyAI, BerserkerAI, WolfAI, etc.) extend this and
@@ -59,25 +57,6 @@ public abstract class EnemyAIBase : CombatAIBase
     // ── CombatAIBase hook overrides ────────────────────────────────────────────
 
     protected override AIStateBase GetDefaultIdleState() => new IdleState();
-
-    // ── Ally awareness ─────────────────────────────────────────────────────────
-
-    public List<EnemyAIBase> GetNearbyAlliesOfSameType(float radius)
-    {
-        var result = new List<EnemyAIBase>();
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, radius);
-
-        foreach (var h in hits)
-        {
-            if (h.gameObject == gameObject) continue;
-            var ai    = h.GetComponent<EnemyAIBase>();
-            var enemy = h.GetComponent<Enemy>();
-            if (ai != null && enemy != null && enemy.enemyType == EnemyData.enemyType)
-                result.Add(ai);
-        }
-
-        return result;
-    }
 
     // ── External API ──────────────────────────────────────────────────────────
 

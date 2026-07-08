@@ -7,7 +7,6 @@ public class Enemy : TargetHealth
 {
     [Header("Enemy Info")]
     public string enemyName = "Raider";
-    public EnemyType enemyType = EnemyType.Raider;
 
     [Header("Combat Stats")]
     public float damage = 10f;
@@ -38,16 +37,6 @@ public class Enemy : TargetHealth
     public EnemyPersonalUI personalUI;
 
     private bool initalized;
-
-    public enum EnemyType
-    {
-        Raider,
-        Warrior,
-        Berserker,
-        Archer,
-        Wolf,
-        Draugr
-    }
 
     public override void Awake()
     {

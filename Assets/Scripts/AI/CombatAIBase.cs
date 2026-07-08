@@ -63,11 +63,37 @@ public abstract class CombatAIBase : CharacterAI
             }
         }
 
-        // Already holding a slot on someone — genuinely engaged, stay in that fight.
-        // (A target's CurrentTarget field can only name one attacker back, so it can't be used
-        // to detect "is this fighter already engaged" once 2+ attackers legitimately share a
-        // target — CurrentSlotHost is the real signal. See bug history 2026-07-04.)
-        if (CurrentSlotHost != null) return;
+        // Cutscene / shield-wall / immature life stage — no new acquisition or peel-off below,
+        // but the unconditional cleanup above still ran, so a stale dead/fled target doesn't sit
+        // uncleaned for the whole duration of the abort condition.
+        if (ShouldAbortSearchTick()) return;
+
+        if (CurrentSlotHost != null)
+        {
+            // Genuinely engaged main (host.CurrentTarget points back at me) — never voluntarily
+            // leaves a real duel.
+            if (IsEngagedWithHost) return;
+
+            // I'm an unengaged "extra" piled onto this host — keep looking for a genuinely free
+            // enemy to pair off into a fresh 1v1. SelectBestTarget already sorts by OccupiedCount
+            // ascending, so any 0-occupant enemy in range surfaces first. Also require the
+            // candidate isn't itself already the engaged main somewhere else — "nobody is
+            // attacking it yet" doesn't mean attacking it would actually produce a 1v1 (it could
+            // already be mid-duel elsewhere), which would just bounce this extra from one
+            // unrequited pile-on to another every tick instead of landing a real pair.
+            CharacterBase bestTarget = SelectBestTarget();
+            if (bestTarget != null && bestTarget.OccupiedCount == 0)
+            {
+                var bestAI = bestTarget.GetComponent<CharacterAI>();
+                if (bestAI == null || !bestAI.IsEngagedWithHost)
+                {
+                    ReleaseEngagementSlot();
+                    CurrentTarget = bestTarget.transform;
+                    OnTargetAcquired(bestTarget, true);
+                }
+            }
+            return;
+        }
 
         // Not engaged yet — always pick whichever nearby valid target currently has the fewest
         // combatants (0 if a completely free one exists). Re-evaluated every tick until a slot
@@ -141,16 +167,40 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is VillagerPrepareCombatState;
     }
 
+    // ── Commitment ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Claims an engagement slot the instant a target is committed to, rather than waiting for
+    /// whichever FSM state target acquisition routes into (CombatApproachState, or for a
+    /// villager needing a shield first, VillagerPrepareCombatState) to get around to it. Without
+    /// this, CurrentSlotHost lagged CurrentTarget for a real window — long enough that a fighter
+    /// who had already committed to a target, but hadn't yet physically claimed a slot on it,
+    /// looked indistinguishable from a totally free agent to TryForceReciprocalLock's "don't
+    /// hijack a committed fighter" guard (which only checks CurrentSlotHost). Only remaining
+    /// case where CurrentSlotHost can still lag CurrentTarget is the target being genuinely at
+    /// MaxAttackers capacity — CombatApproachState.OnUpdate's orbit-and-retry loop is still the
+    /// correct fallback for that, and is left unchanged.
+    /// </summary>
+    protected override void OnCurrentTargetChanged(CharacterBase newTarget)
+    {
+        if (Controller == null || newTarget == CurrentSlotHost) return;
+        ReleaseEngagementSlot();
+        if (newTarget.TryClaimSlot(Controller, out _))
+        {
+            CurrentSlotHost = newTarget;
+            TryForceReciprocalLock(Controller, newTarget);
+        }
+    }
+
     // ── Reciprocal engagement ───────────────────────────────────────────────────
 
     /// <summary>
     /// Forces this fighter to immediately commit to <paramref name="attacker"/>, via the same
     /// subclass-specific OnTargetAcquired hook the normal search tick uses — so villager
-    /// flee-checks, ranged positioning, and shield-prep still apply. Does NOT construct
-    /// CombatApproachState directly, since a low-HP villager should flee instead of engaging.
-    /// Releases any slot held on a previous target up front — OnTargetAcquired can route
-    /// somewhere other than CombatApproachState (flee, ranged positioning, shield-prep),
-    /// which wouldn't otherwise clear the stale claim on the old host.
+    /// shield-prep routing still applies. Does NOT construct CombatApproachState directly, since
+    /// OnTargetAcquired may need to route through VillagerPrepareCombatState first. The explicit
+    /// ReleaseEngagementSlot below is belt-and-suspenders — CurrentTarget's setter already
+    /// releases any stale slot via OnCurrentTargetChanged once assigned below.
     /// </summary>
     public void ForceReciprocalEngagement(CharacterBase attacker)
     {
@@ -162,12 +212,14 @@ public abstract class CombatAIBase : CharacterAI
 
     /// <summary>
     /// Attempts to make <paramref name="target"/> commit back to <paramref name="me"/>, unless
-    /// target is already pursuing <paramref name="me"/>, or is the SOLE attacker engaged in its
-    /// current fight (peeling it off would leave that host completely unattended — the genuine
-    /// 1v1 case must never be hijacked). If target is one of several attackers piled onto the
-    /// same host (its current host's OccupiedCount > 1), it's expendable there and gets pulled
-    /// off onto this fresh, otherwise-unengaged opponent instead — e.g. the "extra" 2nd attacker
-    /// in a 2v1 should peel off onto a newly-arrived opponent rather than dog-piling forever.
+    /// target is already pursuing <paramref name="me"/>, or target is itself the genuinely
+    /// engaged ("main") attacker on its current host — i.e. that host's own CurrentTarget
+    /// points back at target (see IsEngaged/CharacterAI.cs). Only a non-reciprocally-engaged
+    /// "extra" piled onto the same host is expendable and gets pulled off onto this fresh,
+    /// otherwise-unengaged opponent instead — e.g. the "extra" 2nd attacker in a 2v1 should peel
+    /// off onto a newly-arrived opponent rather than dog-piling forever, but the genuinely
+    /// engaged 1st attacker must never be hijacked away from its host, no matter how many other
+    /// attackers are also piled onto that same host.
     /// No-op if target has no combat AI. Called whenever a fighter newly claims an engagement
     /// slot, so a first-come pairing snaps into a mutual, non-crossed bond before other
     /// independent search ticks can produce a scrambled configuration.
@@ -177,7 +229,7 @@ public abstract class CombatAIBase : CharacterAI
         var targetAI = target.GetComponent<CombatAIBase>();
         if (targetAI == null) return;
         if (targetAI.CurrentTarget == me.transform) return;
-        if (targetAI.CurrentSlotHost != null && targetAI.CurrentSlotHost.OccupiedCount <= 1) return;
+        if (targetAI.IsEngagedWithHost) return;
         targetAI.ForceReciprocalEngagement(me);
     }
 
@@ -223,6 +275,15 @@ public abstract class CombatAIBase : CharacterAI
         if (!retargetOnHit || attacker == null) return;
         if (Controller != null && attacker.characterFaction == Controller.characterFaction) return;
         if (attacker.transform == CurrentTarget) return; // already fighting them, no-op
+
+        // A killing blow calls TakeDamage() (which can synchronously run Die() and release all
+        // engagement slots) BEFORE the attacker's OnHitTarget goes on to call OnHitBy on us —
+        // so a corpse can still reach this point on the very hit that killed it. Without this
+        // guard it would claim a brand-new slot on its own killer that nothing ever releases
+        // until this GameObject is eventually destroyed (immediate for most enemies via a
+        // delayed Destroy, but indefinite for a villager corpse with no Valkyrie configured) —
+        // seen as a stray slot gizmo pointing at a dead/destroyed claimer.
+        if (IsTargetDead(transform)) return;
 
         // Always re-enter cleanly via the subclass hook, even if already mid-engagement —
         // previously this only transitioned state when NOT already in active combat, which left

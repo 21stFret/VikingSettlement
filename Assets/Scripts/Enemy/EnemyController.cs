@@ -11,7 +11,9 @@ public class EnemyController : CharacterBase
     {
         base.Awake();
         enemyData = GetComponent<Enemy>();
-        characterFaction = Faction.Enemy;
+        // characterFaction is no longer forced here — each enemy prefab/instance is configured
+        // with its own clan (Draugr, Raider1, Raider2, ...) via the Inspector, so different
+        // hostile factions actually fight each other instead of all being lumped into one.
     }
 
     public override float GetAttackDelay()

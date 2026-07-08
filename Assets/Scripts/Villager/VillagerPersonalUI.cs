@@ -161,8 +161,15 @@ public class VillagerPersonalUI : MonoBehaviour
     {
         if (blockCounterCanvas == null || blockCounters == null) return;
 
+        // No shield equipped means no charges can actually be spent blocking — don't show pips
+        // implying a block is available.
+        bool hasShield = _ai != null && _ai.Controller != null && _ai.Controller.shield != null;
+        int activeCount = hasShield ? amount : 0;
+
         for (int i = 0; i < blockCounters.Length; i++)
-            blockCounters[i].SetActive(i < amount);
+            blockCounters[i].SetActive(i < activeCount);
+
+        if (!hasShield) return;
 
         if (blockCounterCoroutine != null)
         {
