@@ -10513,7 +10513,7 @@ MonoBehaviour:
   enterSeparationRange: 1.5
   exitSeparationRange: 2
   commitRange: 0.3
-  holdTimeout: 2
+  holdTimeout: 4
   separationForceStrength: 2
   separationSmoothingRate: 8
   retargetOnHit: 1

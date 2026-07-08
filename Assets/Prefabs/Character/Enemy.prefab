@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5494381292033902503}
   - component: {fileID: 8721656231829694241}
   - component: {fileID: 2053358803852743780}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BloodEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4904,7 +4904,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8629510596125913496}
   - component: {fileID: 4422074882647182026}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4994,7 +4994,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4233878493513126470}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Right Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5027,7 +5027,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4849225661351066656}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttachmentPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5061,7 +5061,7 @@ GameObject:
   - component: {fileID: 2021542366624006759}
   - component: {fileID: 6310073354455067422}
   - component: {fileID: 7871557351654527374}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: StunEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10072,7 +10072,7 @@ GameObject:
   - component: {fileID: 2027993289581287110}
   - component: {fileID: 3368906820991663530}
   - component: {fileID: 3571301791085971615}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: stick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10180,7 +10180,7 @@ GameObject:
   - component: {fileID: 2175301367842138911}
   - component: {fileID: 1905987735086670736}
   - component: {fileID: 3994955867993937104}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10297,7 +10297,7 @@ GameObject:
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
   - component: {fileID: -8460084806155039212}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10510,12 +10510,12 @@ MonoBehaviour:
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
   awarenessRadius: 8
-  enterSeparationRange: 1.5
-  exitSeparationRange: 2
-  commitRange: 0.3
-  holdTimeout: 2
-  separationForceStrength: 2
-  separationSmoothingRate: 8
+  enterSeparationRange: 1
+  exitSeparationRange: 1.5
+  commitRange: 0.5
+  holdTimeout: 4
+  separationForceStrength: 5
+  separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 1
   wanderRadius: 5
@@ -10613,7 +10613,7 @@ MonoBehaviour:
   characterFaction: 3
   facingDirection: 3
   CurrentTarget: {fileID: 0}
-  slotDistance: 1
+  slotDistance: 1.2
   MaxAttackers: 2
   knockbackForce: 5
   knockbackDuration: 0.1
@@ -10695,7 +10695,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3263248016914883596}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Left Hand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10766,9 +10766,21 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 505514042365219867, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 728731297633163358, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_Name
       value: EnemyCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 728731297633163358, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839520981381194381, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2994140505325197177, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_Pivot.x
@@ -10870,6 +10882,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5636838905364542686, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5996407369226518732, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6130315010602670905, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7558316328734638400, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7888555397659984602, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8180102262151729032, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10888,13 +10924,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4849225661351066656}
     m_Modifications:
+    - target: {fileID: 3484329347039138587, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_Name
       value: SwordAttch
       objectReference: {fileID: 0}
     - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6907052990093020469, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7362057055399559573, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_LocalPosition.x

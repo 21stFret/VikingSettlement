@@ -355,7 +355,7 @@ public abstract class CharacterAI : MonoBehaviour
     /// produces jitter. Should be true only once you've actually arrived and a different fight's
     /// zone is still crowding that position — that's the case where moving away makes sense.
     /// </param>
-    public void MoveWithSeparation(Vector2 destination, bool avoidOtherFights = true)
+    public void MoveWithSeparation(Vector2 destination, bool avoidOtherFights = true, bool holding = false, bool ignoreTarget = false)
     {
         Vector2 currentPos = transform.position;
         Vector2 toDestination = destination - currentPos;
@@ -377,7 +377,18 @@ public abstract class CharacterAI : MonoBehaviour
         Vector2 combined = dir + push;
         Vector2 finalDir = combined.sqrMagnitude > 0.0001f ? combined.normalized : dir;
 
-        Controller.MoveTo(currentPos + finalDir * MoveSpeed * Time.deltaTime * 10f);
+        if(ignoreTarget)
+        {
+            finalDir = push;
+        }
+
+        float finalMoveSpeed = MoveSpeed;
+        if (holding)
+        {
+            finalMoveSpeed *= 0.1f;
+        }
+
+        Controller.MoveTo(currentPos + finalDir * finalMoveSpeed * Time.deltaTime * 10f);
     }
 
     /// <summary>

@@ -81,7 +81,7 @@ public class CombatApproachState : AIStateBase
                     if (_holdTimer < ai.holdTimeout)
                     {
                         if (_giveWayDir.sqrMagnitude > 0.0001f)
-                            ai.MoveWithSeparation((Vector2)ai.transform.position + _giveWayDir, avoidOtherFights: false);
+                            ai.MoveWithSeparation((Vector2)ai.transform.position + _giveWayDir, avoidOtherFights: false, holding: true, ignoreTarget: true);
                         else
                             ai.Controller.Stop();
                         return;
