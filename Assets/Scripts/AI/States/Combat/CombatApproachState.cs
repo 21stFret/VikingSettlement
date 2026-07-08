@@ -117,9 +117,14 @@ public class CombatApproachState : AIStateBase
         }
 
         // Arrived at the slot — we ARE locked in now. Commit unless a DIFFERENT fight's zone
-        // still overlaps this exact position; ForceCommitTimeout guarantees this doesn't stall
-        // forever if the slot itself sits inside another fight's zone.
-        if (ai.NoNearbyFights)
+        // still overlaps this exact position, or the target itself is still being shoved around
+        // by one; ForceCommitTimeout guarantees this doesn't stall forever if the slot itself
+        // sits inside another fight's zone. Must mirror CombatPressureState's stay condition
+        // (self AND target clear) — otherwise Approach hands off to Pressure the instant it's
+        // self-clear, Pressure immediately bounces back over the target-crowded half of its own
+        // check, and the two states ping-pong every frame for as long as the target stays near
+        // any other fight's zone.
+        if (ai.NoNearbyFights && ai.CurrentTarget.GetComponent<CharacterAI>().NoNearbyFights)
         {
             ai.Controller.Stop();
             ai.ChangeState(new CombatPressureState());

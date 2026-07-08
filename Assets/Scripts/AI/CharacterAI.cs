@@ -289,6 +289,7 @@ public abstract class CharacterAI : MonoBehaviour
             if (fighter.OccupiedCount <= 0) continue;   // not hosting an active fight
             if (fighter == Controller) continue;        // my own fight (I'm the host)
             if (fighter == CurrentSlotHost) continue;    // my own fight (I'm an attacker in it)
+            if (fighter.characterFaction == Controller.characterFaction) continue;
 
             // fighter is also attacking MY host (e.g. it's the reciprocally-engaged main
             // attacker while I'm the "extra" piling onto the same target) — that's the same

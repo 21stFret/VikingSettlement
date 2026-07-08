@@ -595,9 +595,10 @@ MonoBehaviour:
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: 1d12b1657a094f24aa3fb72b4a7c45d4, type: 2}
   awarenessRadius: 8
-  enterSeparationRange: 3.8
-  exitSeparationRange: 4
+  enterSeparationRange: 1.5
+  exitSeparationRange: 2
   commitRange: 0.3
+  holdTimeout: 2
   separationForceStrength: 1
   separationSmoothingRate: 8
   retargetOnHit: 1
