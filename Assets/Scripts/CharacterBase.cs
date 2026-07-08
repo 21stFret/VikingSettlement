@@ -102,6 +102,10 @@ public class CharacterBase : MonoBehaviour
     protected static readonly int AxeAttackTrigger = Animator.StringToHash("AxeAttack");
     protected static readonly int RollTrigger = Animator.StringToHash("Roll");
 
+    // Cached once in Awake — CharacterBase and CharacterAI always live on the same GameObject,
+    // so this replaces scattered GetComponent<CharacterAI>() calls in hot per-frame combat code.
+    [HideInInspector]
+    public CharacterAI AI;
     [HideInInspector]
     public EquipableItem weapon;
     [HideInInspector]
@@ -142,6 +146,7 @@ public class CharacterBase : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         itemAttachment = GetComponent<ItemAttachment>();
         characterCollider = GetComponent<CircleCollider2D>();
+        AI = GetComponent<CharacterAI>();
 
         if (animator == null)
         {
@@ -162,6 +167,8 @@ public class CharacterBase : MonoBehaviour
         // Configure Rigidbody2D for top-down movement
         rb.gravityScale = 0f;
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        FacingOverride = Vector2.zero;
     }
 
     /// <summary>
@@ -755,7 +762,7 @@ public class CharacterBase : MonoBehaviour
         if (isMoving)
         {
             lastMoveDirection = movement.normalized;
-            Vector2 facing = FacingOverride ?? lastMoveDirection;
+            Vector2 facing = lastMoveDirection;
 
             animator.SetFloat(LastMoveX, facing.x);
             animator.SetFloat(LastMoveY, facing.y);
@@ -931,8 +938,9 @@ public class CharacterBase : MonoBehaviour
 
         float newAngle = CalculateBisectAngle(claimer);
         _occupiedSlots.Add((claimer, newAngle));
+        FightManager.Instance.NotifyOccupancyChanged(this);
 
-        if (claimer.GetComponent<CharacterAI>()?.showDebug == true)
+        if (claimer.AI?.showDebug == true)
         {
             Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
                 $"at angle:{newAngle:F1}° " +
@@ -1047,11 +1055,13 @@ public class CharacterBase : MonoBehaviour
     public void ReleaseSlot(CharacterBase claimer)
     {
         _occupiedSlots.RemoveAll(s => s.claimer == claimer);
+        FightManager.Instance.NotifyOccupancyChanged(this);
     }
 
     public void ReleaseAllSlots()
     {
         _occupiedSlots.Clear();
+        FightManager.Instance.NotifyOccupancyChanged(this);
     }
 
     #endregion

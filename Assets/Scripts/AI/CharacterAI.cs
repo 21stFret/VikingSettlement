@@ -84,7 +84,6 @@ public abstract class CharacterAI : MonoBehaviour
     public bool IsActionLocked { get; set; }
     public List<CharacterBase> NearbyAllies   { get; } = new List<CharacterBase>();
     public List<CharacterBase> NearbyEnemies  { get; } = new List<CharacterBase>();
-    public List<CharacterBase> NearbyFighters { get; } = new List<CharacterBase>();
 
     private CombatAnimationListener _animListener;
     public CombatAnimationListener AnimListener
@@ -254,7 +253,6 @@ public abstract class CharacterAI : MonoBehaviour
 
     public void RefreshNearbyFighters()
     {
-        NearbyFighters.Clear();
         NearbyEnemies.Clear();
         NearbyAllies.Clear();
 
@@ -265,7 +263,6 @@ public abstract class CharacterAI : MonoBehaviour
             var cb = hit.GetComponent<CharacterBase>();
             if (cb == null || cb == Controller) continue;
             if (cb.GetComponent<TargetHealth>()?.IsDead() == true) continue;
-            NearbyFighters.Add(cb);
             if (cb.characterFaction != Controller.characterFaction)
                 NearbyEnemies.Add(cb);
             else
@@ -278,18 +275,37 @@ public abstract class CharacterAI : MonoBehaviour
         return _blockCharges;
     }
 
+    private readonly List<NearbyFight> _cachedNearbyFights = new List<NearbyFight>();
+    private int _lastNearbyFightsFrame = -1;
+
+    /// <summary>
+    /// Nearby active fights (excluding my own), rebuilt at most once per frame no matter how many
+    /// times/callers ask this frame — e.g. multiple attackers piled onto the same target commonly
+    /// all query that target's CharacterAI in the same frame (see CombatApproachState's give-way
+    /// check), which previously recomputed the same list redundantly for each one.
+    ///
+    /// Sources candidates from FightManager.Instance.ActiveHosts (only characters actually
+    /// hosting a fight right now) rather than scanning every nearby character — most nearby
+    /// characters aren't fighting at all, so this skips re-filtering the whole crowd down to the
+    /// handful that matter, every call.
+    /// </summary>
     public List<NearbyFight> GetNearbyFightCentres()
     {
-        var result = new List<NearbyFight>();
-        if (Controller == null) return result;
+        if (Time.frameCount == _lastNearbyFightsFrame) return _cachedNearbyFights;
+        _lastNearbyFightsFrame = Time.frameCount;
+        _cachedNearbyFights.Clear();
+        if (Controller == null) return _cachedNearbyFights;
 
-        foreach (var fighter in NearbyFighters)
+        foreach (var fighter in FightManager.Instance.ActiveHosts)
         {
             if (fighter == null) continue;
-            if (fighter.OccupiedCount <= 0) continue;   // not hosting an active fight
+            if (fighter.OccupiedCount <= 0) continue;   // stale entry mid-transition; skip defensively
             if (fighter == Controller) continue;        // my own fight (I'm the host)
             if (fighter == CurrentSlotHost) continue;    // my own fight (I'm an attacker in it)
             if (fighter.characterFaction == Controller.characterFaction) continue;
+
+            float dist = Vector2.Distance(transform.position, fighter.transform.position);
+            if (dist > awarenessRadius) continue;
 
             // fighter is also attacking MY host (e.g. it's the reciprocally-engaged main
             // attacker while I'm the "extra" piling onto the same target) — that's the same
@@ -300,7 +316,7 @@ public abstract class CharacterAI : MonoBehaviour
             // tug-of-war that only resolves once CombatApproachState's ForceCommitTimeout forces
             // it to commit anyway.
             if (CurrentSlotHost != null
-                && fighter.GetComponent<CharacterAI>()?.CurrentSlotHost == CurrentSlotHost)
+                && fighter.AI?.CurrentSlotHost == CurrentSlotHost)
                 continue;
 
             // Collapse mutual 1-1 duels (both sides host each other's slot) into one entry —
@@ -312,10 +328,10 @@ public abstract class CharacterAI : MonoBehaviour
                 && fighter.GetHashCode() > mutualPartner.GetHashCode())
                 continue;
 
-            result.Add(new NearbyFight { Host = fighter, Centre = fighter.transform.position });
+            _cachedNearbyFights.Add(new NearbyFight { Host = fighter, Centre = fighter.transform.position });
         }
 
-        return result;
+        return _cachedNearbyFights;
     }
 
     public Vector2 CalculateSeparationForce(List<NearbyFight> fights)
@@ -341,7 +357,7 @@ public abstract class CharacterAI : MonoBehaviour
             // 1 at/inside enterSeparationRange, 0 at/beyond exitSeparationRange, linear between.
             float t = Mathf.Clamp01((exitSeparationRange - effectiveDist) / (exitSeparationRange - enterSeparationRange));
             if (t <= 0f) continue;
-            print($"{this.name} is pushing away from {fight.Host.name} with t={t:F2} (effectiveDist={effectiveDist:F2})");
+            if (showDebug) print($"{this.name} is pushing away from {fight.Host.name} with t={t:F2} (effectiveDist={effectiveDist:F2})");
             Vector2 dir = dist > 0.001f ? away / dist : Vector2.up;
             force += dir * t * separationForceStrength;
         }
@@ -479,7 +495,7 @@ public abstract class CharacterAI : MonoBehaviour
     /// occupancy here would transiently misreport it as an unengaged extra.
     /// </summary>
     private static bool IsEngaged(CharacterBase candidate)
-        => candidate.GetComponent<CharacterAI>()?.IsEngagedWithHost ?? false;
+        => candidate.AI?.IsEngagedWithHost ?? false;
 
     // ── AI toggle ──────────────────────────────────────────────────────────────────
 

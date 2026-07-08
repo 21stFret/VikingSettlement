@@ -71,7 +71,7 @@ public class CombatApproachState : AIStateBase
                 // frame during travel (not gated behind our own separation status) — our own
                 // force naturally rises as we approach a target near the crowding fight, so
                 // gating on it here would bypass this exactly when it matters most.
-                var targetAI = target.GetComponent<CharacterAI>();
+                var targetAI = target.AI;
                 if (targetAI != null && !targetAI.NoNearbyFights)
                 {
                     if (_holdTimer <= 0f)
@@ -86,8 +86,6 @@ public class CombatApproachState : AIStateBase
                             ai.Controller.Stop();
                         return;
                     }
-                    // Timed out — target has been stuck too long; proceed anyway rather than
-                    // deadlocking forever.
                 }
                 else
                 {
@@ -120,7 +118,7 @@ public class CombatApproachState : AIStateBase
         // self-clear, Pressure immediately bounces back over the target-crowded half of its own
         // check, and the two states ping-pong every frame for as long as the target stays near
         // any other fight's zone.
-        if (ai.NoNearbyFights && ai.CurrentTarget.GetComponent<CharacterAI>().NoNearbyFights)
+        if (ai.NoNearbyFights && target.AI.NoNearbyFights)
         {
             ai.Controller.Stop();
             ai.ChangeState(new CombatPressureState());

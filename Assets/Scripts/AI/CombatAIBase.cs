@@ -84,7 +84,7 @@ public abstract class CombatAIBase : CharacterAI
             CharacterBase bestTarget = SelectBestTarget();
             if (bestTarget != null && bestTarget.OccupiedCount == 0)
             {
-                var bestAI = bestTarget.GetComponent<CharacterAI>();
+                var bestAI = bestTarget.AI;
                 if (bestAI == null || !bestAI.IsEngagedWithHost)
                 {
                     ReleaseEngagementSlot();
@@ -146,7 +146,7 @@ public abstract class CombatAIBase : CharacterAI
         foreach (var ally in NearbyAllies)
         {
             if (ally == null) continue;
-            var allyAI = ally.GetComponent<CharacterAI>();
+            var allyAI = ally.AI;
             if (allyAI?.CurrentTarget == null) continue;
             if (IsTargetDead(allyAI.CurrentTarget)) continue;
             return allyAI.CurrentTarget.GetComponent<CharacterBase>();

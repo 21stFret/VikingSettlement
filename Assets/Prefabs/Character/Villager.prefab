@@ -599,7 +599,7 @@ MonoBehaviour:
   exitSeparationRange: 2
   commitRange: 0.3
   holdTimeout: 2
-  separationForceStrength: 1
+  separationForceStrength: 2
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 1
@@ -727,6 +727,7 @@ MonoBehaviour:
   rollSpeed: 4
   rollDuration: 0.2
   rollCooldown: 1
+  AI: {fileID: 0}
   weapon: {fileID: 0}
   shield: {fileID: 0}
   torch: {fileID: 0}

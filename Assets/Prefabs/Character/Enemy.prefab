@@ -10514,7 +10514,7 @@ MonoBehaviour:
   exitSeparationRange: 2
   commitRange: 0.3
   holdTimeout: 2
-  separationForceStrength: 1
+  separationForceStrength: 2
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 1
@@ -10524,8 +10524,8 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
-  pursuitRange: 8
-  loseTargetTime: 1
+  pursuitRange: 5
+  loseTargetTime: 0.5
 --- !u!114 &1171899017266227412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10604,6 +10604,7 @@ MonoBehaviour:
   rollSpeed: 6
   rollDuration: 0.35
   rollCooldown: 1
+  AI: {fileID: 0}
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}

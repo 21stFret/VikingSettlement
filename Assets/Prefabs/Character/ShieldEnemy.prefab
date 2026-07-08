@@ -10291,9 +10291,9 @@ GameObject:
   - component: {fileID: 8629009730597293662}
   - component: {fileID: 7928313549537484593}
   - component: {fileID: 422819367626716894}
+  - component: {fileID: 6713158499483296687}
   - component: {fileID: 1171899017266227412}
   - component: {fileID: 638782563166323672}
-  - component: {fileID: 6713158499483296687}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
   - component: {fileID: -4233152270286258612}
@@ -10495,6 +10495,37 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &6713158499483296687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  searchInterval: 0.5
+  CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
+  awarenessRadius: 8
+  enterSeparationRange: 1.5
+  exitSeparationRange: 2
+  commitRange: 0.3
+  holdTimeout: 2
+  separationForceStrength: 2
+  separationSmoothingRate: 8
+  retargetOnHit: 1
+  showDebug: 1
+  wanderRadius: 5
+  idleTimeMin: 1
+  idleTimeMax: 3
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  pursuitRange: 15
+  loseTargetTime: 3
 --- !u!114 &1171899017266227412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10510,11 +10541,9 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Raider
-  enemyType: 5
   damage: 2
   attackRange: 1.5
   attackCooldown: 1.5
-  detectionRange: 10
   weaponName: DSword
   shieldName: Shield
   moveSpeed: 1.5
@@ -10560,6 +10589,9 @@ MonoBehaviour:
   swordAttackOffset: {x: 1, y: 0}
   spearAttackOffset: {x: 1, y: 0}
   axeAttackOffset: {x: 1, y: 0}
+  swordVerticalAttackOffset: 0
+  spearVerticalAttackOffset: 0
+  axeVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
@@ -10572,6 +10604,7 @@ MonoBehaviour:
   rollSpeed: 6
   rollDuration: 0.35
   rollCooldown: 1
+  AI: {fileID: 0}
   weapon: {fileID: 4577835371579839218}
   shield: {fileID: 0}
   torch: {fileID: 0}
@@ -10584,40 +10617,6 @@ MonoBehaviour:
   MaxAttackers: 4
   knockbackForce: 5
   knockbackDuration: 0.1
---- !u!114 &6713158499483296687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  searchInterval: 0.5
-  CombatStyle: 0
-  CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
-  awarenessRadius: 8
-  enterSeparationRange: 3
-  exitSeparationRange: 4
-  commitRange: 0.2
-  driftThreshold: 1.8
-  attackInterval: 1.5
-  retargetOnHit: 1
-  showDebug: 1
-  wanderRadius: 5
-  idleTimeMin: 1
-  idleTimeMax: 3
-  obstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  pursuitRange: 15
-  loseTargetTime: 3
-  pursueTarget: 1
-  useCombatSlots: 0
-  retargetOnNearer: 1
 --- !u!114 &102607621922122272
 MonoBehaviour:
   m_ObjectHideFlags: 0
