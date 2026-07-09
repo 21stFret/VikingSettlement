@@ -10512,7 +10512,8 @@ MonoBehaviour:
   awarenessRadius: 8
   enterSeparationRange: 1
   exitSeparationRange: 1.5
-  commitRange: 0.5
+  commitRange: 0.2
+  slotSlowRadius: 1.2
   holdTimeout: 4
   separationForceStrength: 5
   separationSmoothingRate: 10

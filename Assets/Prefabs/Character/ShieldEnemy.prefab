@@ -10510,12 +10510,13 @@ MonoBehaviour:
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
   awarenessRadius: 8
-  enterSeparationRange: 1.5
-  exitSeparationRange: 2
-  commitRange: 0.3
+  enterSeparationRange: 1
+  exitSeparationRange: 1.5
+  commitRange: 0.2
+  slotSlowRadius: 1.2
   holdTimeout: 4
-  separationForceStrength: 2
-  separationSmoothingRate: 8
+  separationForceStrength: 5
+  separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 1
   wanderRadius: 5
@@ -10524,8 +10525,8 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 1024
-  pursuitRange: 15
-  loseTargetTime: 3
+  pursuitRange: 5
+  loseTargetTime: 0.5
 --- !u!114 &1171899017266227412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10576,7 +10577,7 @@ MonoBehaviour:
   canMove: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 1089
   obstacleCheckDistance: 0.8
   stuckTimeout: 3
   animator: {fileID: 0}
@@ -10586,7 +10587,7 @@ MonoBehaviour:
   swordAttackSize: {x: 1, y: 1}
   spearAttackSize: {x: 1, y: 1}
   axeAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1, y: 0}
+  swordAttackOffset: {x: 1.2, y: 0.9}
   spearAttackOffset: {x: 1, y: 0}
   axeAttackOffset: {x: 1, y: 0}
   swordVerticalAttackOffset: 0
@@ -10610,11 +10611,11 @@ MonoBehaviour:
   torch: {fileID: 0}
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
-  characterFaction: 2
+  characterFaction: 3
   facingDirection: 3
   CurrentTarget: {fileID: 0}
-  slotDistance: 0.8
-  MaxAttackers: 4
+  slotDistance: 1.2
+  MaxAttackers: 3
   knockbackForce: 5
   knockbackDuration: 0.1
 --- !u!114 &102607621922122272

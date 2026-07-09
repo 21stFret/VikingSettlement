@@ -827,6 +827,16 @@ public class CharacterBase : MonoBehaviour
     {
         if (isBlocking) return;
 
+        // A player-controlled character's own AI is disabled (CharacterAI.SetAIEnabled(false) via
+        // PlayerController.SetControlTarget), so its Update()/OnUpdate() never runs again — but
+        // other characters' AI can still force it into CombatApproachState reciprocally
+        // (TryForceReciprocalLock) when they target the player, whose OnEnter calls FaceTowards
+        // once. With no further updates ever coming (and IdleState/VillagerFollowState, the only
+        // places that clear FacingOverride, never reachable either), that single call would
+        // permanently freeze the player's facing. The player's own movement input already drives
+        // facing via the normal UpdateAnimations() path, so skip the override entirely here.
+        if (AI != null && !AI.IsAIEnabled) return;
+
         Vector2 dir = (worldPosition - (Vector2)transform.position).normalized;
         if (dir.sqrMagnitude < 0.0001f) return;
 

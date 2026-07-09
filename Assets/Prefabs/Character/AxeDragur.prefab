@@ -10512,6 +10512,7 @@ MonoBehaviour:
   enterSeparationRange: 3
   exitSeparationRange: 4
   commitRange: 0.4
+  slotSlowRadius: 1.2
   holdTimeout: 2
   separationForceStrength: 2
   separationSmoothingRate: 8
@@ -10609,7 +10610,7 @@ MonoBehaviour:
   torch: {fileID: 0}
   itemAttachment: {fileID: 0}
   lastAttackerPosition: {x: 0, y: 0}
-  characterFaction: 2
+  characterFaction: 3
   facingDirection: 3
   CurrentTarget: {fileID: 0}
   slotDistance: 0.8
