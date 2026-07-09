@@ -148,4 +148,12 @@ public class EnemyPersonalUI : MonoBehaviour
             });
         }
     }
+
+    public void OnDeath()
+    {
+        // Ignore whatever timer was already pending (e.g. the 10s health bar
+        // display window) and fade out shortly after death instead.
+        StopAllCoroutines();
+        StartCoroutine(HideAfterDelay(1f));
+    }
 }

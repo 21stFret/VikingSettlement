@@ -153,8 +153,14 @@ public class Enemy : TargetHealth
 
         Debug.Log($"{enemyName} has been defeated!");
 
-        // Destroy after delay
-        personalUI.enabled = false;
+        // Destroy after delay. personalUI detaches itself from this transform in
+        // Awake (world-space canvas, avoids scaling with the enemy), so it must be
+        // destroyed separately or it survives the enemy's death forever.
+        if (personalUI != null)
+        {
+            personalUI.OnDeath();
+            Destroy(personalUI.gameObject, 5f);
+        }
         Destroy(gameObject, 5f);
     }
 

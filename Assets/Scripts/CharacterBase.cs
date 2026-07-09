@@ -39,6 +39,7 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected SpriteRenderer spriteRenderer;
     [SerializeField] protected bool flipSpriteOnDirection = true;
     [SerializeField] protected bool use4DirectionalSprites = false;
+    private bool _isDead;
 
     [Header("Attack Settings")]
     [SerializeField] protected Vector2 swordAttackSize = new Vector2(1f, 1f);
@@ -880,6 +881,7 @@ public class CharacterBase : MonoBehaviour
     public virtual void SetDead(bool isDead)
     {
         SafeSetTrigger(IsDead);
+        _isDead = isDead;
         _immobilizeCount = 0; // clear any in-flight immobilization
         canMove = !isDead;
         movement = Vector2.zero;
@@ -896,6 +898,8 @@ public class CharacterBase : MonoBehaviour
 
         if (isDead && stunEffect != null)
         {
+            if (animator != null)
+                animator.SetBool("Stunned", false);
             StopCoroutine(nameof(StunCoroutine));
             stunEffect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
