@@ -149,6 +149,7 @@ public abstract class CharacterAI : MonoBehaviour
     public float enterSeparationRange = 3.0f;
     public float exitSeparationRange  = 4.0f;
     public float commitRange          = 0.4f;
+    public float slotSlowRadius       = 1.2f; // arrival deceleration begins here; must be > commitRange
     public float holdTimeout          = 2.0f;
     public float separationForceStrength = 2f;
     public float separationSmoothingRate = 8f; // higher = snappier, lower = smoother/laggier
@@ -342,53 +343,73 @@ public abstract class CharacterAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Moves toward destination in a straight line, with an optional inter-fight separation
-    /// push blended in. Host-body arc-around avoidance (not walking through your own target)
-    /// always applies regardless — that's about not clipping the fight you're heading INTO, not
-    /// about avoiding OTHER fights.
+    /// Moves toward destination in a straight line, unless a real crowd-push from another nearby
+    /// fight is active, in which case the push alone drives movement (see below).
     /// </summary>
     /// <param name="avoidOtherFights">
-    /// Whether to blend in CalculateSeparationForce() (push away from OTHER nearby fights).
+    /// Whether to consider CalculateSeparationForce() (push away from OTHER nearby fights) at all.
     /// Should be false while still travelling to reach your own assigned slot — you're not yet
     /// genuinely locked into that engagement, and blending in a push-away force while your
     /// destination is already a specific, correct point just fights the straight-line pull and
     /// produces jitter. Should be true only once you've actually arrived and a different fight's
     /// zone is still crowding that position — that's the case where moving away makes sense.
     /// </param>
-    public void MoveWithSeparation(Vector2 destination, bool avoidOtherFights = true, bool holding = false, bool ignoreTarget = false)
+    public void MoveWithSeparation(Vector2 destination, bool avoidOtherFights = true)
     {
         Vector2 currentPos = transform.position;
         Vector2 toDestination = destination - currentPos;
-        if (toDestination.sqrMagnitude < 0.0001f) return;
+        float distToDestination = toDestination.magnitude;
+        Vector2 dir = distToDestination > 0.0001f ? toDestination / distToDestination : Vector2.zero;
 
-        Vector2 dir  = toDestination.normalized;
-        Vector2 push = Vector2.zero;
+        Vector2 fightPush = avoidOtherFights ? CalculateSeparationForce() : Vector2.zero;
 
-        if (avoidOtherFights)
-            push += CalculateSeparationForce();
+        if (fightPush.magnitude > SeparationClearThreshold)
+        {
+            // Genuinely crowded by another fight — don't blend a pull toward the destination
+            // against a push that's trying to create real separation. A pull that's still present
+            // the instant push nudges the fighter away just yanks it straight back toward the
+            // destination, gets shoved out again next frame, repeat — read as jitter/the slot
+            // gizmo snapping back and forth. Move using the push alone (ignore the destination
+            // entirely, including host-body avoidance — we're backing off, not arcing toward the
+            // fight) until the crowd genuinely clears; NoNearbyFights/the caller's own state gate
+            // is what resumes normal movement once it does. No arrival taper here either — a
+            // fleeing vector has no destination to decelerate toward.
+            Controller.MoveTo(currentPos + fightPush.normalized * MoveSpeed * Time.deltaTime * 10f);
+            return;
+        }
 
-        push += CalculateHostBodyAvoidance(currentPos, dir, toDestination.magnitude);
-
-        // Guard on the vector we're actually about to normalize, not a proxy for it (e.g. push's
-        // own magnitude) — if push happens to land nearly opposite dir, dir+push can be a tiny,
-        // numerically noisy vector even when push itself isn't small. Normalizing that noise
-        // produces an unstable direction that changes wildly frame to frame; falling back to the
-        // plain destination direction is more predictable than steering by rounding error.
-        Vector2 combined = dir + push;
+        Vector2 hostAvoidance = CalculateHostBodyAvoidance(currentPos, dir, distToDestination);
+        Vector2 combined = dir + hostAvoidance;
         Vector2 finalDir = combined.sqrMagnitude > 0.0001f ? combined.normalized : dir;
+        if (finalDir == Vector2.zero) return;
 
-        if(ignoreTarget)
+        // Taper speed as the real destination nears so a constant-speed step can't carry the
+        // fighter past it before the arrival latch/separation math reacts — without this, movement
+        // was full-speed-until-hard-stop, which overshoots and gets shoved back, reading as bounce.
+        float speedScale = Mathf.Clamp01(distToDestination / slotSlowRadius);
+        Controller.SetMovementScaled(finalDir, speedScale);
+    }
+
+    /// <summary>
+    /// Moves purely along an externally supplied push direction — no pull toward any destination
+    /// blended in. Used for the give-way case (CombatApproachState backing off from a target that
+    /// is itself being crowded by a DIFFERENT fight): that push is computed from this AI's own
+    /// position but against the TARGET's nearby fights, not this AI's own
+    /// (CalculateSeparationForce(target.AI.GetNearbyFightCentres())), so it can't be produced by
+    /// MoveWithSeparation's own avoidOtherFights path, which only ever looks at this AI's fights.
+    /// Stops if the push is negligible.
+    /// </summary>
+    public void MoveAlongPush(Vector2 push, bool holding = false)
+    {
+        if (push.sqrMagnitude < 0.0001f)
         {
-            finalDir = push;
+            Controller.Stop();
+            return;
         }
 
-        float finalMoveSpeed = MoveSpeed;
-        if (holding)
-        {
-            finalMoveSpeed *= 0.1f;
-        }
-
-        Controller.MoveTo(currentPos + finalDir * finalMoveSpeed * Time.deltaTime * 10f);
+        Vector2 dir = push.normalized;
+        float speed = MoveSpeed * (holding ? 0.1f : 1f);
+        Controller.MoveTo((Vector2)transform.position + dir * speed * Time.deltaTime * 10f);
     }
 
     /// <summary>

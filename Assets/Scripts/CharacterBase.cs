@@ -286,6 +286,18 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
+    /// Sets movement directly at a fractional speed (0..1 of effective move speed), bypassing the
+    /// MoveTo/isMovingToTarget pipeline entirely — used for arrival deceleration, where the caller
+    /// already knows the real destination and doesn't need MoveToTarget's own stop/obstacle logic.
+    /// </summary>
+    public virtual void SetMovementScaled(Vector2 direction, float speedScale01)
+    {
+        isMovingToTarget = false;
+        targetPosition = null;
+        movement = direction.normalized * Mathf.Clamp01(speedScale01);
+    }
+
+    /// <summary>
     /// Set the movement speed
     /// </summary>
     public virtual void SetMoveSpeed(float speed)
