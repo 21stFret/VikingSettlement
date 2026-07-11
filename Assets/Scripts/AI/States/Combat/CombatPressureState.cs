@@ -29,7 +29,11 @@ public class CombatPressureState : AIStateBase
 
             _onWindup = () =>
             {
-                if (!ai.IsActionLocked) ai.ChangeState(new CombatBlockState());
+                // No shield and no dodge-roll ability (or roll on cooldown) — nothing to react with,
+                // so don't detour through CombatBlockState at all (that would also reset _timer below
+                // for no benefit). The hit just gets through.
+                if (!ai.IsActionLocked && (ai.CanBlockNow || ai.CanDodgeNow))
+                    ai.ChangeState(new CombatBlockState());
             };
             _onTargetRecovery = () =>
             {

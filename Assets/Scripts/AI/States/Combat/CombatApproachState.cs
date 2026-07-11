@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -10,6 +11,9 @@ public class CombatApproachState : AIStateBase
     private float   _holdTimer;
     private Vector2 _giveWayDir;
 
+    private CombatAnimationListener _listener;
+    private Action _onWindup;
+
     public override void OnEnter(CharacterAI ai)
     {
         _arrivedAtSlot = false;
@@ -21,6 +25,23 @@ public class CombatApproachState : AIStateBase
 
         ai.AnimListener?.SetTarget(target);
         ai.Controller.FaceTowards(ai.CurrentTarget.position);
+
+        // Advanced blockers can react to a windup even while still closing distance, not just
+        // once settled into CombatPressureState. Gated per-class since reacting mid-approach
+        // implies a more alert/skilled warrior.
+        if (ai.CombatStats != null && ai.CombatStats.AdvancedBlocking)
+        {
+            _listener = ai.AnimListener;
+            if (_listener != null)
+            {
+                _onWindup = () =>
+                {
+                    if (!ai.IsActionLocked && (ai.CanBlockNow || ai.CanDodgeNow))
+                        ai.ChangeState(new CombatBlockState());
+                };
+                _listener.OnWindup += _onWindup;
+            }
+        }
     }
 
     public override void OnUpdate(CharacterAI ai)
@@ -126,7 +147,15 @@ public class CombatApproachState : AIStateBase
         ai.MoveWithSeparation(slotPos, avoidOtherFights: true);
     }
 
-    public override void OnExit(CharacterAI ai) => ai.Controller.Stop();
+    public override void OnExit(CharacterAI ai)
+    {
+        ai.Controller.Stop();
+
+        if (_listener != null && _onWindup != null)
+            _listener.OnWindup -= _onWindup;
+        _listener = null;
+        _onWindup = null;
+    }
 
     private void OrbitTarget(CharacterAI ai, CharacterBase target)
     {

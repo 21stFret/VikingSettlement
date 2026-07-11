@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatFighterStats
   AggressionLevel: 0.7
   BlockVsDodgeRatio: 1
+  CanDodge: 0
   ThreatCircleDistance: 2.5
   PressureTime: 2
   RecoveryTime: 0.3
-  RetreatDistance: 1
   MaxBlockCharges: 1
   BlockCooldown: 5

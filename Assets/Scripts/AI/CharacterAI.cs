@@ -115,6 +115,12 @@ public abstract class CharacterAI : MonoBehaviour
     /// <summary>True if a reactive block charge is available right now.</summary>
     public bool CanBlock => (_blockCharges < 0 ? MaxBlockCharges : _blockCharges) > 0;
 
+    /// <summary>True if this fighter can raise a reactive block right now — requires an equipped shield and an available charge.</summary>
+    public bool CanBlockNow => Controller.shield != null && CanBlock;
+
+    /// <summary>True if this fighter can dodge-roll right now — requires the dodge-roll ability (per CombatStats, class-specific) and the roll not being on cooldown.</summary>
+    public bool CanDodgeNow => (CombatStats == null || CombatStats.CanDodge) && Controller.CanRoll();
+
     /// <summary>Spends one reactive-block charge; starts the recovery cooldown once depleted.</summary>
     public void ConsumeBlockCharge()
     {

@@ -2,14 +2,22 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Raises a block (or dodges) in reaction to a detected attack windup.
-/// Waits for the target's attack-recovery event before releasing the block and
-/// returning to CombatPressureState.
+/// Raises a block (or dodges) in reaction to a detected attack windup. Reachable from
+/// CombatPressureState always, and from CombatApproachState/CombatRecoveringState when
+/// CombatFighterStats.AdvancedBlocking is set (more alert/skilled warriors).
+/// Waits for the target's attack-recovery event before releasing the block and resuming
+/// whichever state is appropriate (CombatPressureState if a slot is already held, otherwise
+/// CombatApproachState).
 /// IsActionLocked prevents the search tick from interrupting while blocking.
 /// </summary>
 public class CombatBlockState : AIStateBase
 {
     private Action _onTargetRecovery;
+
+    /// <summary>Where to resume after the block/dodge resolves — Pressure if already slotted in,
+    /// otherwise Approach (mid-approach reactions can't have secured a slot yet).</summary>
+    private static AIStateBase ResumeState(CharacterAI ai) =>
+        ai.CurrentSlotHost != null ? new CombatPressureState() : new CombatApproachState();
 
     public override void OnEnter(CharacterAI ai)
     {
@@ -19,19 +27,27 @@ public class CombatBlockState : AIStateBase
             ai.Controller.FaceTowards(ai.CurrentTarget.position);
         ai.RefreshEngagementSlot();
 
-        float ratio = ai.CombatStats != null ? ai.CombatStats.BlockVsDodgeRatio : 1f;
+        // Decide which reactions are actually viable right now (shield+charges for block,
+        // dodge-ability+off-cooldown for dodge), then only roll BlockVsDodgeRatio between
+        // options that are genuinely available — never "attempt" one that can't work.
+        bool canBlockNow = ai.CanBlockNow;
+        bool canDodgeNow = ai.CanDodgeNow;
 
-
-        if (UnityEngine.Random.value <= ratio)
+        if (!canBlockNow && !canDodgeNow)
         {
-            if (ai.Controller.shield == null || !ai.CanBlock)
-            {
-                // No shield, or guard broken (out of block charges) — the hit gets through.
-                ai.Controller.isBlocking = false;
-                ai.IsActionLocked = false;
-                ai.ChangeState(new CombatPressureState());
-                return;
-            }
+            // The calling state already gates on this, so this shouldn't normally be reachable —
+            // kept as a safety net in case state changes between the windup event and OnEnter.
+            ai.Controller.isBlocking = false;
+            ai.IsActionLocked = false;
+            ai.ChangeState(ResumeState(ai));
+            return;
+        }
+
+        float ratio = ai.CombatStats != null ? ai.CombatStats.BlockVsDodgeRatio : 1f;
+        bool attemptBlock = canBlockNow && (!canDodgeNow || UnityEngine.Random.value <= ratio);
+
+        if (attemptBlock)
+        {
             ai.Controller.isBlocking = true;
             ai.ConsumeBlockCharge();
         }
@@ -52,7 +68,7 @@ public class CombatBlockState : AIStateBase
             {
                 ai.Controller.isBlocking = false;
                 ai.IsActionLocked        = false;
-                ai.ChangeState(new CombatPressureState());
+                ai.ChangeState(ResumeState(ai));
             };
             listener.OnAttackRecovery += _onTargetRecovery;
         }

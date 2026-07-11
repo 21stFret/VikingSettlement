@@ -8,8 +8,14 @@ public class CombatFighterStats : ScriptableObject
     public float AggressionLevel = 0.5f;
 
     [Range(0f, 1f)]
-    [Tooltip("1 = always block, 0 = always dodge.")]
+    [Tooltip("1 = always block, 0 = always dodge. Only used when both a shield and dodge-roll are available.")]
     public float BlockVsDodgeRatio = 0.7f;
+
+    [Tooltip("Whether this fighter class can dodge-roll during reactive defense. Disable for heavy/specialized classes with no roll.")]
+    public bool CanDodge = true;
+
+    [Tooltip("If true, this fighter can also react to an attack windup (block/dodge) while approaching or recovering, not just while holding pressure. Represents a more alert/skilled warrior.")]
+    public bool AdvancedBlocking = false;
 
     [Tooltip("Orbit distance when no melee slot is available on the target.")]
     public float ThreatCircleDistance = 2.5f;
