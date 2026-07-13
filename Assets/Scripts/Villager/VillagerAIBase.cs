@@ -36,7 +36,6 @@ public abstract class VillagerAIBase : CombatAIBase
 
     [Header("Combat Behavior")]
     [SerializeField] private float combatEngageRange = 6f;
-    public LayerMask movementLayerMask;
 
     [Header("Raid Behavior")]
     [SerializeField] private bool isInRaidMode = false;
@@ -247,7 +246,7 @@ public abstract class VillagerAIBase : CombatAIBase
 
             Vector2 dir  = (pt - (Vector2)transform.position).normalized;
             float   dist = Vector2.Distance(transform.position, pt);
-            if (Physics2D.Raycast(transform.position, dir, dist, movementLayerMask).collider == null)
+            if (Physics2D.Raycast(transform.position, dir, dist, VillagerController.obstacleLayer).collider == null)
                 return pt;
         }
         return transform.position;

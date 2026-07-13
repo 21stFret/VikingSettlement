@@ -85,6 +85,13 @@ public class CharacterBase : MonoBehaviour
     protected Vector2 lastPosition;
     protected float stuckTimer = 0f;
 
+    // Obstacle dodge-side hysteresis — once a side is picked, hold it for AvoidSideHoldTime
+    // instead of re-deciding every frame, which is what caused the left/right flip-flop jitter.
+    private const float AvoidSideHoldTime = 0.3f;
+    private int _avoidSide = 0; // -1 left, 1 right, 0 = not currently dodging
+    private float _avoidSideTimer = 0f;
+    private float _colliderRadius = 0.3f;
+
     protected Vector2 currentHitboxPos;
     protected Vector2 currentHitboxSize;
     protected Vector2 currentHitboxOffset;
@@ -146,7 +153,10 @@ public class CharacterBase : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         itemAttachment = GetComponent<ItemAttachment>();
-        characterCollider = GetComponent<CircleCollider2D>();
+        var circleCollider = GetComponent<CircleCollider2D>();
+        characterCollider = circleCollider;
+        if (circleCollider != null)
+            _colliderRadius = circleCollider.radius;
         AI = GetComponent<CharacterAI>();
 
         if (animator == null)
@@ -259,10 +269,21 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual void MoveTo(Vector2 destination)
     {
+        // Several AI states re-issue MoveTo() every Update with a freshly recomputed destination
+        // (e.g. VillagerFollowState tracking a moving target). Only reset stuck-detection when the
+        // destination actually moved meaningfully — otherwise a character wedged against an
+        // obstacle, fed a near-identical destination every frame, never accumulates stuck time and
+        // can push against geometry indefinitely instead of ever giving up.
+        bool isNewDestination = !targetPosition.HasValue || Vector2.Distance(targetPosition.Value, destination) > 0.1f;
+
         targetPosition = destination;
         isMovingToTarget = true;
-        stuckTimer = 0f;
-        lastPosition = rb != null ? rb.position : (Vector2)transform.position;
+
+        if (isNewDestination)
+        {
+            stuckTimer = 0f;
+            lastPosition = rb != null ? rb.position : (Vector2)transform.position;
+        }
     }
 
     /// <summary>
@@ -364,37 +385,48 @@ public class CharacterBase : MonoBehaviour
         // Get direction to target
         Vector2 moveDir = (targetPos - currentPos).normalized;
 
-        // Check for obstacle directly ahead
-        RaycastHit2D hit = Physics2D.Raycast(currentPos, moveDir, obstacleCheckDistance, obstacleLayer);
+        // Look ahead far enough to react at the current move speed, not just a fixed distance —
+        // at low check distances a fast character reaches the obstacle before it has room to arc
+        // around it. CircleCast (not Raycast) accounts for the character's own body so a path that
+        // reads "clear" can't still clip a corner.
+        float lookAhead = Mathf.Max(obstacleCheckDistance, GetEffectiveMoveSpeed() * 0.5f);
+        RaycastHit2D hit = Physics2D.CircleCast(currentPos, _colliderRadius, moveDir, lookAhead, obstacleLayer);
+
         if (hit.collider != null && hit.collider.gameObject != gameObject)
         {
-            // Obstacle ahead - try to go around
-            Vector2 leftDir = new Vector2(-moveDir.y, moveDir.x); // Perpendicular left
-            Vector2 rightDir = new Vector2(moveDir.y, -moveDir.x); // Perpendicular right
-
-            // Check which side is clearer
-            RaycastHit2D leftHit = Physics2D.Raycast(currentPos, leftDir, obstacleCheckDistance, obstacleLayer);
-            RaycastHit2D rightHit = Physics2D.Raycast(currentPos, rightDir, obstacleCheckDistance, obstacleLayer);
-
-            bool leftClear = leftHit.collider == null || leftHit.collider.gameObject == gameObject;
-            bool rightClear = rightHit.collider == null || rightHit.collider.gameObject == gameObject;
-
-            if (leftClear && !rightClear)
+            // Only re-decide which side to dodge every AvoidSideHoldTime seconds — re-deciding
+            // every frame from marginal, symmetric side readings is what caused the left/right
+            // flip-flop jitter. Hold the last decision until it expires.
+            if (_avoidSideTimer <= 0f)
             {
-                moveDir = (moveDir + leftDir).normalized;
+                Vector2 leftDir = new Vector2(-moveDir.y, moveDir.x); // Perpendicular left
+                Vector2 rightDir = new Vector2(moveDir.y, -moveDir.x); // Perpendicular right
+
+                RaycastHit2D leftHit = Physics2D.CircleCast(currentPos, _colliderRadius, leftDir, lookAhead, obstacleLayer);
+                RaycastHit2D rightHit = Physics2D.CircleCast(currentPos, _colliderRadius, rightDir, lookAhead, obstacleLayer);
+
+                float leftOpen = leftHit.collider == null || leftHit.collider.gameObject == gameObject ? lookAhead : leftHit.distance;
+                float rightOpen = rightHit.collider == null || rightHit.collider.gameObject == gameObject ? lookAhead : rightHit.distance;
+
+                _avoidSide = leftOpen >= rightOpen ? -1 : 1;
+                _avoidSideTimer = AvoidSideHoldTime;
             }
-            else if (rightClear && !leftClear)
+            else
             {
-                moveDir = (moveDir + rightDir).normalized;
+                _avoidSideTimer -= Time.deltaTime;
             }
-            else if (leftClear && rightClear)
-            {
-                // Both clear, pick one based on which is closer to target direction
-                float leftDot = Vector2.Dot(leftDir, (targetPos - currentPos).normalized);
-                float rightDot = Vector2.Dot(rightDir, (targetPos - currentPos).normalized);
-                moveDir = (moveDir + (leftDot > rightDot ? leftDir : rightDir)).normalized;
-            }
-            // If both blocked, just keep trying forward
+
+            Vector2 sideDir = _avoidSide < 0
+                ? new Vector2(-moveDir.y, moveDir.x)
+                : new Vector2(moveDir.y, -moveDir.x);
+            moveDir = (moveDir + sideDir).normalized;
+        }
+        else
+        {
+            // Path is clear — drop any held dodge side immediately rather than letting it expire,
+            // so the character doesn't keep arcing around an obstacle it has already passed.
+            _avoidSide = 0;
+            _avoidSideTimer = 0f;
         }
 
         movement = moveDir;

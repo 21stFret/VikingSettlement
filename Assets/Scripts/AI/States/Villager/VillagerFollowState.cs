@@ -29,18 +29,10 @@ public class VillagerFollowState : AIStateBase
         Vector2 targetPos = (Vector2)v.FollowTarget.position - dir * (v.FollowDistance * 0.5f);
         targetPos += v.GetSeparationForce() * v.SeparationStrength;
 
-        float distToTarget = Vector2.Distance(v.transform.position, targetPos);
-        if (Physics2D.Raycast(v.transform.position, dir, distToTarget, v.movementLayerMask).collider == null)
-        {
-            v.VillagerController.MoveTo(targetPos);
-        }
-        else
-        {
-            Vector2 left = new Vector2(-dir.y, dir.x);
-            if (!Physics2D.Raycast(v.transform.position, left, 2f, v.movementLayerMask))
-                v.VillagerController.MoveTo((Vector2)v.transform.position + left * 2f);
-            else
-                v.VillagerController.MoveTo((Vector2)v.transform.position + new Vector2(dir.y, -dir.x) * 2f);
-        }
+        // Obstacle avoidance for the path to targetPos is handled by CharacterBase.MoveToTarget —
+        // don't duplicate it here with a second raycast/side-step pass, which used a different
+        // layer mask and could pick a different dodge side than the base-class pass on the same
+        // frame.
+        v.VillagerController.MoveTo(targetPos);
     }
 }
