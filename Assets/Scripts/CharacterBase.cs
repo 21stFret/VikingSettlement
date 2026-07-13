@@ -505,7 +505,7 @@ public class CharacterBase : MonoBehaviour
     private IEnumerator RollCoroutine(Vector2 direction)
     {
         isRolling = true;
-        characterCollider.enabled = false; // Disable collisions during roll
+        characterCollider.excludeLayers = LayerMask.GetMask("Player", "Enemy");
         SafeSetTrigger(RollTrigger);
 
         float elapsed = 0f;
@@ -518,7 +518,7 @@ public class CharacterBase : MonoBehaviour
 
         movement = Vector2.zero;
         isRolling = false;
-        characterCollider.enabled = true;
+        characterCollider.includeLayers = LayerMask.GetMask("Player", "Enemy");
     }
 
     #endregion

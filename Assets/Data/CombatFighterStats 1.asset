@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CombatFighterStats 1
   m_EditorClassIdentifier: Assembly-CSharp::CombatFighterStats
   AggressionLevel: 0.7
-  BlockVsDodgeRatio: 0
+  BlockVsDodgeRatio: 0.901
   CanDodge: 1
   AdvancedBlocking: 0
   ThreatCircleDistance: 2.5
