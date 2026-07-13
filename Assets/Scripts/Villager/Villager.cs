@@ -718,6 +718,17 @@ public class Villager : TargetHealth
         }
     }
 
+    public Vector2 GetEquipmentState()
+    {
+        Vector2 state = Vector2.zero;
+        if(itemAttachment != null)
+        {
+            state.x = itemAttachment.weapon != null ? itemAttachment.weapon.GetComponent<EquipableItem>().CurrentDurability : 0f;
+            state.y = itemAttachment.shield != null ? itemAttachment.shield.GetComponent<EquipableItem>().CurrentDurability : 0f;
+        }
+        return state;
+    }
+
     #region Skill Bonuses
 
     private float baseMaxHealth;

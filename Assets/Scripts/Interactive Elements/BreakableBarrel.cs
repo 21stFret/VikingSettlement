@@ -12,6 +12,7 @@ public class BreakableBarrel : TargetHealth
     private BreakableObject2D _breakable;
     private float respawnTimer;
     private bool isBroken = false;
+    public bool canRespawn;
 
     public override void Awake()
     {
@@ -62,7 +63,7 @@ public class BreakableBarrel : TargetHealth
 
     private void Update()
     {
-        if (isBroken && respawnTime >= 0f)
+        if (isBroken && respawnTime >= 0f && canRespawn)
         {
             respawnTimer -= Time.deltaTime;
             if (respawnTimer <= 0f)

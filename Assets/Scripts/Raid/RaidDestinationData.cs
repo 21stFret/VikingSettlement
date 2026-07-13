@@ -1,6 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public enum LocationType
+{
+    Fishing,
+    Forest,
+    Mountain,
+    Plains,
+    Swamp,
+    Desert,
+    Coastal,
+    Island
+}
 /// <summary>
 /// ScriptableObject defining a raid destination.
 /// Settlement time lost = travelTimeHours * 2 (there and back), converted to game days.
@@ -33,6 +44,8 @@ public class RaidDestinationData : ScriptableObject
     [Tooltip("Chest loot at this camp — known in advance, rolled once on Victory. " +
              "Enemy \"pocket\" loot (Enemy.lootTable) is separate and not previewed.")]
     public List<LootTableEntry> lootTable = new List<LootTableEntry>();
+
+    public LocationType locationType;
 
     /// <summary>
     /// Display-only preview of this destination's chest loot ("what they have at the camp"),

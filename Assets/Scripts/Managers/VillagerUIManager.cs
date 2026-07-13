@@ -51,6 +51,7 @@ public class VillagerUIManager : MonoBehaviour
             villagerListUI.gameObject.SetActive(true);
             villagerListUI.OnOpen();
             PlayerController.Instance?.SetInputEnabled(false);
+            GameTickManager.Instance?.PushUIPause();
         }
         else
         {
@@ -58,6 +59,7 @@ public class VillagerUIManager : MonoBehaviour
             villagerListUI.OnClose();
             villagerListUI.gameObject.SetActive(false);
             PlayerController.Instance?.SetInputEnabled(true);
+            GameTickManager.Instance?.PopUIPause();
         }
 
     }

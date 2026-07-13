@@ -275,10 +275,10 @@ public class RaidManager : MonoBehaviour
             gameDaysPassed       = raidReport.gameDaysPassed,
             loot                 = raidReport.loot ?? new List<ResourceLoot>(),
             casualtyIds          = raidReport.casualties?
-                .Where(v => v != null)
                 .Select(v => v.uniqueId)
                 .ToList() ?? new List<string>(),
             survivorHealth       = new Dictionary<string, float>(),
+            survivorEquipment    = new Dictionary<string, Vector2>(),
             raidPartyIds         = raidParty
                 .Where(v => v != null)
                 .Select(v => v.uniqueId)
@@ -291,6 +291,7 @@ public class RaidManager : MonoBehaviour
         {
             if (survivor != null && !string.IsNullOrEmpty(survivor.uniqueId))
                 pendingRaidResults.survivorHealth[survivor.uniqueId] = survivor.currentHealth;
+                pendingRaidResults.survivorEquipment[survivor.uniqueId] = survivor.GetEquipmentState();
         }
 
         isOnRaid    = false;
@@ -373,6 +374,14 @@ public class RaidManager : MonoBehaviour
                 Villager v = SettlementManager.Instance.GetVillagerById(kvp.Key);
                 if (v != null)
                     v.currentHealth = Mathf.Clamp(kvp.Value, 0f, v.maxHealth);
+            }
+
+            // 3a. Update riad party equipment to match post-raid state (autosave had pre-raid equipment)
+            foreach( var id in pending.survivorEquipment)
+            {
+                Villager v = SettlementManager.Instance.GetVillagerById(id.Key);
+                if (v != null)
+                    v.itemAttachment.SetDurability(id.Value);
             }
 
             // 4. Settlement simulation — what happened at home while the party was away
@@ -676,6 +685,7 @@ public class PendingRaidResults
     public List<ResourceLoot> loot;
     public List<string> casualtyIds;
     public Dictionary<string, float> survivorHealth;
+    public Dictionary<string, Vector2> survivorEquipment;
     public List<string> raidPartyIds;
     public int raidStartAbsoluteDay;
     public float raidStartTimeOfDay;

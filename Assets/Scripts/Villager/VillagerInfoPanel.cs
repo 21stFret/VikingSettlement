@@ -80,7 +80,6 @@ public class VillagerInfoPanel : MonoBehaviour
 
         currentVillager = villager;
         gameObject.SetActive(true);
-        GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
     }
 
@@ -91,7 +90,6 @@ public class VillagerInfoPanel : MonoBehaviour
     {
         gameObject.SetActive(false);
         currentVillager = null;
-        GameTickManager.Instance?.PopUIPause();
     }
     
     /// <summary>

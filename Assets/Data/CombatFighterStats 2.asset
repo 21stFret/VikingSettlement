@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatFighterStats
   AggressionLevel: 1
   BlockVsDodgeRatio: 1
-  CanDodge: 1
-  AdvancedBlocking: 1
+  CanDodge: 0
+  AdvancedBlocking: 0
   ThreatCircleDistance: 2.5
-  PressureTime: 1
+  PressureTime: 2
   RecoveryTime: 1
-  MaxBlockCharges: 3
-  BlockCooldown: 2
+  MaxBlockCharges: 2
+  BlockCooldown: 4

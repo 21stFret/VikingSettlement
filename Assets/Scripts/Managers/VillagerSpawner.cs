@@ -95,9 +95,10 @@ public class VillagerSpawner : MonoBehaviour
         if (giveEquipment)
         {
             villager.itemAttachment.GiveRandomWeapon();
-            villager.itemAttachment.GiveRandomShield();
+            //villager.itemAttachment.GiveRandomShield();
+            //villager.itemAttachment.GiveRandomTorch();
         }
-        //villager.itemAttachment.GiveRandomTorch();
+
 
         foreach (var ai in villager.GetComponents<VillagerAIBase>())
             ai.SetVillageCentre(villageCentre, 20f);

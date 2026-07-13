@@ -23,11 +23,9 @@ MonoBehaviour:
   - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
   - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
   spawnAll: 0
-  potentialLoot:
-  - resourceType: 15
-    amount: 20
   lootTable:
   - resourceType: 15
     dropChance: 1
     minAmount: 5
     maxAmount: 10
+  locationType: 1

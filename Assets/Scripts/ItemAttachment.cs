@@ -8,9 +8,9 @@ public class ItemAttachment : MonoBehaviour
     public Transform backAttachment;
 
     [Header("Equipped Items")]
-    [SerializeField] private GameObject shield;
-    [SerializeField] private GameObject weapon;
-    [SerializeField] private GameObject torch;
+    [SerializeField] public GameObject shield;
+    [SerializeField] public GameObject weapon;
+    [SerializeField] public GameObject torch;
 
     [Header("Settings")]
     [SerializeField] private AttachmentPoint shieldAttachPoint = AttachmentPoint.LeftHand;
@@ -231,5 +231,17 @@ public class ItemAttachment : MonoBehaviour
     {
         if (item != null)
             item.enabled = visible;
+    }
+
+    public void SetDurability(Vector2 values)
+    {
+        if(weapon != null)
+        {
+            weapon.GetComponent<EquipableItem>().SetDurability(values.x);
+        }
+        if(shield != null)
+        {
+            shield.GetComponent<EquipableItem>().SetDurability(values.y);
+        }
     }
 }

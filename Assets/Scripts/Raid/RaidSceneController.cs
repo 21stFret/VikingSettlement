@@ -17,6 +17,8 @@ public class RaidSceneController : MonoBehaviour
     [Tooltip("Where enemies spawn")]
     public List<Transform> enemySpawnPoints = new List<Transform>();
 
+    [Header("Raid Templates")]
+    public GameObject fishingVillagePrefab;
 
     [Header("Raid State")]
     [SerializeField] private bool raidActive = false;
@@ -112,6 +114,25 @@ public class RaidSceneController : MonoBehaviour
         // Get raid info
         var destination = RaidManager.Instance.CurrentRaid;
         raidParty = new List<Villager>(RaidManager.Instance.RaidParty);
+
+        // Spawn the raid destination template (e.g., fishing village)
+        switch(destination.locationType)
+        {
+            case LocationType.Fishing:
+                if (fishingVillagePrefab != null)
+                {
+                    fishingVillagePrefab.SetActive(true);
+                }
+                else
+                {
+                    Debug.LogWarning("No fishing village prefab assigned in RaidSceneController.");
+                }
+                break;
+            // Add other location types as needed
+            default:
+                Debug.LogWarning($"Unknown location type: {destination.locationType}");
+                break;
+        }
 
         // Spawn party
         SpawnParty();

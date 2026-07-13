@@ -138,4 +138,15 @@ public class EquipableItem : MonoBehaviour
         if (maxDurability <= 0) return;
         currentDurability = Mathf.Min(maxDurability, currentDurability + amount);
     }
+
+    public void SetDurability(float amount)
+    {
+        currentDurability = (int)amount;
+        if (itemDamageSprites.Length > 0 && itemSpriteRenderer != null)
+        {
+            int damageLevel = Mathf.FloorToInt(((float)(maxDurability - currentDurability) / maxDurability) * itemDamageSprites.Length);
+            damageLevel = Mathf.Clamp(damageLevel, 0, itemDamageSprites.Length - 1);
+            itemSpriteRenderer.sprite = itemDamageSprites[damageLevel];
+        }
+    }
 }
