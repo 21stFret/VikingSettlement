@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62b495ef9243d944895c3c92ecaca87, type: 3}
+  m_Name: Intro Dialouge
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
+  dialogueId: 
+  lines:
+  - speakerName: Godi
+    portrait: {fileID: -2924508640703339208, guid: 8b7dd40313d9ef14bb3eaddeb9a2952b, type: 3}
+    text: Thank the gods your alive! The town has been raided, few survive. You are
+      the Jarl now!
+  offersQuest: 0

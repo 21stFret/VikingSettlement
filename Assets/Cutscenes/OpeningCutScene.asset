@@ -38,7 +38,7 @@ MonoBehaviour:
       data:
         actionName: 
         waitForCompletion: 1
-        dialogue: {fileID: 11400000, guid: 7faa31f22ed9b524ab2df57af77de95f, type: 2}
+        dialogue: {fileID: 11400000, guid: 448d06edc36638848bf17f21dcfba18d, type: 2}
     - rid: 2464580862522687597
       type: {class: WaitAction, ns: Cutscenes, asm: Assembly-CSharp}
       data:

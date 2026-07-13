@@ -742,7 +742,7 @@ MonoBehaviour:
   knockbackForce: 5
   knockbackDuration: 0.1
   combatMoveSpeed: 3
-  walkMoveSpeed: 1
+  walkMoveSpeed: 2
 --- !u!114 &5493561719251364476
 MonoBehaviour:
   m_ObjectHideFlags: 0

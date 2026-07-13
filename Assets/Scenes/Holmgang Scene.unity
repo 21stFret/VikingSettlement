@@ -69132,8 +69132,9 @@ MonoBehaviour:
   fireAnimation: {fileID: 45671265}
   warm: {r: 0.9960785, g: 0.5921569, b: 0, a: 1}
   cold: {r: 0.44001427, g: 0.8826418, b: 0.9056604, a: 1}
-  requiredWoodText: {fileID: 120665706}
+  woodPerVillager: {fileID: 0}
   totalRequiredWoodText: {fileID: 0}
+  coldDayText: {fileID: 0}
 --- !u!222 &502126933
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -85230,23 +85231,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1170187308791173737, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1170187308791173737, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1170187308791173737, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 237.23
       objectReference: {fileID: 0}
     - target: {fileID: 1170187308791173737, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.615
       objectReference: {fileID: 0}
     - target: {fileID: 1170187308791173737, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -571.15063
       objectReference: {fileID: 0}
     - target: {fileID: 2744112340088027061, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_LocalPosition.x
@@ -85298,83 +85299,87 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3374960916945111338, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3374960916945111338, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3374960916945111338, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 237.23
       objectReference: {fileID: 0}
     - target: {fileID: 3374960916945111338, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.615
       objectReference: {fileID: 0}
     - target: {fileID: 3374960916945111338, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -45.83945
       objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 237.23
       objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.615
       objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: -177.16724
+      objectReference: {fileID: 0}
+    - target: {fileID: 5098460146592350927, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6166841769468439880, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6166841769468439880, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6166841769468439880, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 237.23
       objectReference: {fileID: 0}
     - target: {fileID: 6166841769468439880, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.615
       objectReference: {fileID: 0}
     - target: {fileID: 6166841769468439880, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -308.49503
       objectReference: {fileID: 0}
     - target: {fileID: 8143571906710624909, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8143571906710624909, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8143571906710624909, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 237.23
       objectReference: {fileID: 0}
     - target: {fileID: 8143571906710624909, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.615
       objectReference: {fileID: 0}
     - target: {fileID: 8143571906710624909, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -439.8228
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -91616,6 +91621,13 @@ MonoBehaviour:
   totalFishNeeded: 0
   hungerMode: 0
   minStarvationDamage: 5
+  woodPerVillagerPerDay: 0.5
+  coldMoralePenalty: 10
+  warmthMoraleBonus: 5
+  coldHealthDamage: 0
+  isSettlementWarm: 1
+  woodConsumedToday: 0
+  woodNeededToday: 0
 --- !u!114 &755482534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91641,6 +91653,7 @@ MonoBehaviour:
   stoneIcon: {fileID: 21300000, guid: d4752bbcb4922324aa3b98640d34498a, type: 2}
   ironIcon: {fileID: 21300000, guid: 9ba53a2c96c27b44198cb0b80888ee14, type: 2}
   meadIcon: {fileID: 21300000, guid: d3b85c8927f107f4cb981e0b03ba145d, type: 2}
+  goldIcon: {fileID: 0}
   weaponsIcon: {fileID: 21300000, guid: fb4040088e87e3945abb21e948cdec36, type: 2}
   planksIcon: {fileID: 21300000, guid: fd7d2888bb01c2d46915d99537c2c574, type: 2}
 --- !u!114 &755482535
@@ -91676,37 +91689,16 @@ MonoBehaviour:
   daysPerSeason: 3
   currentSeason: 1
   daysUntilSeasonChange: 0
-  summerSunBeamsParent: {fileID: 763243730}
-  sunDustParticleSystem: {fileID: 297498475}
-  fireFliesParticleSystem: {fileID: 797612876}
-  summerSunBeams: []
-  sunBeamIntensity: 2
-  animateSunBeams: 1
-  sunBeamAnimationSpeed: 2
-  snowParticleSystem: {fileID: 0}
-  varySnowWithTimeOfDay: 1
-  baseSnowEmissionRate: 50
-  maxSnowEmissionRate: 100
-  transitionDuration: 5
-  isTransitioning: 0
-  transitionProgress: 0
   summerAmbientMultiplier: 0.3
   winterAmbientMultiplier: 0.8
+  winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
+  summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
   summerFarmMultiplier: 1
   summerFishingMultiplier: 0.8
   summerLumberMultiplier: 1
   winterFarmMultiplier: 0.25
   winterFishingMultiplier: 1.2
   winterLumberMultiplier: 0.6
-  woodPerVillagerPerDay: 0.5
-  coldMoralePenalty: 10
-  warmthMoraleBonus: 5
-  coldHealthDamage: 0
-  isSettlementWarm: 1
-  woodConsumedToday: 0
-  woodNeededToday: 0
-  winterSunTint: {r: 0.71733713, g: 0.84483796, b: 0.9811321, a: 1}
-  summerSunTint: {r: 1, g: 0.95313454, b: 0.8443396, a: 1}
   fireController: {fileID: 0}
 --- !u!114 &755482537
 MonoBehaviour:
@@ -133018,6 +133010,10 @@ MonoBehaviour:
   lootText: {fileID: 258985906}
   casualtiesText: {fileID: 562303303}
   returnButton: {fileID: 2097432913}
+  keepSailingButton: {fileID: 0}
+  keepSailingButtonLabel: {fileID: 0}
+  goHomeButton: {fileID: 0}
+  chainPickerUI: {fileID: 0}
 --- !u!4 &1230314654 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5315717443649500222, guid: dd08966190b79814dbd2e23b8f95a5ca, type: 3}
@@ -265237,6 +265233,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

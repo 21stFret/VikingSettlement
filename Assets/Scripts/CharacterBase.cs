@@ -25,6 +25,7 @@ public class CharacterBase : MonoBehaviour
 {
     [Header("Movement Settings")]
     protected float moveSpeed = 2f;
+    public float sprintMod = 2;
     [SerializeField] protected float stopDistance = 0.1f;
     public bool canMove = true;
     private int _immobilizeCount = 0; // reference-counted; movement locked while > 0
@@ -961,7 +962,7 @@ public class CharacterBase : MonoBehaviour
         if (animator != null)
             animator.SetBool(IsSprinting, isSprinting);
 
-        moveSpeed = isSprinting ? moveSpeed * 1.5f : moveSpeed / 1.5f;
+        moveSpeed = isSprinting ? moveSpeed * sprintMod : moveSpeed / sprintMod;
     }
 
     /// <summary>
