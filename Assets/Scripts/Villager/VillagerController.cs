@@ -13,6 +13,7 @@ public class VillagerController : CharacterBase
         base.Awake();
         villagerData = GetComponent<Villager>();
         characterFaction = Faction.Player;
+        moveSpeed = walkMoveSpeed;
     }
 
     /// <summary>

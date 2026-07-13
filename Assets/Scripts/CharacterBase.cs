@@ -31,8 +31,13 @@ public class CharacterBase : MonoBehaviour
 
     [Header("Obstacle Avoidance")]
     public LayerMask obstacleLayer;
-    [SerializeField] protected float obstacleCheckDistance = 0.8f;
     [SerializeField] protected float stuckTimeout = 3f; // Give up after this long
+
+    [Header("Pathfinding")]
+    [SerializeField] protected int maxPathNodes = 10;
+    [SerializeField] protected int maxRepathAttempts = 2; // stuck/partial-path retries before giving up via Stop()
+    [SerializeField] protected float waypointArrivalRadius = 0.3f; // arrival radius for intermediate nodes — stopDistance still governs the final node
+    [SerializeField] protected float minRepathInterval = 0.15f; // throttles full re-sweeps for callers that re-issue MoveTo() every frame with tiny nudges
 
     [Header("Animation")]
     [SerializeField] protected Animator animator;
@@ -85,12 +90,15 @@ public class CharacterBase : MonoBehaviour
     protected Vector2 lastPosition;
     protected float stuckTimer = 0f;
 
-    // Obstacle dodge-side hysteresis — once a side is picked, hold it for AvoidSideHoldTime
-    // instead of re-deciding every frame, which is what caused the left/right flip-flop jitter.
-    private const float AvoidSideHoldTime = 0.3f;
-    private int _avoidSide = 0; // -1 left, 1 right, 0 = not currently dodging
-    private float _avoidSideTimer = 0f;
     private float _colliderRadius = 0.3f;
+
+    // Path planning — a waypoint chain computed by RaySweepPathfinder and followed by
+    // MoveToTarget(). See RaySweepPathfinder.cs for the algorithm.
+    private List<Vector2> _currentPath = new List<Vector2>();
+    private int _currentPathIndex = 0;
+    private bool _pathReachedTarget = true;
+    private int _repathAttempts = 0;
+    private float _lastPathComputeTime = -999f;
 
     protected Vector2 currentHitboxPos;
     protected Vector2 currentHitboxSize;
@@ -283,7 +291,51 @@ public class CharacterBase : MonoBehaviour
         {
             stuckTimer = 0f;
             lastPosition = rb != null ? rb.position : (Vector2)transform.position;
+            _repathAttempts = 0;
+
+            // Throttle: some callers (e.g. CharacterAI's push-fallback movement) re-issue MoveTo()
+            // every frame with a small nudge on the destination. If the last full sweep is still
+            // fresh AND the current path is a plain single-node direct line (no obstacle was
+            // involved), just retarget that node instead of paying for a full re-sweep every frame.
+            // A path that has real waypoints, or an elapsed throttle window, always gets recomputed.
+            bool recentlyPlanned = Time.time - _lastPathComputeTime < minRepathInterval;
+            if (recentlyPlanned && _currentPath.Count == 1)
+            {
+                _currentPath[0] = destination;
+                _pathReachedTarget = true;
+            }
+            else
+            {
+                ComputePath(destination);
+            }
         }
+    }
+
+    /// <summary>
+    /// Computes (or recomputes) the waypoint chain to destination via RaySweepPathfinder and
+    /// resets path-following state to walk it from the start.
+    /// </summary>
+    private void ComputePath(Vector2 destination)
+    {
+        Vector2 origin = rb != null ? rb.position : (Vector2)transform.position;
+        bool reached = RaySweepPathfinder.TryFindPath(origin, destination, obstacleLayer, _colliderRadius,
+            out List<Vector2> path, maxPathNodes, gameObject, waypointArrivalRadius);
+
+        if (path != null && path.Count > 0)
+        {
+            _currentPath = path;
+            _pathReachedTarget = reached;
+        }
+        else
+        {
+            // Total failure (e.g. spawned/knocked back into overlapping geometry, where every
+            // candidate CircleCast reports an immediate hit) — fall back to a direct-line path and
+            // let stuck-timeout/repath recover it.
+            _currentPath = new List<Vector2> { destination };
+            _pathReachedTarget = true;
+        }
+        _currentPathIndex = 0;
+        _lastPathComputeTime = Time.time;
     }
 
     /// <summary>
@@ -295,6 +347,9 @@ public class CharacterBase : MonoBehaviour
         isMovingToTarget = false;
         movement = Vector2.zero;
         stuckTimer = 0f;
+        _currentPath.Clear();
+        _currentPathIndex = 0;
+        _repathAttempts = 0;
     }
 
     /// <summary>
@@ -355,24 +410,54 @@ public class CharacterBase : MonoBehaviour
     {
         if (!targetPosition.HasValue) return;
 
-        Vector2 currentPos = rb.position;
-        Vector2 targetPos = targetPosition.Value;
-
-        float distance = Vector2.Distance(currentPos, targetPos);
-        if (distance <= stopDistance)
+        // MoveTo() always seeds _currentPath — this only hits defensively (e.g. a subclass sets
+        // targetPosition directly without going through MoveTo()).
+        if (_currentPath == null || _currentPath.Count == 0)
         {
-            Stop();
-            return;
+            _currentPath = new List<Vector2> { targetPosition.Value };
+            _pathReachedTarget = true;
+            _currentPathIndex = 0;
         }
 
-        // Check if stuck (not making progress)
+        Vector2 currentPos = rb.position;
+
+        // Advance through any waypoints already within arrival radius (handles closely-spaced
+        // nodes and same-frame multi-arrival cleanly).
+        while (true)
+        {
+            bool isLast = _currentPathIndex == _currentPath.Count - 1;
+            float arrivalRadius = isLast ? stopDistance : waypointArrivalRadius;
+            if (Vector2.Distance(currentPos, _currentPath[_currentPathIndex]) > arrivalRadius) break;
+
+            if (isLast)
+            {
+                if (_pathReachedTarget)
+                {
+                    Stop();
+                }
+                else
+                {
+                    // Reached the end of a PARTIAL path without reaching the real destination —
+                    // try again from here (bounded by maxRepathAttempts) rather than silently
+                    // stopping short of the actual goal.
+                    TryRepathOrGiveUp();
+                }
+                return;
+            }
+            _currentPathIndex++;
+        }
+
+        Vector2 waypoint = _currentPath[_currentPathIndex];
+
+        // Stuck detection — unchanged mechanism, now the trigger for a bounded repath instead of
+        // an immediate Stop().
         float movedDistance = Vector2.Distance(currentPos, lastPosition);
         if (movedDistance < 0.01f)
         {
             stuckTimer += Time.deltaTime;
             if (stuckTimer >= stuckTimeout)
             {
-                Stop();
+                TryRepathOrGiveUp();
                 return;
             }
         }
@@ -382,54 +467,26 @@ public class CharacterBase : MonoBehaviour
         }
         lastPosition = currentPos;
 
-        // Get direction to target
-        Vector2 moveDir = (targetPos - currentPos).normalized;
+        movement = (waypoint - currentPos).normalized;
+    }
 
-        // Look ahead far enough to react at the current move speed, not just a fixed distance —
-        // at low check distances a fast character reaches the obstacle before it has room to arc
-        // around it. CircleCast (not Raycast) accounts for the character's own body so a path that
-        // reads "clear" can't still clip a corner.
-        float lookAhead = Mathf.Max(obstacleCheckDistance, GetEffectiveMoveSpeed() * 0.5f);
-        RaycastHit2D hit = Physics2D.CircleCast(currentPos, _colliderRadius, moveDir, lookAhead, obstacleLayer);
-
-        if (hit.collider != null && hit.collider.gameObject != gameObject)
+    /// <summary>
+    /// Recomputes the path from the current live position, bounded by maxRepathAttempts before
+    /// giving up via Stop() — covers both a stalled waypoint (dynamic obstacle blocking progress)
+    /// and a partial path that ran out of nodes without reaching the real destination.
+    /// </summary>
+    private void TryRepathOrGiveUp()
+    {
+        _repathAttempts++;
+        if (_repathAttempts > maxRepathAttempts || !targetPosition.HasValue)
         {
-            // Only re-decide which side to dodge every AvoidSideHoldTime seconds — re-deciding
-            // every frame from marginal, symmetric side readings is what caused the left/right
-            // flip-flop jitter. Hold the last decision until it expires.
-            if (_avoidSideTimer <= 0f)
-            {
-                Vector2 leftDir = new Vector2(-moveDir.y, moveDir.x); // Perpendicular left
-                Vector2 rightDir = new Vector2(moveDir.y, -moveDir.x); // Perpendicular right
-
-                RaycastHit2D leftHit = Physics2D.CircleCast(currentPos, _colliderRadius, leftDir, lookAhead, obstacleLayer);
-                RaycastHit2D rightHit = Physics2D.CircleCast(currentPos, _colliderRadius, rightDir, lookAhead, obstacleLayer);
-
-                float leftOpen = leftHit.collider == null || leftHit.collider.gameObject == gameObject ? lookAhead : leftHit.distance;
-                float rightOpen = rightHit.collider == null || rightHit.collider.gameObject == gameObject ? lookAhead : rightHit.distance;
-
-                _avoidSide = leftOpen >= rightOpen ? -1 : 1;
-                _avoidSideTimer = AvoidSideHoldTime;
-            }
-            else
-            {
-                _avoidSideTimer -= Time.deltaTime;
-            }
-
-            Vector2 sideDir = _avoidSide < 0
-                ? new Vector2(-moveDir.y, moveDir.x)
-                : new Vector2(moveDir.y, -moveDir.x);
-            moveDir = (moveDir + sideDir).normalized;
-        }
-        else
-        {
-            // Path is clear — drop any held dodge side immediately rather than letting it expire,
-            // so the character doesn't keep arcing around an obstacle it has already passed.
-            _avoidSide = 0;
-            _avoidSideTimer = 0f;
+            Stop();
+            return;
         }
 
-        movement = moveDir;
+        stuckTimer = 0f;
+        lastPosition = rb.position;
+        ComputePath(targetPosition.Value);
     }
 
     public bool CanRoll() => !isRolling && !isAttacking && canMove && Time.time - lastRollTime >= rollCooldown;
@@ -1199,8 +1256,23 @@ public class CharacterBase : MonoBehaviour
 
     protected virtual void OnDrawGizmosSelected()
     {
-        // Visualize target position
-        if (isMovingToTarget && targetPosition.HasValue)
+        // Visualize the planned path — red is the current target waypoint, yellow are future
+        // intermediate waypoints, green is a final node that actually reaches the real
+        // destination (a yellow final node signals a partial path that will repath on arrival).
+        if (_currentPath != null && _currentPath.Count > 0)
+        {
+            Vector2 prev = transform.position;
+            for (int i = 0; i < _currentPath.Count; i++)
+            {
+                bool isCurrent = i == _currentPathIndex;
+                bool isLast    = i == _currentPath.Count - 1;
+                Gizmos.color = isCurrent ? Color.red : (isLast && _pathReachedTarget ? Color.green : Color.yellow);
+                Gizmos.DrawLine(prev, _currentPath[i]);
+                Gizmos.DrawWireSphere(_currentPath[i], isLast ? 0.2f : 0.12f);
+                prev = _currentPath[i];
+            }
+        }
+        else if (isMovingToTarget && targetPosition.HasValue)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(targetPosition.Value, 0.2f);
@@ -1217,10 +1289,6 @@ public class CharacterBase : MonoBehaviour
         // Draw facing direction arrow
         Gizmos.color = Color.cyan;
         Gizmos.DrawLine(transform.position, (Vector2)transform.position + FacingDirectionToVector(facingDirection) * 0.5f);
-
-        // Visualize obstacle check distance
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // Orange
-        Gizmos.DrawWireSphere(transform.position, obstacleCheckDistance);
     }
 
     #endregion

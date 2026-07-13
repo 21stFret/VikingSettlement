@@ -29,9 +29,6 @@ public class VillagerWanderState : AIStateBase
 
             if (!v.IsPointWalkable(pt)) continue;
 
-            if (Physics2D.Raycast(v.transform.position, dir, dist, v.VillagerController.obstacleLayer).collider != null)
-                continue;
-
             v.VillagerController.MoveTo(pt);
             return true;
         }

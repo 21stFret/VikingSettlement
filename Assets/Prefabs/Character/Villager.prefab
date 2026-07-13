@@ -613,9 +613,6 @@ MonoBehaviour:
   workLocation: {fileID: 0}
   workRadius: 2
   combatEngageRange: 1
-  movementLayerMask:
-    serializedVersion: 2
-    m_Bits: 1
   isInRaidMode: 0
   followTarget: {fileID: 0}
   followDistance: 2
@@ -700,9 +697,12 @@ MonoBehaviour:
   canMove: 1
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 1024
-  obstacleCheckDistance: 1
-  stuckTimeout: 3
+    m_Bits: 1088
+  stuckTimeout: 1
+  maxPathNodes: 10
+  maxRepathAttempts: 2
+  waypointArrivalRadius: 0.3
+  minRepathInterval: 0.5
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
@@ -742,7 +742,7 @@ MonoBehaviour:
   knockbackForce: 5
   knockbackDuration: 0.1
   combatMoveSpeed: 3
-  walkMoveSpeed: 2
+  walkMoveSpeed: 1
 --- !u!114 &5493561719251364476
 MonoBehaviour:
   m_ObjectHideFlags: 0

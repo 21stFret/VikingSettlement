@@ -10579,7 +10579,6 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1024
-  obstacleCheckDistance: 0.8
   stuckTimeout: 3
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
