@@ -611,7 +611,7 @@ MonoBehaviour:
   maxDistanceFromCentre: 20
   shouldWander: 1
   workLocation: {fileID: 0}
-  workRadius: 2
+  workRadius: 5
   combatEngageRange: 1
   isInRaidMode: 0
   followTarget: {fileID: 0}
@@ -693,6 +693,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 053753da963c50d468f8da7b5b71af5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VillagerController
+  sprintMod: 2
   stopDistance: 0.1
   canMove: 1
   obstacleLayer:

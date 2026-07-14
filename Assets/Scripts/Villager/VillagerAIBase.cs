@@ -206,10 +206,9 @@ public abstract class VillagerAIBase : CombatAIBase
         ChangeState(new VillagerIdleState());
     }
 
-    public void SetWorkLocation(Transform location, float radius = 2f)
+    public void SetWorkLocation(Transform location)
     {
         workLocation = location;
-        workRadius   = radius;
         ChangeState(new VillagerMoveToWorkState());
     }
 
@@ -244,9 +243,6 @@ public abstract class VillagerAIBase : CombatAIBase
             Vector2 pt  = (Vector2)workLocation.position + Random.insideUnitCircle * workRadius;
             if (!IsPointWalkable(pt)) continue;
 
-            Vector2 dir  = (pt - (Vector2)transform.position).normalized;
-            float   dist = Vector2.Distance(transform.position, pt);
-            if (Physics2D.Raycast(transform.position, dir, dist, VillagerController.obstacleLayer).collider == null)
                 return pt;
         }
         return transform.position;

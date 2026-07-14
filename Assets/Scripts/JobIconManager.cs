@@ -22,6 +22,7 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite goldIcon;
     [SerializeField] private Sprite weaponsIcon;
     [SerializeField] private Sprite planksIcon;
+    [SerializeField] private Sprite shieldIcon;
 
     private void Awake()
     {
@@ -71,6 +72,7 @@ public class IconManager : MonoBehaviour
             case ResourceType.Gold: return goldIcon;
             case ResourceType.Weapons: return weaponsIcon;
             case ResourceType.Planks: return planksIcon;
+            case ResourceType.Shields: return shieldIcon;
             default: return null;
         }
     }
