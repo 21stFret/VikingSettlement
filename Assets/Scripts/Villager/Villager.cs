@@ -157,12 +157,18 @@ public class Villager : TargetHealth
         
         currentJob = job;
         assignedBuilding = building;
+
+        foreach (var ai in GetComponents<VillagerAIBase>())
+            ai.SetWorkLocation(building != null ? building.transform : null);
     }
-    
+
     public void UnassignJob()
     {
         currentJob = JobType.None;
         assignedBuilding = null;
+
+        foreach (var ai in GetComponents<VillagerAIBase>())
+            ai.SetWorkLocation(null);
     }
 
     public float GetSkillMultiplier(JobType job)

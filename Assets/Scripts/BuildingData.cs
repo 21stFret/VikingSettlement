@@ -121,7 +121,7 @@ public enum ResourceType
     Weapons,
     Tools,
     Armor,
-    Clothing,
+    Shields,
     Sails,
     Leather,
     Mead,

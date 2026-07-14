@@ -106,6 +106,14 @@ public static class SettlementSimulator
             buildingRoster[b] = b.assignedWorkers.Where(w => w != null && stateByVillager.ContainsKey(w)).ToList();
         }
 
+        // Resource types the settlement is actually gathering this raid (staffed ResourceGathering
+        // buildings only) — used to keep random events from blessing/trading resources nobody produces.
+        var producedResourceTypes = new HashSet<ResourceType>(
+            buildingRoster.Where(kvp => kvp.Value.Count > 0)
+                .Select(kvp => kvp.Key.data)
+                .Where(d => d != null && d.productionType == ProductionType.ResourceGathering && d.producedResource != ResourceType.None)
+                .Select(d => d.producedResource));
+
         // Deferred skill-gain bookkeeping — completions are tallied here and applied once, atomically, by
         // the caller (RaidManager.ApplySettlementReport), never mutated live from inside this loop.
         var skillCompletionsAccrued = new Dictionary<Villager, int>();
@@ -232,7 +240,7 @@ public static class SettlementSimulator
             }
 
             // ---- STEP B: RANDOM EVENTS (per-villager identity) ----
-            SimulateRandomEventsForDay(dayIndex + 1, aliveStates, report);
+            SimulateRandomEventsForDay(dayIndex + 1, aliveStates, report, producedResourceTypes);
 
             // ---- STEP C: WOOD / COLD ----
             float woodNeeded = SettlementFormulas.GetWoodCost(population, woodPerVillagerBase, season, coldDay, stormMul, woodConsumptionMult);
@@ -488,7 +496,7 @@ public static class SettlementSimulator
     /// Random events for a single simulated day, applied directly to per-villager sim state so casualties
     /// and morale changes carry into the rest of that same day's (and subsequent days') processing.
     /// </summary>
-    private static void SimulateRandomEventsForDay(int dayNumber, List<VillagerSimState> aliveStates, SettlementReport report)
+    private static void SimulateRandomEventsForDay(int dayNumber, List<VillagerSimState> aliveStates, SettlementReport report, HashSet<ResourceType> producedResourceTypes)
     {
         // Wolf attack — one random victim takes the full damage.
         if (aliveStates.Count > 0 && Random.value < WOLF_ATTACK_CHANCE)
@@ -505,19 +513,27 @@ public static class SettlementSimulator
             });
         }
 
-        // Good harvest bonus — resource-only.
+        // Good harvest bonus — resource-only, restricted to whichever of Wheat/Fish the settlement is
+        // actually gathering this raid. No staffed farm/fishing dock means no harvest to bless.
         if (Random.value < GOOD_HARVEST_CHANCE)
         {
-            ResourceType bonusType = Random.value > 0.5f ? ResourceType.Wheat : ResourceType.Fish;
-            int bonusAmount = Mathf.FloorToInt(Random.Range(5f, 15f));
-            report.resourceChanges[bonusType] += bonusAmount;
+            var harvestCandidates = new List<ResourceType>();
+            if (producedResourceTypes.Contains(ResourceType.Wheat)) harvestCandidates.Add(ResourceType.Wheat);
+            if (producedResourceTypes.Contains(ResourceType.Fish)) harvestCandidates.Add(ResourceType.Fish);
 
-            report.events.Add(new SettlementEvent
+            if (harvestCandidates.Count > 0)
             {
-                eventName = "Bountiful Harvest",
-                description = $"The gods blessed the settlement with extra {bonusType} on day {dayNumber}.",
-                eventType = SettlementEventType.Positive
-            });
+                ResourceType bonusType = harvestCandidates[Random.Range(0, harvestCandidates.Count)];
+                int bonusAmount = Mathf.FloorToInt(Random.Range(5f, 15f));
+                report.resourceChanges[bonusType] += bonusAmount;
+
+                report.events.Add(new SettlementEvent
+                {
+                    eventName = "Bountiful Harvest",
+                    description = $"The gods blessed the settlement with extra {bonusType} on day {dayNumber}.",
+                    eventType = SettlementEventType.Positive
+                });
+            }
         }
 
         // Villager gets sick — one random victim, non-combat damage.
@@ -584,7 +600,7 @@ public static class SettlementSimulator
             ResourceType.Tools,
             ResourceType.Weapons,
             ResourceType.Leather,
-            ResourceType.Clothing
+            ResourceType.Shields
         };
 
         return tradeResources[Random.Range(0, tradeResources.Length)];

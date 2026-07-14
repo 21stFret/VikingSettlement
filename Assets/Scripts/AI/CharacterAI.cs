@@ -116,7 +116,7 @@ public abstract class CharacterAI : MonoBehaviour
     public bool CanBlock => (_blockCharges < 0 ? MaxBlockCharges : _blockCharges) > 0;
 
     /// <summary>True if this fighter can raise a reactive block right now — requires an equipped shield and an available charge.</summary>
-    public bool CanBlockNow => Controller.shield != null && CanBlock;
+    public bool CanBlockNow => Controller.shield != null && !Controller.shield.IsBroken && CanBlock;
 
     /// <summary>True if this fighter can dodge-roll right now — requires the dodge-roll ability (per CombatStats, class-specific) and the roll not being on cooldown.</summary>
     public bool CanDodgeNow => (CombatStats == null || CombatStats.CanDodge) && Controller.CanRoll();
