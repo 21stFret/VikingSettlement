@@ -313,12 +313,6 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Re-enable AI on previous target
-        if (targetAI != null)
-        {
-            targetAI.SetAIEnabled(true);
-        }
-
         // Clear block state on old target — reactive blocking resumes automatically once its AI re-enables
         if (controller != null)
         {

@@ -572,6 +572,7 @@ public class CharacterBase : MonoBehaviour
     public bool CanAttack()
     {
         if (isBlocking) return false;
+        if(itemAttachment.weapon == null) return false;
         return Time.time - lastAttackTime >= GetAttackDelay();
     }
 

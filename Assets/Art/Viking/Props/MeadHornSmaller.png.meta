@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7adc423e857da2d4387502c1111d7009
+guid: c4b872bc7445bb74199a03623fbc681a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4158003546501073511
-    second: village_bush_2_0
+      213: -6697523145855669567
+    second: MeadHornSmaller_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -50,7 +50,7 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 9
-  spritePivot: {x: 0.5032362, y: 0.06634299}
+  spritePivot: {x: 0.25836027, y: 0.25188774}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -74,7 +74,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: village_bush_2_0
+      name: MeadHornSmaller_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 32
-        height: 24
+        x: 3
+        y: 3
+        width: 11
+        height: 11
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9953df3fdcdcb46c0800000000000000
-      internalID: -4158003546501073511
+      spriteID: 1cae0501f2e9d03a0800000000000000
+      internalID: -6697523145855669567
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      village_bush_2_0: -4158003546501073511
+      MeadHornSmaller_0: -6697523145855669567
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

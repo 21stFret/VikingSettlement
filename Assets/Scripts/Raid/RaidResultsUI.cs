@@ -27,9 +27,6 @@ public class RaidResultsUI : MonoBehaviour
     [Header("Casualties")]
     public TMP_Text casualtiesText;
 
-    [Header("Trip Over")]
-    public Button returnButton;
-
     [Header("Chain Choice")]
     public Button keepSailingButton;
     public TMP_Text keepSailingButtonLabel;
@@ -40,9 +37,6 @@ public class RaidResultsUI : MonoBehaviour
     {
         if (resultsPanel != null)
             resultsPanel.SetActive(false);
-
-        if (returnButton != null)
-            returnButton.onClick.AddListener(OnReturnClicked);
 
         if (keepSailingButton != null)
             keepSailingButton.onClick.AddListener(OnKeepSailingClicked);
@@ -95,27 +89,16 @@ public class RaidResultsUI : MonoBehaviour
         if (casualtiesText != null)
             casualtiesText.text = FormatCasualties(report.casualties);
 
-        if (returnButton != null) returnButton.gameObject.SetActive(true);
         if (keepSailingButton != null) keepSailingButton.gameObject.SetActive(false);
-        if (goHomeButton != null) goHomeButton.gameObject.SetActive(false);
+        if (goHomeButton != null) goHomeButton.gameObject.SetActive(true);
 
-        UIFocus.Set(returnButton.gameObject);
+        UIFocus.Set(goHomeButton.gameObject);
     }
 
     private void ShowLegChoice(LegReport report)
     {
         if (resultsPanel != null)
             resultsPanel.SetActive(true);
-
-        if (resultHeaderText != null)
-        {
-            resultHeaderText.text = report.result switch
-            {
-                RaidResult.Victory => "Victory!",
-                RaidResult.Retreat => "Retreat",
-                _                  => "Raid Over"
-            };
-        }
 
         if (timeSummaryText != null)
             timeSummaryText.text = $"{report.totalTimeAwaySoFar:F1} days away so far";
@@ -126,7 +109,6 @@ public class RaidResultsUI : MonoBehaviour
         if (casualtiesText != null)
             casualtiesText.text = FormatCasualties(report.legCasualties);
 
-        if (returnButton != null) returnButton.gameObject.SetActive(false);
         if (goHomeButton != null) goHomeButton.gameObject.SetActive(true);
 
         if (keepSailingButton != null)
@@ -143,14 +125,6 @@ public class RaidResultsUI : MonoBehaviour
         UIFocus.Set(focusTarget);
     }
 
-    private void OnReturnClicked()
-    {
-        if (RaidManager.Instance != null)
-            RaidManager.Instance.LoadSettlementScene();
-        else
-            Debug.LogError("RaidResultsUI: RaidManager gone — cannot load settlement.");
-    }
-
     private void OnKeepSailingClicked()
     {
         if (resultsPanel != null)
@@ -165,7 +139,13 @@ public class RaidResultsUI : MonoBehaviour
     private void OnGoHomeClicked()
     {
         // Synchronously fires RaidManager.OnRaidEnded -> ShowResults re-shows the panel in trip-over mode.
-        RaidManager.Instance?.GoHome();
+        if (RaidManager.Instance != null)
+        {
+            RaidManager.Instance?.GoHome();
+            RaidManager.Instance.LoadSettlementScene();
+        }
+        else
+            Debug.LogError("RaidResultsUI: RaidManager gone — cannot load settlement.");
     }
 
     private string FormatLoot(List<ResourceLoot> loot)

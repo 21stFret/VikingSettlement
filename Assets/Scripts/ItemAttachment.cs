@@ -137,6 +137,22 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
+    public void UnequipWeapon()
+    {
+        weapon.SetActive(false);
+
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.weapon = null;
+        }
+
+        if (weapon != null)
+        {
+            weapon = null;
+        }
+    }
+
     public void GiveRandomWeapon()
     {
         // This is a placeholder implementation. Replace with actual weapon selection logic.

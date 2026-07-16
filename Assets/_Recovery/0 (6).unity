@@ -141494,10 +141494,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bush
       objectReference: {fileID: 0}
-    - target: {fileID: 8109180730507413371, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Layer
-      value: 2
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -313929,18 +313925,6 @@ PrefabInstance:
       propertyPath: 'linkedSpriteRenderers.Array.data[13]'
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 4136659548306027060, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Radius
-      value: 0.45
-      objectReference: {fileID: 0}
-    - target: {fileID: 4136659548306027060, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Offset.x
-      value: 0.060000002
-      objectReference: {fileID: 0}
-    - target: {fileID: 4136659548306027060, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Offset.y
-      value: 0.57
-      objectReference: {fileID: 0}
     - target: {fileID: 4862612534394780940, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -19.35
@@ -313981,10 +313965,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5982863591258353613, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: 7adc423e857da2d4387502c1111d7009, type: 3}
     - target: {fileID: 7827704647964462574, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: shadowMaster
       value: 
@@ -313992,10 +313972,6 @@ PrefabInstance:
     - target: {fileID: 8109180730507413371, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: m_Name
       value: Bush (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8109180730507413371, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
-      propertyPath: m_Layer
-      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -421637,7 +421613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillTreeManager
   allSkills:
-  - {fileID: 11400000, guid: 442ea73e65738324b83e6461ab9faa19, type: 2}
+  - {fileID: 0}
   currentXP: 0
   unlockedSkillIds: []
 --- !u!1001 &2114805653

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7adc423e857da2d4387502c1111d7009
+guid: d603049296d9b924b90063007063eb89
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4158003546501073511
-    second: village_bush_2_0
+      213: 8033999896522221316
+    second: Viking_Poor_House_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -50,7 +50,7 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 9
-  spritePivot: {x: 0.5032362, y: 0.06634299}
+  spritePivot: {x: 0.4967637, y: 0.13106793}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -74,7 +74,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: village_bush_2_0
+      name: Viking_Poor_House_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 32
-        height: 24
+        y: 9
+        width: 92
+        height: 75
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9953df3fdcdcb46c0800000000000000
-      internalID: -4158003546501073511
+      spriteID: 4076bb507508e7f60800000000000000
+      internalID: 8033999896522221316
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      village_bush_2_0: -4158003546501073511
+      Viking_Poor_House_0: 8033999896522221316
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

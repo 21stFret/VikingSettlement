@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 7adc423e857da2d4387502c1111d7009
+guid: 6b35ef1f7a69db245aea663818a4a34e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4158003546501073511
-    second: village_bush_2_0
+      213: -2410052722346609342
+    second: barrelHouseTone_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -50,7 +50,7 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 9
-  spritePivot: {x: 0.5032362, y: 0.06634299}
+  spritePivot: {x: 0.5183387, y: 0.18716283}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -74,7 +74,7 @@ TextureImporter:
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 4
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: village_bush_2_0
+      name: barrelHouseTone_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 32
-        height: 24
+        x: 10
+        y: 4
+        width: 14
+        height: 23
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9953df3fdcdcb46c0800000000000000
-      internalID: -4158003546501073511
+      spriteID: 245319a61d5cd8ed0800000000000000
+      internalID: -2410052722346609342
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      village_bush_2_0: -4158003546501073511
+      barrelHouseTone_0: -2410052722346609342
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

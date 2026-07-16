@@ -85317,6 +85317,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -45.83945
       objectReference: {fileID: 0}
+    - target: {fileID: 3605828747436305432, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4412996824292120742, guid: 0e5e1db25adfc4e4081d1aac3bef5ebb, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -91656,6 +91660,7 @@ MonoBehaviour:
   goldIcon: {fileID: 0}
   weaponsIcon: {fileID: 21300000, guid: fb4040088e87e3945abb21e948cdec36, type: 2}
   planksIcon: {fileID: 21300000, guid: fd7d2888bb01c2d46915d99537c2c574, type: 2}
+  shieldIcon: {fileID: 0}
 --- !u!114 &755482535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133009,7 +133014,6 @@ MonoBehaviour:
   timeSummaryText: {fileID: 1540235800}
   lootText: {fileID: 258985906}
   casualtiesText: {fileID: 562303303}
-  returnButton: {fileID: 2097432913}
   keepSailingButton: {fileID: 0}
   keepSailingButtonLabel: {fileID: 0}
   goHomeButton: {fileID: 0}
@@ -250187,17 +250191,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3365786999230606381, guid: 70e3d0b452ff85b48971249d54a2f326, type: 3}
   m_PrefabInstance: {fileID: 2097432911}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2097432913 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 293488419383752680, guid: 70e3d0b452ff85b48971249d54a2f326, type: 3}
-  m_PrefabInstance: {fileID: 2097432911}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!1 &2098672493
 GameObject:
   m_ObjectHideFlags: 0
@@ -265233,6 +265226,7 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

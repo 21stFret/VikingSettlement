@@ -159,6 +159,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         Debug.Log($"The settlement celebrates {newJarl.villagerName} as the new Jarl!");
 
+        AttackCooldownUI.Instance.Init();
+
         // Apply morale bonus for new leader
         foreach (var villager in allVillagers)
         {

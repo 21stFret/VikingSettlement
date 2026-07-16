@@ -137,6 +137,8 @@ public class RaidManager : MonoBehaviour
         Debug.Log($"Starting raid to {destination.destinationName} with {raidParty.Count} villagers. Settlement loses {destination.GetGameDaysPassed():F1} days.");
         OnRaidStarted?.Invoke(destination);
 
+        GameManager.Instance.PrepareRaid();
+
         if (!string.IsNullOrEmpty(destination.sceneName))
             LoadScene(destination.sceneName);
 
@@ -290,8 +292,10 @@ public class RaidManager : MonoBehaviour
         foreach (var survivor in raidReport.survivors)
         {
             if (survivor != null && !string.IsNullOrEmpty(survivor.uniqueId))
+            {
                 pendingRaidResults.survivorHealth[survivor.uniqueId] = survivor.currentHealth;
                 pendingRaidResults.survivorEquipment[survivor.uniqueId] = survivor.GetEquipmentState();
+            }
         }
 
         isOnRaid    = false;

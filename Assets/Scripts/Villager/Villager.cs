@@ -265,16 +265,6 @@ public class Villager : TargetHealth
     {
         Debug.Log($"{villagerName} transitioned from {from} to {to} at age {age:F1}");
         
-        // Unassign job if no longer mature
-        if (to != LifeStage.Mature && currentJob != JobType.None)
-        {
-            UnassignJob();
-            if (assignedBuilding != null)
-            {
-                assignedBuilding.RemoveWorker(this);
-            }
-        }
-        
         // Handle death transition
         if (to == LifeStage.Dead)
         {

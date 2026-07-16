@@ -120,6 +120,15 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Prepare for a raid
+    /// </summary>
+    public void PrepareRaid()
+    {
+        GameInitialized = false;
+        Debug.Log("GameManager: Prepared for raid ");
+    }
+
+    /// <summary>
     /// Prepare for returning from a raid — loads the pre-raid autosave on next scene load.
     /// </summary>
     public void PrepareRaidReturn()
@@ -142,11 +151,12 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == gameSceneName && !GameInitialized)
+        if (!GameInitialized)
         {
-            if(GSB == null)
+            GSB = FindAnyObjectByType<GameSceneBootstrap>();
+            if (GSB==null)
             {
-                GSB = FindAnyObjectByType<GameSceneBootstrap>();
+                return;
             }
             StartCoroutine(InitializeGameAfterDelay());
         }

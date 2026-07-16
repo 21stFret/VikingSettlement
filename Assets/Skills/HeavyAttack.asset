@@ -19,11 +19,10 @@ MonoBehaviour:
   skillType: 0
   tier: 0
   xpCost: 100
-  prerequisites:
-  - {fileID: 0}
+  prerequisites: []
   effects:
   - effectType: 0
-    value: 0
+    value: 100
     specificJob: 0
     specificResource: 0
   treePosition: {x: 0, y: 0}
