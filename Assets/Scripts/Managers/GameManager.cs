@@ -32,6 +32,13 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool GameInitialized { get; private set; }
 
+    /// <summary>
+    /// The designated settlement/game scene name — used by GameSceneBootstrap to tell whether
+    /// the scene that just loaded is the real game scene (vs. the raid scene, which also has a
+    /// GameSceneBootstrap component but must never trigger save/spawn logic).
+    /// </summary>
+    public string GameSceneName => gameSceneName;
+
     public bool IsGameActive;
 
     private GameSceneBootstrap GSB;
@@ -54,7 +61,8 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (Instance == this)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     /// <summary>
@@ -158,28 +166,40 @@ public class GameManager : MonoBehaviour
             {
                 return;
             }
-            StartCoroutine(InitializeGameAfterDelay());
+            StartCoroutine(InitializeGameAfterDelay(scene.name));
         }
     }
 
-    private System.Collections.IEnumerator InitializeGameAfterDelay()
+    private System.Collections.IEnumerator InitializeGameAfterDelay(string loadedSceneName)
     {
         yield return null;
         yield return null;
 
+        // Only the designated game scene runs save/spawn logic. Other scenes with a Bootstrap
+        // (e.g. the raid scene) still get GSB.Init() below for their own camera/input/UI wiring,
+        // but must never touch save state or the new-game spawn path — this scene has no
+        // SettlementManager/VillagerSpawner of its own, so "isNewGame" logic in
+        // GameSceneBootstrap was reaching through a stale, destroyed VillagerSpawner.Instance
+        // left over from the settlement scene (a `?.` call doesn't catch Unity's "fake null" on
+        // a destroyed object) and throwing MissingReferenceException on old spawn-point Transforms.
+        bool isGameScene = loadedSceneName == gameSceneName;
+
         bool didLoadSave = false;
-        if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
+        if (isGameScene)
         {
-            Debug.Log($"Applying save data from: {SaveFileToLoad}");
-            SaveManager.Instance.LoadGame(SaveFileToLoad);
-            didLoadSave = true;
-        }
-        else if (!ShouldLoadSave && SaveManager.Instance != null)
-        {
-            // New game - create initial save after a short delay
-            yield return new WaitForSeconds(0.5f);
-            SaveManager.Instance.SaveToCurrentSlot();
-            Debug.Log("Initial save created");
+            if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
+            {
+                Debug.Log($"Applying save data from: {SaveFileToLoad}");
+                SaveManager.Instance.LoadGame(SaveFileToLoad);
+                didLoadSave = true;
+            }
+            else if (!ShouldLoadSave && SaveManager.Instance != null)
+            {
+                // New game - create initial save after a short delay
+                yield return new WaitForSeconds(0.5f);
+                SaveManager.Instance.SaveToCurrentSlot();
+                Debug.Log("Initial save created");
+            }
         }
 
         GameInitialized = true;
@@ -192,7 +212,7 @@ public class GameManager : MonoBehaviour
         // Apply pending raid results AFTER Bootstrap has initialized UI and managers —
         // Jarl-casualty succession fires events that require JarlManager, cameras, and
         // succession UI to be ready (B37).
-        if (didLoadSave)
+        if (isGameScene && didLoadSave)
         {
             RaidManager.Instance?.ApplyPendingResults();
         }

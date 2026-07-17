@@ -32,6 +32,16 @@ public class VillagerSpawner : MonoBehaviour
         }
     }
 
+    // Without this, Instance keeps pointing at this (now-destroyed) object after a scene unload.
+    // A `?.` call elsewhere doesn't catch Unity's "fake null" on a destroyed object the way `==`
+    // does, so a stray VillagerSpawner.Instance?.Foo() in a scene with no VillagerSpawner of its
+    // own would silently call through to stale, already-destroyed scene data instead of no-op'ing.
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     /// <summary>
     /// Spawn the starting villagers for a brand-new game.
     /// Called by Bootstrap only when not loading from a save file.

@@ -48,8 +48,13 @@ public class GameSceneBootstrap : MonoBehaviour
 
         // Layer 3: spawn villagers for a new game only (save-loaded villagers are already
         // instantiated and registered by SettlementManager.LoadSaveData before Bootstrap runs).
+        // Guarded on being in the actual game scene — the raid scene also carries a
+        // GameSceneBootstrap (for its own camera/input/UI wiring) but has no VillagerSpawner of
+        // its own, so this must never run there (see GameManager.InitializeGameAfterDelay).
         JarlManager.Instance?.Init();
-        bool isNewGame = GameManager.Instance != null && !GameManager.Instance.ShouldLoadSave;
+        bool isGameScene = GameManager.Instance != null
+            && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.Instance.GameSceneName;
+        bool isNewGame = isGameScene && !GameManager.Instance.ShouldLoadSave;
         if (isNewGame)
             VillagerSpawner.Instance?.SpawnInitialSettlement();
 
