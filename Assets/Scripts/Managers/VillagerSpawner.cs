@@ -172,7 +172,7 @@ public class VillagerSpawner : MonoBehaviour
 
         // Skills
         v.skills.farming       = vs.skills.farming;
-        v.skills.fishing       = vs.skills.fishing;
+        v.skills.hunting       = vs.skills.fishing;
         v.skills.mining        = vs.skills.mining;
         v.skills.woodcutting   = vs.skills.woodcutting;
         v.skills.crafting      = vs.skills.crafting;

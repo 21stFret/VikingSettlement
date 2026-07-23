@@ -736,7 +736,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 skills = new VillagerSkillsSave
                 {
                     farming = v.skills.farming,
-                    fishing = v.skills.fishing,
+                    fishing = v.skills.hunting,
                     mining = v.skills.mining,
                     woodcutting = v.skills.woodcutting,
                     crafting = v.skills.crafting,

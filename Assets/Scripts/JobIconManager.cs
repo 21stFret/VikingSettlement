@@ -10,7 +10,6 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite fishermanIcon;
     [SerializeField] private Sprite craftingIcon;
     [SerializeField] private Sprite combatIcon;
-    [SerializeField] private Sprite sailingIcon;
 
     [Header("Resource Icons")]
     [SerializeField] private Sprite wheatIcon;
@@ -46,9 +45,7 @@ public class IconManager : MonoBehaviour
             case JobType.Fisherman: return fishermanIcon;
             case JobType.Smith: return craftingIcon;
             case JobType.Carpenter: return woodcutterIcon;
-            case JobType.Weaver: return craftingIcon;
             case JobType.Tanner: return farmerIcon;
-            case JobType.Shipwright: return sailingIcon;
             case JobType.Brewer: return craftingIcon;
             case JobType.Warrior: return combatIcon;
             case JobType.Archer: return combatIcon;

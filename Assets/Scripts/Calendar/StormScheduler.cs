@@ -31,6 +31,17 @@ public class StormScheduler : MonoBehaviour, ISaveable
         public int EndDay => startDay + duration - 1;
     }
 
+    private struct ColdSpellEntry
+    {
+        public int startDay;   // 1-indexed winter day, start of the Cold ramp stage
+        public int rampDays;   // Cold, ramping up
+        public int peakDays;   // Frozen, the peak of the spell
+        public int taperDays;  // Cold, easing back down
+
+        public int TotalDays => rampDays + peakDays + taperDays;
+        public int EndDay => startDay + TotalDays - 1;
+    }
+
     // ── Serialised parameters ─────────────────────────────────────────────────
 
     [Header("Schedule")]
@@ -44,14 +55,31 @@ public class StormScheduler : MonoBehaviour, ISaveable
     [SerializeField] private float stormLightWoodMultiplier = 1.5f;
     [SerializeField] private float stormHeavyWoodMultiplier = 2.5f;
 
-    [Header("Cold Day Weights")]
-    [Tooltip("Cold/Frozen roll chance per season quarter (x = Cold, y = Frozen; index 0 = first quarter, 3 = last). " +
-             "Literal probabilities, not normalized — whatever's left over (1 - Cold - Frozen) is a Chilly day " +
-             "(no cold effect), matching the winter shade with no separate indicator needed.")]
-    [SerializeField] private Vector2 q1ColdWeights = new Vector2(0.30f, 0.00f); // Cold, Frozen
-    [SerializeField] private Vector2 q2ColdWeights = new Vector2(0.45f, 0.15f);
-    [SerializeField] private Vector2 q3ColdWeights = new Vector2(0.40f, 0.40f);
-    [SerializeField] private Vector2 q4ColdWeights = new Vector2(0.30f, 0.60f);
+    [Header("Cold Spells")]
+    [Tooltip("Each cold spell is a contiguous cold snap: it ramps from Cold up to Frozen, then eases " +
+             "back down through Cold before returning to a normal (Chilly) day. Days outside any spell " +
+             "default to Chilly. Number of spells scheduled per winter.")]
+    [SerializeField] private int minColdSpellsPerWinter = 2;
+    [SerializeField] private int maxColdSpellsPerWinter = 5;
+
+    [Tooltip("Days spent at the Cold stage on the way up to Frozen, and again (rolled independently) " +
+             "on the way back down — a spell need not be symmetric.")]
+    [SerializeField] private int minColdStageDays = 1;
+    [SerializeField] private int maxColdStageDays = 2;
+
+    [Tooltip("Days spent at the Frozen peak in the middle of a spell.")]
+    [SerializeField] private int minFrozenStageDays = 1;
+    [SerializeField] private int maxFrozenStageDays = 2;
+
+    [SerializeField] private int minGapBetweenColdSpells = 2;
+
+    [Tooltip("Relative weight of a spell landing in each quarter of winter (index 0 = first quarter, " +
+             "3 = last). Higher = more spells that quarter. Defaults skew spells toward late winter, " +
+             "so cold spells get more frequent as the season progresses.")]
+    [SerializeField] private float q1SpellWeight = 1f;
+    [SerializeField] private float q2SpellWeight = 2f;
+    [SerializeField] private float q3SpellWeight = 3f;
+    [SerializeField] private float q4SpellWeight = 4f;
 
     // ── Runtime state ─────────────────────────────────────────────────────────
 
@@ -245,41 +273,15 @@ public class StormScheduler : MonoBehaviour, ISaveable
     }
 
     /// <summary>
-    /// Rolls whether a single winter day is Cold or Frozen. Weights are literal probabilities
-    /// (not normalized to sum to 1) — whatever isn't covered by Cold + Frozen is left unscheduled,
-    /// which GetColdDayType() reports as Chilly (no cold effect) via its default fallback. This is
-    /// the same sparse-schedule shape storms use: most days simply have no entry.
-    /// Weighting skews harsher as the season progresses (four quarters, each with its own weights).
-    /// Frozen is excluded entirely in the first quarter regardless of configured weight.
-    /// TODO (Fimbulwinter / Age progression): scale weights harsher per Age here — see handoff note.
-    /// </summary>
-    private ColdDayType? RollColdDayType(int dayIndex, int seasonLengthDays)
-    {
-        int quarter = Mathf.Clamp(dayIndex * 4 / Mathf.Max(1, seasonLengthDays), 0, 3);
-        Vector2 weights = quarter switch
-        {
-            0 => q1ColdWeights,
-            1 => q2ColdWeights,
-            2 => q3ColdWeights,
-            _ => q4ColdWeights
-        };
-
-        float coldWeight   = weights.x;
-        float frozenWeight = quarter == 0 ? 0f : weights.y; // hard rule: no Frozen in the first quarter
-
-        float roll = UnityEngine.Random.value;
-        if (roll < coldWeight) return ColdDayType.Cold;
-        if (roll < coldWeight + frozenWeight) return ColdDayType.Frozen;
-        return null; // leftover probability — no schedule entry, falls back to Chilly (no cold effect)
-    }
-
-    /// <summary>
-    /// Generates the cold day schedule for the winter that just started, one roll per day.
-    /// Sparse — only days that roll Cold or Frozen get an entry (see RollColdDayType). Keyed by
-    /// absolute day so GetColdDayType() is a plain O(1) lookup with no winter-day math at query
-    /// time — the anchor (season start) is derived once here via GetCurrentWinterDay(), the same
-    /// helper storms use, so it's correct whether called on the transition tick or mid-winter
-    /// (new game started partway through winter).
+    /// Generates the cold day schedule for the winter that just started, as a set of contiguous
+    /// cold spells (Cold ramp → Frozen peak → Cold taper) rather than independent per-day rolls —
+    /// a real cold snap always eases in and out through Cold rather than jumping straight in/out of
+    /// Frozen. Keyed by absolute day so GetColdDayType() is a plain O(1) lookup with no winter-day
+    /// math at query time — the anchor (season start) is derived once here via GetCurrentWinterDay(),
+    /// the same helper storms use, so it's correct whether called on the transition tick or
+    /// mid-winter (new game started partway through winter). Days outside any spell are left
+    /// unscheduled and fall back to Chilly via GetColdDayType()'s default.
+    /// TODO (Fimbulwinter / Age progression): scale spell count/severity harsher per Age here.
     /// </summary>
     private void GenerateColdDaySchedule(int seasonLengthDays)
     {
@@ -295,12 +297,107 @@ public class StormScheduler : MonoBehaviour, ISaveable
         int currentWinterDay     = GetCurrentWinterDay(); // 0 on the transition tick itself
         int seasonStartAbsoluteDay = currentAbsDay - currentWinterDay;
 
-        for (int dayIndex = 0; dayIndex < seasonLengthDays; dayIndex++)
+        List<ColdSpellEntry> spells = PlaceColdSpells(seasonLengthDays);
+
+        foreach (var spell in spells)
         {
-            ColdDayType? type = RollColdDayType(dayIndex, seasonLengthDays);
-            if (type.HasValue)
-                _coldDaySchedule[seasonStartAbsoluteDay + dayIndex] = type.Value;
+            int day = spell.startDay; // 1-indexed
+            for (int i = 0; i < spell.rampDays; i++)
+                _coldDaySchedule[seasonStartAbsoluteDay + (day++ - 1)] = ColdDayType.Cold;
+            for (int i = 0; i < spell.peakDays; i++)
+                _coldDaySchedule[seasonStartAbsoluteDay + (day++ - 1)] = ColdDayType.Frozen;
+            for (int i = 0; i < spell.taperDays; i++)
+                _coldDaySchedule[seasonStartAbsoluteDay + (day++ - 1)] = ColdDayType.Cold;
         }
+
+        Debug.Log($"[StormScheduler] Scheduled {spells.Count} cold spell(s) for this winter:");
+        foreach (var s in spells)
+            Debug.Log($"  Days {s.startDay}–{s.EndDay} | Cold {s.rampDays}d → Frozen {s.peakDays}d → Cold {s.taperDays}d");
+    }
+
+    /// <summary>
+    /// Randomly places cold spells across the winter, biased toward later quarters via
+    /// q1-q4SpellWeight so spells get more frequent as the season progresses. Each spell is a
+    /// contiguous Cold-ramp → Frozen-peak → Cold-taper block. Uses rejection sampling against
+    /// already-placed spells (respecting minGapBetweenColdSpells) rather than the tight slot-packing
+    /// GenerateStormSchedule uses — spell count/length here is small relative to season length, and
+    /// an occasional dropped spell (logged) is an acceptable trade for simplicity.
+    /// </summary>
+    private List<ColdSpellEntry> PlaceColdSpells(int seasonLengthDays)
+    {
+        var spells = new List<ColdSpellEntry>();
+        int spellCount = UnityEngine.Random.Range(minColdSpellsPerWinter, maxColdSpellsPerWinter + 1);
+
+        float[] quarterWeights = { q1SpellWeight, q2SpellWeight, q3SpellWeight, q4SpellWeight };
+        float totalWeight = quarterWeights[0] + quarterWeights[1] + quarterWeights[2] + quarterWeights[3];
+        if (totalWeight <= 0f) totalWeight = 1f;
+
+        const int maxAttemptsPerSpell = 20;
+
+        for (int i = 0; i < spellCount; i++)
+        {
+            int rampDays  = UnityEngine.Random.Range(minColdStageDays, maxColdStageDays + 1);
+            int peakDays  = UnityEngine.Random.Range(minFrozenStageDays, maxFrozenStageDays + 1);
+            int taperDays = UnityEngine.Random.Range(minColdStageDays, maxColdStageDays + 1);
+            int spellLength = rampDays + peakDays + taperDays;
+
+            int quarter      = PickWeightedQuarter(quarterWeights, totalWeight);
+            int quarterStart = quarter * seasonLengthDays / 4 + 1;
+            int quarterEnd   = (quarter + 1) * seasonLengthDays / 4;
+
+            bool placed = false;
+            for (int attempt = 0; attempt < maxAttemptsPerSpell && !placed; attempt++)
+            {
+                int latestStart = quarterEnd - spellLength + 1;
+                if (latestStart < quarterStart) break; // spell doesn't fit in this quarter at all
+
+                int startDay = UnityEngine.Random.Range(quarterStart, latestStart + 1);
+                var candidate = new ColdSpellEntry
+                {
+                    startDay  = startDay,
+                    rampDays  = rampDays,
+                    peakDays  = peakDays,
+                    taperDays = taperDays
+                };
+
+                if (candidate.startDay < 1 || candidate.EndDay > seasonLengthDays) continue;
+
+                bool overlaps = false;
+                foreach (var existing in spells)
+                {
+                    if (candidate.startDay <= existing.EndDay + minGapBetweenColdSpells &&
+                        candidate.EndDay + minGapBetweenColdSpells >= existing.startDay)
+                    {
+                        overlaps = true;
+                        break;
+                    }
+                }
+
+                if (!overlaps)
+                {
+                    spells.Add(candidate);
+                    placed = true;
+                }
+            }
+
+            if (!placed)
+                Debug.LogWarning($"[StormScheduler] Could not place cold spell {i + 1}/{spellCount} (quarter {quarter + 1}) without overlap — skipped.");
+        }
+
+        spells.Sort((a, b) => a.startDay.CompareTo(b.startDay));
+        return spells;
+    }
+
+    private static int PickWeightedQuarter(float[] weights, float totalWeight)
+    {
+        float roll = UnityEngine.Random.value * totalWeight;
+        float cumulative = 0f;
+        for (int i = 0; i < weights.Length; i++)
+        {
+            cumulative += weights[i];
+            if (roll <= cumulative) return i;
+        }
+        return weights.Length - 1;
     }
 
     /// <summary>

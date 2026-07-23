@@ -113,7 +113,7 @@ public class RunestoneManager : MonoBehaviour, ISaveable
         if (jarl == null || jarl.skills == null) return RunestoneCategory.Economy;
 
         float combatScore = jarl.skills.combat;
-        float economyScore = Mathf.Max(jarl.skills.farming, jarl.skills.fishing,
+        float economyScore = Mathf.Max(jarl.skills.farming, jarl.skills.hunting,
             jarl.skills.mining, jarl.skills.woodcutting, jarl.skills.crafting);
 
         return combatScore > economyScore ? RunestoneCategory.Combat : RunestoneCategory.Economy;

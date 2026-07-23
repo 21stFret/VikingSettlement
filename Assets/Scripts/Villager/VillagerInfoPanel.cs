@@ -122,7 +122,7 @@ public class VillagerInfoPanel : MonoBehaviour
         
         // Skills
         UpdateSkillBar(farmingBar, farmingText, currentVillager.skills.farming, "Farming");
-        UpdateSkillBar(fishingBar, fishingText, currentVillager.skills.fishing, "Fishing");
+        UpdateSkillBar(fishingBar, fishingText, currentVillager.skills.hunting, "Fishing");
         UpdateSkillBar(miningBar, miningText, currentVillager.skills.mining, "Mining");
         UpdateSkillBar(woodcuttingBar, woodcuttingText, currentVillager.skills.woodcutting, "Woodcutting");
         UpdateSkillBar(craftingBar, craftingText, currentVillager.skills.crafting, "Crafting");
@@ -144,7 +144,7 @@ public class VillagerInfoPanel : MonoBehaviour
         if (bar != null)
         {
             // Normalize skill value (assuming max skill is 10)
-            bar.fillAmount = Mathf.Clamp01(skillValue / 10f);
+            bar.fillAmount = Mathf.Clamp01(skillValue / currentVillager.skills.maxSkillLevel);
         }
         
         if (text != null)

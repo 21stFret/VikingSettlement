@@ -12,7 +12,7 @@ public class Villager : TargetHealth
     public VillagerSkills skills = new VillagerSkills();
     public float skillGainRate = 1f; // Multiplier for skill gain speed
     public CombatStats combatStats = new CombatStats();
-    
+
     [Header("Status")]
     public float morale = 100f;
     public float maxMorale = 100f;
@@ -856,7 +856,7 @@ public class Villager : TargetHealth
         // Combat weighted higher for Jarl candidates
         return skills.combat * 2f +
                skills.farming +
-               skills.fishing +
+               skills.hunting +
                skills.mining +
                skills.woodcutting +
                skills.crafting +
