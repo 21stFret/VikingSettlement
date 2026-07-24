@@ -43,7 +43,7 @@ public static class VillagerNameGenerator
 
             if (gender == Gender.Female)
             {
-                last = firstFemaleNames[Random.Range(0, firstFemaleNames.Length)] + femaleSuffix;
+                last = firstMaleNames[Random.Range(0, firstMaleNames.Length)] + femaleSuffix;
             }
             else
             {

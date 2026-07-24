@@ -66,9 +66,9 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Start a new game in the specified slot.
+    /// Start a new game in the specified slot under the given clan name.
     /// </summary>
-    public void StartNewGame(int slotNumber)
+    public void StartNewGame(int slotNumber, string clanName)
     {
         CurrentSlot = slotNumber;
         ShouldLoadSave = false;
@@ -78,9 +78,10 @@ public class GameManager : MonoBehaviour
         {
             SaveManager.Instance.DeleteSlot(slotNumber);
             SaveManager.Instance.SetCurrentSlot(slotNumber);
+            SaveManager.Instance.SetClanName(clanName);
         }
 
-        Debug.Log($"Starting new game in slot {slotNumber}");
+        Debug.Log($"Starting new game in slot {slotNumber} for clan '{clanName}'");
         LoadScene(gameSceneName);
     }
 

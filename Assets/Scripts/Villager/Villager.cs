@@ -366,6 +366,7 @@ public class Villager : TargetHealth
         // Override the spawner's random name with a freshly generated one (gender already correct)
         child.villagerName = VillagerNameGenerator.GenerateNorseName(childGender, father.villagerName);
         child.gameObject.name = child.villagerName;
+        child.clanName = father.clanName; // Inherit clan name from father
 
         child.parent1 = mother;
         child.parent2 = father;

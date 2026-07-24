@@ -426,6 +426,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &8764698263912582825
 SpriteRenderer:
   serializedVersion: 2
@@ -636,18 +637,20 @@ MonoBehaviour:
   currentHealth: 0
   uniqueId: 
   villagerName: 
+  clanName: 
   currentJob: 0
   assignedBuilding: {fileID: 0}
   skills:
     intelligence: 0.1
     learningRate: 0.1
     farming: 5
-    fishing: 3
+    hunting: 1
     mining: 2
     woodcutting: 6
     crafting: 3
     combat: 1
     sailing: 1
+    maxSkillLevel: 10
   skillGainRate: 1
   combatStats:
     strength: 1
@@ -6856,7 +6859,7 @@ GameObject:
   - component: {fileID: 8708594803167090792}
   - component: {fileID: 6892182269495662423}
   - component: {fileID: 7544866169877163440}
-  m_Layer: 6
+  m_Layer: 5
   m_Name: BuildingInteractionZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}

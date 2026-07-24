@@ -190,8 +190,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SpriteShadersUltimate.InteractiveWindSSU
   runtimeMaterial: {fileID: 0}
   rotationFactor: 0.5
-  bendInSpeed: 8
-  bendOutSpeed: 8
+  bendInSpeed: 6
+  bendOutSpeed: 6
   stayBent: 1
   minBendSpeed: 1
   hyperPerformanceMode: 0

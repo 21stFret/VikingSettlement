@@ -2000,6 +2000,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &9725947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10451,6 +10469,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &38778626
 GameObject:
   m_ObjectHideFlags: 0
@@ -14242,7 +14278,7 @@ PrefabInstance:
       objectReference: {fileID: 482245564}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 23
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -14334,6 +14370,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[22]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[23]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -15816,6 +15856,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &82335573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15882,7 +15940,7 @@ PrefabInstance:
       objectReference: {fileID: 584339264}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -15970,6 +16028,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -19851,6 +19913,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &101959438
 GameObject:
   m_ObjectHideFlags: 0
@@ -19901,6 +19981,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -34714,6 +34812,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &214762316
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36307,7 +36423,7 @@ PrefabInstance:
       objectReference: {fileID: 482245564}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 24
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -36403,6 +36519,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[23]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[24]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -45213,7 +45333,7 @@ PrefabInstance:
       objectReference: {fileID: 1822552749}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -45293,6 +45413,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[19]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[20]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -46527,6 +46651,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -51743,6 +51885,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 140
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -124918,6 +125078,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &341186055
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -131654,6 +131832,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &379556526 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
@@ -132301,7 +132497,7 @@ PrefabInstance:
       objectReference: {fileID: 482245564}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 23
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -132393,6 +132589,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[22]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[23]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -137765,6 +137965,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &424258858
 GameObject:
   m_ObjectHideFlags: 0
@@ -137893,6 +138111,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -141873,7 +142109,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 14
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[2]'
@@ -141923,6 +142159,26 @@ PrefabInstance:
       propertyPath: 'linkedSpriteRenderers.Array.data[13]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[14]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[15]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[16]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[17]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[18]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4862612534394780940, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -19.84
@@ -141962,6 +142218,10 @@ PrefabInstance:
     - target: {fileID: 4862612534394780940, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7539355864369912552, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7827704647964462574, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: shadowMaster
@@ -142296,6 +142556,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -145064,7 +145342,7 @@ PrefabInstance:
       objectReference: {fileID: 479234337}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -145148,6 +145426,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -156332,6 +156614,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &511262754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157047,7 +157347,7 @@ PrefabInstance:
       objectReference: {fileID: 479234337}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -157127,6 +157427,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[19]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[20]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -158386,7 +158690,7 @@ PrefabInstance:
       objectReference: {fileID: 381472687}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -158470,6 +158774,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -160326,6 +160634,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -164762,6 +165088,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &553567418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167005,7 +167349,7 @@ PrefabInstance:
       objectReference: {fileID: 584339264}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -167089,6 +167433,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -171676,6 +172024,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &600814701
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -172678,6 +173044,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -178080,6 +178464,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &633749599
 Mesh:
   m_ObjectHideFlags: 0
@@ -179346,7 +179748,7 @@ PrefabInstance:
       objectReference: {fileID: 479234337}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -179430,6 +179832,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -180372,7 +180778,7 @@ PrefabInstance:
       objectReference: {fileID: 1822552749}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -180460,6 +180866,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -180881,6 +181291,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -184614,6 +185042,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -191647,6 +192093,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &743379648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192877,7 +193341,6 @@ MonoBehaviour:
   fishermanIcon: {fileID: 21300000, guid: 9030297768fd1c1458e59f844bf32795, type: 2}
   craftingIcon: {fileID: 21300000, guid: 0c5fb70d4502f844f87ef7c6d1d01f18, type: 2}
   combatIcon: {fileID: 21300000, guid: 6c540493d9cfe274284b3a7a44d4997a, type: 2}
-  sailingIcon: {fileID: 0}
   wheatIcon: {fileID: 21300000, guid: eb0252f81e533994cae52e09f286d467, type: 2}
   fishIcon: {fileID: 21300000, guid: 00a83fbbe65dbc640862b0d1c7a00c2e, type: 2}
   woodIcon: {fileID: 21300000, guid: 6ae88d34b90fc6a49ba28d99e44845ac, type: 2}
@@ -193016,10 +193479,17 @@ MonoBehaviour:
   minGapBetweenStorms: 1
   stormLightWoodMultiplier: 1.2
   stormHeavyWoodMultiplier: 1.8
-  q1ColdWeights: {x: 0.3, y: 0.15}
-  q2ColdWeights: {x: 0.3, y: 0.2}
-  q3ColdWeights: {x: 0.2, y: 0.3}
-  q4ColdWeights: {x: 0.2, y: 0.2}
+  minColdSpellsPerWinter: 2
+  maxColdSpellsPerWinter: 5
+  minColdStageDays: 1
+  maxColdStageDays: 2
+  minFrozenStageDays: 1
+  maxFrozenStageDays: 2
+  minGapBetweenColdSpells: 2
+  q1SpellWeight: 1
+  q2SpellWeight: 2
+  q3SpellWeight: 3
+  q4SpellWeight: 4
 --- !u!4 &756562262 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 490618974392446098, guid: 9885f45d31777c3478463082f11f1391, type: 3}
@@ -195412,7 +195882,7 @@ PrefabInstance:
       objectReference: {fileID: 584339264}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -195492,6 +195962,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[19]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[20]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -195655,6 +196129,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -198988,6 +199480,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -208328,6 +208838,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &855292582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209140,6 +209668,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -215871,6 +216417,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -226102,7 +226666,7 @@ PrefabInstance:
       objectReference: {fileID: 2056931012}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -226182,6 +226746,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[19]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[20]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -227577,7 +228145,7 @@ PrefabInstance:
       objectReference: {fileID: 2056931012}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -227661,6 +228229,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -228133,6 +228705,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -234389,6 +234979,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &977151070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -234939,6 +235547,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -240808,7 +241434,7 @@ PrefabInstance:
       objectReference: {fileID: 2056931012}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -240896,6 +241522,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -244503,6 +245133,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -249556,6 +250204,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1068929586
 GameObject:
   m_ObjectHideFlags: 0
@@ -249684,6 +250350,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -252238,6 +252922,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -257984,6 +258686,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1101334887
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -258199,7 +258919,7 @@ PrefabInstance:
       objectReference: {fileID: 1822552749}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -258283,6 +259003,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -258451,6 +259175,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -261596,6 +262338,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -275774,6 +276534,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1173293444
 GameObject:
   m_ObjectHideFlags: 0
@@ -281276,6 +282054,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1205348657
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -283178,6 +283974,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -290723,7 +291537,7 @@ PrefabInstance:
       objectReference: {fileID: 479234337}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -290811,6 +291625,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -291317,6 +292135,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -297788,6 +298624,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1320325865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303005,6 +303859,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1358825895
 GameObject:
   m_ObjectHideFlags: 0
@@ -303320,6 +304192,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -305306,6 +306196,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -311996,6 +312904,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1402345426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -314595,7 +315521,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 14
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[2]'
@@ -314643,6 +315569,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[13]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[14]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[15]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4136659548306027060, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
@@ -314701,6 +315635,14 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 7adc423e857da2d4387502c1111d7009, type: 3}
+    - target: {fileID: 7327374804332467131, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5032362
+      objectReference: {fileID: 0}
+    - target: {fileID: 7327374804332467131, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.06634299
+      objectReference: {fileID: 0}
     - target: {fileID: 7827704647964462574, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: shadowMaster
       value: 
@@ -321956,6 +322898,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &1476669772
 Mesh:
   m_ObjectHideFlags: 0
@@ -322518,6 +323478,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -326453,7 +327431,7 @@ PrefabInstance:
       objectReference: {fileID: 381472687}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 20
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -326533,6 +327511,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[19]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[20]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -337550,7 +338532,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 14
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[2]'
@@ -337598,6 +338580,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[13]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[14]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[15]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4862612534394780940, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
@@ -338749,6 +339739,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -350106,7 +351114,7 @@ PrefabInstance:
       objectReference: {fileID: 381472687}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -350190,6 +351198,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -360204,6 +361216,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &1770333523
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -366927,6 +367957,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1811403899
 Transform:
   m_ObjectHideFlags: 0
@@ -371249,6 +372297,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1838405234
 Transform:
   m_ObjectHideFlags: 0
@@ -373907,7 +374973,7 @@ PrefabInstance:
       objectReference: {fileID: 2056931012}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -373991,6 +375057,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -374220,6 +375290,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -376828,6 +377916,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -381710,7 +382816,7 @@ PrefabInstance:
       objectReference: {fileID: 1822552749}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -381794,6 +382900,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -382317,6 +383427,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -384843,6 +385971,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &1937344419 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6136245722964474628, guid: 7844861107028d744af802c8379d7429, type: 3}
@@ -386155,6 +387301,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &1947260170
 SpriteRenderer:
   serializedVersion: 2
@@ -387114,6 +388278,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -398802,6 +399984,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!114 &1992254464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -399895,7 +401095,7 @@ PrefabInstance:
       objectReference: {fileID: 381472687}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -399983,6 +401183,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -402442,7 +403646,7 @@ PrefabInstance:
       objectReference: {fileID: 584339264}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 21
+      value: 22
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -402526,6 +403730,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[20]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[21]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -405899,6 +407107,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -414713,6 +415939,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &2076587748
 GameObject:
   m_ObjectHideFlags: 0
@@ -416694,6 +417938,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -422451,6 +423713,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &2113583478 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2447677635343834281, guid: 3a8e7d60107d1b44bae064d92810f5b7, type: 3}
@@ -423057,6 +424337,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -425038,6 +426336,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -432185,6 +433501,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -447564,6 +448898,24 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &3768227961397569726
 SpriteRenderer:
   serializedVersion: 2
@@ -447663,6 +449015,24 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -455153,7 +456523,7 @@ PrefabInstance:
       objectReference: {fileID: 482245564}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 22
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -455241,6 +456611,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[21]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6863638502501355791, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[22]'
       value: 
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -461268,7 +462642,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 18
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[6]'
@@ -461316,6 +462690,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[17]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[18]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 289615910239866438, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[19]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 4862612534394780940, guid: 4700b4294d06fe342bf21aa8eead1a4f, type: 3}

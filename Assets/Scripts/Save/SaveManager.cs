@@ -31,6 +31,12 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public int CurrentSlot { get; private set; } = 0;
 
+    /// <summary>
+    /// The clan name for the current playthrough. Set when a new game starts, and restored
+    /// from save data on load so subsequent (auto)saves keep writing the same name.
+    /// </summary>
+    public string CurrentClanName { get; private set; } = "";
+
     private string saveFolderPath;
     private Coroutine autoSaveCoroutine;
     private bool isInGameScene;
@@ -128,6 +134,14 @@ public class SaveManager : MonoBehaviour
     public static int GetLastPlayedSlot() => PlayerPrefs.GetInt(PREFS_LAST_SLOT, 0);
 
     /// <summary>
+    /// Set the clan name for the current playthrough. Call before the first save of a new game.
+    /// </summary>
+    public void SetClanName(string clanName)
+    {
+        CurrentClanName = clanName;
+    }
+
+    /// <summary>
     /// Get the file name for a slot (e.g., "slot1", "slot2").
     /// </summary>
     public static string GetSlotName(int slotNumber)
@@ -144,6 +158,7 @@ public class SaveManager : MonoBehaviour
         data.saveName = saveFileName;
         data.saveTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         data.slotNumber = CurrentSlot;
+        data.playerClanName = CurrentClanName;
 
         string json = JsonUtility.ToJson(data, true);
         string filePath = GetSaveFilePath(saveFileName);
@@ -205,6 +220,7 @@ public class SaveManager : MonoBehaviour
                 return;
             }
 
+            CurrentClanName = data.playerClanName;
             ApplySaveData(data);
             Debug.Log($"Game loaded from '{saveFileName}'");
         }
@@ -283,6 +299,7 @@ public class SaveManager : MonoBehaviour
                     info.saveName = data.saveName;
                     info.saveTimestamp = data.saveTimestamp;
                     info.slotNumber = data.slotNumber;
+                    info.clanName = data.playerClanName;
                 }
             }
             catch

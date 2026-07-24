@@ -31,6 +31,14 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button deleteConfirmNo;
     [SerializeField] private TextMeshProUGUI deleteConfirmText;
 
+    [Header("Clan Name Entry")]
+    [SerializeField] private GameObject clanNameEntryPanel;
+    [SerializeField] private TMP_InputField clanNameInputField;
+    [SerializeField] private Button clanNameConfirmButton;
+    [SerializeField] private Button clanNameCancelButton;
+    [SerializeField] private Button clanNameRandomButton;
+    private const int MaxClanNameLength = 24;
+
     private bool isNewGameMode;
     private int selectedSlot;
     private SaveSlotInfo[] cachedSlots;
@@ -68,6 +76,9 @@ public class MainMenuUI : MonoBehaviour
         if (deleteButton != null) deleteButton.onClick.AddListener(OnDeleteButtonClicked);
         if (deleteConfirmYes != null) deleteConfirmYes.onClick.AddListener(OnDeleteConfirmed);
         if (deleteConfirmNo != null) deleteConfirmNo.onClick.AddListener(OnDeleteCancelled);
+        if (clanNameConfirmButton != null) clanNameConfirmButton.onClick.AddListener(OnClanNameConfirmClicked);
+        if (clanNameCancelButton != null) clanNameCancelButton.onClick.AddListener(OnClanNameCancelClicked);
+        if (clanNameRandomButton != null) clanNameRandomButton.onClick.AddListener(OnClanNameRandomClicked);
         slotItemPrefab.Clear();
         var items = slotContainer.GetComponentsInChildren<SaveSlotItemUI>(true);
         foreach (var item in items)
@@ -82,6 +93,7 @@ public class MainMenuUI : MonoBehaviour
         SetPanelActive(mainButtonsPanel, true);
         SetPanelActive(slotSelectionPanel, false);
         SetPanelActive(deleteConfirmPanel, false);
+        SetPanelActive(clanNameEntryPanel, false);
         UpdateLoadButtonState();
         UpdateDeleteButtonState();
         UpdateContinueButtonState();
@@ -275,7 +287,7 @@ public class MainMenuUI : MonoBehaviour
             }
             else
             {
-                GameManager.Instance?.StartNewGame(selectedSlot);
+                ShowClanNameEntry();
             }
         }
         else
@@ -331,8 +343,47 @@ public class MainMenuUI : MonoBehaviour
         pendingAction = () =>
         {
             SaveManager.Instance?.DeleteSlot(selectedSlot);
-            GameManager.Instance?.StartNewGame(selectedSlot);
+            ShowClanNameEntry();
         };
+    }
+
+    private void ShowClanNameEntry()
+    {
+        SetPanelActive(slotSelectionPanel, false);
+        SetPanelActive(clanNameEntryPanel, true);
+        if (clanNameInputField != null)
+        {
+            clanNameInputField.characterLimit = MaxClanNameLength;
+            clanNameInputField.text = "";
+        }
+        UIFocus.Set(clanNameInputField != null ? clanNameInputField.gameObject : clanNameConfirmButton?.gameObject);
+    }
+
+    private void OnClanNameRandomClicked()
+    {
+        if (clanNameInputField != null)
+        {
+            clanNameInputField.text = VillagerNameGenerator.GenerateClanName();
+        }
+    }
+
+    private void OnClanNameConfirmClicked()
+    {
+        string clanName = clanNameInputField != null ? clanNameInputField.text.Trim() : "";
+        if (string.IsNullOrEmpty(clanName))
+        {
+            clanName = VillagerNameGenerator.GenerateClanName();
+        }
+
+        SetPanelActive(clanNameEntryPanel, false);
+        GameManager.Instance?.StartNewGame(selectedSlot, clanName);
+    }
+
+    private void OnClanNameCancelClicked()
+    {
+        SetPanelActive(clanNameEntryPanel, false);
+        SetPanelActive(slotSelectionPanel, true);
+        UIFocus.Set(loadButton?.gameObject);
     }
 
     private void OnDeleteConfirmed()
@@ -340,8 +391,14 @@ public class MainMenuUI : MonoBehaviour
         SetPanelActive(deleteConfirmPanel, false);
         pendingAction?.Invoke();
         pendingAction = null;
-        RefreshSlotList();
-        UpdateDeleteButtonState();
+
+        // The overwrite-confirm path routes into clan name entry instead of back to the slot
+        // list; skip the refresh so it doesn't steal focus from the (now hidden) slot panel.
+        if (clanNameEntryPanel == null || !clanNameEntryPanel.activeSelf)
+        {
+            RefreshSlotList();
+            UpdateDeleteButtonState();
+        }
     }
 
     private void OnDeleteCancelled()

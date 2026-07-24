@@ -20,6 +20,7 @@ public class SaveData
     public string saveName;
     public string saveTimestamp;
     public int slotNumber;
+    public string playerClanName;
 
     public GameStateSave gameState;
     public ResourceSave[] resources;
@@ -166,6 +167,7 @@ public class SaveSlotInfo
     public string saveTimestamp;
     public bool exists;
     public int slotNumber;
+    public string clanName;
 }
 
 [Serializable]
