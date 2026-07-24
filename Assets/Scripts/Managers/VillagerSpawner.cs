@@ -156,6 +156,7 @@ public class VillagerSpawner : MonoBehaviour
         // Identity — set uniqueId before Init() so it isn't re-generated.
         v.uniqueId = vs.id;
         v.villagerName = vs.villagerName;
+        v.clanName = vs.clanName;
         villagerObj.name = vs.villagerName;
 
         // Core stats

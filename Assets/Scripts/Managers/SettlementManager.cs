@@ -721,6 +721,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
             {
                 id = v.uniqueId,
                 villagerName = v.villagerName,
+                clanName = v.clanName,
                 gender = (int)v.gender,
                 age = v.age,
                 lifeExpectancy = v.lifeExpectancy,

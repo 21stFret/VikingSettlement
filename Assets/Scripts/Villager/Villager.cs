@@ -6,6 +6,7 @@ public class Villager : TargetHealth
 {
     public string uniqueId;
     public string villagerName;
+    public string clanName;
     public JobType currentJob = JobType.None;
     public Building assignedBuilding;
 
@@ -86,8 +87,13 @@ public class Villager : TargetHealth
 
         if (string.IsNullOrEmpty(villagerName))
         {
-            villagerName = VillagerNameGenerator.GenerateNorseName(gender);
+            villagerName = VillagerNameGenerator.GenerateNorseName(gender, "");
             gameObject.name = villagerName;
+        }
+
+        if (string.IsNullOrEmpty(clanName))
+        {
+            clanName = VillagerNameGenerator.GenerateClanName();
         }
 
         // Set initial life stage based on age (skip if loaded from save - it's already set)
@@ -358,7 +364,7 @@ public class Villager : TargetHealth
         child.lifeExpectancy = Random.Range(50f, 70f);
 
         // Override the spawner's random name with a freshly generated one (gender already correct)
-        child.villagerName = VillagerNameGenerator.GenerateNorseName(childGender);
+        child.villagerName = VillagerNameGenerator.GenerateNorseName(childGender, father.villagerName);
         child.gameObject.name = child.villagerName;
 
         child.parent1 = mother;

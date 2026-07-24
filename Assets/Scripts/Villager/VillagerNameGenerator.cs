@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public static class VillagerNameGenerator
@@ -5,13 +6,12 @@ public static class VillagerNameGenerator
     private static readonly string[] firstMaleNames = new string[]
     {
         "Bjorn", "Erik", "Harald", "Ragnar", "Leif", "Olaf", "Ivar", "Sigurd",
-        "Gudrun", "Thorvald", "Gunnar"
+        "Gudrun", "Thorvald", "Gunnar", "Knut", "Aslak", "Svein", "Floki", 
     };
     
-    private static readonly string[] lastMaleNames = new string[]
+    private static readonly string[] clanNames = new string[]
     {
-        "Ironside", "Bloodaxe", "the Bold", "the Wise", "Seafarer", "Stormbringer",
-        "the Strong", "Ravenfeeder", "the Fearless", "Dragonslayer"
+        "Bloodaxe", "Ironfist", "Stormborn", "Wolfson", "Bearclaw", "Dragonbane",
     };
 
     private static readonly string[] firstFemaleNames = new string[]
@@ -20,22 +20,55 @@ public static class VillagerNameGenerator
         "Solveig", "Eirka", "Kari", "Liv", "Sunniva", "Bodil", "Hilda", "Yrsa"
     };
 
-    private static readonly string[] lastFemaleNames = new string[]
+    private static readonly string maleSuffix = "son";
+    private static readonly string femaleSuffix = "sdottir";
+
+    public static string GenerateNorseName(Gender gender, string parentName)
     {
-        "Shieldmaiden", "Ravenhair", "the Crone", "the Mother", "Landwalker", "Stormcalmer",
-        "the Carer", "Dragonheart", "the Maiden", "Icebreaker", "Wavewalker"
-    };
-    
-    public static string GenerateNorseName(Gender gender)
-    {
+        string first = "";
+        string last = "";
+        string name = "";
+
         if (gender == Gender.Female)
         {
-            string first = firstFemaleNames[Random.Range(0, firstFemaleNames.Length)];
-            string last = lastFemaleNames[Random.Range(0, lastFemaleNames.Length)];
-            return $"{first} {last}";
+            first = firstFemaleNames[Random.Range(0, firstFemaleNames.Length)];
         }
-        string firstMale = firstMaleNames[Random.Range(0, firstMaleNames.Length)];
-        string lastMale = lastMaleNames[Random.Range(0, lastMaleNames.Length)];
-        return $"{firstMale} {lastMale}";
+        else
+        {
+            first = firstMaleNames[Random.Range(0, firstMaleNames.Length)];
+        }
+
+        if (string.IsNullOrEmpty(parentName))
+        {
+
+            if (gender == Gender.Female)
+            {
+                last = firstFemaleNames[Random.Range(0, firstFemaleNames.Length)] + femaleSuffix;
+            }
+            else
+            {
+                last = firstMaleNames[Random.Range(0, firstMaleNames.Length)] + maleSuffix;
+            }
+        }
+        else
+        {
+            if (gender == Gender.Female)
+            {
+                last = parentName.Split(' ')[0] + femaleSuffix;
+            }
+            else
+            {
+                last = parentName.Split(' ')[0] + maleSuffix;
+            }
+        }
+
+        name = $"{first} {last}";
+        return name;
     }
+
+    public static string GenerateClanName()
+    {
+        return clanNames[Random.Range(0, clanNames.Length)];
+    }
+
 }

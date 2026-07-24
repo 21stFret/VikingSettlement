@@ -57,6 +57,7 @@ public class VillagerSave
 {
     public string id;
     public string villagerName;
+    public string clanName;
     public int gender;
     public float age;
     public float lifeExpectancy;
