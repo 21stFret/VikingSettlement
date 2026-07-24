@@ -239,13 +239,12 @@ public class SeasonManager : MonoBehaviour, ISaveable
             case BuildingType.Mine:
             case BuildingType.Blacksmith:
             case BuildingType.CarpenterWorkshop:
-            case BuildingType.WeaversHut:
             case BuildingType.Tannery:
             case BuildingType.Barracks:
             case BuildingType.ArcheryRange:
             case BuildingType.TradingPost:
             case BuildingType.HealersHut:
-            case BuildingType.ShamansHut:
+            case BuildingType.GodisHut:
             case BuildingType.MeadHall:
             case BuildingType.Longhouse:
             case BuildingType.Shipyard:

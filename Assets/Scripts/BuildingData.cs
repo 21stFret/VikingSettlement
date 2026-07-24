@@ -13,6 +13,7 @@ public class BuildingData : ScriptableObject
     public int stoneCost;
     public int ironCost;
     public float constructionTime;
+    public int level;
     
     [Header("Job Settings")]
     public JobType assignedJobType;
@@ -98,14 +99,13 @@ public enum BuildingType
     Mine,
     Blacksmith,
     CarpenterWorkshop,
-    WeaversHut,
     Tannery,
     Barracks,
     ArcheryRange,
     Shipyard,
     TradingPost,
     HealersHut,
-    ShamansHut,
+    GodisHut,
     MeadHall
 }
 

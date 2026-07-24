@@ -14,12 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Longhouse
   buildingType: 0
-  buildingSprite: {fileID: 21300000, guid: 57d8c36743bdcb042b300893e755e3c0, type: 3}
+  buildingSprite: {fileID: 21300000, guid: 69997c75c13f56d4c9670225d5ae91af, type: 3}
   woodCost: 5
   stoneCost: 5
   ironCost: 0
   constructionTime: 1
-  assignedJobType: 8
-  maxWorkers: 2
+  level: 0
+  assignedJobType: 1
+  maxWorkers: 0
+  productionType: 0
   producedResource: 0
   productionRate: 0
+  productionAmount: 1
+  craftingRecipe:
+    inputResources: []
+    outputResource: 0
+    outputAmount: 1
+    craftingRate: 1
