@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Circle (1)
+  - Name: Building (Longhouse)
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Static
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

@@ -19,8 +19,41 @@ MonoBehaviour:
   stoneCost: 10
   ironCost: 0
   constructionTime: 2
-  assignedJobType: 6
+  assignedJobType: 5
   maxWorkers: 3
+  productionType: 0
   producedResource: 4
   productionRate: 0.7
   productionAmount: 5
+  craftingRecipe:
+    inputResources: []
+    outputResource: 0
+    outputAmount: 1
+    craftingRate: 1
+  maxLevel: 5
+  levels:
+  - level: 1
+    upgradeCost: []
+    maxWorkers: 3
+    productionMultiplier: 1
+    populationCapBonus: 0
+  - level: 2
+    upgradeCost: []
+    maxWorkers: 3
+    productionMultiplier: 1
+    populationCapBonus: 0
+  - level: 3
+    upgradeCost: []
+    maxWorkers: 3
+    productionMultiplier: 1
+    populationCapBonus: 0
+  - level: 4
+    upgradeCost: []
+    maxWorkers: 3
+    productionMultiplier: 1
+    populationCapBonus: 0
+  - level: 5
+    upgradeCost: []
+    maxWorkers: 3
+    productionMultiplier: 1
+    populationCapBonus: 0

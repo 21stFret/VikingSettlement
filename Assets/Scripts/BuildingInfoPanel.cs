@@ -32,22 +32,26 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI estimatedTimeText;
     
     [Header("Workers")]
+    [SerializeField] private GameObject workersSection;
     [SerializeField] private TextMeshProUGUI workerCountText;
     [SerializeField] private Transform workerListContainer;
-    [SerializeField] private List<GameObject> workerListItemPrefabs;
     [SerializeField] private Button assignWorkerButton;
     
     [Header("Assign Worker Panel")]
     [SerializeField] private GameObject assignWorkerPanel;
     [SerializeField] private Transform availableVillagersContainer;
-    [SerializeField] private List<GameObject> availableVillagerItemPrefabs;
     [SerializeField] private Button closeAssignPanelButton;
     
     [Header("Repair")]
     [SerializeField] private GameObject repairSection;
     [SerializeField] private Button repairButton;
     [SerializeField] private Transform repairCostContainer;
-    [SerializeField] private GameObject repairCostItemPrefab;
+
+    [Header("Level")]
+    [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private GameObject upgradeSection;
+    [SerializeField] private Button upgradeButton;
+    [SerializeField] private Transform upgradeCostContainer;
 
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
@@ -55,8 +59,10 @@ public class BuildingInfoPanel : MonoBehaviour
     public static BuildingInfoPanel Instance { get; private set; }
 
     private Building currentBuilding;
-    private List<GameObject> availableVillagerItems = new List<GameObject>();
-    private List<GameObject> repairCostItems = new List<GameObject>();
+    private List<VillagerWorkerItem> workerListItems = new List<VillagerWorkerItem>();
+    private List<VillagerWorkerItem> availableVillagerItems = new List<VillagerWorkerItem>();
+    private List<SingleResourceDisplay> repairCostItems = new List<SingleResourceDisplay>();
+    private List<SingleResourceDisplay> upgradeCostItems = new List<SingleResourceDisplay>();
 
     
     
@@ -79,6 +85,9 @@ public class BuildingInfoPanel : MonoBehaviour
         if (repairSection != null)
             repairSection.SetActive(false);
 
+        if (upgradeButton != null)
+            upgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
+
         if (closeAssignPanelButton != null)
             closeAssignPanelButton.onClick.AddListener(CloseAssignPanel);
             
@@ -90,7 +99,19 @@ public class BuildingInfoPanel : MonoBehaviour
 
         if(mainPanel !=null)
             mainPanel.SetActive(false);
-   
+
+        upgradeCostItems.Clear();
+        upgradeCostItems.AddRange(upgradeCostContainer.GetComponentsInChildren<SingleResourceDisplay>(true));
+
+        repairCostItems.Clear();
+        repairCostItems.AddRange(repairCostContainer.GetComponentsInChildren<SingleResourceDisplay>(true));
+
+        workerListItems.Clear();
+        workerListItems.AddRange(workerListContainer.GetComponentsInChildren<VillagerWorkerItem>(true));
+
+        availableVillagerItems.Clear();
+        availableVillagerItems.AddRange(availableVillagersContainer.GetComponentsInChildren<VillagerWorkerItem>(true));
+
     }
     
     /// <summary>
@@ -103,7 +124,7 @@ public class BuildingInfoPanel : MonoBehaviour
         currentBuilding = building;
         buildingSelector = selector;
         mainPanel.SetActive(true);
-        GameTickManager.Instance?.PushUIPause();
+        //GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
     }
     
@@ -152,6 +173,9 @@ public class BuildingInfoPanel : MonoBehaviour
         if (buildingTypeText != null)
             buildingTypeText.text = currentBuilding.data.buildingType.ToString();
 
+        if (levelText != null)
+            levelText.text = $"Level {currentBuilding.level}";
+
         // Repair state overrides normal UI
         if (currentBuilding.needsRepair)
         {
@@ -166,6 +190,8 @@ public class BuildingInfoPanel : MonoBehaviour
             if (productionSection != null) productionSection.SetActive(false);
             if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(false);
             if (workerCountText != null) workerCountText.gameObject.SetActive(false);
+            if (upgradeSection != null) upgradeSection.SetActive(false);
+            if(workersSection  != null) workersSection.SetActive(false);
             return;
         }
 
@@ -173,6 +199,9 @@ public class BuildingInfoPanel : MonoBehaviour
         if (repairSection != null) repairSection.SetActive(false);
         if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
         if (workerCountText != null) workerCountText.gameObject.SetActive(true);
+        if (workersSection != null) workersSection.SetActive(true);
+
+        UpdateUpgradeDisplay();
 
         // Production info
         bool producesResources = currentBuilding.data.producedResource != ResourceType.None;
@@ -199,26 +228,7 @@ public class BuildingInfoPanel : MonoBehaviour
 
     private void RefreshRepairCosts()
     {
-        if (repairCostContainer == null || repairCostItemPrefab == null) return;
-
-        foreach (var item in repairCostItems)
-            if (item != null) Destroy(item);
-        repairCostItems.Clear();
-
-        foreach (var cost in currentBuilding.repairCosts)
-        {
-            GameObject item = Instantiate(repairCostItemPrefab, repairCostContainer);
-
-            var icon = item.GetComponentInChildren<Image>();
-            if (icon != null && IconManager.Instance != null)
-                icon.sprite = IconManager.Instance.GetIconForResource(cost.resourceType);
-
-            var label = item.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null)
-                label.text = cost.amount.ToString();
-
-            repairCostItems.Add(item);
-        }
+        RefreshCostList(currentBuilding.repairCosts, repairCostItems);
     }
 
     private void OnRepairButtonClicked()
@@ -228,7 +238,75 @@ public class BuildingInfoPanel : MonoBehaviour
         UpdateDisplay();
         UIFocus.Set(assignWorkerButton.gameObject);
     }
+
+    /// <summary>
+    /// Update the level/upgrade section (current level, upgrade cost, upgrade button state)
+    /// </summary>
+    private void UpdateUpgradeDisplay()
+    {
+        if (currentBuilding == null || upgradeSection == null) return;
+
+        bool canLevelUp = currentBuilding.level < currentBuilding.data.maxLevel;
+        upgradeSection.SetActive(true);
+
+        if (!canLevelUp) return;
+
+        RefreshUpgradeCosts();
+
+        if (upgradeButton != null)
+            upgradeButton.interactable = currentBuilding.CanUpgrade();
+    }
+
+    private void RefreshUpgradeCosts()
+    {
+        var nextLevel = currentBuilding.data.GetLevelData(currentBuilding.level + 1);
+        RefreshCostList(nextLevel.upgradeCost, upgradeCostItems);
+    }
+
+    /// <summary>
+    /// Populate a cost-row list from a pool, reusing existing rows and only
+    /// instantiating new ones when the pool needs to grow. Unused rows are
+    /// deactivated rather than destroyed so they can be reused next refresh.
+    /// Expects itemPrefab to carry a SingleResourceDisplay component.
+    /// </summary>
+    private void RefreshCostList(IList<ResourceCost> costs, List<SingleResourceDisplay> pool)
+    {
+        // Deactivate leftover pooled rows instead of destroying them
+        for (int i = costs.Count; i < pool.Count; i++)
+        {
+            pool[i].gameObject.SetActive(false);
+        }
+
+        for (int i = 0; i < costs.Count; i++)
+        {
+            SingleResourceDisplay item = pool[i];
     
+            item.gameObject.SetActive(true);
+
+            var cost = costs[i];
+            var display = item.GetComponent<SingleResourceDisplay>();
+            if (display == null) continue;
+
+            display.resourceType = cost.resourceType;
+
+            if (display.icon != null && IconManager.Instance != null)
+                display.icon.sprite = IconManager.Instance.GetIconForResource(cost.resourceType);
+
+            if (display.amountText != null)
+                display.amountText.text = cost.amount.ToString();
+        }
+
+
+    }
+
+    private void OnUpgradeButtonClicked()
+    {
+        if (currentBuilding == null) return;
+        currentBuilding.Upgrade();
+        UpdateDisplay();
+    }
+
+
     /// <summary>
     /// Update production progress display
     /// </summary>
@@ -264,6 +342,7 @@ public class BuildingInfoPanel : MonoBehaviour
                      currentBuilding.data.craftingRecipe != null)
             {
                 CraftingRecipe recipe = currentBuilding.data.craftingRecipe;
+                float effectiveOutputAmount = recipe.outputAmount * currentBuilding.EffectiveProductionMultiplier;
                 string inputs = "";
                 foreach (var cost in recipe.inputResources)
                 {
@@ -271,14 +350,14 @@ public class BuildingInfoPanel : MonoBehaviour
                 }
                 inputs = inputs.TrimEnd(',', ' ');
 
-                string info = $"Crafts: {recipe.outputAmount} {recipe.outputResource} from {inputs}";
+                string info = $"Crafts: {effectiveOutputAmount} {recipe.outputResource} from {inputs}";
                 productionInfoText.text = info;
-            
+
                 if (productionAmountText != null)
                 {
-                    productionAmountText.text = $"+ {recipe.outputAmount}";
+                    productionAmountText.text = $"+ {effectiveOutputAmount}";
                 }
-                
+
                 // Update resource icon
                 if (resourceGeneratedIcon != null)
                 {
@@ -375,7 +454,7 @@ public class BuildingInfoPanel : MonoBehaviour
         if (workerCountText != null)
         {
             int current = currentBuilding.assignedWorkers.Count;
-            int max = currentBuilding.data.maxWorkers;
+            int max = currentBuilding.EffectiveMaxWorkers;
             workerCountText.text = $"Workers: {current}/{max}";
         }
         
@@ -394,11 +473,11 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void RefreshWorkerList()
     {
-        if (workerListContainer == null || workerListItemPrefabs == null) return;
+        if (workerListContainer == null || workerListItems == null) return;
 
-        for (int i = 0; i < workerListItemPrefabs.Count; i++)
+        for (int i = 0; i < workerListItems.Count; i++)
         {
-            VillagerWorkerItem itemComponent = workerListItemPrefabs[i].GetComponent<VillagerWorkerItem>();
+            VillagerWorkerItem itemComponent = workerListItems[i].GetComponent<VillagerWorkerItem>();
             if (i >= currentBuilding.assignedWorkers.Count)
             {
                 if (itemComponent != null) itemComponent.gameObject.SetActive(false);
@@ -429,18 +508,13 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void RefreshAvailableVillagers()
     {
-        if (availableVillagersContainer == null) return;
-
-        availableVillagerItems.Clear();
-
         // Get unemployed villagers
         List<Villager> unemployed = SettlementManager.Instance.GetUnemployedVillagers();
 
-        // Create items for each villager
-        for(int i = 0; i < availableVillagerItemPrefabs.Count; i++)
+        for(int i = 0; i < availableVillagerItems.Count; i++)
         {
             // Setup the item
-            VillagerWorkerItem itemComponent = availableVillagerItemPrefabs[i].GetComponent<VillagerWorkerItem>();
+            VillagerWorkerItem itemComponent = availableVillagerItems[i];
             if(i>=unemployed.Count)
             {
                 itemComponent.gameObject.SetActive(false);
@@ -450,12 +524,11 @@ public class BuildingInfoPanel : MonoBehaviour
             {
                 itemComponent.Setup(unemployed[i], this, true);
                 itemComponent.gameObject.SetActive(true);
-                availableVillagerItems.Add(itemComponent.gameObject);
             }
         }
         if(unemployed.Count > 0)
         {
-            UIFocus.Set(availableVillagerItems[0]);
+            UIFocus.Set(availableVillagerItems[0].gameObject);
         }
         else
         {

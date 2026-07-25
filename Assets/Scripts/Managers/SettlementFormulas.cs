@@ -9,7 +9,7 @@ public static class SettlementFormulas
 {
     // Mirrors Villager.GetSkillMultiplier
     public static float GetSkillMultiplier(float baseSkill, float morale)
-        => (1f + baseSkill * 0.5f) * (morale / 100f);
+        => (1f + baseSkill * 0.2f) * (morale / 100f);
 
     // Mirrors Building.CalculateBuildingCompletions / GetProductionSpeed*periodSeconds/100 progress fill
     public static int CalculateCompletions(float productionSpeed, float periodSeconds)

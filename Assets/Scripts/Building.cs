@@ -1,21 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[System.Serializable]
-public struct RepairCost
-{
-    public ResourceType resourceType;
-    public int amount;
-}
-
 public class Building : MonoBehaviour
 {
     public string uniqueId;
     public BuildingData data;
     public Vector2Int gridPosition;
     public bool isConstructed = false;
-    public float constructionProgress = 0f;
-    
+
     [Header("Production")]
     public float productionProgress = 0f; // 0 to 100
     public float adjustedProductionAmount = 0f; // Production amount after seasonal modifiers (for UI)
@@ -23,7 +15,7 @@ public class Building : MonoBehaviour
     [Header("Repair")]
     [SerializeField] private bool startsDamaged = false;
     public bool needsRepair = false;
-    public RepairCost[] repairCosts = new RepairCost[0];
+    public List<ResourceCost> repairCosts = new List<ResourceCost>();
     public Sprite damagedSprite;
     [SerializeField] private SpriteRenderer buildingSprite;
     [SerializeField] private ParticleSystem[] damageVFX;
@@ -33,9 +25,14 @@ public class Building : MonoBehaviour
     public static event System.Action<Building> OnAnyBuildingRepaired;
     public static event System.Action<Building> OnAnyWorkerAssigned;
 
+    [Header("Levels")]
+    public int level = 1;
+    public event System.Action<int> OnLevelChanged;
+    public static event System.Action<Building> OnAnyBuildingUpgraded;
+
     [Header("Crafting Status")]
     public bool waitingForResources = false; // True if crafting building lacks input materials
-    
+
     public List<Villager> assignedWorkers = new List<Villager>();
     
     private void Start()
@@ -78,9 +75,40 @@ public class Building : MonoBehaviour
         }
     }
     
+    public BuildingLevelData CurrentLevelData => data.GetLevelData(level);
+    public int EffectiveMaxWorkers => CurrentLevelData.maxWorkers;
+    public float EffectiveProductionMultiplier => CurrentLevelData.productionMultiplier;
+
     public bool CanAssignWorker()
     {
-        return !needsRepair && assignedWorkers.Count < data.maxWorkers;
+        return !needsRepair && assignedWorkers.Count < EffectiveMaxWorkers;
+    }
+
+    public bool CanUpgrade()
+    {
+        if (level >= data.maxLevel) return false;
+        if (ResourceManager.Instance == null) return false;
+
+        var next = data.GetLevelData(level + 1);
+        foreach (var cost in next.upgradeCost)
+        {
+            if (ResourceManager.Instance.GetResource(cost.resourceType) < cost.amount)
+                return false;
+        }
+        return true;
+    }
+
+    public void Upgrade()
+    {
+        if (!CanUpgrade()) return;
+
+        var next = data.GetLevelData(level + 1);
+        foreach (var cost in next.upgradeCost)
+            ResourceManager.Instance.SpendResource(cost.resourceType, cost.amount);
+
+        level++;
+        OnLevelChanged?.Invoke(level);
+        OnAnyBuildingUpgraded?.Invoke(this);
     }
 
     public void SetNeedsRepair(bool value)
@@ -162,7 +190,7 @@ public class Building : MonoBehaviour
 
         // Update adjusted production amount for UI display
         float seasonalMultiplier = GetSeasonalMultiplier();
-        adjustedProductionAmount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(data.productionAmount * seasonalMultiplier));
+        adjustedProductionAmount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(data.productionAmount * EffectiveProductionMultiplier * seasonalMultiplier));
 
         // Calculate total production speed based on workers and their skills
         float productionSpeed = GetProductionSpeed(data.productionRate);
@@ -284,23 +312,24 @@ public class Building : MonoBehaviour
     {
         // Consume input resources
         data.craftingRecipe.ConsumeResources();
-        
+
         // Produce output resource
+        float outputAmount = data.craftingRecipe.outputAmount * EffectiveProductionMultiplier;
         ResourceManager.Instance.AddResource(
-            data.craftingRecipe.outputResource, 
-            data.craftingRecipe.outputAmount
+            data.craftingRecipe.outputResource,
+            outputAmount
         );
-        
+
         // Reset progress (keep overflow for next cycle)
         productionProgress -= 100f;
-        
+
         // Improve worker skills on each completion
         foreach (var worker in assignedWorkers)
         {
             worker.skills.ImproveSkill(data.assignedJobType);
         }
-        
-        Debug.Log($"{data.buildingName} crafted {data.craftingRecipe.outputAmount} {data.craftingRecipe.outputResource}");
+
+        Debug.Log($"{data.buildingName} crafted {outputAmount} {data.craftingRecipe.outputResource}");
     }
     
     /// <summary>
@@ -316,10 +345,10 @@ public class Building : MonoBehaviour
     /// </summary>
     public float GetEstimatedTimeToCompletion()
     {
-        float baseRate = data.productionType == ProductionType.ResourceGathering 
-            ? data.productionRate 
+        float baseRate = data.productionType == ProductionType.ResourceGathering
+            ? data.productionRate
             : (data.craftingRecipe != null ? data.craftingRecipe.craftingRate : 0f);
-            
+
         float productionSpeed = GetProductionSpeed(baseRate);
         if (productionSpeed <= 0) return float.MaxValue;
         

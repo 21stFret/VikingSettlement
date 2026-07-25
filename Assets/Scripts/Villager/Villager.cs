@@ -282,7 +282,10 @@ public class Villager : TargetHealth
     {
         // Only mature villagers can reproduce
         if (currentLifeStage != LifeStage.Mature) return;
-        
+
+        // Village must have spare housing capacity (Longhouse level) before a new villager can be born
+        if (_settlementManager != null && !_settlementManager.HasPopulationCapacity()) return;
+
         // Calculate effective reproduction cooldown with birth rate modifiers
         float effectiveCooldown = _settlementManager.reproductionCooldown;
 

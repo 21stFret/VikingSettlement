@@ -620,7 +620,27 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         return allVillagers.Count;
     }
-    
+
+    /// <summary>
+    /// Max village population, driven entirely by constructed Longhouse(s)' current level.
+    /// </summary>
+    public int GetMaxPopulation()
+    {
+        int cap = 0;
+        foreach (var b in allBuildings)
+        {
+            if (b == null || !b.isConstructed || b.data == null) continue;
+            if (b.data.buildingType != BuildingType.Longhouse) continue;
+            cap += b.CurrentLevelData.populationCapBonus;
+        }
+        return cap;
+    }
+
+    public bool HasPopulationCapacity()
+    {
+        return GetPopulation() < GetMaxPopulation();
+    }
+
     /// <summary>
     /// Get population statistics
     /// </summary>
@@ -794,9 +814,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 gridPositionX = b.gridPosition.x,
                 gridPositionY = b.gridPosition.y,
                 isConstructed = b.isConstructed,
-                constructionProgress = b.constructionProgress,
                 productionProgress = b.productionProgress,
                 needsRepair = b.needsRepair,
+                level = b.level,
                 assignedWorkerIds = new string[b.assignedWorkers.Count]
             };
 
@@ -924,9 +944,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
                 // Restore building state
                 b.isConstructed = bs.isConstructed;
-                b.constructionProgress = bs.constructionProgress;
                 b.productionProgress = bs.productionProgress;
                 b.SetNeedsRepair(bs.needsRepair);
+                b.level = bs.level > 0 ? bs.level : 1;
 
                 // Restore assigned workers
                 b.assignedWorkers.Clear();

@@ -124,6 +124,7 @@ public class BuildingSave
     public float productionProgress;
     public string[] assignedWorkerIds;
     public bool needsRepair;
+    public int level;
 }
 
 [Serializable]

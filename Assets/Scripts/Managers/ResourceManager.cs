@@ -16,6 +16,7 @@ public class ResourceManager : MonoBehaviour, ISaveable
     public float testWheatAmount = 30f;
     public float testFishAmount = 20f;
     public float testIronAmount = 15f;
+    public float testGoldAmount = 10f;
 
     private void Awake()
     {
@@ -43,6 +44,7 @@ public class ResourceManager : MonoBehaviour, ISaveable
         resources[ResourceType.Wheat] = testWheatAmount;
         resources[ResourceType.Fish] = testFishAmount;
         resources[ResourceType.Iron] = testIronAmount;
+        resources[ResourceType.Gold] = testGoldAmount;
     }
 
     public void AddResource(ResourceType type, float amount)
