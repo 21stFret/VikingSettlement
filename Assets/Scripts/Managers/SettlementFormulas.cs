@@ -120,6 +120,12 @@ public static class SettlementFormulas
         return new HungerEffect(fullDamage * hungerFraction, -10f * hungerFraction);
     }
 
+    // Mirrors Villager.TryReproduce morale scaling. Couple's average morale of 100 leaves the cooldown
+    // unchanged; lower morale stretches it out (less frequent births), floored so a miserable couple can
+    // still eventually have a child rather than being locked out entirely.
+    public static float GetMoraleBirthRateMultiplier(float averageMorale)
+        => Mathf.Clamp(averageMorale / 100f, 0.2f, 1f);
+
     // Mirrors Villager.HealFromFood (fed path, both hunger modes)
     public static (float healthGain, float moraleGain) GetFoodHealEffect(
         float healthRegenFromFood, float moraleRegenFromFood, bool gefjonBlessingActive, float gefjonHealSpeedPercent)

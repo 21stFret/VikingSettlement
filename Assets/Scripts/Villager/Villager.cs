@@ -112,7 +112,7 @@ public class Villager : TargetHealth
         if (!loadedFromSave)
         {
             currentHealth = maxHealth;
-            morale = maxMorale;
+            morale = maxMorale / 2;
         }
 
         // Subscribe to skill changes if we're the Jarl
@@ -286,33 +286,37 @@ public class Villager : TargetHealth
         // Village must have spare housing capacity (Longhouse level) before a new villager can be born
         if (_settlementManager != null && !_settlementManager.HasPopulationCapacity()) return;
 
-        // Calculate effective reproduction cooldown with birth rate modifiers
-        float effectiveCooldown = _settlementManager.reproductionCooldown;
-
-        // Apply Fertile Lands runestone bonus (+20% birth rate = reduce cooldown)
-        if (RunestoneManager.Instance != null)
-        {
-            effectiveCooldown /= RunestoneManager.Instance.GetBirthRateMultiplier();
-        }
-
-        // Apply Gefjon's Blessing birth rate bonus (+10%)
-        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-        {
-            effectiveCooldown /= (1f + DeathTypeBuff.Instance.GetBirthRatePercent() / 100f);
-        }
-
-        // Must have waited long enough since last child
-        if (timeSinceLastChild < effectiveCooldown) return;
-        
         // Need to find a partner if we don't have one
         if (partner == null)
         {
             partner = FindPotentialPartner();
         }
-        
+
         // If we have a valid partner, create a child
         if (partner != null && partner.currentLifeStage == LifeStage.Mature)
         {
+            // Calculate effective reproduction cooldown with birth rate modifiers
+            float effectiveCooldown = _settlementManager.reproductionCooldown;
+
+            // Apply Fertile Lands runestone bonus (+20% birth rate = reduce cooldown)
+            if (RunestoneManager.Instance != null)
+            {
+                effectiveCooldown /= RunestoneManager.Instance.GetBirthRateMultiplier();
+            }
+
+            // Apply Gefjon's Blessing birth rate bonus (+10%)
+            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+            {
+                effectiveCooldown /= (1f + DeathTypeBuff.Instance.GetBirthRatePercent() / 100f);
+            }
+
+            // Happier couples have children more often — low morale stretches out the cooldown
+            float averageMorale = (morale + partner.morale) / 2f;
+            effectiveCooldown /= SettlementFormulas.GetMoraleBirthRateMultiplier(averageMorale);
+
+            // Must have waited long enough since last child
+            if (timeSinceLastChild < effectiveCooldown) return;
+
             // Only one partner creates the child to avoid duplicates
             if (gender == Gender.Female)
             {
