@@ -659,11 +659,33 @@ public class SettlementManager : MonoBehaviour, ISaveable
             availableWorkers = GetAvailableWorkers().Count
         };
     }
-    
+
+    public float GetOverrallMorale()
+    {
+        if (allVillagers.Count == 0) return 0f;
+        float totalMorale = 0f;
+        foreach (var villager in allVillagers)
+        {
+            totalMorale += villager.morale;
+        }
+        return totalMorale / allVillagers.Count;
+    }
+
+    public float GetOverrallCombat()
+    {
+        if (allVillagers.Count == 0) return 0f;
+        float totalCombat = 0f;
+        foreach (var villager in allVillagers)
+        {
+            totalCombat += villager.skills.combat;
+        }
+        return totalCombat / allVillagers.Count;
+    }
+
     #endregion
-    
+
     #region UI Display
-    
+
     private void OnGUI()
     {
         if (!showPopulationUI) return;

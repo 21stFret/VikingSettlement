@@ -332,6 +332,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
 --- !u!212 &5274734200186100861
 SpriteRenderer:
   serializedVersion: 2
@@ -620,7 +621,7 @@ Transform:
   m_GameObject: {fileID: 2954234407466621326}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.19, y: 5.15, z: 0}
+  m_LocalPosition: {x: 0.19, y: 4.44, z: 0}
   m_LocalScale: {x: 3.1125, y: 3.1125, z: 3.1125}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -697,12 +698,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f12ca3272efa004fb76af920b4c7005, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoTweenMove
-  moveDuration: 0
+  moveDuration: 2
   ease: 4
-  endPos: {x: 0, y: 6, z: 0}
+  movementAmount3D: {x: 0, y: 1, z: 0}
   loopType: 1
   loopCount: -1
-  isLocal: 1
+  isLocal: 0
   isAnchored: 0
 --- !u!1 &3024477521848970534
 GameObject:

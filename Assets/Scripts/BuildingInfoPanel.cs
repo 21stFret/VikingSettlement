@@ -14,7 +14,6 @@ public class BuildingInfoPanel : MonoBehaviour
     [Header("Building Info")]
     [SerializeField] private BuildingSelector buildingSelector;
     [SerializeField] private TextMeshProUGUI buildingNameText;
-    [SerializeField] private TextMeshProUGUI buildingTypeText;
     [SerializeField] private TextMeshProUGUI productionInfoText;
     [SerializeField] private TextMeshProUGUI productionAmountText;
     [SerializeField] private TextMeshProUGUI consumeAmountText1;
@@ -38,7 +37,7 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private Button assignWorkerButton;
     
     [Header("Assign Worker Panel")]
-    [SerializeField] private GameObject assignWorkerPanel;
+    [SerializeField] private GameObject assignWorkerSection;
     [SerializeField] private Transform availableVillagersContainer;
     [SerializeField] private Button closeAssignPanelButton;
     
@@ -46,12 +45,19 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private GameObject repairSection;
     [SerializeField] private Button repairButton;
     [SerializeField] private Transform repairCostContainer;
+    [SerializeField] private Button closeRepairPanelButton;
 
     [Header("Level")]
-    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private GameObject upgradeSection;
+    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private Button upgradeButton;
     [SerializeField] private Transform upgradeCostContainer;
+
+    [Header("Longhouse")]
+    [SerializeField] private GameObject longhouseSection;
+    [SerializeField] private TextMeshProUGUI populationText;
+    [SerializeField] private TextMeshProUGUI combatText;
+    [SerializeField] private TextMeshProUGUI MoraleText;
 
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
@@ -94,10 +100,13 @@ public class BuildingInfoPanel : MonoBehaviour
         if (closeBuildingPanelButton != null)
             closeBuildingPanelButton.onClick.AddListener(Hide);
 
-        if (assignWorkerPanel != null)
-            assignWorkerPanel.SetActive(false);
+        if (assignWorkerSection != null)
+            assignWorkerSection.SetActive(false);
 
-        if(mainPanel !=null)
+        if(closeRepairPanelButton != null)
+            closeRepairPanelButton.onClick.AddListener(Hide);
+
+        if (mainPanel !=null)
             mainPanel.SetActive(false);
 
         upgradeCostItems.Clear();
@@ -170,9 +179,6 @@ public class BuildingInfoPanel : MonoBehaviour
         if (buildingNameText != null)
             buildingNameText.text = currentBuilding.data.buildingName;
 
-        if (buildingTypeText != null)
-            buildingTypeText.text = currentBuilding.data.buildingType.ToString();
-
         if (levelText != null)
             levelText.text = $"Level {currentBuilding.level}";
 
@@ -189,17 +195,27 @@ public class BuildingInfoPanel : MonoBehaviour
 
             if (productionSection != null) productionSection.SetActive(false);
             if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(false);
-            if (workerCountText != null) workerCountText.gameObject.SetActive(false);
             if (upgradeSection != null) upgradeSection.SetActive(false);
             if(workersSection  != null) workersSection.SetActive(false);
+            if(longhouseSection != null) longhouseSection.SetActive(false);
             return;
         }
 
         // Normal display
         if (repairSection != null) repairSection.SetActive(false);
         if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
-        if (workerCountText != null) workerCountText.gameObject.SetActive(true);
         if (workersSection != null) workersSection.SetActive(true);
+        if(longhouseSection != null) longhouseSection.SetActive(false);
+        if(upgradeSection != null) upgradeSection.SetActive(true);
+
+        if (currentBuilding.data.buildingType == BuildingType.Longhouse)
+        {
+            if (productionSection != null) productionSection.SetActive(false);
+            if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(false);
+            if (workersSection != null) workersSection.SetActive(false);
+            UpdateLonghouseDisplay();
+            return;
+        }
 
         UpdateUpgradeDisplay();
 
@@ -237,6 +253,15 @@ public class BuildingInfoPanel : MonoBehaviour
         currentBuilding.Repair();
         UpdateDisplay();
         UIFocus.Set(assignWorkerButton.gameObject);
+    }
+
+    private void UpdateLonghouseDisplay()
+    {
+        longhouseSection.SetActive(true);
+        SettlementManager settlement = SettlementManager.Instance;
+        combatText.text = $"Overall combat level: {settlement.GetOverrallCombat().ToString("F1")}";
+        populationText.text = $"Population: {settlement.GetPopulation()} / {settlement.GetMaxPopulation()}";
+        MoraleText.text = $"Morale: {settlement.GetOverrallMorale().ToString("F1")}";
     }
 
     /// <summary>
@@ -496,9 +521,9 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void OnAssignWorkerButtonClicked()
     {
-        if (assignWorkerPanel != null)
+        if (assignWorkerSection != null)
         {
-            assignWorkerPanel.SetActive(true);
+            assignWorkerSection.SetActive(true);
             RefreshAvailableVillagers();
         }
     }
@@ -558,7 +583,7 @@ public class BuildingInfoPanel : MonoBehaviour
         {
             currentBuilding.RemoveWorker(villager);
             UpdateDisplay();
-            assignWorkerPanel.SetActive(true);
+            assignWorkerSection.SetActive(true);
             RefreshAvailableVillagers();
         }
     }
@@ -568,8 +593,8 @@ public class BuildingInfoPanel : MonoBehaviour
     /// </summary>
     private void CloseAssignPanel()
     {
-        if (assignWorkerPanel != null)
-            assignWorkerPanel.SetActive(false);
+        if (assignWorkerSection != null)
+            assignWorkerSection.SetActive(false);
         
     }
     
