@@ -24,13 +24,13 @@ MonoBehaviour:
   productionType: 1
   producedResource: 14
   productionRate: 0.8
-  productionAmount: 3
+  productionAmount: 5
   craftingRecipe:
     inputResources:
     - resourceType: 3
       amount: 1
     outputResource: 14
-    outputAmount: 3
+    outputAmount: 5
     craftingRate: 1
   maxLevel: 5
   levels:

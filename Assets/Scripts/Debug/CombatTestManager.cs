@@ -85,7 +85,7 @@ public class CombatTestManager : MonoBehaviour
         var ia = go.GetComponent<ItemAttachment>();
         if (ia != null)
         {
-            ia.GiveRandomWeapon();
+            ia.GiveStartingWeapon();
             //ia.GiveRandomShield();
             //ia.GiveRandomTorch();
         }
@@ -126,7 +126,7 @@ public class CombatTestManager : MonoBehaviour
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)
             {
-                ia.GiveRandomWeapon();
+                ia.GiveStartingWeapon();
                 //ia.GiveRandomShield();
             }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class Building : MonoBehaviour
@@ -11,6 +12,8 @@ public class Building : MonoBehaviour
     [Header("Production")]
     public float productionProgress = 0f; // 0 to 100
     public float adjustedProductionAmount = 0f; // Production amount after seasonal modifiers (for UI)
+    public GameObject worldUI;
+    public Image liveProgressBar;
 
     [Header("Repair")]
     [SerializeField] private bool startsDamaged = false;
@@ -65,6 +68,8 @@ public class Building : MonoBehaviour
         {
             SettlementManager.Instance.RegisterBuilding(this);
         }
+
+        worldUI.SetActive(false);
     }
     
     private void OnDestroy()
@@ -155,6 +160,7 @@ public class Building : MonoBehaviour
             assignedWorkers.Add(villager);
             villager.AssignJob(data.assignedJobType, this);
             OnAnyWorkerAssigned?.Invoke(this);
+            worldUI.SetActive(true); // Show UI when a worker is assigned
         }
     }
     
@@ -162,6 +168,10 @@ public class Building : MonoBehaviour
     {
         assignedWorkers.Remove(villager);
         villager.UnassignJob();
+        if(assignedWorkers.Count == 0)
+        {
+            worldUI.SetActive(false); // Hide UI when no workers are assigned
+        }
     }
     
     /// <summary>
@@ -198,6 +208,8 @@ public class Building : MonoBehaviour
 
         // Increase progress bar
         productionProgress += productionSpeed * deltaTime;
+
+        liveProgressBar.fillAmount = productionProgress / 100;
 
         // Check if production is complete
         if (productionProgress >= 100f)
@@ -237,7 +249,9 @@ public class Building : MonoBehaviour
         
         // Increase progress bar
         productionProgress += craftingSpeed * deltaTime;
-        
+
+        liveProgressBar.fillAmount = productionProgress / 100;
+
         // Check if crafting is complete
         if (productionProgress >= 100f)
         {

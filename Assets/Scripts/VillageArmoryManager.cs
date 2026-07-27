@@ -16,7 +16,7 @@ public class VillageArmoryManager : MonoBehaviour
             GameObject existing = spawnedItems.Find(i => i != null && i.GetComponent<EquipableItem>().itemID == item.itemID);
             if(existing != null)
             {
-                existing.transform.position = transform.position + new Vector3(currentCount * 2.0f, 0, 0);
+                existing.transform.position = transform.position + new Vector3(currentCount * 1.0f, 0, 0);
                 currentCount++;
                 continue;
             }
@@ -26,7 +26,7 @@ public class VillageArmoryManager : MonoBehaviour
             GameObject itemInstance = Instantiate(item.gameObject);
             itemInstance.SetActive(true);
             itemInstance.GetComponent<EquipableItem>().Init(true);
-            itemInstance.transform.position = transform.position + new Vector3(currentCount * 2.0f, 0, 0);
+            itemInstance.transform.position = transform.position + new Vector3(currentCount * 1.0f, 0, 0);
             currentCount++;
             spawnedItems.Add(itemInstance);
         }

@@ -483,6 +483,7 @@ public class JarlManager : MonoBehaviour, ISaveable
             newJarl.isJarl = true;
             newJarl.isOfJarlLineage = true;
             newJarl.generationsFromJarl = 0;
+            newJarl.age = 20;
             SetInitialJarl(newJarl);
             Debug.Log($"JarlManager: Assigned {newJarl.villagerName} as initial Jarl");
         }

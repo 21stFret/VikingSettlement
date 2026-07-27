@@ -152,17 +152,6 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
-    public void GiveRandomWeapon()
-    {
-        // This is a placeholder implementation. Replace with actual weapon selection logic.
-        EquipableItem randomWeapon = WeaponDatabase.Instance.GetRandomWeapon();
-        if (randomWeapon != null)
-        {
-            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
-            EquipWeapon(weaponInstance);
-        }
-    }
-
     public void GiveStartingWeapon()
     {
         WD = WeaponDatabase.Instance;

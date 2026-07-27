@@ -38,7 +38,7 @@ MonoBehaviour:
       amount: 20
     maxWorkers: 0
     productionMultiplier: 1
-    populationCapBonus: 5
+    populationCapBonus: 7
   - level: 2
     upgradeCost:
     - resourceType: 15

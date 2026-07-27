@@ -98,7 +98,7 @@ public class VillagerSpawner : MonoBehaviour
         if (villager == null) return null;
 
         villager.gender = gender ?? (Random.value > 0.5f ? Gender.Male : Gender.Female);
-        villager.age = age ?? Random.Range(18f, 40f);
+        villager.age = age ?? Random.Range(18f, 30f);
 
         villager.skills.Randomize();
 

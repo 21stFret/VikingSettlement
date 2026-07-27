@@ -72,10 +72,6 @@ public class Enemy : TargetHealth
             {
                 ia.GiveWeaponByName(weaponName);
             }
-            else
-            {
-                ia.GiveRandomWeapon();
-            }
 
             if (shieldName != null || shieldName!="")
             {
