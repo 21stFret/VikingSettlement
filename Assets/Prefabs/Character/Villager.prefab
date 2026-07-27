@@ -604,7 +604,7 @@ MonoBehaviour:
   separationForceStrength: 5
   separationSmoothingRate: 10
   retargetOnHit: 1
-  showDebug: 1
+  showDebug: 0
   idleTimeMin: 2
   idleTimeMax: 5
   wanderRadius: 5

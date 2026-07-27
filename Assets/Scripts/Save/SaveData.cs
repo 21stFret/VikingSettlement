@@ -26,6 +26,7 @@ public class SaveData
     public ResourceSave[] resources;
     public VillagerSave[] villagers;
     public BuildingSave[] buildings;
+    public ArmorySave[] armory;
     public MissionSaveData missions;
     public string currentJarlId;
     public SettlementStatsSave stats;
@@ -86,7 +87,9 @@ public class VillagerSave
     public float posZ;
     public string spriteVariant;
     public string weaponName;
+    public int weaponDurability;
     public string shieldName;
+    public int shieldDurability;
     public string torchName;
     public int[] activeWounds; // WoundType cast to int
 }
@@ -125,6 +128,14 @@ public class BuildingSave
     public string[] assignedWorkerIds;
     public bool needsRepair;
     public int level;
+}
+
+[Serializable]
+public class ArmorySave
+{
+    public string[] itemNames;
+    public float[] itemDurabilites;
+    public string[] itemIDs;
 }
 
 [Serializable]

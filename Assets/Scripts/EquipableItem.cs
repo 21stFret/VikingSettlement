@@ -16,6 +16,7 @@ public class EquipableItem : MonoBehaviour
     }
 
     [Header("Item Info")]
+    public string itemID;
     public ItemType itemType;
     public string itemName;
     public int strength;
@@ -43,6 +44,8 @@ public class EquipableItem : MonoBehaviour
     public SpriteRenderer itemSpriteRenderer;
 
     public bool IsShield => itemType == ItemType.Shield;
+    public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer;
+
     public bool IsBroken => maxDurability > 0 && currentDurability <= 0;
     public int CurrentDurability => currentDurability;
 
@@ -52,10 +55,13 @@ public class EquipableItem : MonoBehaviour
 
     public void NotifyUnequipped() => OnUnequipped?.Invoke();
 
-    private void Awake()
+    public void Init(bool fromLoad = false)
     {
-        if (maxDurability > 0)
+
+        if (maxDurability > 0 && !fromLoad)
             currentDurability = maxDurability;
+        if(!fromLoad)
+            itemID = System.Guid.NewGuid().ToString();
         if (itemSpriteRenderer == null)
         {
             itemSpriteRenderer = GetComponent<SpriteRenderer>();

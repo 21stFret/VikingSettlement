@@ -728,29 +728,6 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     #region ISaveable
 
-    /// <summary>
-    /// Gets the name of an equipable item for saving.
-    /// Falls back to GameObject name (without Clone suffix) if itemName is empty.
-    /// </summary>
-    private string GetEquipableItemName(EquipableItem item)
-    {
-        if (item == null) return "";
-
-        // Use itemName if it's set
-        if (!string.IsNullOrEmpty(item.itemName))
-        {
-            return item.itemName;
-        }
-
-        // Fall back to GameObject name, stripping "(Clone)" suffix
-        string goName = item.gameObject.name;
-        if (goName.EndsWith("(Clone)"))
-        {
-            goName = goName.Substring(0, goName.Length - 7).Trim();
-        }
-        return goName;
-    }
-
     public void PopulateSaveData(SaveData data)
     {
         // Save villagers
@@ -759,8 +736,15 @@ public class SettlementManager : MonoBehaviour, ISaveable
         {
             if (v == null || v.IsDead()) continue;
 
+            CharacterBase cb = v.GetComponent<CharacterBase>();
+
             var vs = new VillagerSave
             {
+                weaponName = cb?.weapon?.itemName,
+                weaponDurability = cb?.weapon ? cb.weapon.CurrentDurability : 0,
+                shieldName = cb?.shield?.itemName,
+                shieldDurability = cb?.shield ? cb.shield.CurrentDurability : 0,
+                torchName = cb?.torch?.itemName,
                 id = v.uniqueId,
                 villagerName = v.villagerName,
                 clanName = v.clanName,
@@ -805,9 +789,6 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 posY = v.transform.position.y,
                 posZ = v.transform.position.z,
                 spriteVariant = v.spriteVariant,
-                weaponName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.weapon),
-                shieldName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.shield),
-                torchName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.torch),
                 activeWounds = v.activeWounds != null
                     ? v.activeWounds.Select(w => (int)w).ToArray()
                     : new int[0]

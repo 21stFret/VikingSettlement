@@ -159,7 +159,7 @@ public enum ResourceType
     Weapons,
     Tools,
     Armor,
-    Shields,
+    Shield,
     Sails,
     Leather,
     Mead,

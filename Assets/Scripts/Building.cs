@@ -32,6 +32,7 @@ public class Building : MonoBehaviour
 
     [Header("Crafting Status")]
     public bool waitingForResources = false; // True if crafting building lacks input materials
+    public bool startedCrafting = false; // True if crafting has started at least once
 
     public List<Villager> assignedWorkers = new List<Villager>();
     
@@ -211,17 +212,26 @@ public class Building : MonoBehaviour
     private void UpdateCrafting(float deltaTime)
     {
         if (data.craftingRecipe == null) return;
-        
-        // Check if we have the required resources
-        if (!data.craftingRecipe.CanCraft())
+
+        if(!startedCrafting)
         {
-            waitingForResources = true;
-            // Don't progress if we lack materials
-            return;
+            // Check if we have the required resources
+            if (!data.craftingRecipe.CanCraft())
+            {
+                waitingForResources = true;
+                // Don't progress if we lack materials
+                return;
+            }
+
+            waitingForResources = false;
+
+            // Consume input resources
+            data.craftingRecipe.ConsumeResources();
+            startedCrafting = true;
+            Debug.Log($"{data.buildingName} started crafting {data.craftingRecipe.outputResource}");
         }
-        
-        waitingForResources = false;
-        
+
+
         // Calculate crafting speed based on workers and their skills
         float craftingSpeed = GetProductionSpeed(data.craftingRecipe.craftingRate);
         
@@ -310,18 +320,23 @@ public class Building : MonoBehaviour
     /// </summary>
     private void CompleteCrafting()
     {
-        // Consume input resources
-        data.craftingRecipe.ConsumeResources();
-
         // Produce output resource
-        float outputAmount = data.craftingRecipe.outputAmount * EffectiveProductionMultiplier;
-        ResourceManager.Instance.AddResource(
-            data.craftingRecipe.outputResource,
-            outputAmount
-        );
+        float outputAmount = data.craftingRecipe.outputAmount;
+        if(isForArmory(data.craftingRecipe.outputResource))
+        {
+            WeaponDatabase wd = WeaponDatabase.Instance;
+            wd.AddItemToVillageArmory(wd.GetItemByName(data.craftingRecipe.outputResource.ToString()));
+            wd.villageArmoryManager.SpawnArmory();
+        }
+        else
+        {
+            ResourceManager.Instance.AddResource(data.craftingRecipe.outputResource, outputAmount);
+        }
+
 
         // Reset progress (keep overflow for next cycle)
         productionProgress -= 100f;
+        startedCrafting = false;
 
         // Improve worker skills on each completion
         foreach (var worker in assignedWorkers)
@@ -331,7 +346,16 @@ public class Building : MonoBehaviour
 
         Debug.Log($"{data.buildingName} crafted {outputAmount} {data.craftingRecipe.outputResource}");
     }
-    
+
+    private bool isForArmory(ResourceType type)
+    {
+        if(type == ResourceType.Weapons || type == ResourceType.Armor || type == ResourceType.Shield)
+        {
+            return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Get production progress as a percentage (0-1 for UI)
     /// </summary>

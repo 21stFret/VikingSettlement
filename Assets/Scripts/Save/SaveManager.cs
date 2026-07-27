@@ -386,6 +386,9 @@ public class SaveManager : MonoBehaviour
         if (StormScheduler.Instance != null && StormScheduler.Instance is ISaveable storm)
             storm.PopulateSaveData(data);
 
+        if(WeaponDatabase.Instance != null && WeaponDatabase.Instance is ISaveable weaponDatabase)
+            weaponDatabase.PopulateSaveData(data);
+
         return data;
     }
 
@@ -397,6 +400,9 @@ public class SaveManager : MonoBehaviour
     {
         // Load stat modifiers first so villager ApplySkillBonuses() sees correct values
         // when SettlementManager creates villagers below.
+        if (WeaponDatabase.Instance != null && WeaponDatabase.Instance is ISaveable weaponDatabase)
+            weaponDatabase.LoadSaveData(data);
+
         if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
             skillTree.LoadSaveData(data);
 
@@ -431,6 +437,8 @@ public class SaveManager : MonoBehaviour
 
         if (StormScheduler.Instance != null && StormScheduler.Instance is ISaveable storm)
             storm.LoadSaveData(data);
+
+
     }
 
     #endregion

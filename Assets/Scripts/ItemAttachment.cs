@@ -17,24 +17,13 @@ public class ItemAttachment : MonoBehaviour
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
     [SerializeField] private AttachmentPoint torchAttachPoint = AttachmentPoint.Back;
 
+    private WeaponDatabase WD;
+
     public enum AttachmentPoint
     {
         LeftHand,
         RightHand,
         Back
-    }
-    
-    private void Start()
-    {
-        // Attach items to their points
-        if (shield != null)
-            EquipShield(shield);
-
-        if (weapon != null)
-            EquipWeapon(weapon);
-
-        if (torch != null)
-            EquipTorch(torch);
     }
 
     private void AttachItem(Transform item, AttachmentPoint point)
@@ -47,6 +36,8 @@ public class ItemAttachment : MonoBehaviour
             item.localPosition = Vector3.zero;
             item.localRotation = Quaternion.identity;
         }
+        WD.RemoveItemFromVillageArmory(item.GetComponent<EquipableItem>().itemID);
+        WD.villageArmoryManager.SpawnArmory();
     }
 
     public void EquipShield(GameObject newShield)
@@ -60,7 +51,15 @@ public class ItemAttachment : MonoBehaviour
             CC.shield.isEquipped = true;
             CC.shield.OnBroken += UnequipShield;
         }
-        AttackCooldownUI.Instance.shieldUi.Init();
+        Villager V = GetComponent<Villager>();
+        if(V != null)
+        {
+            if(V.isJarl)
+            {
+                AttackCooldownUI.Instance.shieldUi.Init();
+            }
+        }
+
     }
 
     /// <summary>
@@ -161,6 +160,17 @@ public class ItemAttachment : MonoBehaviour
         {
             GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
             EquipWeapon(weaponInstance);
+        }
+    }
+
+    public void GiveStartingWeapon()
+    {
+        WD = WeaponDatabase.Instance;
+        EquipableItem armoryWeapon = WD.GetWeaponFromVillageArmory();
+        if (armoryWeapon != null)
+        {
+            string armoryItemID = armoryWeapon.itemID;
+            EquipWeapon(WD.villageArmoryManager.GetSpawnedItem(armoryItemID, true));
         }
     }
 

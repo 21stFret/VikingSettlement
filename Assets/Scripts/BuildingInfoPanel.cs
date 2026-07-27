@@ -208,6 +208,8 @@ public class BuildingInfoPanel : MonoBehaviour
         if(longhouseSection != null) longhouseSection.SetActive(false);
         if(upgradeSection != null) upgradeSection.SetActive(true);
 
+        UpdateUpgradeDisplay();
+
         if (currentBuilding.data.buildingType == BuildingType.Longhouse)
         {
             if (productionSection != null) productionSection.SetActive(false);
@@ -216,8 +218,6 @@ public class BuildingInfoPanel : MonoBehaviour
             UpdateLonghouseDisplay();
             return;
         }
-
-        UpdateUpgradeDisplay();
 
         // Production info
         bool producesResources = currentBuilding.data.producedResource != ResourceType.None;

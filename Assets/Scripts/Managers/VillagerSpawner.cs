@@ -104,7 +104,7 @@ public class VillagerSpawner : MonoBehaviour
 
         if (giveEquipment)
         {
-            villager.itemAttachment.GiveRandomWeapon();
+            villager.itemAttachment.GiveStartingWeapon();
             //villager.itemAttachment.GiveRandomShield();
             //villager.itemAttachment.GiveRandomTorch();
         }
@@ -234,18 +234,30 @@ public class VillagerSpawner : MonoBehaviour
 
         if (!string.IsNullOrEmpty(vs.weaponName))
         {
-            EquipableItem prefab = WeaponDatabase.Instance.GetWeaponByName(vs.weaponName);
+            EquipableItem prefab = WeaponDatabase.Instance.GetItemByName(vs.weaponName);
             if (prefab != null)
-                itemAttachment.EquipWeapon(Instantiate(prefab.gameObject));
+            {
+                GameObject weaponInstance = Instantiate(prefab.gameObject);
+                EquipableItem weaponItem = weaponInstance.GetComponent<EquipableItem>();
+                weaponItem.Init(true);
+                weaponItem.SetDurability(vs.weaponDurability);
+                itemAttachment.EquipWeapon(weaponInstance);
+            }
             else
                 Debug.LogWarning($"VillagerSpawner: Weapon '{vs.weaponName}' not found for {vs.villagerName}.");
         }
 
         if (!string.IsNullOrEmpty(vs.shieldName))
         {
-            EquipableItem prefab = WeaponDatabase.Instance.GetShieldByName(vs.shieldName);
+            EquipableItem prefab = WeaponDatabase.Instance.GetItemByName(vs.shieldName);
             if (prefab != null)
-                itemAttachment.EquipShield(Instantiate(prefab.gameObject));
+            {
+                GameObject shieldInstance = Instantiate(prefab.gameObject);
+                EquipableItem shieldItem = shieldInstance.GetComponent<EquipableItem>();
+                shieldItem.Init(true);
+                shieldItem.SetDurability(vs.shieldDurability);
+                itemAttachment.EquipShield(shieldInstance);
+            }
             else
                 Debug.LogWarning($"VillagerSpawner: Shield '{vs.shieldName}' not found for {vs.villagerName}.");
         }
