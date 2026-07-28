@@ -978,14 +978,12 @@ public class CharacterBase : MonoBehaviour
         movement = Vector2.zero;
         characterCollider.enabled = !isDead;
         rb.bodyType = RigidbodyType2D.Kinematic;
+
         if (weapon != null)
-        {
-            weapon.gameObject.SetActive(!isDead);
-        }
-        if (isDead)
-            itemAttachment?.DropShield();
-        else if (shield != null)
-            shield.gameObject.SetActive(true);
+            itemAttachment.UnequipWeapon();
+
+        if (shield != null)
+            itemAttachment.DropShield();
 
         if (isDead && stunEffect != null)
         {

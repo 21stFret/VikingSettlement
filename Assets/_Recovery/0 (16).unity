@@ -2203,7 +2203,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &9725947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10859,7 +10858,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &38778626
 GameObject:
   m_ObjectHideFlags: 0
@@ -16570,7 +16568,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &82335573
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20814,7 +20811,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &101959438
 GameObject:
   m_ObjectHideFlags: 0
@@ -20865,7 +20861,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -38132,7 +38127,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &214762316
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -49665,7 +49659,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &267253716
 GameObject:
   m_ObjectHideFlags: 0
@@ -52347,7 +52340,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 140
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -125789,7 +125781,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &341186055
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -130336,7 +130327,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -140870,7 +140860,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &424258858
 GameObject:
   m_ObjectHideFlags: 0
@@ -140999,7 +140988,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -145631,7 +145619,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -160562,6 +160549,14 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1001 &511068166
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -160848,7 +160843,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -163299,7 +163293,6 @@ GameObject:
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
   - component: {fileID: 519420034}
-  - component: {fileID: 519420035}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -163394,7 +163387,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 11.25
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -163468,30 +163461,6 @@ MonoBehaviour:
   allowLookThrough: 1
   alphaLookThrough: 0.3
   isFreeCameraMode: 0
---- !u!114 &519420035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.PixelPerfectCamera
-  m_ComponentVersion: 1
-  m_AssetsPPU: 48
-  m_RefResolutionX: 1920
-  m_RefResolutionY: 1080
-  m_CropFrame: 0
-  m_GridSnapping: 1
-  m_FilterMode: 0
-  m_UpscaleRT: 0
-  m_PixelSnapping: 0
-  m_CropFrameX: 0
-  m_CropFrameY: 0
-  m_StretchFill: 0
 --- !u!1001 &520146471
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -168529,7 +168498,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &543222301
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -169721,7 +169689,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -178099,7 +178066,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &600814701
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -179102,7 +179068,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -181748,7 +181713,7 @@ Transform:
   m_GameObject: {fileID: 619394800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.89, y: 21.02, z: 1.3}
+  m_LocalPosition: {x: -4.64, y: -8.6, z: 1.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -182517,7 +182482,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -188981,7 +188945,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!4 &656068973 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5315717443649500222, guid: dd08966190b79814dbd2e23b8f95a5ca, type: 3}
@@ -191774,7 +191737,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -198094,7 +198056,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -205886,7 +205847,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &785008076
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -207021,7 +206981,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -218803,7 +218762,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &855292582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219616,7 +219574,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -223440,7 +223397,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -240192,7 +240148,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &955865862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244469,7 +244424,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &977151070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -245020,7 +244974,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -256154,7 +256107,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!43 &1059232632
 Mesh:
   m_ObjectHideFlags: 0
@@ -257965,7 +257917,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -262894,7 +262845,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!43 &1069858385
 Mesh:
   m_ObjectHideFlags: 0
@@ -263256,7 +263206,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -269533,7 +269482,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &1101334887
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -270005,7 +269953,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -273355,7 +273302,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -288163,7 +288109,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &1173293444
 GameObject:
   m_ObjectHideFlags: 0
@@ -293870,7 +293815,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &1205348657
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -295773,7 +295717,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -303928,7 +303871,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &1277438704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308268,7 +308210,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -314945,7 +314886,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &1358825895
 GameObject:
   m_ObjectHideFlags: 0
@@ -315261,7 +315201,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -317452,7 +317391,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -322168,7 +322106,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -335033,7 +334970,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!43 &1476669772
 Mesh:
   m_ObjectHideFlags: 0
@@ -337426,7 +337362,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -352455,6 +352390,16 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!43 &1593059431
 Mesh:
   m_ObjectHideFlags: 0
@@ -352863,7 +352808,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -375024,7 +374968,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1001 &1770333523
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -376583,9 +376526,6 @@ MonoBehaviour:
   lightHeight: 0.5
   shadowIntensity: 0.5
   daytimeIntensity: 0.3
-  shadowCasterLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &1777500005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380335,7 +380275,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -386589,7 +386528,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -394797,7 +394735,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!4 &1870762232
 Transform:
   m_ObjectHideFlags: 0
@@ -395900,7 +395837,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -402673,7 +402609,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &1934768974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403094,7 +403029,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -405980,7 +405914,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!212 &1947260170
 SpriteRenderer:
   serializedVersion: 2
@@ -406950,7 +406883,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -419262,7 +419194,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &1992254464
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426482,7 +426413,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -435643,7 +435573,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &2076587748
 GameObject:
   m_ObjectHideFlags: 0
@@ -437625,7 +437554,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -442053,7 +441981,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48f417291a641640b6eee2ab6e32b02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowMaster
-  sunPosition: {x: -0.89, y: 21.02}
+  sunPosition: {x: -4.64, y: -8.6}
   sunHeight: 0.13
   minSunHeightForShadows: 0.1
   sunTransform: {fileID: 619394802}
@@ -442548,7 +442476,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -445666,7 +445593,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!114 &2115942134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -446595,7 +446521,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -451004,7 +450929,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -458071,9 +457995,6 @@ MonoBehaviour:
   lightHeight: 0.496
   shadowIntensity: 0.41
   daytimeIntensity: 0.1
-  shadowCasterLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &1044119408384430790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459317,6 +459238,10 @@ PrefabInstance:
       propertyPath: infoPanelPrefab
       value: 
       objectReference: {fileID: 942465299}
+    - target: {fileID: 2236382820216940588, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.031
+      objectReference: {fileID: 0}
     - target: {fileID: 2559045224990465747, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
       propertyPath: shadowMaster
       value: 
@@ -459325,13 +459250,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Building (Longhouse)
       objectReference: {fileID: 0}
-    - target: {fileID: 3956585847257225738, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
-      propertyPath: shadowCasterLayerMask.m_Bits
-      value: 1023
-      objectReference: {fileID: 0}
     - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 90
+      value: 94
       objectReference: {fileID: 0}
     - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[51]'
@@ -459489,6 +459410,22 @@ PrefabInstance:
       propertyPath: 'linkedSpriteRenderers.Array.data[89]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[90]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[91]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[92]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5685914610075680150, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[93]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5798448146997110537, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
       propertyPath: startsDamaged
       value: 0
@@ -459533,13 +459470,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6640921205165879752, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
-      propertyPath: shadowCasterLayerMask.m_Bits
-      value: 1023
-      objectReference: {fileID: 0}
     - target: {fileID: 7287784107640108524, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8487294256628532206, guid: 23b76c9bcf512794ca011fc70c93dbb8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.030999832
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -465602,7 +465539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 60
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[0]'
@@ -465844,6 +465781,22 @@ PrefabInstance:
       propertyPath: 'linkedSpriteRenderers.Array.data[59]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[60]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[61]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[62]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5640759973442030581, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[63]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5767284595684287826, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.1800003
@@ -465979,7 +465932,6 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
-  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -468596,7 +468548,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &3923939012529434196
 GameObject:
   m_ObjectHideFlags: 0
@@ -469015,7 +468966,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 59
+      value: 63
       objectReference: {fileID: 0}
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[39]'
@@ -469095,6 +469046,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[58]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[59]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[60]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[61]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[62]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1212233240117381181, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
@@ -474382,25 +474349,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2110183759}
     - target: {fileID: 892109785422883869, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
-      propertyPath: objectHeight
-      value: 0.73
-      objectReference: {fileID: 0}
-    - target: {fileID: 892109785422883869, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
       propertyPath: shadowMaster
       value: 
       objectReference: {fileID: 2110183759}
-    - target: {fileID: 892109785422883869, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
-      propertyPath: shadowOffsetX
-      value: -0.49
-      objectReference: {fileID: 0}
-    - target: {fileID: 892109785422883869, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
-      propertyPath: shadowOffsetY
-      value: 3.65
-      objectReference: {fileID: 0}
-    - target: {fileID: 892109785422883869, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
-      propertyPath: shadowHorizontalMovement
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1425301595124045881, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
       propertyPath: isLocal
       value: 0
@@ -474451,7 +474402,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 73
+      value: 77
       objectReference: {fileID: 0}
     - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[60]'
@@ -474503,6 +474454,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[72]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[73]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[74]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[75]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6992553358522519384, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[76]'
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8528679196175978746, guid: 12e38765e3a707143a6a27bbe2817bb0, type: 3}
@@ -481497,7 +481464,7 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 69997c75c13f56d4c9670225d5ae91af, type: 3}
     - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 64
+      value: 68
       objectReference: {fileID: 0}
     - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: 'linkedSpriteRenderers.Array.data[5]'
@@ -481735,6 +481702,22 @@ PrefabInstance:
       propertyPath: 'linkedSpriteRenderers.Array.data[63]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[64]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[65]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[66]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6569813454764365629, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
+      propertyPath: 'linkedSpriteRenderers.Array.data[67]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6770491685014209469, guid: 7f23a9b0c26f78a46be9274861ac8c9a, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -481939,9 +481922,6 @@ MonoBehaviour:
   lightHeight: 0.5
   shadowIntensity: 0.5
   daytimeIntensity: 0.3
-  shadowCasterLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &8913481848287884203
 MonoBehaviour:
   m_ObjectHideFlags: 0

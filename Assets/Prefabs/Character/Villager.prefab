@@ -310,7 +310,6 @@ GameObject:
   - component: {fileID: 5493561719251364476}
   - component: {fileID: 3728299144202640379}
   - component: {fileID: 7330671388403268956}
-  - component: {fileID: 3195747193457852163}
   - component: {fileID: 8529674291064553948}
   m_Layer: 6
   m_Name: Villager
@@ -358,6 +357,8 @@ MonoBehaviour:
   sortingOrderBase: 5000
   offset: 0
   linkedSpriteRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -823,21 +824,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0.03}
   m_Radius: 0.2
---- !u!114 &3195747193457852163
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 983789909891545685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 519dd23e043226744ab1d679d0d69c6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponSwapper
-  swordPrefab: {fileID: 0}
-  axePrefab: {fileID: 0}
-  torchPrefab: {fileID: 0}
 --- !u!114 &8529674291064553948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6434,7 +6420,7 @@ GameObject:
   - component: {fileID: 2244266196629507003}
   - component: {fileID: 2340933246596471047}
   m_Layer: 0
-  m_Name: Interaction Iconsa
+  m_Name: Interaction Icons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6859,7 +6845,7 @@ GameObject:
   - component: {fileID: 8708594803167090792}
   - component: {fileID: 6892182269495662423}
   - component: {fileID: 7544866169877163440}
-  m_Layer: 5
+  m_Layer: 11
   m_Name: BuildingInteractionZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}

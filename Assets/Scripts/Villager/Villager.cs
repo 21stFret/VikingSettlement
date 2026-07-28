@@ -1,6 +1,7 @@
 using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class Villager : TargetHealth
 {
@@ -149,9 +150,35 @@ public class Villager : TargetHealth
             _speechCooldown = Random.Range(_speechMinCooldown, _speechMaxCooldown); // Randomize next speech time
         }
     }
-    
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!isJarl) return;
+
+        if (collision.CompareTag("Shield"))
+        {
+            if (_controller.shield != null) return;
+            var item = collision.GetComponent<EquipableItem>();
+            if (item != null && !item.isEquipped)
+            {
+                itemAttachment.EquipShield(collision.gameObject);
+                return;
+            }
+        }
+
+        if (collision.CompareTag("Weapon"))
+        {
+            if (_controller.weapon != null) return;
+            var item = collision.GetComponent<EquipableItem>();
+            if (item != null && !item.isEquipped)
+            {
+                itemAttachment.EquipWeapon(collision.gameObject);
+            }
+        }
+    }
+
     #region Job Management
-    
+
     public void AssignJob(JobType job, Building building)
     {
         // Only mature villagers can work

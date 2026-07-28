@@ -19755,6 +19755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65beee2097ec7484795909c73947e91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
+  itemID: 
   itemType: 4
   itemName: Shield
   strength: 1

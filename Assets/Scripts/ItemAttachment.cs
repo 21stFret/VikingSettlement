@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class ItemAttachment : MonoBehaviour
 {
@@ -26,6 +27,11 @@ public class ItemAttachment : MonoBehaviour
         Back
     }
 
+    private void Awake()
+    {
+        WD = WeaponDatabase.Instance;
+    }
+
     private void AttachItem(Transform item, AttachmentPoint point)
     {
         Transform attachPoint = GetAttachmentPoint(point);
@@ -49,7 +55,7 @@ public class ItemAttachment : MonoBehaviour
         {
             CC.shield = newShield.GetComponent<EquipableItem>();
             CC.shield.isEquipped = true;
-            CC.shield.OnBroken += UnequipShield;
+            CC.shield.OnBroken += ShieldDestroyed;
         }
         Villager V = GetComponent<Villager>();
         if(V != null)
@@ -76,7 +82,7 @@ public class ItemAttachment : MonoBehaviour
         CharacterBase cc = GetComponent<CharacterBase>();
         if (cc != null && cc.shield != null)
         {
-            cc.shield.OnBroken -= UnequipShield;
+            cc.shield.OnBroken -= ShieldDestroyed;
             cc.isBlocking = false;
             cc.isParrying = false;
             cc.shield.isEquipped = false;
@@ -101,7 +107,7 @@ public class ItemAttachment : MonoBehaviour
     /// Remove and destroy the equipped shield, clearing all related state.
     /// Called automatically when shield durability reaches zero.
     /// </summary>
-    public void UnequipShield()
+    public void ShieldDestroyed()
     {
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
@@ -138,7 +144,10 @@ public class ItemAttachment : MonoBehaviour
 
     public void UnequipWeapon()
     {
-        weapon.SetActive(false);
+        //weapon.SetActive(false);
+
+        WD.AddItemToVillageArmory(weapon.GetComponent<EquipableItem>());
+        WD.villageArmoryManager.SpawnArmory();
 
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
@@ -150,11 +159,12 @@ public class ItemAttachment : MonoBehaviour
         {
             weapon = null;
         }
+
+
     }
 
     public void GiveStartingWeapon()
     {
-        WD = WeaponDatabase.Instance;
         EquipableItem armoryWeapon = WD.GetWeaponFromVillageArmory();
         if (armoryWeapon != null)
         {

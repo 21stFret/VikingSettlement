@@ -309,7 +309,7 @@ GameObject:
   - component: {fileID: 2197139978305048829}
   - component: {fileID: 3677474262804914330}
   - component: {fileID: 3221688203380133026}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: Building (Base)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,7 +442,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: f99b6ce6ae39ef448808906c547e453e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
