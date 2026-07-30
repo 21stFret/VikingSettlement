@@ -351,71 +351,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
-  linkedSpriteRenderers:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!212 &5274734200186100861
 SpriteRenderer:
   serializedVersion: 2
@@ -541,7 +476,7 @@ MonoBehaviour:
   adjustedProductionAmount: 0
   worldUI: {fileID: 7052376606316233473}
   liveProgressBar: {fileID: 6970300472084314237}
-  startsDamaged: 1
+  startsDamaged: 0
   needsRepair: 0
   repairCosts:
   - resourceType: 3
@@ -612,8 +547,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DynamicShadow2D
   objectHeight: 1
   shadowOffsetX: 0
-  shadowOffsetY: 1.68
-  shadowHorizontalMovement: -4.25
+  shadowOffsetY: 2.46
+  shadowHorizontalMovement: -3.92
   shadowMaster: {fileID: 0}
   nightThreshold: 0.4
   dayThreshold: 0.6
@@ -15605,6 +15540,14 @@ PrefabInstance:
     - target: {fileID: 1895987943155858490, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6441178549323239541, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6997593720033645142, guid: 0fe34394fbf2b02459ddaad96ea85f30, type: 3}
+      propertyPath: m_SortingLayer
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

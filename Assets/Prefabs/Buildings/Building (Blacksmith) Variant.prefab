@@ -226,7 +226,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
-      value: 41
+      value: 42
       objectReference: {fileID: 0}
     - target: {fileID: 1153872421045697541, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: data
@@ -307,14 +307,6 @@ PrefabInstance:
     - target: {fileID: 6877668807370191648, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.41999972
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203744097250821599, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
-      propertyPath: shadowOffsetY
-      value: 2.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 7203744097250821599, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
-      propertyPath: shadowHorizontalMovement
-      value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 7790323869303816438, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.x

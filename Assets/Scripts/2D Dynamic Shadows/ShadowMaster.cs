@@ -34,13 +34,6 @@ public class ShadowMaster : MonoBehaviour
     [Range(0f, 1f)]
     public float shadowIntensity = 0.5f;
 
-    [Tooltip("Maximum shadow length")]
-    [Range(1f, 20f)]
-    public float maxShadowLength = 5f;
-
-    [Tooltip("The order in layer for all shadows (should be below the main sprites)")]
-    public int shadowSortingOrder = -1;
-
     [Tooltip("How much the shadow's x-scale shrinks as sun gets lower (0 = no shrink, 1 = maximum shrink)")]
     [Range(0f, 1f)]
     public float shadowXScaleShrinkAmount = 0.3f;

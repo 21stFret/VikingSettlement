@@ -126,10 +126,8 @@ public class MeshShadow2D : MonoBehaviour
         shadowMesh.uv        = new Vector2[4];
         shadowMeshFilter.mesh = shadowMesh;
 
-        // Stencil ref 1 = "sun shadow" — all objects share the same ref so overlapping quads merge
         var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
         shadowMaterial = new Material(stencilShader != null ? stencilShader : Shader.Find("Sprites/Default"));
-        shadowMaterial.SetInt("_StencilRef", 1);
         shadowMeshRenderer.sharedMaterial = shadowMaterial;
         shadowMeshRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         shadowMeshRenderer.sortingOrder   = spriteRenderer.sortingOrder - 1;

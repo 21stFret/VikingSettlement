@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using System.Collections.Generic;
 
 /// <summary>
 /// Creates dynamic 2D shadows for sprites based on sun position and nearby fire/torch lights.
@@ -34,21 +35,10 @@ public class DynamicShadow2D : MonoBehaviour
 
     private float nightBlendFactor = 0f;
 
-    // Shared across all instances so Unity can batch the shadow renderers
-    private static Material s_sunShadowMaterial;
-    private static Material SunShadowMaterial
-    {
-        get
-        {
-            if (s_sunShadowMaterial == null)
-            {
-                var shader = Shader.Find("Custom/Shadow2DStencilOnce");
-                s_sunShadowMaterial = new Material(shader != null ? shader : Shader.Find("Sprites/Default"));
-                s_sunShadowMaterial.SetInt("_StencilRef", 1);
-            }
-            return s_sunShadowMaterial;
-        }
-    }
+    // One material per instance — the custom shader doesn't get Unity's automatic
+    // per-SpriteRenderer texture override (that only applies to built-in sprite
+    // shaders), so a shared material would show whichever texture last got bound to it.
+    private Material sunShadowMaterial;
 
     void OnEnable()
     {
@@ -125,16 +115,19 @@ public class DynamicShadow2D : MonoBehaviour
         shadowObject.hideFlags = HideFlags.DontSave;
 
         shadowRenderer = shadowObject.GetComponent<SpriteRenderer>();
-        shadowRenderer.sprite = spriteRenderer.sprite;
-        shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
-        shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
-        shadowRenderer.sharedMaterial = SunShadowMaterial;
-
-        SpriteSorting spriteSorting = GetComponent<SpriteSorting>();
-        if (spriteSorting != null)
+        if(shadowRenderer == null)
         {
-            spriteSorting.linkedSpriteRenderers.Add(shadowRenderer);
+            print($"No sprite renderer found on {shadowObject.name}");
         }
+        shadowRenderer.sprite = spriteRenderer.sprite;
+        shadowRenderer.sortingOrder = spriteRenderer.sortingOrder;
+        shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+
+        var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
+        sunShadowMaterial = new Material(stencilShader != null ? stencilShader : Shader.Find("Sprites/Default"));
+        if (spriteRenderer.sprite != null)
+            sunShadowMaterial.mainTexture = spriteRenderer.sprite.texture;
+        shadowRenderer.sharedMaterial = sunShadowMaterial;
     }
 
     /// <summary>
@@ -183,14 +176,9 @@ public class DynamicShadow2D : MonoBehaviour
 
         SpriteRenderer autoRenderer = autoShadow.GetComponent<SpriteRenderer>();
         autoRenderer.sprite = spriteRenderer.sprite;
-        autoRenderer.sortingOrder = spriteRenderer.sortingOrder - 10 - index;
+        autoRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
         autoRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
 
-        SpriteSorting spriteSorting = GetComponent<SpriteSorting>();
-        if (spriteSorting != null)
-        {
-            spriteSorting.linkedSpriteRenderers.Add(autoRenderer);
-        }
 
         autoShadowObjects.Add(autoShadow);
         autoShadowRenderers.Add(autoRenderer);
@@ -203,6 +191,10 @@ public class DynamicShadow2D : MonoBehaviour
         {
             CreateShadow();
         }
+
+        if(autoShadowRenderers.Count > 0)
+            autoShadowRenderers[0].sortingOrder = spriteRenderer.sortingOrder - 1;
+        shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
 
         // Calculate night blend factor (0 = day, 1 = night)
         if (sunElevation >= dayThreshold)
@@ -289,6 +281,11 @@ public class DynamicShadow2D : MonoBehaviour
         if (shadowRend.sprite != spriteRenderer.sprite)
         {
             shadowRend.sprite = spriteRenderer.sprite;
+
+            // Custom shader doesn't auto-follow the sprite's texture like a built-in
+            // sprite shader would, so the main sun shadow's material needs an explicit sync.
+            if (sunShadowMaterial != null && shadowRend == shadowRenderer && spriteRenderer.sprite != null)
+                sunShadowMaterial.mainTexture = spriteRenderer.sprite.texture;
         }
 
         shadowObj.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
@@ -329,6 +326,14 @@ public class DynamicShadow2D : MonoBehaviour
             {
                 DestroyImmediate(shadowObject);
             }
+        }
+
+        if (sunShadowMaterial != null)
+        {
+            if (Application.isPlaying)
+                Destroy(sunShadowMaterial);
+            else
+                DestroyImmediate(sunShadowMaterial);
         }
 
         foreach (var shadow in autoShadowObjects)

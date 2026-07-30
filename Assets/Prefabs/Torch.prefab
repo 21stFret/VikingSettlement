@@ -180,7 +180,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
-  linkedSpriteRenderers: []
 --- !u!1 &2801617620002479652
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,7 +228,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
-  linkedSpriteRenderers: []
 --- !u!212 &3799605139110233738
 SpriteRenderer:
   serializedVersion: 2
@@ -10085,3 +10083,6 @@ MonoBehaviour:
   lightHeight: 0.496
   shadowIntensity: 0.41
   daytimeIntensity: 0.1
+  shadowCasterLayerMask:
+    serializedVersion: 2
+    m_Bits: 1023
