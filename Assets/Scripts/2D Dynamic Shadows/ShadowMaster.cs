@@ -172,13 +172,9 @@ public class ShadowMaster : MonoBehaviour
 
     public int GetShadowCount() => shadows.Count;
 
-    public List<DynamicShadow2D> GetAllShadows() => new List<DynamicShadow2D>(shadows);
-
     public Vector2 GetShadowDirection() => shadowDirection;
 
     public float GetSunElevation() => sunElevation;
-
-    public float GetShadowXScale() => shadowXScale;
 
     void OnDrawGizmos()
     {

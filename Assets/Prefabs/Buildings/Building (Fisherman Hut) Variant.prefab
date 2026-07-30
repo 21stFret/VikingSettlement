@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 210875599545778855, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 263253853725122511, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 824749514756788976, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.36
@@ -24,13 +32,29 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.5700002
       objectReference: {fileID: 0}
+    - target: {fileID: 1229642516184239349, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1589609977022790747, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2369970442775167803, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2715538021990096971, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 2749099188509307502, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Name
       value: Building (Fisherman Hut) Variant
       objectReference: {fileID: 0}
     - target: {fileID: 2749099188509307502, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Layer
-      value: 10
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2817626968212802827, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Size.x
@@ -64,6 +88,14 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 2954234407466621326, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3024477521848970534, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3029150929995787043, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.y
       value: 4.46
@@ -71,6 +103,10 @@ PrefabInstance:
     - target: {fileID: 3220032484281259198, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: endPos.y
       value: 2.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687614143512573051, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 4390198220782495155, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.x
@@ -168,13 +204,33 @@ PrefabInstance:
       propertyPath: repairCosts.Array.data[1].resourceType
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 4780803743040632355, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 5274734200186100861, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 9924e983da7a41e4b85556012a5633fb, type: 3}
+    - target: {fileID: 6159127149925984425, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6477517784334586425, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6801245223655834591, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
       value: 41
+      objectReference: {fileID: 0}
+    - target: {fileID: 6860965520232213861, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 7052376606316233473, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 7245185730903560659, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.x
@@ -195,6 +251,10 @@ PrefabInstance:
     - target: {fileID: 7878001455495906647, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_SortingOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7900455480660312427, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 9112100070504718097, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_LocalPosition.x

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 377158745170445456}
   - component: {fileID: 8240006101310925009}
   - component: {fileID: 2138861423587406208}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Circle (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -107,7 +107,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
-  linkedSpriteRenderers: []
 --- !u!1 &5891477090639853370
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,7 +118,7 @@ GameObject:
   - component: {fileID: 9091863223033089434}
   - component: {fileID: 9190847247822439244}
   - component: {fileID: 8586834458143112339}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Circle (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +214,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
-  linkedSpriteRenderers: []
 --- !u!1001 &4673387849352359279
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -224,9 +222,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 398649724348812780, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 654447283510376316, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1050240528836667034, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: linkedSpriteRenderers.Array.size
       value: 42
+      objectReference: {fileID: 0}
+    - target: {fileID: 1136841728649054240, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 1153872421045697541, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: data
@@ -272,10 +282,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1344614630665245542, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 1856127925865249080, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 2f1f0264df2a6284191580ba7bd03c6d, type: 3}
+    - target: {fileID: 3543989196774581828, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 4163044899424747396, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.y
       value: 0.2
@@ -288,10 +306,30 @@ PrefabInstance:
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 4419678491727422510, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 4442129062597173266, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}
+    - target: {fileID: 4747151450561456560, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 5115730286466767134, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 5916879372939847650, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6005153941579037322, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6594339804367959989, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.57
@@ -307,6 +345,10 @@ PrefabInstance:
     - target: {fileID: 6877668807370191648, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.41999972
+      objectReference: {fileID: 0}
+    - target: {fileID: 7195870172145963326, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 7790323869303816438, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.x
@@ -324,9 +366,21 @@ PrefabInstance:
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.y
       value: 0.90839386
       objectReference: {fileID: 0}
+    - target: {fileID: 8075525615418680958, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8457288670743512334, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 8563338955254814507, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_Name
       value: Building (Blacksmith) Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 8563338955254814507, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 8641260352420554830, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_Size.x
@@ -355,6 +409,14 @@ PrefabInstance:
     - target: {fileID: 8641260352420554830, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_SpriteTilingProperty.oldSize.y
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8650949549572750539, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8721447200894552163, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
