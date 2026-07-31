@@ -49,6 +49,8 @@ public class MeshShadow2D : MonoBehaviour
 
     // Cached tight visual bounds in sprite local space (from sprite.vertices)
     private float localMinX, localMaxX, localMinY, localMaxY;
+    private Vector3[] cachedVerts = new Vector3[4];
+    private Color[] cachedColors = new Color[4];
 
     // -------------------------------------------------------------------------
 
@@ -118,6 +120,8 @@ public class MeshShadow2D : MonoBehaviour
 
         shadowMeshFilter   = shadowObject.AddComponent<MeshFilter>();
         shadowMeshRenderer = shadowObject.AddComponent<MeshRenderer>();
+
+        shadowObject.transform.SetParent(transform, false);
 
         shadowMesh = new Mesh();
         shadowMesh.MarkDynamic();
@@ -280,10 +284,13 @@ public class MeshShadow2D : MonoBehaviour
 
         Vector3 sunVec = new Vector3(shadowDir.x, shadowDir.y, 0f) * sunExtension;
 
-        shadowMesh.vertices = new Vector3[]
-        {
-            bl_world, br_world, br_world + sunVec, bl_world + sunVec
-        };
+        cachedVerts[0] = bl_world;
+        cachedVerts[1] = br_world;
+        cachedVerts[2] = br_world + sunVec;
+        cachedVerts[3] = bl_world + sunVec;
+
+
+        shadowMesh.vertices = cachedVerts;
         shadowMesh.RecalculateBounds();
 
         float targetAlpha = sunElevation < master.minSunHeightForShadows
@@ -295,7 +302,12 @@ public class MeshShadow2D : MonoBehaviour
 
         Color sunColor = Color.Lerp(Color.black, Color.white, master.shadowDarkness);
         sunColor.a = currentAlpha;
-        shadowMesh.colors = new Color[] { sunColor, sunColor, sunColor, sunColor };
+        cachedColors[0] = sunColor;
+        cachedColors[1] = sunColor;
+        cachedColors[2] = sunColor;
+        cachedColors[3] = sunColor;
+
+        shadowMesh.colors = cachedColors;
 
         // --- Fire/torch light shadows ---
         if (Application.isPlaying)

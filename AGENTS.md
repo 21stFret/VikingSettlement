@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Log (2)
+  - Name: Shadow Master
   - Tag: Untagged
-  - Layer: Static
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
