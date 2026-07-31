@@ -294,14 +294,14 @@ public class MeshShadow2D : MonoBehaviour
         shadowMesh.vertices = cachedVerts;
         shadowMesh.RecalculateBounds();
 
-        float targetAlpha = sunHeight < master.minSunHeightForShadows
+        float targetAlpha = sunElevation < master.minSunHeightForShadows
             ? 0f
-            : Mathf.Lerp(master.shadowIntensity, 0.01f, sunElevation);
+            : Mathf.Lerp(0.2f, master.shadowIntensity, sunElevation);
 
         float deltaTime = Application.isPlaying ? Time.deltaTime : 1f;
         currentAlpha = Mathf.MoveTowards(currentAlpha, targetAlpha, deltaTime * master.shadowFadeSpeed);
 
-        Color sunColor = Color.Lerp(Color.black, Color.white, master.shadowDarkness);
+        Color sunColor = Color.black;
         sunColor.a = currentAlpha;
         cachedColors[0] = sunColor;
         cachedColors[1] = sunColor;

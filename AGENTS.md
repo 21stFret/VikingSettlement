@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Shadow Master
+  - Name: Sprite Light 2D
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Building
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

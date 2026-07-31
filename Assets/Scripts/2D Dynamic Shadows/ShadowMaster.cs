@@ -18,11 +18,6 @@ public class ShadowMaster : MonoBehaviour
     [Tooltip("Optional: Reference to a transform that represents the sun")]
     public Transform sunTransform;
 
-    [Header("Global Shadow Settings")]
-    [Tooltip("How dark the shadow should be (0 = black, 1 = original color)")]
-    [Range(0f, 1f)]
-    public float shadowDarkness = 0.3f;
-
     [Tooltip("Global multiplier for shadow distance from object")]
     [Range(0f, 5f)]
     public float shadowDistanceMultiplier = 1f;
@@ -115,11 +110,11 @@ public class ShadowMaster : MonoBehaviour
         float angle = Mathf.Atan2(shadowDirection.y, shadowDirection.x) * Mathf.Rad2Deg - 90f;
         shadowQuaternion = Quaternion.Euler(0f, 0f, angle);
 
-        baseShadowColor = Color.Lerp(Color.black, Color.white, shadowDarkness);
+        baseShadowColor = Color.black;
 
-        float targetAlpha = sunHeight < minSunHeightForShadows
+        float targetAlpha = sunElevation < minSunHeightForShadows
             ? 0f
-            : Mathf.Lerp(shadowIntensity, 0.01f, sunElevation);
+            : Mathf.Lerp(0.2f, shadowIntensity, sunElevation);
 
         baseShadowAlpha = Mathf.MoveTowards(baseShadowAlpha, targetAlpha, Time.deltaTime * shadowFadeSpeed);
         baseShadowColor.a = baseShadowAlpha;
