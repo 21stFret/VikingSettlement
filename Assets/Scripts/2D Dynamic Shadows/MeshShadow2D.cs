@@ -275,12 +275,13 @@ public class MeshShadow2D : MonoBehaviour
         float worldHeight = Mathf.Abs(transform.lossyScale.y) * (localMaxY - localMinY);
 
         // --- Sun shadow ---
+        float sunHeight = master.GetSunHeight();
         float sunElevation = master.GetSunElevation();
         Vector2 shadowDir  = master.GetShadowDirection();
 
         float sunExtension = Mathf.Lerp(
             master.shadowDistanceMultiplier * Mathf.Max(0f, objectHeight) * worldHeight,
-            0f, sunElevation);
+            0f, sunHeight);
 
         Vector3 sunVec = new Vector3(shadowDir.x, shadowDir.y, 0f) * sunExtension;
 
@@ -293,7 +294,7 @@ public class MeshShadow2D : MonoBehaviour
         shadowMesh.vertices = cachedVerts;
         shadowMesh.RecalculateBounds();
 
-        float targetAlpha = sunElevation < master.minSunHeightForShadows
+        float targetAlpha = sunHeight < master.minSunHeightForShadows
             ? 0f
             : Mathf.Lerp(master.shadowIntensity, 0.01f, sunElevation);
 
@@ -311,7 +312,7 @@ public class MeshShadow2D : MonoBehaviour
 
         // --- Fire/torch light shadows ---
         if (Application.isPlaying)
-            UpdateAutoLightShadows(sunElevation, bl_world, br_world, worldHeight, master);
+            UpdateAutoLightShadows(sunHeight, bl_world, br_world, worldHeight, master);
     }
 
     void UpdateAutoLightShadows(float sunElevation, Vector3 bl_world, Vector3 br_world,

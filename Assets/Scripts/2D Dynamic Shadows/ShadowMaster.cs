@@ -9,10 +9,7 @@ public class ShadowMaster : MonoBehaviour
     [Header("Sun Settings")]
     [Tooltip("The position of the sun in world space")]
     public Vector2 sunPosition = new Vector2(0, 10);
-
-    [Tooltip("The height of the sun above the ground plane")]
-    [Range(0f, 1f)]
-    public float sunHeight = 0.5f;
+    public float sunHeight;
 
     [Tooltip("Minimum sun height required for shadows to be visible")]
     [Range(0f, 1f)]
@@ -101,11 +98,15 @@ public class ShadowMaster : MonoBehaviour
         if (sunTransform != null)
         {
             sunPosition = sunTransform.position;
-            sunElevation = Mathf.Clamp01(sunTransform.position.z / 10f);
-        }
-        else
-        {
-            sunElevation = sunHeight;
+            if(DayNightManager.Instance !=null)
+            {
+                sunElevation = DayNightManager.Instance.GetSunElevation();
+            }
+            else
+            {
+                sunElevation= Mathf.Clamp01(sunTransform.position.z / 10f);
+            }
+            sunHeight = Mathf.Clamp01(sunTransform.position.z / 10f);
         }
 
         Vector2 directionToSun = sunPosition.normalized;
@@ -116,7 +117,7 @@ public class ShadowMaster : MonoBehaviour
 
         baseShadowColor = Color.Lerp(Color.black, Color.white, shadowDarkness);
 
-        float targetAlpha = sunElevation < minSunHeightForShadows
+        float targetAlpha = sunHeight < minSunHeightForShadows
             ? 0f
             : Mathf.Lerp(shadowIntensity, 0.01f, sunElevation);
 
@@ -176,11 +177,5 @@ public class ShadowMaster : MonoBehaviour
 
     public float GetSunElevation() => sunElevation;
 
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(new Vector3(sunPosition.x, sunPosition.y, 0), 0.5f);
-        Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
-        Gizmos.DrawLine(new Vector3(sunPosition.x, sunPosition.y, 0), new Vector3(sunPosition.x, sunPosition.y, sunHeight * 10f));
-    }
+    public float GetSunHeight() => sunHeight;
 }

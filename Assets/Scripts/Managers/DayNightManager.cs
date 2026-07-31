@@ -154,7 +154,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void OnTick(float deltaTime)
     {
-
+        if (!enabled)
+            return;
         // Check if we've passed meal time
         if (!hasConsumedMealToday && currentTimeOfDay >= mealTime)
         {
@@ -178,6 +179,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void FastUpdate()
     {
+        if (!enabled)
+            return;
         // Optional: Smoothly update lighting for visual effects
         float timeIncrement = Time.deltaTime / dayLengthInSeconds;
         timeIncrement *= GameTickManager.Instance.TimeScale;
