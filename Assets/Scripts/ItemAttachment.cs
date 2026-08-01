@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class ItemAttachment : MonoBehaviour
 {
@@ -104,6 +103,26 @@ public class ItemAttachment : MonoBehaviour
     }
 
     /// <summary>
+    /// Swap the currently equipped shield for one found on the ground: the old shield (if any)
+    /// is dropped where the new one was lying, and the new one is equipped in its place.
+    /// </summary>
+    public void SwapShield(GameObject newShieldGO)
+    {
+        if (newShieldGO == null) return;
+
+        Vector3 groundPosition = newShieldGO.transform.position;
+        GameObject oldShield = shield;
+
+        if (oldShield != null)
+        {
+            DropShield();
+            oldShield.transform.position = groundPosition;
+        }
+
+        EquipShield(newShieldGO);
+    }
+
+    /// <summary>
     /// Remove and destroy the equipped shield, clearing all related state.
     /// Called automatically when shield durability reaches zero.
     /// </summary>
@@ -135,10 +154,15 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
+        var equipable = newWeapon.GetComponent<EquipableItem>();
+        if (equipable != null)
+        {
+            equipable.isEquipped = true;
+        }
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.weapon = newWeapon.GetComponent<EquipableItem>();
+            CC.weapon = equipable;
         }
     }
 
@@ -146,7 +170,13 @@ public class ItemAttachment : MonoBehaviour
     {
         //weapon.SetActive(false);
 
-        WD.AddItemToVillageArmory(weapon.GetComponent<EquipableItem>());
+        var item = weapon.GetComponent<EquipableItem>();
+        if (item != null)
+        {
+            item.isEquipped = false;
+        }
+
+        WD.AddItemToVillageArmory(item);
         WD.villageArmoryManager.SpawnArmory();
 
         CharacterBase CC = GetComponent<CharacterBase>();
@@ -161,6 +191,62 @@ public class ItemAttachment : MonoBehaviour
         }
 
 
+    }
+
+    /// <summary>
+    /// Detach the currently equipped weapon to the world so it can be picked up later.
+    /// Mirrors DropShield. Used when swapping for a weapon found on the ground.
+    /// </summary>
+    public void DropWeapon()
+    {
+        if (weapon == null) return;
+
+        var item = weapon.GetComponent<EquipableItem>();
+
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.weapon = null;
+        }
+
+        GameObject dropped = weapon;
+        weapon = null;
+
+        dropped.transform.SetParent(null);
+        dropped.tag = "Weapon";
+
+        if (dropped.GetComponent<Collider2D>() == null)
+        {
+            var col = dropped.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.3f;
+        }
+
+        if (item != null)
+        {
+            item.isEquipped = false;
+            item.NotifyUnequipped();
+        }
+    }
+
+    /// <summary>
+    /// Swap the currently equipped weapon for one found on the ground: the old weapon (if any)
+    /// is dropped where the new one was lying, and the new one is equipped in its place.
+    /// </summary>
+    public void SwapWeapon(GameObject newWeaponGO)
+    {
+        if (newWeaponGO == null) return;
+
+        Vector3 groundPosition = newWeaponGO.transform.position;
+        GameObject oldWeapon = weapon;
+
+        if (oldWeapon != null)
+        {
+            DropWeapon();
+            oldWeapon.transform.position = groundPosition;
+        }
+
+        EquipWeapon(newWeaponGO);
     }
 
     public void GiveStartingWeapon()

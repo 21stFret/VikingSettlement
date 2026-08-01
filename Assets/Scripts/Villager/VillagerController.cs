@@ -52,9 +52,10 @@ public class VillagerController : CharacterBase
         base.FlipSprite(faceRight);
         if (villagerData != null)
         {
-            var personalUI = villagerData.personalUI.textCanvas.transform;
+            var personalUI = villagerData.personalUI.transform;
+            float scaleX = Mathf.Abs(personalUI.localScale.x);
             personalUI.localScale = new Vector3(
-                faceRight ? -1f : 1f,
+                faceRight ? -scaleX : scaleX,
                 personalUI.localScale.y,
                 personalUI.localScale.z);
         }

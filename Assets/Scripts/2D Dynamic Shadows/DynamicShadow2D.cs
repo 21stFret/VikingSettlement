@@ -185,6 +185,14 @@ public class DynamicShadow2D : MonoBehaviour
 
     public void ApplyShadowFromMaster(Color shadowColor, Quaternion shadowRotation, float shadowDistanceMultiplier, float sunElevation, float xScale)
     {
+        // After a script-recompile domain reload, ShadowMaster can re-register and update this
+        // shadow before this object's own OnEnable has re-run (cross-object order isn't
+        // guaranteed), leaving spriteRenderer still null. Re-fetch defensively rather than throw.
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            return;
+
         // Ensure shadow exists (may not have been created if ShadowMaster wasn't ready in OnEnable)
         if (shadowObject == null)
         {

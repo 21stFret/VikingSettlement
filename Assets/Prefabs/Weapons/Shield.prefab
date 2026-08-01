@@ -19719,6 +19719,7 @@ GameObject:
   - component: {fileID: 4747781972132127599}
   - component: {fileID: 4562958567628326634}
   - component: {fileID: 5556792805115778626}
+  - component: {fileID: 2525401946025083696}
   m_Layer: 3
   m_Name: Shield
   m_TagString: Shield
@@ -19849,7 +19850,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 90
-  linkedSpriteRenderers: []
 --- !u!58 &5556792805115778626
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -19886,3 +19886,15 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: 0}
   m_Radius: 0.6875
+--- !u!114 &2525401946025083696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7332611294401207323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c629d959cad647d4c808c77cb3e6de89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipablePickup
