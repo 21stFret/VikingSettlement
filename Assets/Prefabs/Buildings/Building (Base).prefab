@@ -299,7 +299,7 @@ MonoBehaviour:
     m_TrimEdge: 0
     m_FlipX: 0
     m_FlipY: 0
-    m_InitialTrim: 0.1
+    m_InitialTrim: 0
   m_CastingOption: 1
   m_PreviousTrimEdge: 0
   m_PreviousEdgeProcessing: 1
@@ -431,7 +431,7 @@ GameObject:
   - component: {fileID: 7744007204570274883}
   - component: {fileID: 6393937916847576927}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -771,7 +771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29f1cb00fe5dd3d45ac14f0002a3c37d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeshShadow2D
-  objectHeight: 1
+  objectHeight: 0.5
   shadowOffsetX: 0
   shadowOffsetY: 0
   nightThreshold: 0.4
