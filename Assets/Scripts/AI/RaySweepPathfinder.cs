@@ -238,6 +238,7 @@ public static class RaySweepPathfinder
     // on Unity's main thread, so a plain static (not per-thread) buffer is safe here.
     private const int MaxHitsPerCast = 16;
     private static readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[MaxHitsPerCast];
+    private static ContactFilter2D _contactFilter = new ContactFilter2D { useTriggers = false };
 
     private static bool IsClearLine(Vector2 from, Vector2 to, LayerMask obstacleLayer,
         float bodyRadius, GameObject self, out RaycastHit2D hit)
@@ -252,8 +253,9 @@ public static class RaySweepPathfinder
         // trigger volume (e.g. an interaction zone) sitting in front of the real, solid collider,
         // discarding it as "ignore triggers" would wrongly read the whole line as clear and never
         // see the actual obstacle right behind it. Cast for every overlapping collider instead and
-        // pick the closest one that isn't a trigger or ourselves.
-        int count = Physics2D.CircleCastNonAlloc(from, bodyRadius, dir, _hitBuffer, dist, obstacleLayer);
+        // pick the closest one that isn't ourselves (useTriggers=false already excludes triggers).
+        _contactFilter.SetLayerMask(obstacleLayer);
+        int count = Physics2D.CircleCast(from, bodyRadius, dir, _contactFilter, _hitBuffer, dist);
 
         hit = default;
         float closestDist = float.MaxValue;
@@ -261,7 +263,6 @@ public static class RaySweepPathfinder
         {
             RaycastHit2D candidate = _hitBuffer[i];
             if (candidate.collider == null) continue;
-            if (candidate.collider.isTrigger) continue;
             if (self != null && candidate.collider.gameObject == self) continue;
 
             if (candidate.distance < closestDist)

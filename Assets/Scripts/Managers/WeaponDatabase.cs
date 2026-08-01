@@ -17,8 +17,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     [Header("Village Armory")]
     [SerializeField] public List<EquipableItem> villageArmory;
 
-    private bool loadedFromSave = false;
-
     public VillageArmoryManager villageArmoryManager;
 
 
@@ -365,7 +363,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             print($"Loaded {villageArmory.Count} items to the armory");
         }
 
-        loadedFromSave = true;
         villageArmoryManager.SpawnArmory();
     }
 

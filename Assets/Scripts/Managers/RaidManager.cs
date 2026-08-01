@@ -61,6 +61,7 @@ public class RaidManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -73,7 +74,6 @@ public class RaidManager : MonoBehaviour
     {
         if (Instance == this)
         {
-            Debug.LogWarning("RaidManager singleton is being destroyed! This should not happen during a raid.");
             Instance = null;
         }
     }

@@ -43,8 +43,6 @@ public class DynamicShadow2D : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         CleanupDuplicateShadows();
-        if (shadowObject == null)
-            CreateShadow();
         if (ShadowMaster.Instance != null)
             ShadowMaster.Instance.RegisterShadow(this);
     }
@@ -52,6 +50,8 @@ public class DynamicShadow2D : MonoBehaviour
     void Start()
     {
         shadowMaster = ShadowMaster.Instance;
+        if (shadowObject == null)
+            CreateShadow();
     }
 
     void CleanupDuplicateShadows()

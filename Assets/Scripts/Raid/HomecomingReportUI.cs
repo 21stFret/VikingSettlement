@@ -27,7 +27,10 @@ public class HomecomingReportUI : MonoBehaviour
 
         if (continueButton != null)
             continueButton.onClick.AddListener(OnContinueClicked);
+    }
 
+    private void Start()
+    {
         if (RaidManager.Instance != null)
             RaidManager.Instance.OnReturnedToSettlement += ShowReport;
         else

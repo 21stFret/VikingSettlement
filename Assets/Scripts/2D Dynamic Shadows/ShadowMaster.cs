@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [ExecuteInEditMode]
 public class ShadowMaster : MonoBehaviour
@@ -67,10 +70,19 @@ public class ShadowMaster : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            Instance = this;
-            RefreshShadows();
-            CalculateShadowProperties();
-            ApplyToAllShadows();
+#if UNITY_EDITOR
+            // Instantiating shadow objects here would trigger internal Unity
+            // SendMessage calls (e.g. OnSpriteRendererBoundsChanged), which Unity
+            // disallows while still inside OnValidate. Defer until afterward.
+            EditorApplication.delayCall += () =>
+            {
+                if (this == null) return;
+                Instance = this;
+                RefreshShadows();
+                CalculateShadowProperties();
+                ApplyToAllShadows();
+            };
+#endif
         }
     }
 
