@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Building (Base)
+  - Name: Sprite Light 2D
   - Tag: Untagged
-  - Layer: Building
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
