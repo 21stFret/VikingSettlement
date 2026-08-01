@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52dedb20e5b2364191fcce6dea8ee54, type: 3}
+  m_Name: Grasses
+  m_EditorClassIdentifier: Assembly-CSharp::PrefabPainterTemplate
+  prefabs:
+  - {fileID: 1301899774672065798, guid: db54ee185a3ee964084426656de00270, type: 3}
+  - {fileID: 6092007497266287073, guid: 09e2c6101d921694f99896ad9b421233, type: 3}
+  - {fileID: 4350730996936427465, guid: 5dd7c854db6fe76469c39c4c233c2991, type: 3}
+  minScale: 1
+  maxScale: 1
+  minRotation: 0
+  maxRotation: 0
+  paintLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  randomizeRotationY: 0
+  alignToNormal: 0
+  surfaceOffset: 0
+  minSpacing: 1
+  checkOverlap: 1
+  overlapCheckLayers:
+    serializedVersion: 2
+    m_Bits: 1537
