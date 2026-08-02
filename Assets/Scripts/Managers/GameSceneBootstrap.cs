@@ -17,31 +17,41 @@ public class GameSceneBootstrap : MonoBehaviour
     {
         // Order is determined by dependency: each manager must come after the managers it subscribes to.
 
-        // Layer 0: no dependencies
-        GameTickManager.Instance?.Initialize();
+        // The raid scene also carries a GameSceneBootstrap (for its own camera/input/UI wiring),
+        // but the settlement-only managers below (calendar/season/storm/settlement/mission/HUD)
+        // have no GameObject of their own there, so guard them to the real game scene.
+        bool isGameScene = GameManager.Instance != null
+            && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.Instance.GameSceneName;
 
-        // Layer 1: needs GameTickManager
-        DayNightManager.Instance?.Initialize();
+        if (isGameScene)
+        {
+            // Layer 0: no dependencies
+            GameTickManager.Instance?.Initialize();
 
-        // Layer 2: needs GameTickManager + DayNightManager
-        SeasonManager.Instance?.Initialize();
+            // Layer 1: needs GameTickManager
+            DayNightManager.Instance?.Initialize();
 
-        // ── Calendar stack (order is strict) ──────────────────────────────────────
-        // SeasonManager → CalendarManager → StormScheduler
-        //   SeasonManager must be first: CalendarManager reads season state on first refresh.
-        //   StormScheduler must be last: it subscribes to both SeasonManager.OnSeasonChanged
-        //   and CalendarManager.OnCalendarUpdated, and calls back into both.
-        if (SeasonManager.Instance == null)
-            Debug.LogError("GameSceneBootstrap: SeasonManager is null before CalendarManager.Initialize() — calendar data will be wrong.");
-        if (CalendarManager.Instance == null)
-            Debug.LogError("GameSceneBootstrap: CalendarManager is null — ensure it has a scene GameObject.");
-        CalendarManager.Instance?.Initialize();
-        StormScheduler.Instance?.Initialize();
-        // ──────────────────────────────────────────────────────────────────────────
+            // Layer 2: needs GameTickManager + DayNightManager
+            SeasonManager.Instance?.Initialize();
+
+            // ── Calendar stack (order is strict) ──────────────────────────────────────
+            // SeasonManager → CalendarManager → StormScheduler
+            //   SeasonManager must be first: CalendarManager reads season state on first refresh.
+            //   StormScheduler must be last: it subscribes to both SeasonManager.OnSeasonChanged
+            //   and CalendarManager.OnCalendarUpdated, and calls back into both.
+            if (SeasonManager.Instance == null)
+                Debug.LogError("GameSceneBootstrap: SeasonManager is null before CalendarManager.Initialize() — calendar data will be wrong.");
+            if (CalendarManager.Instance == null)
+                Debug.LogError("GameSceneBootstrap: CalendarManager is null — ensure it has a scene GameObject.");
+            CalendarManager.Instance?.Initialize();
+            StormScheduler.Instance?.Initialize();
+            // ──────────────────────────────────────────────────────────────────────────
+
+            SettlementManager.Instance?.Initialize();
+            MissionManager.Instance?.Initialize();
+        }
 
         WeatherManager.Instance?.Initialize();
-        SettlementManager.Instance?.Initialize();
-        MissionManager.Instance?.Initialize();
 
         // Layer 3: needs DayNightManager
         FindAnyObjectByType<BeehiveManager>()?.Initialize();
@@ -52,8 +62,6 @@ public class GameSceneBootstrap : MonoBehaviour
         // GameSceneBootstrap (for its own camera/input/UI wiring) but has no VillagerSpawner of
         // its own, so this must never run there (see GameManager.InitializeGameAfterDelay).
         JarlManager.Instance?.Init();
-        bool isGameScene = GameManager.Instance != null
-            && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.Instance.GameSceneName;
         bool isNewGame = isGameScene && !GameManager.Instance.ShouldLoadSave;
         if (isNewGame)
             VillagerSpawner.Instance?.SpawnInitialSettlement();
@@ -70,11 +78,17 @@ public class GameSceneBootstrap : MonoBehaviour
         MouseInputController.Instance?.Init();
         CameraController.Instance?.Init();
         PauseManager.Instance?.Init();
-        UIManager.Instance?.Init();
 
-        // Refresh wood cost UI now that the full calendar stack (StormScheduler included) is warm.
-        // Guards against UIManager deferring HeatUI.Init() past the point where storm data is available.
-        HeatUI.Instance?.UpdateWoodUI();
+        // UIManager (FoodUI/HeatUI) is the settlement wood/warmth HUD — raid scene has its own
+        // RaidUI instead, and doesn't wire up these HUD references, so skip it there.
+        if (isGameScene)
+        {
+            UIManager.Instance?.Init();
+
+            // Refresh wood cost UI now that the full calendar stack (StormScheduler included) is warm.
+            // Guards against UIManager deferring HeatUI.Init() past the point where storm data is available.
+            HeatUI.Instance?.UpdateWoodUI();
+        }
 
         if(isNewGame)
             SaveManager.Instance?.SaveToCurrentSlot();

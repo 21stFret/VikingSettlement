@@ -54,6 +54,7 @@ public class HarvestableResource : TargetHealth
     private float shakeTimer = 0f;
     private bool isRespawning = false;
     public UnityEvent OnHit;
+    public bool removeOnDeplete = false;
 
     public override void Awake()
     {
@@ -209,6 +210,13 @@ public class HarvestableResource : TargetHealth
 
         Debug.Log($"{gameObject.name} depleted!");
 
+
+        canRespawn = true;
+
+        if (!removeOnDeplete)
+        {
+            return;
+        }
         // Hide the object
         if (spriteRenderer != null)
         {
@@ -222,7 +230,6 @@ public class HarvestableResource : TargetHealth
             col.enabled = false;
         }
 
-        canRespawn = true;
     }
 
     /// <summary>

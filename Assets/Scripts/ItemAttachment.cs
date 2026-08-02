@@ -42,7 +42,6 @@ public class ItemAttachment : MonoBehaviour
             item.localRotation = Quaternion.identity;
         }
         WD.RemoveItemFromVillageArmory(item.GetComponent<EquipableItem>().itemID);
-        WD.villageArmoryManager.SpawnArmory();
     }
 
     public void EquipShield(GameObject newShield)
