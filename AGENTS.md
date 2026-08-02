@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Villager
+  - Name: Building (Base)
   - Tag: Untagged
-  - Layer: Player
+  - Layer: Building
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
