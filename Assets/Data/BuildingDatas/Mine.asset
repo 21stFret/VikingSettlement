@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Mine
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
   buildingName: Mine
-  buildingType: 5
+  buildingType: 6
   buildingSprite: {fileID: 21300000, guid: 57d8c36743bdcb042b300893e755e3c0, type: 3}
   woodCost: 10
   stoneCost: 15

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
 
@@ -10,7 +11,6 @@ public class SkillTreeUI : MonoBehaviour
 {
     [Header("Panel")]
     [SerializeField] private GameObject skillTreePanel;
-    [SerializeField] private KeyCode toggleKey = KeyCode.K;
 
     [Header("Node Spawning")]
     [SerializeField] private RectTransform nodeContainer;
@@ -46,6 +46,25 @@ public class SkillTreeUI : MonoBehaviour
     private SkillNodeUI selectedNode;
     private bool isInitialized = false;
 
+    private PlayerInputActions inputActions;
+
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+    }
+
+    private void OnEnable()
+    {
+        inputActions.Enable();
+        inputActions.Player.ToggleSkillTree.performed += OnToggleSkillTreeInput;
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Player.ToggleSkillTree.performed -= OnToggleSkillTreeInput;
+        inputActions.Disable();
+    }
+
     private void Start()
     {
         if (skillTreePanel != null)
@@ -77,13 +96,7 @@ public class SkillTreeUI : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(toggleKey))
-        {
-            ToggleSkillTree();
-        }
-    }
+    private void OnToggleSkillTreeInput(InputAction.CallbackContext _) => ToggleSkillTree();
 
     public void ToggleSkillTree()
     {
@@ -105,15 +118,12 @@ public class SkillTreeUI : MonoBehaviour
             }
             UpdateXPDisplay(SkillTreeManager.Instance.CurrentXP);
 
-            // Pause game while skill tree is open
-            if (PauseManager.Instance != null)
-                PauseManager.Instance.EnterMenuPause();
+            GameTickManager.Instance?.PushUIPause();
         }
         else
         {
             HideTooltip();
-            if (PauseManager.Instance != null)
-                PauseManager.Instance.ExitMenuPause();
+            GameTickManager.Instance?.PopUIPause();
         }
     }
 

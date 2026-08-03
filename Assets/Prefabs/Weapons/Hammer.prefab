@@ -80,8 +80,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
   itemID: 
-  itemType: 0
-  itemName: Hammer
+  itemType: 3
+  itemName: War Hammer
   strength: 8
   attachPoint: 1
   isEquipped: 0

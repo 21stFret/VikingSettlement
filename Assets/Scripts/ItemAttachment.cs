@@ -41,7 +41,14 @@ public class ItemAttachment : MonoBehaviour
             item.localPosition = Vector3.zero;
             item.localRotation = Quaternion.identity;
         }
-        WD.RemoveItemFromVillageArmory(item.GetComponent<EquipableItem>().itemID);
+        EquipableItem equipableItem = item.GetComponent<EquipableItem>();
+        WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+
+        if (CompendiumManager.Instance != null)
+        {
+            string weaponName = equipableItem.itemName.ToString().ToLower().Replace(" ", "_");
+            CompendiumManager.Instance.Discover("weapon_" + weaponName);
+        }
     }
 
     public void EquipShield(GameObject newShield)

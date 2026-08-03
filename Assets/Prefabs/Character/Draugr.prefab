@@ -10168,7 +10168,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
-  linkedSpriteRenderers: []
 --- !u!1 &7326336055681567738
 GameObject:
   m_ObjectHideFlags: 0
@@ -10276,7 +10275,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 90
-  linkedSpriteRenderers: []
 --- !u!1 &7555521055352246155
 GameObject:
   m_ObjectHideFlags: 0
@@ -10298,7 +10296,7 @@ GameObject:
   - component: {fileID: 2467279123356572261}
   - component: {fileID: -8460084806155039212}
   m_Layer: 7
-  m_Name: Enemy
+  m_Name: Draugr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10340,7 +10338,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
-  linkedSpriteRenderers: []
 --- !u!212 &7509095397989540202
 SpriteRenderer:
   serializedVersion: 2
@@ -10541,7 +10538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHealth: 20
   currentHealth: 0
-  enemyName: Raider
+  enemyName: Draugr
   damage: 1
   attackRange: 1.5
   attackCooldown: 1.5
@@ -10573,12 +10570,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b951968edc22f045a871c95a4457d35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  sprintMod: 2
   stopDistance: 0.1
   canMove: 1
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1024
   stuckTimeout: 3
+  maxPathNodes: 10
+  maxRepathAttempts: 2
+  waypointArrivalRadius: 0.3
+  minRepathInterval: 0.15
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1

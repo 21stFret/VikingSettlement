@@ -19721,7 +19721,7 @@ GameObject:
   - component: {fileID: 5556792805115778626}
   - component: {fileID: -8815149352316703110}
   m_Layer: 3
-  m_Name: Shield2
+  m_Name: Reinforced Shield
   m_TagString: Shield
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19758,7 +19758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
   itemID: 
   itemType: 4
-  itemName: Shield2
+  itemName: Reinforced Shield
   strength: 1
   attachPoint: 0
   isEquipped: 0

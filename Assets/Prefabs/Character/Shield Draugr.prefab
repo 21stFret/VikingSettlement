@@ -10168,7 +10168,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
-  linkedSpriteRenderers: []
 --- !u!1 &7326336055681567738
 GameObject:
   m_ObjectHideFlags: 0
@@ -10276,7 +10275,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 90
-  linkedSpriteRenderers: []
 --- !u!1 &7555521055352246155
 GameObject:
   m_ObjectHideFlags: 0
@@ -10297,8 +10295,9 @@ GameObject:
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
   - component: {fileID: -4233152270286258612}
+  - component: {fileID: 6299331091159523309}
   m_Layer: 0
-  m_Name: ShieldEnemy
+  m_Name: Shield Draugr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10340,7 +10339,6 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 0
-  linkedSpriteRenderers: []
 --- !u!212 &7509095397989540202
 SpriteRenderer:
   serializedVersion: 2
@@ -10541,7 +10539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHealth: 20
   currentHealth: 0
-  enemyName: Raider
+  enemyName: Shield Draugr
   damage: 2
   attackRange: 1.5
   attackCooldown: 1.5
@@ -10573,12 +10571,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b951968edc22f045a871c95a4457d35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  sprintMod: 2
   stopDistance: 0.1
   canMove: 1
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1024
   stuckTimeout: 3
+  maxPathNodes: 10
+  maxRepathAttempts: 2
+  waypointArrivalRadius: 0.3
+  minRepathInterval: 0.15
   animator: {fileID: 0}
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
@@ -10686,6 +10689,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e8598c676001464980e8b2d162ff039, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatAnimationListener
+--- !u!114 &6299331091159523309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b5d00d1e35e2164594258fa4312ad61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShieldDraugrEnemy
+  maxHealth: 100
+  currentHealth: 0
+  enemyName: Raider
+  damage: 10
+  attackRange: 1.5
+  attackCooldown: 1.5
+  weaponName: 
+  shieldName: 
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
+  goldReward: 10
+  lootChance: 0.3
+  lootTable: []
+  xpReward: 25
+  bloodEffect: {fileID: 0}
+  spriteRenderer: {fileID: 0}
+  _controller: {fileID: 0}
+  personalUI: {fileID: 0}
 --- !u!1 &8320124014034768044
 GameObject:
   m_ObjectHideFlags: 0

@@ -42,10 +42,10 @@ GameObject:
   m_Component:
   - component: {fileID: 7362057055399559573}
   - component: {fileID: 8754541858049918560}
-  - component: {fileID: 1690522263247962539}
-  - component: {fileID: -2052984426096099266}
+  - component: {fileID: 8370207056962768172}
+  - component: {fileID: -2038745664524868823}
   m_Layer: 6
-  m_Name: Basic Axe
+  m_Name: Iron Sword
   m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,22 +80,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
   itemID: 
-  itemType: 2
-  itemName: Basic Axe
-  strength: 4
+  itemType: 0
+  itemName: Iron Sword
+  strength: 2
   attachPoint: 1
   isEquipped: 0
-  attackSpeed: 1.5
+  attackSpeed: 0.5
   sheildSparkEffect: {fileID: 0}
   shatterEffect: {fileID: 0}
   shakeMagnitude: 0.06
   shakeDuration: 0.18
   shakeOscillations: 3
-  maxDurability: 20
+  maxDurability: 15
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
---- !u!58 &1690522263247962539
+--- !u!58 &8370207056962768172
 CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,7 +131,7 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0.000000059604645, y: 0}
   m_Radius: 0.39
---- !u!114 &-2052984426096099266
+--- !u!114 &-2038745664524868823
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -225,7 +225,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 35f772cb994c37340b0d81d7e34e9806, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 33afd55c29e9d8b4299bbaca515b959d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

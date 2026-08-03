@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -31,6 +32,7 @@ public class SaveData
     public string currentJarlId;
     public SettlementStatsSave stats;
     public SkillTreeSaveData skillTreeData;
+    public CompendiumSaveData compendiumData;
     public RunestoneSaveData runestoneData;
     public DeathTypeBuffSaveData deathBuffData;
     public CalendarDayData[] calendarDays;
@@ -187,6 +189,12 @@ public class SkillTreeSaveData
 {
     public int currentXP;
     public string[] unlockedSkillIds;
+}
+
+[Serializable]
+public class CompendiumSaveData
+{
+    public List<string> discoveredIds;
 }
 
 [Serializable]

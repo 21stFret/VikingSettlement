@@ -374,6 +374,9 @@ public class SaveManager : MonoBehaviour
         if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
             skillTree.PopulateSaveData(data);
 
+        if (CompendiumManager.Instance != null && CompendiumManager.Instance is ISaveable compendium)
+            compendium.PopulateSaveData(data);
+
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.PopulateSaveData(data);
 
@@ -405,6 +408,9 @@ public class SaveManager : MonoBehaviour
 
         if (SkillTreeManager.Instance != null && SkillTreeManager.Instance is ISaveable skillTree)
             skillTree.LoadSaveData(data);
+
+        if (CompendiumManager.Instance != null && CompendiumManager.Instance is ISaveable compendium)
+            compendium.LoadSaveData(data);
 
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.LoadSaveData(data);
