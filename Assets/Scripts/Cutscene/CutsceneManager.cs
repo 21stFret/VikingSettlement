@@ -298,12 +298,6 @@ namespace Cutscenes
             // Hide letterbox with animation
             ShowLetterbox(false);
 
-            // Resume auto weather
-            if (currentCutscene.resumeAutoWeather && WeatherManager.Instance != null)
-            {
-                WeatherManager.Instance.ResumeAutoWeather();
-            }
-
             // Release all overridden villagers
             foreach (var villager in overriddenVillagers)
             {
@@ -458,9 +452,6 @@ namespace Cutscenes
                 gameUICanvas.enabled = true;
 
             ShowLetterbox(false);
-
-            if (WeatherManager.Instance != null)
-                WeatherManager.Instance.ResumeAutoWeather();
         }
 
         #endregion

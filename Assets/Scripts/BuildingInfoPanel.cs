@@ -135,6 +135,12 @@ public class BuildingInfoPanel : MonoBehaviour
         mainPanel.SetActive(true);
         //GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
+
+        if (CompendiumManager.Instance != null)
+        {
+            string buildingName = building.data.buildingName.ToString().ToLower().Replace(" ", "_");
+            CompendiumManager.Instance.Discover("building_" + buildingName);
+        }
     }
     
     /// <summary>

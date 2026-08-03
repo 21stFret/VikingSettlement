@@ -14,6 +14,12 @@ public abstract class WorldInteractable : MonoBehaviour
 {
     public virtual bool IsInteractable => true;
 
+    /// <summary>
+    /// Text shown on the interaction prompt while this is the nearest interactable
+    /// (e.g. "Pick up Rare Sword"). Override to customize; default fits generic panels.
+    /// </summary>
+    public virtual string PromptLabel => "Interact";
+
     public abstract void Interact();
     public abstract void Deselect();
 

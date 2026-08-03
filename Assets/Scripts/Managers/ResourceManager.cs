@@ -51,6 +51,11 @@ public class ResourceManager : MonoBehaviour, ISaveable
     {
         resources[type] += amount;
         OnResourceAdded?.Invoke(type, amount);
+
+        if(CompendiumManager.Instance != null)
+        {
+            CompendiumManager.Instance.Discover("resource_" + type.ToString().ToLower());
+        }
     }
 
     public bool SpendResource(ResourceType type, float amount)

@@ -4,8 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - PlayerWeapon
   - Shield
+  - Weapon
+  - PlayerWeapon
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Ground
   - Grass
   - Static
-  - 
+  - Building
   - 
   - 
   - 
@@ -51,3 +52,4 @@ TagManager:
     locked: 0
   m_RenderingLayers:
   - Default
+  m_MigratedRenderPipelines: []

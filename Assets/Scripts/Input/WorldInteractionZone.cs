@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,6 +18,9 @@ public class WorldInteractionZone : MonoBehaviour
     private PlayerInputActions inputActions;
 
     public GameObject interactionPrompt;
+
+    [Tooltip("Optional — shows the nearest interactable's prompt label (e.g. \"Pick up Rare Sword\"). Leave unassigned to just show the icon.")]
+    public TMP_Text promptText;
 
     private void Awake()
     {
@@ -44,8 +48,6 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null && !nearby.Contains(interactable))
             nearby.Add(interactable);
-        if(nearby.Count > 0)
-            interactionPrompt.SetActive(true);
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -53,8 +55,19 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null)
             nearby.Remove(interactable);
-        if(nearby.Count <= 0)
-            interactionPrompt.SetActive(false);
+    }
+
+    // Re-evaluated every frame (rather than only on enter/exit) because an item's
+    // IsInteractable can flip — e.g. a weapon pickup becomes non-interactable the instant it's
+    // auto-equipped, without ever firing a trigger-exit since it stays parented to the hand.
+    private void Update()
+    {
+        WorldInteractable nearest = GetNearest();
+
+        interactionPrompt.SetActive(nearest != null);
+        if (nearest != null && promptText != null)
+            promptText.text = nearest.PromptLabel;
+        else promptText.text = "";
     }
 
     private void OnInteract(InputAction.CallbackContext ctx)

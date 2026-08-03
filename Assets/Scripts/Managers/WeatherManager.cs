@@ -56,10 +56,6 @@ public class WeatherManager : MonoBehaviour
     [SerializeField] private bool isStormActive = false;
     [SerializeField] private float weatherIntensity = 1f;
 
-    [Header("Weather Control")]
-    [Tooltip("When true, weather changes automatically. When false, weather stays until manually changed (for cutscenes).")]
-    public bool autoWeather = true;
-
     [Header("Weather Duration (Auto Mode)")]
     [Tooltip("Minimum weather duration in days (0.5 = half day)")]
     public float minWeatherDuration = 0.5f;
@@ -131,6 +127,7 @@ public class WeatherManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -563,8 +560,6 @@ public class WeatherManager : MonoBehaviour
     /// </summary>
     public void ApplyWeatherForDay(bool isStormDay, bool isWinter, int coldLevel)
     {
-        autoWeather = false;
-
         if (isStormDay)
         {
             SetWeather(WeatherType.Storm);
@@ -756,26 +751,7 @@ public class WeatherManager : MonoBehaviour
     /// </summary>
     public void SetManualWeather(WeatherType weather, float intensity = 1f)
     {
-        autoWeather = false;
         SetWeather(weather, intensity);
-    }
-
-    /// <summary>
-    /// Resume automatic weather changes
-    /// </summary>
-    public void ResumeAutoWeather()
-    {
-        autoWeather = true;
-        // Reset the timer so we get a full duration before next change
-        currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-    }
-
-    /// <summary>
-    /// Check if weather is in manual/cutscene mode
-    /// </summary>
-    public bool IsManualMode()
-    {
-        return !autoWeather;
     }
 
     /// <summary>
@@ -800,39 +776,6 @@ public class WeatherManager : MonoBehaviour
     public ParticleSystem GetSnowParticles()
     {
         return snowParticles;
-    }
-
-    #endregion
-
-    #region Testing Methods
-
-    /// <summary>
-    /// Apply the test weather type from inspector
-    /// </summary>
-    private void ApplyTestWeather()
-    {
-        SetWeather(testWeatherType);
-
-        // Apply intensity based on weather type
-        if (testWeatherType == WeatherType.Rain || testWeatherType == WeatherType.Storm)
-        {
-            SetRainIntensity(testIntensity);
-        }
-        else if (testWeatherType == WeatherType.Snow)
-        {
-            SetSnowIntensity(testIntensity);
-        }
-
-        Debug.Log($"WeatherManager: Applied weather - {testWeatherType} (intensity: {testIntensity})");
-    }
-
-    /// <summary>
-    /// Stop all weather effects
-    /// </summary>
-    private void StopAllWeather()
-    {
-        SetWeather(WeatherType.Clear);
-        Debug.Log("WeatherManager: All weather effects stopped");
     }
 
     #endregion

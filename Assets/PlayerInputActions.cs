@@ -262,6 +262,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleCompendium"",
+                    ""type"": ""Button"",
+                    ""id"": ""b56dd836-3740-491d-8d6d-38867a0644a6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleSkillTree"",
+                    ""type"": ""Button"",
+                    ""id"": ""d0f93dec-9aa6-4dd6-8381-40436984ed0c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -770,6 +788,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleCalendar"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b500155-0db5-42f0-bac7-b8cb644683b1"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCompendium"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5805a3d8-b8ae-4a14-8191-2650e1bc0bb2"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCompendium"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1a260093-85e6-4e00-95fc-2819fe0a4725"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleSkillTree"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8bcb9813-e770-4c89-a496-63e0c31e0a46"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleSkillTree"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -797,6 +859,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_VillagerPanel = m_Player.FindAction("VillagerPanel", throwIfNotFound: true);
         m_Player_ForwardDialogue = m_Player.FindAction("ForwardDialogue", throwIfNotFound: true);
         m_Player_ToggleCalendar = m_Player.FindAction("ToggleCalendar", throwIfNotFound: true);
+        m_Player_ToggleCompendium = m_Player.FindAction("ToggleCompendium", throwIfNotFound: true);
+        m_Player_ToggleSkillTree = m_Player.FindAction("ToggleSkillTree", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -896,6 +960,8 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_VillagerPanel;
     private readonly InputAction m_Player_ForwardDialogue;
     private readonly InputAction m_Player_ToggleCalendar;
+    private readonly InputAction m_Player_ToggleCompendium;
+    private readonly InputAction m_Player_ToggleSkillTree;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -984,6 +1050,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @ToggleCalendar => m_Wrapper.m_Player_ToggleCalendar;
         /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleCompendium".
+        /// </summary>
+        public InputAction @ToggleCompendium => m_Wrapper.m_Player_ToggleCompendium;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleSkillTree".
+        /// </summary>
+        public InputAction @ToggleSkillTree => m_Wrapper.m_Player_ToggleSkillTree;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1066,6 +1140,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ToggleCalendar.started += instance.OnToggleCalendar;
             @ToggleCalendar.performed += instance.OnToggleCalendar;
             @ToggleCalendar.canceled += instance.OnToggleCalendar;
+            @ToggleCompendium.started += instance.OnToggleCompendium;
+            @ToggleCompendium.performed += instance.OnToggleCompendium;
+            @ToggleCompendium.canceled += instance.OnToggleCompendium;
+            @ToggleSkillTree.started += instance.OnToggleSkillTree;
+            @ToggleSkillTree.performed += instance.OnToggleSkillTree;
+            @ToggleSkillTree.canceled += instance.OnToggleSkillTree;
         }
 
         /// <summary>
@@ -1134,6 +1214,12 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ToggleCalendar.started -= instance.OnToggleCalendar;
             @ToggleCalendar.performed -= instance.OnToggleCalendar;
             @ToggleCalendar.canceled -= instance.OnToggleCalendar;
+            @ToggleCompendium.started -= instance.OnToggleCompendium;
+            @ToggleCompendium.performed -= instance.OnToggleCompendium;
+            @ToggleCompendium.canceled -= instance.OnToggleCompendium;
+            @ToggleSkillTree.started -= instance.OnToggleSkillTree;
+            @ToggleSkillTree.performed -= instance.OnToggleSkillTree;
+            @ToggleSkillTree.canceled -= instance.OnToggleSkillTree;
         }
 
         /// <summary>
@@ -1307,5 +1393,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleCalendar(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCompendium" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCompendium(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleSkillTree" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleSkillTree(InputAction.CallbackContext context);
     }
 }

@@ -17,8 +17,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     [Header("Village Armory")]
     [SerializeField] public List<EquipableItem> villageArmory;
 
-    private bool loadedFromSave = false;
-
     public VillageArmoryManager villageArmoryManager;
 
 
@@ -61,12 +59,16 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     /// Get a random shield from the database
     /// </summary>
     /// <returns>A random EquipableItem shield</returns>
-    public EquipableItem GetRandomShield()
+    public EquipableItem GetRandomShield(int i  = -1)
     {
         if (availableShields.Length == 0)
             return null;
 
         int index = Random.Range(0, availableShields.Length);
+        if (i != -1)
+        {
+            return availableShields[i];
+        }
         return availableShields[index];
     }
 
@@ -181,7 +183,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
 
     public void GenerateInitalArmory()
     {
-        int startingSize = 5;
+        int startingSize = 7;
         for (int i = 0; i < startingSize; i++)
         {
             var item = GetRandomWeapon();
@@ -189,7 +191,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         }
         for (int i = 0; i < 2; i++)
         {
-            var item = GetRandomShield();
+            var item = GetRandomShield(i);
             if (item != null) { AddItemToVillageArmory(item); }
         }
         print("Created new village armory as none existed.");
@@ -238,7 +240,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetShieldFromVillageArmory()
+    public EquipableItem GetFirstShieldFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {
@@ -250,7 +252,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetWeaponFromVillageArmory()
+    public EquipableItem GetFirstWeaponFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {
@@ -361,7 +363,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             print($"Loaded {villageArmory.Count} items to the armory");
         }
 
-        loadedFromSave = true;
         villageArmoryManager.SpawnArmory();
     }
 

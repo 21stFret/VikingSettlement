@@ -57,7 +57,7 @@ public class Enemy : TargetHealth
         InitializeEnemyStats();
     }
 
-    public void InitializeEnemyStats()
+    public virtual void InitializeEnemyStats()
     {
         if (initalized)
             return;
@@ -76,10 +76,6 @@ public class Enemy : TargetHealth
             if (shieldName != null || shieldName!="")
             {
                 ia.GiveShieldByName(shieldName);
-            }
-            else
-            {
-                ia.GiveRandomShield();
             }
         }
     }
@@ -145,6 +141,12 @@ public class Enemy : TargetHealth
         if (UnityEngine.Random.value < lootChance)
         {
             DropLoot();
+        }
+
+        if (CompendiumManager.Instance != null)
+        {
+            string name = enemyName.ToString().ToLower().Replace(" ", "_");
+            CompendiumManager.Instance.Discover("enemy_" + name);
         }
 
         Debug.Log($"{enemyName} has been defeated!");

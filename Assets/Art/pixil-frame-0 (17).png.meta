@@ -178,10 +178,10 @@ TextureImporter:
       name: pixil-frame-0 (17)_2
       rect:
         serializedVersion: 2
-        x: 46
-        y: 7
-        width: 36
-        height: 52
+        x: 47
+        y: 8
+        width: 34
+        height: 50
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 4, y: 7, z: 6, w: 6}
@@ -200,13 +200,13 @@ TextureImporter:
       name: pixil-frame-0 (17)_3
       rect:
         serializedVersion: 2
-        x: 90
-        y: 34
-        width: 30
-        height: 21
+        x: 91
+        y: 35
+        width: 28
+        height: 19
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 12, y: 9, z: 11, w: 7}
+      border: {x: 5, y: 7, z: 5, w: 5}
       customData: 
       outline: []
       physicsShape: []
@@ -266,13 +266,13 @@ TextureImporter:
       name: pixil-frame-0 (17)_6
       rect:
         serializedVersion: 2
-        x: 90
-        y: 13
-        width: 30
-        height: 21
+        x: 91
+        y: 14
+        width: 28
+        height: 19
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 12, y: 8, z: 11, w: 8}
+      border: {x: 5, y: 7, z: 5, w: 5}
       customData: 
       outline: []
       physicsShape: []

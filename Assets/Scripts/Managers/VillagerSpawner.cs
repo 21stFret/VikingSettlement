@@ -104,7 +104,7 @@ public class VillagerSpawner : MonoBehaviour
 
         if (giveEquipment)
         {
-            villager.itemAttachment.GiveStartingWeapon();
+            //villager.itemAttachment.GiveStartingWeapon();
             //villager.itemAttachment.GiveRandomShield();
             //villager.itemAttachment.GiveRandomTorch();
         }

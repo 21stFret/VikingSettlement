@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d603049296d9b924b90063007063eb89
+guid: f4b3f3ae2a782024cb3b03202b494464
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -50,7 +50,7 @@ TextureImporter:
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 9
-  spritePivot: {x: 0.4967637, y: 0.13106793}
+  spritePivot: {x: 0.5, y: 0.22384031}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -116,12 +116,12 @@ TextureImporter:
       name: Viking_Poor_House_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 9
-        width: 92
-        height: 75
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 14
+        y: 25
+        width: 98
+        height: 80
+      alignment: 9
+      pivot: {x: 0.501409, y: 0.040884517}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -138,8 +138,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    spriteID: cbd85cdda0aba3e41bc9d9d05b047b2c
+    internalID: 1176576326
     vertices: []
     indices: 
     edges: []

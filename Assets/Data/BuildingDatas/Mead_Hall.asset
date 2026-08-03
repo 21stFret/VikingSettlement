@@ -21,13 +21,15 @@ MonoBehaviour:
   constructionTime: 2.5
   assignedJobType: 12
   maxWorkers: 2
-  productionType: 0
-  producedResource: 12
+  productionType: 1
+  producedResource: 13
   productionRate: 0.7
   productionAmount: 6
   craftingRecipe:
-    inputResources: []
-    outputResource: 0
+    inputResources:
+    - resourceType: 6
+      amount: 5
+    outputResource: 13
     outputAmount: 1
     craftingRate: 1
   maxLevel: 5

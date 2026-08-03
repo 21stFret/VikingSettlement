@@ -125,7 +125,7 @@ public class HolmgangManager : MonoBehaviour
         if (_player == null) { Debug.LogError("[Holmgang] Villager prefab has no Villager component."); return; }
 
         var ia = go.GetComponent<ItemAttachment>();
-        if (ia != null) ia.GiveStartingWeapon();
+        if (ia != null) ia.TakeWeaponFromArmory();
 
         _player.ApplySkillBonuses();
         _player.Init();

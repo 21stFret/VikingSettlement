@@ -42,9 +42,11 @@ GameObject:
   m_Component:
   - component: {fileID: 7362057055399559573}
   - component: {fileID: 8754541858049918560}
+  - component: {fileID: -1345084297997243073}
+  - component: {fileID: -9095381307206210028}
   m_Layer: 6
   m_Name: DragurSword
-  m_TagString: Untagged
+  m_TagString: Weapon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -77,6 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65beee2097ec7484795909c73947e91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EquipableItem
+  itemID: 
   itemType: 0
   itemName: DSword
   strength: 2
@@ -92,6 +95,54 @@ MonoBehaviour:
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
+--- !u!58 &-1345084297997243073
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5733758703643807651}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0.000000059604645, y: 0}
+  m_Radius: 0.39
+--- !u!114 &-9095381307206210028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5733758703643807651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c629d959cad647d4c808c77cb3e6de89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipablePickup
 --- !u!1 &6907052990093020469
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,4 +250,3 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   sortingOrderBase: 5000
   offset: 80
-  linkedSpriteRenderers: []
