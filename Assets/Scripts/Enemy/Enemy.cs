@@ -77,10 +77,6 @@ public class Enemy : TargetHealth
             {
                 ia.GiveShieldByName(shieldName);
             }
-            else
-            {
-                ia.GiveRandomShield();
-            }
         }
     }
 

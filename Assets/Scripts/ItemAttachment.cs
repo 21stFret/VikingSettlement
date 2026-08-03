@@ -248,19 +248,22 @@ public class ItemAttachment : MonoBehaviour
         EquipWeapon(newWeaponGO);
     }
 
-    public void GiveStartingWeapon()
+    public void TakeWeaponFromArmory()
     {
-        EquipableItem armoryWeapon = WD.GetWeaponFromVillageArmory();
+        EquipableItem armoryWeapon = WD.GetFirstWeaponFromVillageArmory();
         if (armoryWeapon != null)
         {
             string armoryItemID = armoryWeapon.itemID;
             EquipWeapon(WD.villageArmoryManager.GetSpawnedItem(armoryItemID, true));
         }
+        else
+        {
+            print("No weapon found in village armory.");
+        }
     }
 
     public void GiveWeaponByName(string weaponName)
     {
-        // This is a placeholder implementation. Replace with actual weapon selection logic.
         EquipableItem randomWeapon = WeaponDatabase.Instance.GetWeaponByName(weaponName);
         if (randomWeapon != null)
         {
@@ -269,14 +272,17 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
-    public void GiveRandomShield()
+    public void TakeShieldFromArmory()
     {
-        // This is a placeholder implementation. Replace with actual shield selection logic.
-        EquipableItem randomShield = WeaponDatabase.Instance.GetRandomShield();
-        if (randomShield != null)
+        EquipableItem armoryShield = WD.GetFirstShieldFromVillageArmory();
+        if (armoryShield != null)
         {
-            GameObject shieldInstance = Instantiate(randomShield.gameObject);
-            EquipShield(shieldInstance);
+            string armoryItemID = armoryShield.itemID;
+            EquipShield(WD.villageArmoryManager.GetSpawnedItem(armoryItemID, true));
+        }
+        else
+        {
+            print("No shield found in village armory.");
         }
     }
 

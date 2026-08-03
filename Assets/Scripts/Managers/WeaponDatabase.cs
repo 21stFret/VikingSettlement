@@ -240,7 +240,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetShieldFromVillageArmory()
+    public EquipableItem GetFirstShieldFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {
@@ -252,7 +252,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetWeaponFromVillageArmory()
+    public EquipableItem GetFirstWeaponFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {

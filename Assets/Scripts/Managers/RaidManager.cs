@@ -25,6 +25,7 @@ public class RaidManager : MonoBehaviour
     [SerializeField] private RaidDestinationData currentRaid;
     [SerializeField] private float raidStartTime;
     [SerializeField] private List<Villager> raidParty = new List<Villager>();
+    public bool autoEquipRaidParty = true; // If true, raid party villagers will auto-equip gear on raid start
     private int _raidStartAbsoluteDay;
     private float _raidStartTimeOfDay;
 
@@ -104,6 +105,33 @@ public class RaidManager : MonoBehaviour
         raidParty = new List<Villager>(party);
         raidStartTime = Time.time;
         isOnRaid = true;
+
+        if(autoEquipRaidParty)
+        {
+            foreach (var villager in raidParty)
+            {
+                if(WeaponDatabase.Instance.villageArmory.Count == 0)
+                {
+                    Debug.LogWarning("Village armory is empty! Cannot auto-equip raid party.");
+                    break;
+                }
+                if (villager != null)
+                {
+                    var CC  = villager.GetComponent<CharacterBase>();
+                    if(CC != null)
+                    {
+                        if(CC.weapon == null)
+                        {
+                           villager.itemAttachment.TakeWeaponFromArmory();
+                        }
+                        if(CC.shield == null)
+                        {
+                            villager.itemAttachment.TakeShieldFromArmory();
+                        }
+                    }
+                }
+            }
+        }
 
         totalTimeAway = destination.GetOneWayGameDays();
         visitedThisTrip.Clear();
