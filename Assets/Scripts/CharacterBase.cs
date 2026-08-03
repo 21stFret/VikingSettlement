@@ -980,7 +980,7 @@ public class CharacterBase : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Kinematic;
 
         if (weapon != null)
-            itemAttachment.UnequipWeapon();
+            itemAttachment.DropWeapon();
 
         if (shield != null)
             itemAttachment.DropShield();
