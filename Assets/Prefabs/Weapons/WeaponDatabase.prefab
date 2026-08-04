@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4483778909443636257}
   - component: {fileID: 4608577156686420010}
-  - component: {fileID: 3060854095276009838}
   m_Layer: 0
   m_Name: WeaponDatabase
   m_TagString: Untagged
@@ -50,6 +49,8 @@ MonoBehaviour:
   - {fileID: 8754541858049918560, guid: 07944d25be7f9b541aa938d6e5f8cce2, type: 3}
   - {fileID: 8754541858049918560, guid: 3103aa2b08d1e6d4f8a056f101253583, type: 3}
   - {fileID: 8754541858049918560, guid: c273887eefcfb8447b9c7f52731d3dac, type: 3}
+  - {fileID: 8754541858049918560, guid: 485d85b6e06938841bc62e5d476d8899, type: 3}
+  - {fileID: 8754541858049918560, guid: 3b5258ed17c3a0449a9ae1d69f0c563c, type: 3}
   availableShields:
   - {fileID: 1866138473353848901, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
   - {fileID: 1866138473353848901, guid: 73e1720b98884de45beed228d317a2da, type: 3}
@@ -57,15 +58,3 @@ MonoBehaviour:
   - {fileID: 8754541858049918560, guid: 7a72bffbb5f0e284c8311b56b15a85fd, type: 3}
   villageArmory: []
   villageArmoryManager: {fileID: 0}
---- !u!114 &3060854095276009838
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5278577266530551435}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5df67422eecd2b54cada109c1aa7f8ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VillageArmoryManager

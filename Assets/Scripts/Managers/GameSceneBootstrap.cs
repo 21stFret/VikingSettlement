@@ -92,5 +92,7 @@ public class GameSceneBootstrap : MonoBehaviour
 
         if(isNewGame)
             SaveManager.Instance?.SaveToCurrentSlot();
+
+        GameManager.Instance.SetShouldLoad();
     }
 }

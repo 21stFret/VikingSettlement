@@ -728,6 +728,72 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
     #region ISaveable
 
+    /// <summary>
+    /// Builds a serializable snapshot of a single villager's full state. Pure function of the
+    /// passed-in Villager — no dependency on SettlementManager.Instance — so it's safe to call
+    /// from any scene (e.g. RaidManager capturing a raid party's state between scene loads).
+    /// </summary>
+    public static VillagerSave BuildVillagerSave(Villager v)
+    {
+        CharacterBase cb = v.GetComponent<CharacterBase>();
+
+        return new VillagerSave
+        {
+            weaponName = cb?.weapon?.itemName,
+            weaponDurability = cb?.weapon ? cb.weapon.CurrentDurability : 0,
+            shieldName = cb?.shield?.itemName,
+            shieldDurability = cb?.shield ? cb.shield.CurrentDurability : 0,
+            torchName = cb?.torch?.itemName,
+            id = v.uniqueId,
+            villagerName = v.villagerName,
+            clanName = v.clanName,
+            gender = (int)v.gender,
+            age = v.age,
+            lifeExpectancy = v.lifeExpectancy,
+            currentLifeStage = (int)v.currentLifeStage,
+            health = v.currentHealth,
+            maxHealth = v.maxHealth,
+            morale = v.morale,
+            maxMorale = v.maxMorale,
+            isHungry = v.isHungry,
+            isCold = v.isCold,
+            currentJob = (int)v.currentJob,
+            assignedBuildingId = v.assignedBuilding != null && v.assignedBuilding.data != null ? v.assignedBuilding.data.name : "",
+            skills = new VillagerSkillsSave
+            {
+                farming = v.skills.farming,
+                fishing = v.skills.hunting,
+                mining = v.skills.mining,
+                woodcutting = v.skills.woodcutting,
+                crafting = v.skills.crafting,
+                combat = v.skills.combat,
+                sailing = v.skills.sailing,
+                intelligence = v.skills.intelligence,
+                learningRate = v.skills.learningRate
+            },
+            combatStats = new CombatStatsSave
+            {
+                strength = v.combatStats.strength,
+                defense = v.combatStats.defense
+            },
+            parent1Id = v.parent1 != null ? v.parent1.uniqueId : "",
+            parent2Id = v.parent2 != null ? v.parent2.uniqueId : "",
+            partnerId = v.partner != null ? v.partner.uniqueId : "",
+            childrenCount = v.childrenCount,
+            timeSinceLastChild = v.timeSinceLastChild,
+            isJarl = v.isJarl,
+            isOfJarlLineage = v.isOfJarlLineage,
+            generationsFromJarl = v.generationsFromJarl,
+            posX = v.transform.position.x,
+            posY = v.transform.position.y,
+            posZ = v.transform.position.z,
+            spriteVariant = v.spriteVariant,
+            activeWounds = v.activeWounds != null
+                ? v.activeWounds.Select(w => (int)w).ToArray()
+                : new int[0]
+        };
+    }
+
     public void PopulateSaveData(SaveData data)
     {
         // Save villagers
@@ -735,72 +801,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         foreach (var v in allVillagers.ToList())
         {
             if (v == null || v.IsDead()) continue;
-
-            CharacterBase cb = v.GetComponent<CharacterBase>();
-
-            var vs = new VillagerSave
-            {
-                weaponName = cb?.weapon?.itemName,
-                weaponDurability = cb?.weapon ? cb.weapon.CurrentDurability : 0,
-                shieldName = cb?.shield?.itemName,
-                shieldDurability = cb?.shield ? cb.shield.CurrentDurability : 0,
-                torchName = cb?.torch?.itemName,
-                id = v.uniqueId,
-                villagerName = v.villagerName,
-                clanName = v.clanName,
-                gender = (int)v.gender,
-                age = v.age,
-                lifeExpectancy = v.lifeExpectancy,
-                currentLifeStage = (int)v.currentLifeStage,
-                health = v.currentHealth,
-                maxHealth = v.maxHealth,
-                morale = v.morale,
-                maxMorale = v.maxMorale,
-                isHungry = v.isHungry,
-                isCold = v.isCold,
-                currentJob = (int)v.currentJob,
-                assignedBuildingId = v.assignedBuilding != null && v.assignedBuilding.data != null ? v.assignedBuilding.data.name : "",
-                skills = new VillagerSkillsSave
-                {
-                    farming = v.skills.farming,
-                    fishing = v.skills.hunting,
-                    mining = v.skills.mining,
-                    woodcutting = v.skills.woodcutting,
-                    crafting = v.skills.crafting,
-                    combat = v.skills.combat,
-                    sailing = v.skills.sailing,
-                    intelligence = v.skills.intelligence,
-                    learningRate = v.skills.learningRate
-                },
-                combatStats = new CombatStatsSave
-                {
-                    strength = v.combatStats.strength,
-                    defense = v.combatStats.defense
-                },
-                parent1Id = v.parent1 != null ? v.parent1.uniqueId : "",
-                parent2Id = v.parent2 != null ? v.parent2.uniqueId : "",
-                partnerId = v.partner != null ? v.partner.uniqueId : "",
-                childrenCount = v.childrenCount,
-                timeSinceLastChild = v.timeSinceLastChild,
-                isJarl = v.isJarl,
-                isOfJarlLineage = v.isOfJarlLineage,
-                generationsFromJarl = v.generationsFromJarl,
-                posX = v.transform.position.x,
-                posY = v.transform.position.y,
-                posZ = v.transform.position.z,
-                spriteVariant = v.spriteVariant,
-                activeWounds = v.activeWounds != null
-                    ? v.activeWounds.Select(w => (int)w).ToArray()
-                    : new int[0]
-            };
-
-            // Debug: Log weapon/shield being saved
-            if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
-            {
-                //Debug.Log($"Saving {v.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
-            }
-
-            villagerSaves.Add(vs);
+            villagerSaves.Add(BuildVillagerSave(v));
         }
         data.villagers = villagerSaves.ToArray();
 

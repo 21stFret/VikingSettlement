@@ -1161,7 +1161,6 @@ MonoBehaviour:
   clanNameConfirmButton: {fileID: 1783926280}
   clanNameCancelButton: {fileID: 573148576}
   clanNameRandomButton: {fileID: 1413608563}
-  clanNameErrorText: {fileID: 0}
 --- !u!1 &304919923
 GameObject:
   m_ObjectHideFlags: 0
@@ -4300,7 +4299,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f3c1d9cba7b804daa3f653221ffa57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveManager
-  autoSaveIntervalMinutes: 0.1
+  autoSaveIntervalMinutes: 0.5
   autoSaveEnabled: 1
   gameSceneName: Demo Scene
 --- !u!4 &1572929040

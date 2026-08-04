@@ -149,6 +149,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager: Prepared for raid return — will load autosave");
     }
 
+    public void SetShouldLoad() { ShouldLoadSave = true; }
+
     /// <summary>
     /// Return to the main menu.
     /// </summary>

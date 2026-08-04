@@ -26,6 +26,12 @@ public class RaidManager : MonoBehaviour
     [SerializeField] private float raidStartTime;
     [SerializeField] private List<Villager> raidParty = new List<Villager>();
     public bool autoEquipRaidParty = true; // If true, raid party villagers will auto-equip gear on raid start
+
+    // Source of truth for party composition/state across scene loads. raidParty above only ever
+    // holds the live GameObjects for whichever scene is currently loaded — it gets rebuilt from
+    // this snapshot every time a new scene spawns the party, instead of the party's GameObjects
+    // being DontDestroyOnLoad'd and carried physically across scene boundaries.
+    private List<VillagerSave> partySnapshot = new List<VillagerSave>();
     private int _raidStartAbsoluteDay;
     private float _raidStartTimeOfDay;
 
@@ -150,19 +156,22 @@ public class RaidManager : MonoBehaviour
         // Snapshot full pre-raid settlement state — this is what we restore on return
         SaveManager.Instance?.SaveAuto();
 
-        // Move raid party to DontDestroyOnLoad so they survive the scene transition
         foreach (var villager in raidParty)
         {
             if (villager != null)
             {
                 villager.isOnRaid = true;
                 villager.UnassignJob();
-                villager.transform.SetParent(null);
-                DontDestroyOnLoad(villager.gameObject);
             }
         }
 
-        Debug.Log($"Starting raid to {destination.destinationName} with {raidParty.Count} villagers. Settlement loses {destination.GetGameDaysPassed():F1} days.");
+        // Capture the party's state as data, then destroy the live settlement GameObjects —
+        // the raid scene respawns fresh instances from this snapshot instead of the party
+        // physically surviving the scene load via DontDestroyOnLoad.
+        CapturePartySnapshot();
+        DestroyLiveParty();
+
+        Debug.Log($"Starting raid to {destination.destinationName} with {partySnapshot.Count} villagers. Settlement loses {destination.GetGameDaysPassed():F1} days.");
         OnRaidStarted?.Invoke(destination);
 
         GameManager.Instance.PrepareRaid();
@@ -171,6 +180,108 @@ public class RaidManager : MonoBehaviour
             LoadScene(destination.sceneName);
 
         return true;
+    }
+
+    /// <summary>
+    /// Rebuilds partySnapshot from the current live raidParty (whichever scene's instances are
+    /// active right now). Call before destroying/leaving those instances behind.
+    /// </summary>
+    private void CapturePartySnapshot()
+    {
+        partySnapshot = raidParty
+            .Where(v => v != null)
+            .Select(SettlementManager.BuildVillagerSave)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Destroys the current scene's live party GameObjects and clears raidParty. The next scene
+    /// to load is expected to call SpawnPartyAtPoints() to respawn from partySnapshot.
+    /// </summary>
+    private void DestroyLiveParty()
+    {
+        foreach (var villager in raidParty)
+        {
+            if (villager != null)
+                Destroy(villager.gameObject);
+        }
+        raidParty.Clear();
+    }
+
+    /// <summary>
+    /// Respawns the party from partySnapshot at the given scene's spawn points (cycling through
+    /// them if there are fewer points than party members), rebuilds the live raidParty list for
+    /// this scene, and returns it. Called by a raid scene's controller on Start().
+    /// </summary>
+    public List<Villager> SpawnPartyAtPoints(List<Transform> spawnPoints)
+    {
+        raidParty = new List<Villager>();
+
+        if (VillagerSpawner.Instance == null)
+        {
+            Debug.LogError("RaidManager.SpawnPartyAtPoints: No VillagerSpawner in this scene — cannot spawn raid party.");
+            return raidParty;
+        }
+
+        for (int i = 0; i < partySnapshot.Count; i++)
+        {
+            Villager v = VillagerSpawner.Instance.RestoreVillagerFromSave(partySnapshot[i]);
+            if (v == null) continue;
+
+            if (spawnPoints != null && spawnPoints.Count > 0)
+                v.transform.position = spawnPoints[i % spawnPoints.Count].position;
+
+            v.isOnRaid = true;
+            raidParty.Add(v);
+        }
+
+        return raidParty;
+    }
+
+    /// <summary>
+    /// Picks who gets player control (Jarl takes priority, else first party member) and sets the
+    /// rest up as AI-controlled raid allies following the player. Shared by every scene that spawns
+    /// the party, so this logic lives in one place instead of being duplicated per controller.
+    /// controllerOverride lets a scene's own Inspector-assigned PlayerController take priority over
+    /// PlayerController.Instance/FindAnyObjectByType, same as RaidSceneController did before.
+    /// </summary>
+    public void AssignPlayerControl(List<Villager> party, PlayerController controllerOverride = null)
+    {
+        Villager playerControlled = null;
+        foreach (var villager in party)
+        {
+            if (villager == null) continue;
+            if (playerControlled == null || villager.isJarl)
+                playerControlled = villager;
+        }
+
+        if (playerControlled == null)
+        {
+            Debug.LogError("RaidManager.AssignPlayerControl: No valid villager to control!");
+            return;
+        }
+
+        PlayerController.Instance?.ClearRaidAllies();
+        foreach (var villager in party)
+        {
+            if (villager == null || villager == playerControlled) continue;
+
+            VillagerAIBase ai = villager.GetComponent<VillagerAIBase>();
+            if (ai != null)
+            {
+                ai.SetRaidMode(true, playerControlled.transform);
+                PlayerController.Instance?.RegisterRaidAlly(ai);
+            }
+        }
+
+        var playerController = controllerOverride ?? PlayerController.Instance ?? FindAnyObjectByType<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.SetControlTarget(playerControlled);
+            Debug.Log($"Player control set to {playerControlled.villagerName} for raid");
+        }
+        else
+            Debug.LogError("RaidManager.AssignPlayerControl: No PlayerController found in this scene!");
     }
 
     private void PauseSettlement()
@@ -278,7 +389,17 @@ public class RaidManager : MonoBehaviour
         // inherit elapsed time from the previous leg(s) and could time out immediately.
         raidStartTime = Time.time;
 
+        // Carry the party forward as data rather than DontDestroyOnLoad'd GameObjects — same
+        // capture/destroy/respawn shape as StartRaid().
+        CapturePartySnapshot();
+        DestroyLiveParty();
+
         Debug.Log($"Continuing raid chain to {nextDestination.destinationName}. Total time away so far: {totalTimeAway:F2} days (excluding return).");
+
+        // Without this, GameManager.GameInitialized would still be true from the first raid
+        // scene's load, so GameSceneBootstrap.Init() (camera/input/pause wiring) would silently
+        // never re-run for this next scene.
+        GameManager.Instance.PrepareRaid();
 
         if (!string.IsNullOrEmpty(nextDestination.sceneName))
             LoadScene(nextDestination.sceneName);
@@ -329,8 +450,8 @@ public class RaidManager : MonoBehaviour
         isOnRaid    = false;
         currentRaid = null;
 
-        // Destroy DDOL raid party villagers — autosave recreates them at pre-raid state;
-        // ApplyPendingResults patches casualties/health via uniqueId after load
+        // Destroy the raid scene's live party villagers — autosave recreates them at pre-raid
+        // state; ApplyPendingResults patches casualties/health via uniqueId after load
         foreach (var villager in raidParty)
         {
             if (villager != null)

@@ -32,8 +32,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             return;
         }
 
-        villageArmoryManager = GetComponent<VillageArmoryManager>();
-
         // Skip when a save is about to be loaded — LoadSaveData will populate the real
         // armory a couple of frames later. Generating (and spawning) a throwaway armory
         // here first just leaves orphaned duplicate props in the scene.
@@ -50,8 +48,8 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     {
         if (availableWeapons.Length == 0)
             return null;
-
-        int index = Random.Range(0, availableWeapons.Length);
+        // not the last 2 as they are dragur weapons
+        int index = Random.Range(0, availableWeapons.Length -2);
         return availableWeapons[index];
     }
 
@@ -195,7 +193,10 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             if (item != null) { AddItemToVillageArmory(item); }
         }
         print("Created new village armory as none existed.");
-        villageArmoryManager.SpawnArmory();
+        if(villageArmoryManager != null)
+        {
+            villageArmoryManager.SpawnArmory();
+        }
     }
 
     public void AddItemToVillageArmory(EquipableItem item)
@@ -363,7 +364,10 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             print($"Loaded {villageArmory.Count} items to the armory");
         }
 
-        villageArmoryManager.SpawnArmory();
+        if (villageArmoryManager != null)
+        {
+            villageArmoryManager.SpawnArmory();
+        }
     }
 
     #endregion

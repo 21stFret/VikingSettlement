@@ -35,10 +35,8 @@ public class RaidSceneController : MonoBehaviour
     private List<ResourceLoot> collectedLoot = new List<ResourceLoot>();
     private List<Villager> casualties = new List<Villager>();
 
-    // Villagers are DontDestroyOnLoad and can now outlive this controller instance across
-    // multiple raid-scene loads in a chain — track exact delegate instances so they can be
-    // precisely unsubscribed in OnDestroy, otherwise a later leg's death event would fire
-    // this (destroyed) controller's stale handler.
+    // Track exact delegate instances (rather than a single lambda) so each can be precisely
+    // unsubscribed in OnDestroy without affecting the others.
     private readonly Dictionary<Villager, System.Action> _deathHandlers = new Dictionary<Villager, System.Action>();
 
     // Events
@@ -67,7 +65,7 @@ public class RaidSceneController : MonoBehaviour
         Debug.Log($"RaidSceneController.Start() - RaidManager exists: {RaidManager.Instance != null}");
         if (RaidManager.Instance != null)
         {
-            Debug.Log($"RaidSceneController.Start() - IsOnRaid: {RaidManager.Instance.IsOnRaid}, Party count: {RaidManager.Instance.RaidParty?.Count ?? 0}");
+            Debug.Log($"RaidSceneController.Start() - IsOnRaid: {RaidManager.Instance.IsOnRaid}");
         }
         Debug.Log($"RaidSceneController.Start() - Spawn points: {partySpawnPoints?.Count ?? 0}, PlayerController assigned: {playerController != null}");
 
@@ -113,7 +111,6 @@ public class RaidSceneController : MonoBehaviour
 
         // Get raid info
         var destination = RaidManager.Instance.CurrentRaid;
-        raidParty = new List<Villager>(RaidManager.Instance.RaidParty);
 
         // Spawn the raid destination template (e.g., fishing village)
         switch(destination.locationType)
@@ -144,30 +141,21 @@ public class RaidSceneController : MonoBehaviour
     }
 
     /// <summary>
-    /// Spawn raid party at designated points
+    /// Spawn raid party at designated points. Respawns fresh Villager instances from
+    /// RaidManager's party snapshot (rather than assuming they already exist as
+    /// DontDestroyOnLoad'd GameObjects carried over from the previous scene) and wires up
+    /// player control / raid-ally AI via RaidManager, shared logic for every scene that spawns
+    /// the party.
     /// </summary>
     private void SpawnParty()
     {
+        raidParty = RaidManager.Instance.SpawnPartyAtPoints(partySpawnPoints);
         Debug.Log($"SpawnParty() - raidParty count: {raidParty?.Count ?? 0}, spawn points: {partySpawnPoints?.Count ?? 0}");
 
         partyMembersAlive = 0;
-        Villager playerControlled = null;
-
-        // First pass: spawn all villagers and find who should be player-controlled
-        // Priority: Jarl > first villager in list
-        for (int i = 0; i < raidParty.Count; i++)
+        foreach (var villager in raidParty)
         {
-            Villager villager = raidParty[i];
             if (villager == null) continue;
-
-            // Get spawn point (cycle through if more party than points)
-            Transform spawnPoint = partySpawnPoints.Count > 0
-                ? partySpawnPoints[i % partySpawnPoints.Count]
-                : transform;
-
-            // Move villager to spawn point
-            villager.transform.position = spawnPoint.position;
-            villager.gameObject.SetActive(true);
 
             // Subscribe to death — store the exact delegate so it can be unsubscribed in OnDestroy
             System.Action deathHandler = () => OnPartyMemberDied(villager);
@@ -175,63 +163,11 @@ public class RaidSceneController : MonoBehaviour
             villager.OnDeath += deathHandler;
 
             partyMembersAlive++;
-
-            // Determine who gets player control (Jarl takes priority)
-            if (playerControlled == null || villager.isJarl)
-            {
-                playerControlled = villager;
-            }
         }
 
-        // Second pass: set up AI for followers (everyone except player-controlled)
-        PlayerController.Instance?.ClearRaidAllies();
-        foreach (var villager in raidParty)
-        {
-            if (villager == null || villager == playerControlled) continue;
-
-            VillagerAIBase ai = villager.GetComponent<VillagerAIBase>();
-            if (ai != null)
-            {
-                ai.SetRaidMode(true, playerControlled.transform);
-                PlayerController.Instance?.RegisterRaidAlly(ai);
-            }
-        }
-
-        // Set up player control
-        SetupPlayerControl(playerControlled);
+        RaidManager.Instance.AssignPlayerControl(raidParty, playerController);
 
         OnPartyCountChanged?.Invoke(partyMembersAlive);
-    }
-
-    /// <summary>
-    /// Set up player control for a villager in the raid
-    /// </summary>
-    private void SetupPlayerControl(Villager villager)
-    {
-        Debug.Log($"SetupPlayerControl() - villager: {villager?.villagerName ?? "NULL"}, assigned controller: {playerController != null}");
-
-        if (villager == null)
-        {
-            Debug.LogError("SetupPlayerControl called with null villager!");
-            return;
-        }
-
-        // Find PlayerController if not assigned
-        if (playerController == null)
-        {
-            playerController = FindAnyObjectByType<PlayerController>();
-            Debug.Log($"SetupPlayerControl() - FindFirstObjectByType result: {playerController != null}");
-        }
-
-        if (playerController != null)
-        {
-            playerController.SetControlTarget(villager);
-            Debug.Log($"Player control set to {villager.villagerName} for raid");
-        }
-        else
-        {
-            Debug.LogError("No PlayerController found in raid scene! Make sure the raid scene has a PlayerController object.");
-        }
     }
 
     /// <summary>
