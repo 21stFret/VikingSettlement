@@ -275,6 +275,7 @@ public class ItemAttachment : MonoBehaviour
         if (randomWeapon != null)
         {
             GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            weaponInstance.GetComponent<EquipableItem>().Init();
             EquipWeapon(weaponInstance);
         }
     }
@@ -300,6 +301,7 @@ public class ItemAttachment : MonoBehaviour
         if (randomWeapon != null)
         {
             GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            weaponInstance.GetComponent<EquipableItem>().Init();
             EquipShield(weaponInstance);
         }
     }

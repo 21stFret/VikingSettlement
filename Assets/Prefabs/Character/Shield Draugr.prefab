@@ -10290,7 +10290,6 @@ GameObject:
   - component: {fileID: 7928313549537484593}
   - component: {fileID: 422819367626716894}
   - component: {fileID: 6713158499483296687}
-  - component: {fileID: 1171899017266227412}
   - component: {fileID: 638782563166323672}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
@@ -10525,40 +10524,6 @@ MonoBehaviour:
     m_Bits: 1024
   pursuitRange: 5
   loseTargetTime: 0.5
---- !u!114 &1171899017266227412
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3440aa49274c60429cfcca7d1fc1924, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  maxHealth: 20
-  currentHealth: 0
-  enemyName: Shield Draugr
-  damage: 2
-  attackRange: 1.5
-  attackCooldown: 1.5
-  weaponName: DSword
-  shieldName: Shield
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
-  goldReward: 10
-  lootChance: 0.3
-  lootTable:
-  - resourceType: 15
-    dropChance: 1
-    minAmount: 5
-    maxAmount: 10
-  xpReward: 25
-  bloodEffect: {fileID: 8721656231829694241}
-  spriteRenderer: {fileID: 0}
-  _controller: {fileID: 0}
-  personalUI: {fileID: 0}
 --- !u!114 &638782563166323672
 MonoBehaviour:
   m_ObjectHideFlags: 0
