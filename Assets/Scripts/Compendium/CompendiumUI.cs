@@ -113,12 +113,14 @@ public class CompendiumUI : MonoBehaviour
             BuildList();
             UpdateProgressDisplay();
 
+            PlayerController.Instance?.SetInputEnabled(false);
             GameTickManager.Instance?.PushUIPause();
         }
         else
         {
             HideDetail();
             GameTickManager.Instance?.PopUIPause();
+            PlayerController.Instance?.SetInputEnabled(true);
         }
     }
 
