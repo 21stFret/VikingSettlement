@@ -124,6 +124,7 @@ public class AttackCooldownUI : MonoBehaviour
             if (fillImage != null) fillImage.sprite = sprite;
             if (backingImage != null) backingImage.sprite = sprite;
         }
+        OnWeaponDurability();
     }
 
     private void Update()

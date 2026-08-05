@@ -51,7 +51,6 @@ public class TargetHealth : MonoBehaviour
             if(gameObject.layer != 9)
             {
                 weapon.TakeDurabilityDamage(1);
-                //Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false);
             }
         }
 

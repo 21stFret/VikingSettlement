@@ -530,7 +530,7 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual float GetAttackDelay()
     {
-        float baseDelay = weapon.attackSpeed;
+        float baseDelay = weapon != null ? weapon.attackSpeed : 1f;
         var villager = GetComponent<Villager>();
 
         if (characterFaction == Faction.Player)
@@ -571,7 +571,6 @@ public class CharacterBase : MonoBehaviour
     public bool CanAttack()
     {
         if (isBlocking) return false;
-        if(itemAttachment.weapon == null) return false;
         return Time.time - lastAttackTime >= GetAttackDelay();
     }
 
@@ -647,7 +646,6 @@ public class CharacterBase : MonoBehaviour
     public virtual void PerformAttackHitbox()
     {
         OnAttackWindowEvent?.Invoke();
-        if (weapon == null) return;
 
         // Offset is already rotated to facing direction — set when the swing was committed in Attack()
         currentHitboxPos = (Vector2)transform.position + currentHitboxOffset;
@@ -735,10 +733,10 @@ public class CharacterBase : MonoBehaviour
             return; // Don't apply damage if game is not active (e.g. during scene transitions)
         }
         var target = hit.GetComponent<TargetHealth>();
-        if (target == null || weapon == null) return;
+        if (target == null) return;
         if (target.IsDead()) return;
 
-        float damage = weapon.strength;
+        float damage = weapon != null ? weapon.strength : 1f;
         var villager = GetComponent<Villager>();
 
         if (characterFaction == Faction.Player)
