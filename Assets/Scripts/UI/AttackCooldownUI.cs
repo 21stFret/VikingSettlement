@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,6 +24,7 @@ public class AttackCooldownUI : MonoBehaviour
     [SerializeField] private Image backingImage;
     [Tooltip("Fallback sprite shown when no weapon is equipped.")]
     [SerializeField] private Sprite defaultWeaponSprite;
+    private bool lowDurability = false;
 
     [Header("Timing")]
     [Tooltip("Seconds after the attack is ready before the indicator fades out.")]
@@ -32,6 +34,7 @@ public class AttackCooldownUI : MonoBehaviour
 
     [SerializeField] private bool doFade;
 
+    private Coroutine _redWarningCoroutine;
     private CharacterBase _trackedController;
     private EquipableItem _trackedWeapon;
     private bool _wasReady = true;
@@ -64,12 +67,14 @@ public class AttackCooldownUI : MonoBehaviour
         {
             _trackedController = currentCC;
             _trackedWeapon = currentCC.weapon;
+            _trackedWeapon.OnDurabilityChanged += OnWeaponDurability;
             var sprite = _trackedWeapon != null && _trackedWeapon.itemSpriteRenderer != null
                 ? _trackedWeapon.itemSpriteRenderer.sprite
                 : defaultWeaponSprite;
             if (fillImage != null) fillImage.sprite = sprite;
             if (backingImage != null) backingImage.sprite = sprite;
         }
+
         // Start fully transparent if fading is enabled
         if (doFade && canvasGroup != null)
         {
@@ -82,6 +87,24 @@ public class AttackCooldownUI : MonoBehaviour
             shieldUi.Init();
         }
 
+    }
+
+    private void OnWeaponDurability()
+    {
+        if (_trackedWeapon == null) return;
+
+        if(_trackedWeapon.CurrentDurability <= 5)
+        {
+            if(lowDurability) return; // Already in low durability state
+            lowDurability = true;
+            _redWarningCoroutine = StartCoroutine(RedWarning());
+        }
+        else
+        {
+            lowDurability = false;
+            if (fillImage != null)
+                fillImage.color = Color.white;
+        }
     }
 
     public void OnChangeWeapon()
@@ -143,6 +166,16 @@ public class AttackCooldownUI : MonoBehaviour
         if (canvasGroup == null) return;
         _fadeTween?.Kill();
         _fadeTween = canvasGroup.DOFade(target, fadeDuration);
+    }
+
+    private IEnumerator RedWarning()
+    {
+        while (lowDurability)
+        {
+            fillImage.color = Color.Lerp(Color.red, Color.white, Mathf.PingPong(Time.time * 2f, 1f));
+            yield return null;
+        }
+        fillImage.color = Color.white; // reset when it exits, otherwise it can freeze mid-lerp
     }
 
     private void OnDestroy()

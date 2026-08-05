@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 
@@ -95,16 +96,12 @@ public class EquipableItem : MonoBehaviour
                            (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid);
             if (bonusXP) villager.skills.ImproveSkill(JobType.Warrior);
         }
-        if (currentDurability <= 0)
-        {
-            Debug.Log($"{itemName} has shattered!");
-            OnBroken?.Invoke();
-            return;
-        }
+
         if(IsShield)
         {
             StopCoroutine(nameof(ShakeCoroutine));
             StartCoroutine(nameof(ShakeCoroutine));
+            if (villager.isJarl) { Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false); }
 
             if (sheildSparkEffect == null)
             {
@@ -118,6 +115,12 @@ public class EquipableItem : MonoBehaviour
             Vector2 sparkPosition = (Vector2)transform.position + (Random.insideUnitCircle * 0.3f);
             sheildSparkEffect.transform.position = sparkPosition;
             sheildSparkEffect.Play();
+        }
+
+        if (currentDurability <= 0)
+        {
+            Debug.Log($"{itemName} has shattered!");
+            OnBroken?.Invoke();
         }
     }
 

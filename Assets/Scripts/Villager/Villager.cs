@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -576,6 +577,11 @@ public class Villager : TargetHealth
         }
 
         StartCoroutine(FlashRedOnDamage());
+
+        if(isJarl)
+        {
+            Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
+        }
     }
 
     public void HandleHunger(bool _isHungry)

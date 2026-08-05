@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using DG.Tweening;
 
 public class TargetHealth : MonoBehaviour
 {
@@ -47,6 +48,11 @@ public class TargetHealth : MonoBehaviour
         {
             OnSignificantHPDamage(finalDamage);
             OnDamageTaken(finalDamage, weapon);
+            if(gameObject.layer != 9)
+            {
+                weapon.TakeDurabilityDamage(1);
+                //Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false);
+            }
         }
 
 

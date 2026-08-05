@@ -169,13 +169,12 @@ public class ItemAttachment : MonoBehaviour
         if (CC != null)
         {
             CC.weapon = equipable;
+            CC.weapon.OnBroken += WeaponDestroyed;
         }
     }
 
     public void UnequipWeapon()
     {
-        //weapon.SetActive(false);
-
         var item = weapon.GetComponent<EquipableItem>();
         if (item != null)
         {
@@ -189,14 +188,13 @@ public class ItemAttachment : MonoBehaviour
         if (CC != null)
         {
             CC.weapon = null;
+            CC.weapon.OnBroken -= WeaponDestroyed;
         }
 
         if (weapon != null)
         {
             weapon = null;
         }
-
-
     }
 
     /// <summary>
@@ -212,6 +210,7 @@ public class ItemAttachment : MonoBehaviour
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
+            CC.weapon.OnBroken -= WeaponDestroyed;
             CC.weapon = null;
         }
 
@@ -232,6 +231,20 @@ public class ItemAttachment : MonoBehaviour
         {
             item.isEquipped = false;
             item.NotifyUnequipped();
+        }
+    }
+
+    public void WeaponDestroyed()
+    {
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.weapon = null;
+        }
+        if (weapon != null)
+        {
+            Destroy(weapon);
+            weapon = null;
         }
     }
 

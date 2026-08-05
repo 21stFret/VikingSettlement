@@ -47,8 +47,6 @@ public class HarvestableResource : TargetHealth
     [Tooltip("Shake intensity")]
     public float shakeIntensity = 0.1f;
 
-    // State
-    private bool isDepleted = false;
     private SpriteRenderer spriteRenderer;
     private Vector3 originalPosition;
     private float shakeTimer = 0f;
@@ -89,7 +87,7 @@ public class HarvestableResource : TargetHealth
 
     public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false)
     {
-        if (isDepleted) return;
+        base.TakeDamage(damage, weapon, trueDamage);
 
         Villager attacker = weapon != null ? weapon.GetComponentInParent<Villager>() : null;
         int yield = CalculateYield(weapon, attacker);
@@ -120,16 +118,6 @@ public class HarvestableResource : TargetHealth
         if (shakeOnHit)
         {
             shakeTimer = 0.2f;
-        }
-
-        if (currentHealth > 0)
-        {
-            currentHealth -= yield;
-
-            if (currentHealth <= 0)
-            {
-                Deplete();
-            }
         }
     }
 
@@ -200,16 +188,18 @@ public class HarvestableResource : TargetHealth
         return false;
     }
 
+    public override void Die()
+    {
+        base.Die();
+        Deplete();
+    }
+
     /// <summary>
     /// Called when the resource is fully depleted
     /// </summary>
     protected virtual void Deplete()
     {
-        isDepleted = true;
-        isDead = true;
-
         Debug.Log($"{gameObject.name} depleted!");
-
 
         canRespawn = true;
 
@@ -237,7 +227,6 @@ public class HarvestableResource : TargetHealth
     /// </summary>
     protected virtual void Respawn()
     {
-        isDepleted = false;
         isRespawning = false;
         canRespawn = false;
         isDead = false;
@@ -257,14 +246,6 @@ public class HarvestableResource : TargetHealth
         }
 
         Debug.Log($"{gameObject.name} respawned!");
-    }
-
-    /// <summary>
-    /// Check if this resource is depleted
-    /// </summary>
-    public bool IsDepleted()
-    {
-        return isDepleted;
     }
 
     /// <summary>
