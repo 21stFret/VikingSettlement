@@ -15,9 +15,9 @@ MonoBehaviour:
   AggressionLevel: 1
   BlockVsDodgeRatio: 1
   CanDodge: 0
-  AdvancedBlocking: 0
+  AdvancedBlocking: 1
   ThreatCircleDistance: 2.5
-  PressureTime: 2
-  RecoveryTime: 1
+  PressureTime: 0.2
+  RecoveryTime: 0.5
   MaxBlockCharges: 2
   BlockCooldown: 4

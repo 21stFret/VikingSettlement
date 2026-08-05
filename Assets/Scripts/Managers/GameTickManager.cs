@@ -114,6 +114,7 @@ public class GameTickManager : MonoBehaviour
     public void PushUIPause()
     {
         _uiPauseCount++;
+        PlayerController.Instance?.SetInputEnabled(false);
     }
 
     /// <summary>
@@ -122,6 +123,10 @@ public class GameTickManager : MonoBehaviour
     public void PopUIPause()
     {
         _uiPauseCount = Mathf.Max(0, _uiPauseCount - 1);
+        if (_uiPauseCount <= 0)
+        {
+            PlayerController.Instance?.SetInputEnabled(true);
+        }
     }
 
     /// <summary>

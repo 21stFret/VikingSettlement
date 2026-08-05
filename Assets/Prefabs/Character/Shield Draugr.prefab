@@ -10563,7 +10563,6 @@ MonoBehaviour:
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
-  attackDelay: 1
   friendlyFire: 0
   isBlocking: 0
   isParrying: 0
@@ -10670,7 +10669,7 @@ MonoBehaviour:
   currentHealth: 0
   enemyName: Shield Draugr
   damage: 2
-  attackRange: 1.5
+  attackRange: 1
   attackCooldown: 1.5
   weaponName: DSword
   shieldName: Shield

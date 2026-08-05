@@ -23,7 +23,7 @@ public class VillagerController : CharacterBase
     public float GetCombatSkillMultiplier()
     {
         if (villagerData == null) return 0.5f;
-        return Mathf.Lerp(0.5f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
+        return Mathf.Lerp(0.75f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
     }
 
     /// <summary>

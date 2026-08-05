@@ -10515,7 +10515,7 @@ MonoBehaviour:
   separationForceStrength: 5
   separationSmoothingRate: 10
   retargetOnHit: 1
-  showDebug: 1
+  showDebug: 0
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -10540,9 +10540,9 @@ MonoBehaviour:
   currentHealth: 0
   enemyName: Draugr
   damage: 1
-  attackRange: 1.5
-  attackCooldown: 1.5
-  weaponName: DSword
+  attackRange: 1.2
+  attackCooldown: 1
+  weaponName: Iron Sword
   shieldName: 1
   moveSpeed: 1.5
   chaseSpeed: 2.5
@@ -10597,7 +10597,6 @@ MonoBehaviour:
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
-  attackDelay: 1
   friendlyFire: 0
   isBlocking: 0
   isParrying: 0

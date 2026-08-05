@@ -91,6 +91,7 @@ public class HolmgangManager : MonoBehaviour
         SpawnPlayer();
         InitUI();
         AttackCooldownUI.Instance?.Init();
+        DodgeCooldownUI.Instance?.Init();
     }
 
     private void InitUI()

@@ -59,7 +59,6 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected float spearVerticalAttackOffset = 0f;
     [SerializeField] protected float axeVerticalAttackOffset = 0f;
     [SerializeField] public LayerMask attackTargetLayer;
-    [SerializeField] public float attackDelay = 1f;
     public bool friendlyFire = false;
 
     [Header("Blocking")]
@@ -531,7 +530,7 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual float GetAttackDelay()
     {
-        float baseDelay = weapon != null ? weapon.attackSpeed : attackDelay;
+        float baseDelay = weapon.attackSpeed;
         var villager = GetComponent<Villager>();
 
         if (characterFaction == Faction.Player)
@@ -585,6 +584,14 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns 0 when the roll was just used, 1 when ready to roll again.
+    /// </summary>
+    public float GetRollCooldownProgress()
+    {
+        return Mathf.Clamp01((Time.time - lastRollTime) / rollCooldown);
+    }
+
+    /// <summary>
     /// Perform an attack
     /// </summary>
     public virtual void Attack()
@@ -623,6 +630,12 @@ public class CharacterBase : MonoBehaviour
                     SafeSetTrigger(AxeAttackTrigger);
                     currentHitboxSize   = RotateSizeToFacing(axeAttackSize);
                     currentHitboxOffset = RotateOffsetToFacing(axeAttackOffset, axeVerticalAttackOffset);
+                }
+                else if (weapon.itemType == EquipableItem.ItemType.Hammer)
+                {
+                    SafeSetTrigger(SwordAttackTrigger);
+                    currentHitboxSize = RotateSizeToFacing(swordAttackSize);
+                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
                 }
             }
         }

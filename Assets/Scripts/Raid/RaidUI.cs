@@ -38,7 +38,6 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
         raidManager = RaidManager.Instance;
         raidUIPanel.SetActive(true);
         GameTickManager.Instance?.PushUIPause();
-        PlayerController.Instance?.SetInputEnabled(false);
         PopulateRaidOptions();
         raidAmountText.text = "Available Raids: " + raidManager.GetAvailableRaids().Count.ToString();
     }
@@ -138,6 +137,5 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
         raidUIPanel.SetActive(false);
         selectedRaidIndex = -1;
         GameTickManager.Instance?.PopUIPause();
-        PlayerController.Instance?.SetInputEnabled(true);
     }
 }

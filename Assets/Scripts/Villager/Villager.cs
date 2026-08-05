@@ -122,6 +122,11 @@ public class Villager : TargetHealth
             SkillTreeManager.Instance.OnSkillUnlocked += OnSkillTreeChanged;
         }
 
+        if(!isJarl)
+        {
+            GetComponentInChildren<WorldInteractionZone>().gameObject.SetActive(false);
+        }
+
         // add random to speech timer so not all villagers speak at once
         _timeSinceLastSpoke = Random.Range(0f, _speechCooldown);
 
@@ -313,6 +318,9 @@ public class Villager : TargetHealth
         // Village must have spare housing capacity (Longhouse level) before a new villager can be born
         if (_settlementManager != null && !_settlementManager.HasPopulationCapacity()) return;
 
+        // stops 1 guy hvaing all the children all the time
+        if (_settlementManager.GetAverageChildCount() > childrenCount) return;
+
         // Need to find a partner if we don't have one
         if (partner == null)
         {
@@ -344,6 +352,9 @@ public class Villager : TargetHealth
             // Must have waited long enough since last child
             if (timeSinceLastChild < effectiveCooldown) return;
 
+            // Stagger the births slightly
+            if(_settlementManager.timeSinceLastBirth < 10) return;
+
             // Only one partner creates the child to avoid duplicates
             if (gender == Gender.Female)
             {
@@ -354,6 +365,7 @@ public class Villager : TargetHealth
                 partner.childrenCount++;
                 personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
                 partner.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
+                _settlementManager.timeSinceLastBirth = 0f;
             }
         }
     }

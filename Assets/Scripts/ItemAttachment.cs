@@ -280,6 +280,17 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
+    public void GiveRandomWeeapon()
+    {
+        if (WeaponDatabase.Instance == null) return;
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetRandomWeapon();
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            EquipWeapon(weaponInstance);
+        }
+    }
+
     public void TakeShieldFromArmory()
     {
         EquipableItem armoryShield = WD.GetFirstShieldFromVillageArmory();

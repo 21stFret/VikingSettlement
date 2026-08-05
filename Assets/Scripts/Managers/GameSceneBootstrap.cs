@@ -74,6 +74,7 @@ public class GameSceneBootstrap : MonoBehaviour
 
         SkillTreeManager.Instance?.Initialize();
         AttackCooldownUI.Instance?.Init();
+        DodgeCooldownUI.Instance?.Init();
 
         MouseInputController.Instance?.Init();
         CameraController.Instance?.Init();

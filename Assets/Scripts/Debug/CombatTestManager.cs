@@ -30,6 +30,8 @@ public class CombatTestManager : MonoBehaviour
     [Tooltip("Prefab for AI-controlled ally villagers. Useful for testing villager reactive blocking.")]
     [SerializeField] private GameObject allyPrefab;
     [SerializeField] private Transform[] allySpawnPoints;
+    public bool withShields;
+    public int skillLevel;
 
     [Header("Enemies")]
     [SerializeField] private EnemySpawnConfig[] enemyTypes;
@@ -85,9 +87,8 @@ public class CombatTestManager : MonoBehaviour
         var ia = go.GetComponent<ItemAttachment>();
         if (ia != null)
         {
-            ia.TakeWeaponFromArmory();
-            //ia.GiveRandomShield();
-            //ia.GiveRandomTorch();
+            ia.GiveWeaponByName("Iron Sword");
+            ia.GiveShieldByName("Shield");
         }
 
         _player.ApplySkillBonuses();
@@ -126,10 +127,14 @@ public class CombatTestManager : MonoBehaviour
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)
             {
-                ia.TakeWeaponFromArmory();
-                //ia.GiveRandomShield();
-            }
+                ia.GiveRandomWeeapon();
+                if (withShields)
+                {
+                    ia.GiveShieldByName("Shield");
+                }
 
+            }
+            villager.skills.SetSkillLevel(JobType.Warrior, skillLevel);
             villager.ApplySkillBonuses();
             villager.Init();
 
@@ -142,7 +147,7 @@ public class CombatTestManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"[CombatTest] Spawned {allySpawnPoints.Length} allies.");
+        Debug.Log($"[CombatTest] Spawned {_spawnCount} allies.");
     }
 
     public void ClearAllies()
@@ -256,6 +261,10 @@ public class CombatTestManager : MonoBehaviour
         {
             GUILayout.Space(4);
             GUILayout.Label("Allies:");
+            GUILayout.Label($"Skill level: {skillLevel}", GUILayout.Width(80));
+            withShields  = GUILayout.Toggle(withShields, "With Shields");
+            if (GUILayout.Button("−", GUILayout.Width(30)) && skillLevel > 1) skillLevel--;
+            if (GUILayout.Button("+", GUILayout.Width(30))) skillLevel++;
             if (GUILayout.Button("Spawn Allies")) SpawnAllies();
             if (GUILayout.Button("Clear Allies")) ClearAllies();
         }

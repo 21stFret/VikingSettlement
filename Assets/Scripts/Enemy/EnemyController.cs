@@ -18,7 +18,7 @@ public class EnemyController : CharacterBase
 
     public override float GetAttackDelay()
     {
-        float delay = enemyData != null ? enemyData.attackCooldown : attackDelay;
+        float delay = enemyData.attackCooldown;
         if (weapon != null) delay += weapon.attackSpeed;
         return Mathf.Max(0.1f, delay);
     }

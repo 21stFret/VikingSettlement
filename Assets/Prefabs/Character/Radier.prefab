@@ -10435,7 +10435,7 @@ Animator:
   m_GameObject: {fileID: 7555521055352246155}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 9cfaa1cf3997b174facc27766d88f51f, type: 2}
+  m_Controller: {fileID: 9100000, guid: d19827e0e2553f8438dddf15fe97ecb7, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10540,13 +10540,13 @@ MonoBehaviour:
   maxHealth: 30
   currentHealth: 0
   enemyName: Raider
-  damage: 1
-  attackRange: 1.5
-  attackCooldown: 1
+  damage: 2
+  attackRange: 1
+  attackCooldown: 0.5
   weaponName: Iron Sword
   shieldName: Shield
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
+  moveSpeed: 3
+  chaseSpeed: 6
   goldReward: 10
   lootChance: 0.3
   lootTable:
@@ -10598,7 +10598,6 @@ MonoBehaviour:
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
-  attackDelay: 1
   friendlyFire: 0
   isBlocking: 0
   isParrying: 0

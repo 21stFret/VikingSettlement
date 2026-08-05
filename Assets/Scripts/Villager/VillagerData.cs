@@ -31,6 +31,22 @@ public class VillagerSkills
             default: return 1f;
         }
     }
+
+    public void SetSkillLevel(JobType jobType, int level)
+    {
+        switch (jobType)
+        {
+            case JobType.Farmer: farming = level; break;
+            case JobType.Fisherman: hunting = level; break;
+            case JobType.Miner: mining = level; break;
+            case JobType.Woodcutter: woodcutting = level; break;
+            case JobType.Smith: crafting = level; break;
+            case JobType.Carpenter: woodcutting = level; break;
+            case JobType.Tanner: hunting = level; break;
+            case JobType.Brewer: crafting = level; break;
+            case JobType.Warrior: combat = level; break;
+        } 
+    }
     
     public void ImproveSkill(JobType jobType)
     {

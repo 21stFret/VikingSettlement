@@ -75,7 +75,7 @@ public class CombatApproachState : AIStateBase
         }
 
         Vector2 slotPos    = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
-
+        ai.Controller.FaceTowards(ai.CurrentTarget.position);
         if (!_arrivedAtSlot)
         {
             float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
@@ -145,6 +145,7 @@ public class CombatApproachState : AIStateBase
 
         // Genuinely locked in but crowded by another fight — nudge away instead of committing.
         ai.MoveWithSeparation(slotPos, avoidOtherFights: true);
+
     }
 
     public override void OnExit(CharacterAI ai)

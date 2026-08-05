@@ -112,6 +112,9 @@ public class JarlManager : MonoBehaviour, ISaveable
 
         Debug.Log($"{villager.villagerName} is now the Jarl!");
 
+        AttackCooldownUI.Instance?.Init(); // Ensure UI is initialized for new Jarl
+        DodgeCooldownUI.Instance?.Init();
+
         if (!isInitial)
         {
             OnJarlChanged?.Invoke(villager);

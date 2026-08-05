@@ -33,6 +33,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     [SerializeField] private int totalBirths = 0;
     [SerializeField] private int totalDeaths = 0;
     [SerializeField] private float averageAge = 0f;
+    public float timeSinceLastBirth;
 
     [Header("Population Display")]
     [SerializeField] private bool showPopulationUI = true;
@@ -160,6 +161,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         Debug.Log($"The settlement celebrates {newJarl.villagerName} as the new Jarl!");
 
         AttackCooldownUI.Instance.Init();
+        DodgeCooldownUI.Instance?.Init();
 
         // Apply morale bonus for new leader
         foreach (var villager in allVillagers)
@@ -188,6 +190,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
             countingAge += ageingAmount;
             age = Mathf.FloorToInt(countingAge);
         }
+
+        timeSinceLastBirth += deltaTime;
     }
 
     private void FastUpdate()
@@ -641,6 +645,16 @@ public class SettlementManager : MonoBehaviour, ISaveable
         return GetPopulation() < GetMaxPopulation();
     }
 
+    public int GetAverageChildCount()
+    {
+        int averagechildCount = 0;
+        foreach (Villager v in allVillagers)
+        {
+            averagechildCount += v.childrenCount;
+        }
+        averagechildCount /= allVillagers.Count;
+        return averagechildCount;
+    }
     /// <summary>
     /// Get population statistics
     /// </summary>

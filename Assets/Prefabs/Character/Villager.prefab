@@ -652,13 +652,12 @@ MonoBehaviour:
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 641
-  attackDelay: 0.5
   friendlyFire: 0
   isBlocking: 0
   isParrying: 0
   parryStunDuration: 1.5
   stunEffect: {fileID: 4112550802723451918}
-  rollSpeed: 3
+  rollSpeed: 2
   rollDuration: 0.2
   rollCooldown: 3
   AI: {fileID: 0}
@@ -671,8 +670,8 @@ MonoBehaviour:
   facingDirection: 3
   CurrentTarget: {fileID: 0}
   slotDistance: 1.2
-  MaxAttackers: 2
-  knockbackForce: 5
+  MaxAttackers: 3
+  knockbackForce: 3
   knockbackDuration: 0.1
   combatMoveSpeed: 3
   walkMoveSpeed: 2
