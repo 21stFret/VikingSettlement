@@ -123,11 +123,6 @@ public class Villager : TargetHealth
             SkillTreeManager.Instance.OnSkillUnlocked += OnSkillTreeChanged;
         }
 
-        if(!isJarl)
-        {
-            GetComponentInChildren<WorldInteractionZone>().gameObject.SetActive(false);
-        }
-
         // add random to speech timer so not all villagers speak at once
         _timeSinceLastSpoke = Random.Range(0f, _speechCooldown);
 

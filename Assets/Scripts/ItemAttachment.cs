@@ -171,6 +171,14 @@ public class ItemAttachment : MonoBehaviour
             CC.weapon = equipable;
             CC.weapon.OnBroken += WeaponDestroyed;
         }
+        Villager V = GetComponent<Villager>();
+        if (V != null)
+        {
+            if (V.isJarl)
+            {
+                AttackCooldownUI.Instance.Init();
+            }
+        }
     }
 
     public void UnequipWeapon()

@@ -57,7 +57,7 @@ public class AttackCooldownUI : MonoBehaviour
         }
     }
 
-    public  void Init()
+    public void Init()
     {
         // Initialize with the current weapon sprite if possible
         currentCC = PlayerController.Instance != null
@@ -67,7 +67,11 @@ public class AttackCooldownUI : MonoBehaviour
         {
             _trackedController = currentCC;
             _trackedWeapon = currentCC.weapon;
-            _trackedWeapon.OnDurabilityChanged += OnWeaponDurability;
+            if(_trackedWeapon != null)
+            {
+                _trackedWeapon.OnDurabilityChanged += OnWeaponDurability;
+            }
+
             var sprite = _trackedWeapon != null && _trackedWeapon.itemSpriteRenderer != null
                 ? _trackedWeapon.itemSpriteRenderer.sprite
                 : defaultWeaponSprite;
@@ -124,13 +128,12 @@ public class AttackCooldownUI : MonoBehaviour
 
     private void Update()
     {
-
         if (currentCC != _trackedController)
             _trackedController = currentCC;
 
         if (_trackedController == null) return;
 
-        OnChangeWeapon();
+        if (_trackedWeapon == null) return;
 
         float progress = _trackedController.GetAttackCooldownProgress();
         if (fillImage != null)
@@ -181,6 +184,10 @@ public class AttackCooldownUI : MonoBehaviour
     private void OnDestroy()
     {
         _fadeTween?.Kill();
+        if(_redWarningCoroutine != null)
+        {
+            StopCoroutine(_redWarningCoroutine);
+        }
         CancelInvoke(nameof(FadeOut));
     }
 }
