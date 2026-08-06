@@ -170,6 +170,7 @@ public class ItemAttachment : MonoBehaviour
         {
             CC.weapon = equipable;
             CC.weapon.OnBroken += WeaponDestroyed;
+            CC.attackTargetLayer |= LayerMask.GetMask("Grass");
         }
         Villager V = GetComponent<Villager>();
         if (V != null)
@@ -195,14 +196,16 @@ public class ItemAttachment : MonoBehaviour
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.weapon = null;
             CC.weapon.OnBroken -= WeaponDestroyed;
+            CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
+            CC.weapon = null;
         }
 
         if (weapon != null)
         {
             weapon = null;
         }
+
     }
 
     /// <summary>
@@ -218,6 +221,7 @@ public class ItemAttachment : MonoBehaviour
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
+            CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
             CC.weapon.OnBroken -= WeaponDestroyed;
             CC.weapon = null;
         }
