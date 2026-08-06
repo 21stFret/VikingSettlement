@@ -96,7 +96,7 @@ public class VillagerController : CharacterBase
             float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
 
-            target.TakeDamage(damage, weapon);
+            target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);
             hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }

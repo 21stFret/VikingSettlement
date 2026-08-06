@@ -13,7 +13,8 @@ public class EquipableItem : MonoBehaviour
         Shield,
         Armor,
         Accessory,
-        Torch
+        Torch, 
+        Bow
     }
 
     [Header("Item Info")]

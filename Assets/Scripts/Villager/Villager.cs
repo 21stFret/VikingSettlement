@@ -498,14 +498,14 @@ public class Villager : TargetHealth
     /// <summary>
     /// Apply defense and shield reduction to incoming damage.
     /// </summary>
-    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         // Active block: route all damage to shield durability, no HP damage.
         // Attacks from behind bypass the block entirely.
         if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
         {
             if ((_controller.isBlocking || _controller.isParrying)
-                && !_controller.IsAttackFromBehind(_controller.lastAttackerPosition))
+                && !_controller.IsAttackFromBehind(attackerPos))
             {
                 int durDamage = _controller.isParrying
                     ? Mathf.CeilToInt(rawDamage * 0.5f)

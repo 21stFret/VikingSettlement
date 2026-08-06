@@ -76,7 +76,7 @@ public class EnemyController : CharacterBase
             }
             float totalDamage = damage + weaponDamage;
             Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
-            target.TakeDamage(totalDamage, weapon);
+            target.TakeDamage(totalDamage, weapon, attackerPos: (Vector2)transform.position);
             hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }

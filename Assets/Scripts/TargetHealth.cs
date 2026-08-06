@@ -26,7 +26,7 @@ public class TargetHealth : MonoBehaviour
     /// <param name="damage">Raw incoming damage</param>
     /// <param name="weapon">Weapon used (can be null)</param>
     /// <param name="trueDamage">If true, bypasses all damage reduction</param>
-    public virtual void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false)
+    public virtual void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false, Vector2 attackerPos = default)
     {
         if (isDead) return;
 
@@ -36,7 +36,7 @@ public class TargetHealth : MonoBehaviour
         lastDamageTime = Time.time;
 
         // Calculate final damage after reductions (unless trueDamage)
-        float finalDamage = trueDamage ? damage : CalculateFinalDamage(damage, weapon);
+        float finalDamage = trueDamage ? damage : CalculateFinalDamage(damage, weapon, attackerPos);
         finalDamage = Mathf.Max(0f, finalDamage); // Never negative
 
         currentHealth -= finalDamage;
@@ -67,7 +67,7 @@ public class TargetHealth : MonoBehaviour
     /// Calculate final damage after applying defense, shields, etc.
     /// Override in subclasses to add damage reduction.
     /// </summary>
-    protected virtual float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    protected virtual float CalculateFinalDamage(float rawDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         return rawDamage;
     }

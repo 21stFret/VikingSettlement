@@ -19,7 +19,6 @@ public class SuccessionUI : MonoBehaviour
 
     private List<SuccessionCandidateItem> candidateItems = new List<SuccessionCandidateItem>();
     private List<SuccessionCandidate> currentCandidates;
-    private float autoSelectTimer;
     private bool isShowing = false;
 
     private void Awake()
@@ -225,9 +224,6 @@ public class SuccessionUI : MonoBehaviour
         }
 
         GUILayout.FlexibleSpace();
-
-        // Timer
-        GUILayout.Label($"Auto-select best candidate in {Mathf.CeilToInt(autoSelectTimer)}s");
 
         GUILayout.EndArea();
     }

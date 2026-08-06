@@ -85,9 +85,9 @@ public class HarvestableResource : TargetHealth
         }
     }
 
-    public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false)
+    public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false, Vector2 attackerPos = default)
     {
-        base.TakeDamage(damage, weapon, trueDamage);
+        base.TakeDamage(damage, weapon, trueDamage, attackerPos);
 
         Villager attacker = weapon != null ? weapon.GetComponentInParent<Villager>() : null;
         int yield = CalculateYield(weapon, attacker);

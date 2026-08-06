@@ -41,7 +41,7 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected float minRepathInterval = 0.15f; // throttles full re-sweeps for callers that re-issue MoveTo() every frame with tiny nudges
 
     [Header("Animation")]
-    [SerializeField] protected Animator animator;
+    [SerializeField] public Animator animator;
     [SerializeField] protected SpriteRenderer spriteRenderer;
     [SerializeField] protected bool flipSpriteOnDirection = true;
     [SerializeField] protected bool use4DirectionalSprites = false;
@@ -60,6 +60,7 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] protected float axeVerticalAttackOffset = 0f;
     [SerializeField] public LayerMask attackTargetLayer;
     public bool friendlyFire = false;
+    public GameObject arrowPrefab;
 
     [Header("Blocking")]
     public bool isBlocking = false;
@@ -73,7 +74,7 @@ public class CharacterBase : MonoBehaviour
     protected Vector2 lastMoveDirection = Vector2.down;
     protected float cachedMoveX = 0f;
 
-    protected Vector2? targetPosition = null;
+    protected Vector2? moveToPosition = null;
     protected bool isMovingToTarget = false;
     protected float lastAttackTime = 0f;
     protected bool isAttacking = false;
@@ -117,6 +118,7 @@ public class CharacterBase : MonoBehaviour
     protected static readonly int SpearAttackTrigger = Animator.StringToHash("SpearAttack");
     protected static readonly int AxeAttackTrigger = Animator.StringToHash("AxeAttack");
     protected static readonly int RollTrigger = Animator.StringToHash("Roll");
+    protected static readonly int ShootTrigger = Animator.StringToHash("Shoot");
 
     // Cached once in Awake — CharacterBase and CharacterAI always live on the same GameObject,
     // so this replaces scattered GetComponent<CharacterAI>() calls in hot per-frame combat code.
@@ -131,7 +133,6 @@ public class CharacterBase : MonoBehaviour
     [HideInInspector]
     public ItemAttachment itemAttachment;
     [HideInInspector]
-    public Vector2 lastAttackerPosition;
     // No longer hidden: previously always force-overwritten in code (VillagerController →
     // Player, EnemyController → Enemy) so exposing it was pointless — now that enemies keep
     // whatever faction is set here, it needs to be an actual Inspector-editable choice.
@@ -224,7 +225,7 @@ public class CharacterBase : MonoBehaviour
             return;
         }
 
-        if (isMovingToTarget && targetPosition.HasValue)
+        if (isMovingToTarget && moveToPosition.HasValue)
         {
             MoveToTarget();
         }
@@ -282,9 +283,9 @@ public class CharacterBase : MonoBehaviour
         // destination actually moved meaningfully — otherwise a character wedged against an
         // obstacle, fed a near-identical destination every frame, never accumulates stuck time and
         // can push against geometry indefinitely instead of ever giving up.
-        bool isNewDestination = !targetPosition.HasValue || Vector2.Distance(targetPosition.Value, destination) > 0.1f;
+        bool isNewDestination = !moveToPosition.HasValue || Vector2.Distance(moveToPosition.Value, destination) > 0.1f;
 
-        targetPosition = destination;
+        moveToPosition = destination;
         isMovingToTarget = true;
 
         if (isNewDestination)
@@ -343,7 +344,7 @@ public class CharacterBase : MonoBehaviour
     /// </summary>
     public virtual void Stop()
     {
-        targetPosition = null;
+        moveToPosition = null;
         isMovingToTarget = false;
         movement = Vector2.zero;
         stuckTimer = 0f;
@@ -358,7 +359,7 @@ public class CharacterBase : MonoBehaviour
     public virtual void SetMovement(Vector2 direction)
     {
         isMovingToTarget = false;
-        targetPosition = null;
+        moveToPosition = null;
         movement = direction.normalized;
     }
 
@@ -370,7 +371,7 @@ public class CharacterBase : MonoBehaviour
     public virtual void SetMovementScaled(Vector2 direction, float speedScale01)
     {
         isMovingToTarget = false;
-        targetPosition = null;
+        moveToPosition = null;
         movement = direction.normalized * Mathf.Clamp01(speedScale01);
     }
 
@@ -408,13 +409,13 @@ public class CharacterBase : MonoBehaviour
 
     protected virtual void MoveToTarget()
     {
-        if (!targetPosition.HasValue) return;
+        if (!moveToPosition.HasValue) return;
 
         // MoveTo() always seeds _currentPath — this only hits defensively (e.g. a subclass sets
         // targetPosition directly without going through MoveTo()).
         if (_currentPath == null || _currentPath.Count == 0)
         {
-            _currentPath = new List<Vector2> { targetPosition.Value };
+            _currentPath = new List<Vector2> { moveToPosition.Value };
             _pathReachedTarget = true;
             _currentPathIndex = 0;
         }
@@ -478,7 +479,7 @@ public class CharacterBase : MonoBehaviour
     private void TryRepathOrGiveUp()
     {
         _repathAttempts++;
-        if (_repathAttempts > maxRepathAttempts || !targetPosition.HasValue)
+        if (_repathAttempts > maxRepathAttempts || !moveToPosition.HasValue)
         {
             Stop();
             return;
@@ -486,7 +487,7 @@ public class CharacterBase : MonoBehaviour
 
         stuckTimer = 0f;
         lastPosition = rb.position;
-        ComputePath(targetPosition.Value);
+        ComputePath(moveToPosition.Value);
     }
 
     public bool CanRoll() => !isRolling && !isAttacking && canMove && Time.time - lastRollTime >= rollCooldown;
@@ -636,6 +637,14 @@ public class CharacterBase : MonoBehaviour
                     currentHitboxSize = RotateSizeToFacing(swordAttackSize);
                     currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
                 }
+                else if (weapon.itemType == EquipableItem.ItemType.Bow)
+                {
+                    SafeSetTrigger(ShootTrigger);
+                }
+                else
+                {
+                    SafeSetTrigger(AttackTrigger);
+                }
             }
         }
     }
@@ -673,8 +682,6 @@ public class CharacterBase : MonoBehaviour
                 hitGameObjects.Add(hit.gameObject);
                 // Refresh attacker position at the moment of impact
                 var targetCC = hit.GetComponent<CharacterBase>();
-                if (targetCC != null)
-                    targetCC.lastAttackerPosition = (Vector2)transform.position;
 
                 // Attacking a blocking character bounces the attacker back
                 if (targetCC != null && (targetCC.isBlocking || targetCC.isParrying))
@@ -692,6 +699,16 @@ public class CharacterBase : MonoBehaviour
             if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
                 villager.skills.ImproveSkill(JobType.Warrior);
         }
+    }
+
+    public void PerformArrowShot()
+    {
+        // Target can die/despawn between the Attack() trigger and this animation event firing.
+        if (CurrentTarget == null || weapon == null || arrowPrefab == null) return;
+
+        Vector2 direction = (Vector2)CurrentTarget.transform.position - (Vector2)transform.position;
+        GameObject Go = Instantiate(arrowPrefab, itemAttachment.rightHandAttachment.position, Quaternion.identity);
+        Go.GetComponent<Arrow>().Initialize(50, weapon.strength, direction);
     }
 
     /// <summary>
@@ -771,7 +788,7 @@ public class CharacterBase : MonoBehaviour
             damage *= (1f - woundDmgPenaltyPct / 100f);
         }
 
-        target.TakeDamage(damage, weapon);
+        target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);
 
         // Notify the target who hit them (used by EnemyAI retargetOnHit, etc.)
         hit.GetComponent<CharacterBase>()?.OnHitBy(this);
@@ -1283,11 +1300,11 @@ public class CharacterBase : MonoBehaviour
                 prev = _currentPath[i];
             }
         }
-        else if (isMovingToTarget && targetPosition.HasValue)
+        else if (isMovingToTarget && moveToPosition.HasValue)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(targetPosition.Value, 0.2f);
-            Gizmos.DrawLine(transform.position, targetPosition.Value);
+            Gizmos.DrawWireSphere(moveToPosition.Value, 0.2f);
+            Gizmos.DrawLine(transform.position, moveToPosition.Value);
         }
 
         // Visualize attack hitbox

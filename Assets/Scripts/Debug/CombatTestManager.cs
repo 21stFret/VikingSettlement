@@ -176,17 +176,6 @@ public class CombatTestManager : MonoBehaviour
             go.GetComponent<Enemy>().InitializeEnemyStats();
             go.gameObject.name = $"{enemyTypes[index].label} ({enemySpawnedAmount+ 1})";
             enemySpawnedAmount++;
-            /*
-            var ia = go.GetComponent<ItemAttachment>();
-            if (ia != null)
-            {
-                if (enemyTypes[index].giveWeapon)
-                    ia.GiveWeaponByName("DSword");
-
-                if (enemyTypes[index].giveShield)
-                    ia.GiveRandomShield();
-            }
-            */
         }
             
 
