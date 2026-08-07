@@ -46,7 +46,7 @@ public class EquipableItem : MonoBehaviour
     public SpriteRenderer itemSpriteRenderer;
 
     public bool IsShield => itemType == ItemType.Shield;
-    public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer;
+    public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer || itemType == ItemType.Bow;
 
     public bool IsBroken => maxDurability > 0 && currentDurability <= 0;
     public int CurrentDurability => currentDurability;

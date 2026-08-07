@@ -31,8 +31,11 @@ public class CombatDummy : MonoBehaviour
 
     private CharacterBase _cc;
 
+    private bool init;
+
     private void Start()
     {
+        init = false;
         Invoke("Init", 0.2f);
     }
 
@@ -60,10 +63,13 @@ public class CombatDummy : MonoBehaviour
 
 
         _cc.CurrentTarget = FindNearestVillager()?.GetComponent<CharacterBase>();
+
+        init = true;
     }
 
     private void Update()
     {
+        if (!init) return;
         // Push manual states onto the controller every frame
         _cc.isBlocking = blocking;
         _cc.isParrying = parrying;

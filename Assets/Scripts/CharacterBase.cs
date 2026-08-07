@@ -703,12 +703,21 @@ public class CharacterBase : MonoBehaviour
 
     public void PerformArrowShot()
     {
-        // Target can die/despawn between the Attack() trigger and this animation event firing.
-        if (CurrentTarget == null || weapon == null || arrowPrefab == null) return;
+        if (weapon == null || arrowPrefab == null) return;
+        Vector2 direction = new Vector2(0, 0);
+        if (CurrentTarget != null)
+        {
+            direction = (Vector2)CurrentTarget.transform.position - (Vector2)transform.position;
+        }
+        else
+        {
+            direction = FacingDirectionToVector(facingDirection);
+        }
 
-        Vector2 direction = (Vector2)CurrentTarget.transform.position - (Vector2)transform.position;
-        GameObject Go = Instantiate(arrowPrefab, itemAttachment.rightHandAttachment.position, Quaternion.identity);
-        Go.GetComponent<Arrow>().Initialize(50, weapon.strength, direction);
+        GameObject Go = Instantiate(arrowPrefab, itemAttachment.rightHandAttachment.position, Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
+        Arrow arrow = Go.GetComponent<Arrow>();
+        arrow.Initialize(50, weapon.strength, direction, (Vector2)transform.position, gameObject);
+        weapon.TakeDurabilityDamage(1);
     }
 
     /// <summary>
@@ -728,7 +737,9 @@ public class CharacterBase : MonoBehaviour
     public bool IsAttackFromBehind(Vector2 worldPos)
     {
         Vector2 toAttacker = (worldPos - (Vector2)transform.position).normalized;
-        return Vector2.Dot(toAttacker, FacingDirectionToVector(facingDirection)) < 0f;
+        var result = Vector2.Dot(toAttacker, FacingDirectionToVector(facingDirection));
+        print("IsAttackFromBehind: " + result + "Attack direction: " + FacingDirectionToVector(facingDirection) + " the attcker: " + toAttacker);
+        return result < 0f;
     }
 
     /// <summary>
@@ -907,7 +918,7 @@ public class CharacterBase : MonoBehaviour
             if (facing.x != cachedMoveX && Math.Abs(facing.x) > 0.01f)
                 cachedMoveX = facing.x;
   
-            facingDirection = ComputeFacingDirection(facing);
+
 
             // Handle sprite flipping — locked while blocking so the shield always faces the attacker
             // Skipped in 4D mode (animator blend tree handles direction visually)
@@ -917,6 +928,7 @@ public class CharacterBase : MonoBehaviour
                     FlipSprite(false);
                 else if (facing.x < -0.01f)
                     FlipSprite(true);
+                facingDirection = ComputeFacingDirection(facing);
             }
         }
     }

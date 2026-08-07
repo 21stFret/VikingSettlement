@@ -607,6 +607,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 129
   friendlyFire: 0
+  arrowPrefab: {fileID: 732262983590517861, guid: 1dd8d7bd9e2a9da48b814e547186cc99, type: 3}
   isBlocking: 0
   isParrying: 0
   parryStunDuration: 1.5
@@ -619,7 +620,6 @@ MonoBehaviour:
   shield: {fileID: 0}
   torch: {fileID: 0}
   itemAttachment: {fileID: 0}
-  lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 0
   facingDirection: 3
   CurrentTarget: {fileID: 0}
@@ -733,7 +733,7 @@ CapsuleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4087
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2

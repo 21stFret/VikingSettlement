@@ -80,6 +80,17 @@ public class TargetHealth : MonoBehaviour
         // Base implementation does nothing - override in subclasses
     }
 
+    protected virtual void OnBlocked(EquipableItem weapon)
+    {
+        // Base implementation does nothing - override in subclasses
+        if(weapon.itemType == EquipableItem.ItemType.Bow)
+        {
+            Arrow arrow = weapon.GetComponent<Arrow>();
+            arrow.ArrowStuck(GetComponent<CharacterBase>().shield.transform);
+            arrow.transform.localPosition = new Vector3(UnityEngine.Random.Range(0.25f, 0.9f), UnityEngine.Random.Range(-0.3f, 0.3f), 0);
+        }
+    }
+
     /// <summary>
     /// Called when a weapon-based hit deals damage. Override to roll for wounds.
     /// </summary>

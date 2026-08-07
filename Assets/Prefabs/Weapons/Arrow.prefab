@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 3922141178692998175}
   - component: {fileID: 967136908014575541}
   - component: {fileID: 882030977692383860}
-  m_Layer: 0
+  - component: {fileID: -4992888573384007004}
+  m_Layer: 3
   m_Name: Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,13 +204,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4953b19f6da8bcc43becf38d66ffc4b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  speed: 20
+  speed: 8
   damage: 5
   targetLayer:
     serializedVersion: 2
     m_Bits: 3265
   inFlightlifetime: 5
   lifetime: 8
+  stuckMask: {fileID: 1164359734228704197}
+--- !u!114 &-4992888573384007004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 732262983590517861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteSorting
+  spriteRenderer: {fileID: 0}
+  sortingOrderBase: 5000
+  offset: 100
 --- !u!1 &1164359734228704197
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,13 +237,13 @@ GameObject:
   m_Component:
   - component: {fileID: 4427358872795857840}
   - component: {fileID: 6903527040209096459}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sprite Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4427358872795857840
 Transform:
   m_ObjectHideFlags: 0
@@ -236,9 +253,9 @@ Transform:
   m_GameObject: {fileID: 1164359734228704197}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.848, y: -0.001, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0.52, y: 0.05, z: 0}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 7200583461278924383}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

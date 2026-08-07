@@ -511,6 +511,7 @@ public class Villager : TargetHealth
                     ? Mathf.CeilToInt(rawDamage * 0.5f)
                     : Mathf.CeilToInt(rawDamage);
                 _controller.shield.TakeDurabilityDamage(durDamage);
+                OnBlocked(weapon);
                 return 0f;
             }
         }
