@@ -716,7 +716,7 @@ public class CharacterBase : MonoBehaviour
 
         GameObject Go = Instantiate(arrowPrefab, itemAttachment.rightHandAttachment.position, Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
         Arrow arrow = Go.GetComponent<Arrow>();
-        arrow.Initialize(50, weapon.strength, direction, (Vector2)transform.position, gameObject);
+        arrow.Initialize(weapon.strength, direction, (Vector2)transform.position, gameObject);
         weapon.TakeDurabilityDamage(1);
     }
 

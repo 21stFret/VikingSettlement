@@ -7,6 +7,7 @@ public class Arrow : MonoBehaviour
     public LayerMask targetLayer;
     public float inFlightlifetime = 5f;
     public float lifetime = 10f;
+    public float noCollisionTimer = 0.1f;
     private Animator animator;
     private Rigidbody2D rb;
     private Collider2D col;
@@ -15,27 +16,27 @@ public class Arrow : MonoBehaviour
     private EquipableItem arrowRef;
     private bool stuck;
     private Vector2 archerPos;
-    public GameObject stuckMask;
+    public SpriteMask stuckMask;
     private GameObject owner;
+    public Vector2 rbVelocity => rb.linearVelocity;
 
-    private void Start()
+    public void Initialize(float damage, Vector2 dir, Vector2 archer, GameObject own)
     {
+        this.direction = dir;
+        this.damage = damage;
+        this.archerPos = archer;
+        this.owner = own;
+
         animator = GetComponent<Animator>();
         col = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
         arrowRef = gameObject.AddComponent<EquipableItem>();
         arrowRef.itemType = EquipableItem.ItemType.Bow;
         Fire();
-        stuckMask.SetActive(false);
-    }
+        stuckMask = GetComponentInChildren<SpriteMask>();
+        stuckMask.enabled = false;
 
-    public void Initialize(float speed, float damage, Vector2 dir, Vector2 archer, GameObject own)
-    {
-        this.speed = speed;
-        this.direction = dir;
-        this.damage = damage;
-        this.archerPos = archer;
-        this.owner = own;
+        col.enabled = false;
     }
 
     public void Fire()
@@ -56,6 +57,13 @@ public class Arrow : MonoBehaviour
         if (inFlightlifetime <= 0f || !inFlight)
             return;
 
+        noCollisionTimer -= Time.fixedDeltaTime;
+        if (noCollisionTimer <= 0)
+        {
+            if (col.enabled == false)
+                col.enabled = true;
+        }
+
         inFlightlifetime -= Time.fixedDeltaTime;
         if (inFlightlifetime <= 0f)
             animator.SetTrigger("Dip");
@@ -74,32 +82,26 @@ public class Arrow : MonoBehaviour
         if (collision.contacts.Length == 0)
             return;
 
-        ContactPoint2D contact = collision.contacts[0];
-        Vector2 hitPoint = contact.point;
-        Vector2 hitNormal = contact.normal;
-
-        // Position/rotate the arrow to match the stick point + angle
-        transform.position = hitPoint;
-        transform.right = -hitNormal; // orient along the surface normal, adjust sign to taste
-
         // Deal damage if the thing we hit can take it
         var damageable = collision.gameObject.GetComponent<TargetHealth>();
         damageable?.TakeDamage(damage, arrowRef,attackerPos: archerPos);
         inFlight = false;
-        ArrowStuck(collision.transform);
+        ArrowStuck(collision.transform, collision.contacts[0].point);
     }
 
-    public void ArrowStuck(Transform _transform = null)
+    public void ArrowStuck(Transform _transform = null, Vector2 Hitpoint = default)
     {
         if (stuck) return;
         stuck = true;
+        stuckMask.enabled = true;
         rb.linearVelocity = Vector2.zero;
         rb.bodyType = RigidbodyType2D.Kinematic;
         col.enabled = false;
-        if( _transform != null )
+        transform.position = (Vector2)transform.position + direction.normalized * 0.6f;
+        if ( _transform != null )
         {
             transform.SetParent(_transform);
         }
-        stuckMask.SetActive(true);
+
     }
 }
