@@ -10288,13 +10288,13 @@ GameObject:
   - component: {fileID: 7509095397989540202}
   - component: {fileID: 8629009730597293662}
   - component: {fileID: 7928313549537484593}
-  - component: {fileID: 422819367626716894}
   - component: {fileID: 6713158499483296687}
   - component: {fileID: 1171899017266227412}
   - component: {fileID: 638782563166323672}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
-  m_Layer: 0
+  - component: {fileID: 8637989351535478169}
+  m_Layer: 7
   m_Name: AxeDragur
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10445,52 +10445,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!61 &422819367626716894
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.76}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.45, y: 0.25}
-    oldSize: {x: 4, y: 4}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
-  m_EdgeRadius: 0
 --- !u!114 &6713158499483296687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10596,8 +10550,8 @@ MonoBehaviour:
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
-  attackDelay: 1
   friendlyFire: 0
+  arrowPrefab: {fileID: 0}
   isBlocking: 0
   isParrying: 0
   parryStunDuration: 1.5
@@ -10610,7 +10564,6 @@ MonoBehaviour:
   shield: {fileID: 0}
   torch: {fileID: 0}
   itemAttachment: {fileID: 0}
-  lastAttackerPosition: {x: 0, y: 0}
   characterFaction: 3
   facingDirection: 3
   CurrentTarget: {fileID: 0}
@@ -10675,6 +10628,43 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.2
+--- !u!70 &8637989351535478169
+CapsuleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 4087
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.051638484, y: 0.7142855}
+  m_Size: {x: 1.0209699, y: 1.7640889}
+  m_Direction: 0
 --- !u!1 &8320124014034768044
 GameObject:
   m_ObjectHideFlags: 0

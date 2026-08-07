@@ -109782,7 +109782,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &879992433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111703,20 +111703,14 @@ MonoBehaviour:
   enemyTypes:
   - label: Dragur
     prefab: {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
-    giveWeapon: 1
-    giveShield: 0
   - label: Axe Dragur
     prefab: {fileID: 7555521055352246155, guid: 9caff1a25afa72849a53dbc823e16878, type: 3}
-    giveWeapon: 1
-    giveShield: 0
   - label: Shield Dragur
     prefab: {fileID: 7555521055352246155, guid: 33afecf654bf63d47a7fe68c430a33bd, type: 3}
-    giveWeapon: 1
-    giveShield: 0
   - label: Raider
     prefab: {fileID: 7555521055352246155, guid: 3587cad2be57f324d9872d36fd284e4c, type: 3}
-    giveWeapon: 1
-    giveShield: 0
+  - label: Archer
+    prefab: {fileID: 7555521055352246155, guid: 30f4056cb6664e04a93117aa22408a18, type: 3}
   enemySpawnPoints:
   - {fileID: 510074943}
   - {fileID: 2010008329}
@@ -287665,7 +287659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!199 &7871557352056987037
 ParticleSystemRenderer:
   serializedVersion: 7

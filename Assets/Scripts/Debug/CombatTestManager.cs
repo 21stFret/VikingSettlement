@@ -45,8 +45,6 @@ public class CombatTestManager : MonoBehaviour
     {
         public string label = "Enemy";
         public GameObject prefab;
-        public bool giveWeapon;
-        public bool giveShield;
     }
 
     private Villager _player;
