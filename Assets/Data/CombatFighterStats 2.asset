@@ -17,6 +17,7 @@ MonoBehaviour:
   CanDodge: 0
   AdvancedBlocking: 1
   ThreatCircleDistance: 2.5
+  MinEngageRange: 3
   PressureTime: 0.2
   RecoveryTime: 0.5
   MaxBlockCharges: 2

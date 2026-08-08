@@ -19,7 +19,7 @@ public class IdleState : AIStateBase
         if (_timer < _duration) return;
 
         if (ai.CurrentTarget != null)
-            ai.ChangeState(new CombatApproachState());
+            ai.ChangeState(ai is CombatAIBase combat ? combat.GetApproachState() : new CombatApproachState());
         else
             ai.ChangeState(new WanderState());
     }

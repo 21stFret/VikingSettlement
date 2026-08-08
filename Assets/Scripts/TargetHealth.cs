@@ -44,16 +44,15 @@ public class TargetHealth : MonoBehaviour
         lastDamageWasCombat = (weapon != null);
 
         // Combat hits (weapon != null) can trigger wound rolls on significant damage
-        if (weapon != null && finalDamage > 0f)
+        if (finalDamage > 0f)
         {
             OnSignificantHPDamage(finalDamage);
             OnDamageTaken(finalDamage, weapon);
-            if(gameObject.layer != 9)
-            {
-                weapon.TakeDurabilityDamage(1);
-            }
         }
-
+        if (gameObject.layer != 9 && weapon != null)
+        {
+            weapon.TakeDurabilityDamage(1);
+        }
 
         Debug.Log($"{gameObject.name} took {finalDamage} damage (raw: {damage}, trueDamage: {trueDamage})");
 
@@ -82,6 +81,7 @@ public class TargetHealth : MonoBehaviour
 
     protected virtual void OnBlocked(EquipableItem weapon)
     {
+        if (weapon == null) return;
         // Base implementation does nothing - override in subclasses
         if(weapon.itemType == EquipableItem.ItemType.Bow)
         {

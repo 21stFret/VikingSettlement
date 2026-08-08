@@ -61,6 +61,7 @@ public class ItemAttachment : MonoBehaviour
             CC.shield = newShield.GetComponent<EquipableItem>();
             CC.shield.isEquipped = true;
             CC.shield.OnBroken += ShieldDestroyed;
+            (CC.AI as CombatAIBase)?.HandleShieldChanged(CC.shield);
         }
         Villager V = GetComponent<Villager>();
         if(V != null)
@@ -93,6 +94,7 @@ public class ItemAttachment : MonoBehaviour
             cc.shield.isEquipped = false;
             cc.shield = null;
         }
+        (cc?.AI as CombatAIBase)?.HandleShieldChanged(null);
 
         shield.transform.SetParent(null);
         shield.tag = "Shield";

@@ -5,12 +5,16 @@ using UnityEngine;
 /// </summary>
 public class EnemyController : CharacterBase
 {
-    private Enemy enemyData;
+    // enemyData: health/dead-state only (TargetHealth-derived). Combat stats (range/damage/
+    // cooldown) live on enemyAI now — see EnemyAIBase.
+    private Enemy       enemyData;
+    private EnemyAIBase enemyAI;
 
     protected override void Awake()
     {
         base.Awake();
         enemyData = GetComponent<Enemy>();
+        enemyAI   = GetComponent<EnemyAIBase>();
         // characterFaction is no longer forced here — each enemy prefab/instance is configured
         // with its own clan (Draugr, Raider1, Raider2, ...) via the Inspector, so different
         // hostile factions actually fight each other instead of all being lumped into one.
@@ -18,7 +22,7 @@ public class EnemyController : CharacterBase
 
     public override float GetAttackDelay()
     {
-        float delay = enemyData.attackCooldown;
+        float delay = enemyAI != null ? enemyAI.AttackCooldown : 1.5f;
         if (weapon != null) delay += weapon.attackSpeed;
         return Mathf.Max(0.1f, delay);
     }
@@ -68,7 +72,7 @@ public class EnemyController : CharacterBase
         {
             if (target.IsDead()) return;
 
-            float damage = enemyData.GetDamage();
+            float damage = enemyAI != null ? enemyAI.Damage : 0f;
             float weaponDamage = 0f;
             if (weapon != null)
             {
@@ -93,10 +97,10 @@ public class EnemyController : CharacterBase
         base.OnDrawGizmosSelected();
 
         // Draw enemy-specific attack range
-        if (enemyData != null)
+        if (enemyAI != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, enemyData.GetAttackRange());
+            Gizmos.DrawWireSphere(transform.position, enemyAI.AttackRange);
         }
     }
 }

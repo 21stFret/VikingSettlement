@@ -130,7 +130,7 @@ public abstract class VillagerAIBase : CombatAIBase
         if (VillagerController.shield == null && CanFindShield())
             ChangeState(new VillagerPrepareCombatState());
         else
-            ChangeState(new CombatApproachState());
+            ChangeState(GetApproachState());
     }
 
     protected override void OnNoTargetFound()
@@ -222,17 +222,7 @@ public abstract class VillagerAIBase : CombatAIBase
 
     // ── Helpers for state classes ──────────────────────────────────────────────
 
-    public bool CanFindShield()
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 5f);
-        foreach (var h in hits)
-        {
-            if (!h.CompareTag("Shield")) continue;
-            var item = h.GetComponent<EquipableItem>();
-            if (item != null && !item.isEquipped) return true;
-        }
-        return false;
-    }
+    public bool CanFindShield() => FindNearestDroppedShield(transform.position, 5f) != null;
 
     public Vector2 GetRandomPointNearWork()
     {

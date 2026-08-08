@@ -12,7 +12,7 @@ public class ReturnToSpawnState : AIStateBase
     {
         if (ai.CurrentTarget != null)
         {
-            ai.ChangeState(new CombatApproachState());
+            ai.ChangeState(ai is CombatAIBase combat ? combat.GetApproachState() : new CombatApproachState());
             return;
         }
 

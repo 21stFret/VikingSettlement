@@ -608,6 +608,8 @@ public class CharacterBase : MonoBehaviour
             if (weapon == null)
             {
                 SafeSetTrigger(AttackTrigger);
+                currentHitboxSize = RotateSizeToFacing(swordAttackSize);
+                currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
             }
             else
             {

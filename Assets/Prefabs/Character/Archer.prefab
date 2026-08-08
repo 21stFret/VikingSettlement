@@ -10288,13 +10288,13 @@ GameObject:
   - component: {fileID: 7509095397989540202}
   - component: {fileID: 8629009730597293662}
   - component: {fileID: 7928313549537484593}
-  - component: {fileID: 6713158499483296687}
   - component: {fileID: 1171899017266227412}
   - component: {fileID: 638782563166323672}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
   - component: {fileID: 7700225647313814493}
   - component: {fileID: 9196453709410078647}
+  - component: {fileID: 2507937195135303653}
   m_Layer: 7
   m_Name: Archer
   m_TagString: Untagged
@@ -10446,38 +10446,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6713158499483296687
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  searchInterval: 0.5
-  CombatStats: {fileID: 11400000, guid: dbebb80b7d6652741999bc11cda52a64, type: 2}
-  awarenessRadius: 8
-  enterSeparationRange: 1
-  exitSeparationRange: 1.5
-  commitRange: 0.2
-  slotSlowRadius: 1.2
-  holdTimeout: 2
-  separationForceStrength: 5
-  separationSmoothingRate: 8
-  retargetOnHit: 1
-  showDebug: 0
-  wanderRadius: 5
-  idleTimeMin: 1
-  idleTimeMax: 3
-  obstacleLayerMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  pursuitRange: 7
-  loseTargetTime: 3
 --- !u!114 &1171899017266227412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10492,14 +10460,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHealth: 30
   currentHealth: 0
-  enemyName: Raider
-  damage: 2
-  attackRange: 1
-  attackCooldown: 0.5
+  enemyName: Archer
   weaponName: Bow
   shieldName: 
-  moveSpeed: 6
-  chaseSpeed: 7
   goldReward: 10
   lootChance: 0.3
   lootTable:
@@ -10678,6 +10641,43 @@ CapsuleCollider2D:
   m_Offset: {x: -0.051638484, y: 0.7142855}
   m_Size: {x: 1.0209699, y: 1.7640889}
   m_Direction: 0
+--- !u!114 &2507937195135303653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7555521055352246155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc5956442c1297742b78b8d44a798bd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArcherAI
+  searchInterval: 0.5
+  CombatStats: {fileID: 11400000, guid: 07b7ddb4952c8154fa41e2e6e111d31a, type: 2}
+  awarenessRadius: 8
+  enterSeparationRange: 3
+  exitSeparationRange: 4
+  commitRange: 0.4
+  slotSlowRadius: 1.2
+  holdTimeout: 2
+  separationForceStrength: 2
+  separationSmoothingRate: 8
+  retargetOnHit: 1
+  showDebug: 1
+  attackRange: 8
+  damage: 5
+  attackCooldown: 1.5
+  moveSpeed: 4
+  chaseSpeed: 5
+  wanderRadius: 5
+  idleTimeMin: 1
+  idleTimeMax: 3
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 3073
+  pursuitRange: 15
+  loseTargetTime: 3
 --- !u!1 &8320124014034768044
 GameObject:
   m_ObjectHideFlags: 0
@@ -10795,6 +10795,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3092238208046221671}
     m_Modifications:
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 728731297633163358, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_Name
       value: EnemyCanvas
@@ -10877,6 +10917,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2994140505325197177, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

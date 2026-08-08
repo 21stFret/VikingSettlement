@@ -15,9 +15,15 @@ public class CombatBlockState : AIStateBase
     private Action _onTargetRecovery;
 
     /// <summary>Where to resume after the block/dodge resolves — Pressure if already slotted in,
-    /// otherwise Approach (mid-approach reactions can't have secured a slot yet).</summary>
-    private static AIStateBase ResumeState(CharacterAI ai) =>
-        ai.CurrentSlotHost != null ? new CombatPressureState() : new CombatApproachState();
+    /// otherwise Approach (mid-approach reactions can't have secured a slot yet). Routed through
+    /// CombatAIBase's GetApproachState()/GetPressureState() hooks so ranged fighters (which never
+    /// hold a slot — see ArcherAI) resume ranged positioning instead of melee approach.</summary>
+    private static AIStateBase ResumeState(CharacterAI ai)
+    {
+        if (ai is CombatAIBase combat)
+            return combat.CurrentSlotHost != null ? combat.GetPressureState() : combat.GetApproachState();
+        return ai.CurrentSlotHost != null ? new CombatPressureState() : new CombatApproachState();
+    }
 
     public override void OnEnter(CharacterAI ai)
     {

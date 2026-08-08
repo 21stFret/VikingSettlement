@@ -10470,6 +10470,11 @@ MonoBehaviour:
   separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 0
+  attackRange: 1.5
+  damage: 1
+  attackCooldown: 1.5
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -10493,13 +10498,8 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Draugr
-  damage: 1
-  attackRange: 1.2
-  attackCooldown: 1
   weaponName: Iron Sword
   shieldName: 1
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
   lootTable:

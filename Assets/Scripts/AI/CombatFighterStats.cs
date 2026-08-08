@@ -20,6 +20,9 @@ public class CombatFighterStats : ScriptableObject
     [Tooltip("Orbit distance when no melee slot is available on the target.")]
     public float ThreatCircleDistance = 2.5f;
 
+    [Tooltip("Ranged-only: distance below which this fighter retreats from its target instead of holding position. No effect on melee fighters.")]
+    public float MinEngageRange = 3f;
+
     [Tooltip("Seconds in pressure state before attempting an attack roll.")]
     public float PressureTime = 1.5f;
 

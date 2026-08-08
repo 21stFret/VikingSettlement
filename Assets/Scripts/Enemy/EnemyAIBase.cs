@@ -2,11 +2,14 @@ using UnityEngine;
 
 /// <summary>
 /// Enemy-specific AI base. Extends CharacterAI with:
-/// - Enemy component stat delegation (attack range, speeds)
+/// - Its own combat/movement stat block (attack range, damage, cooldown, speeds) — this is the
+///   single owner of per-instance enemy combat tuning, mirroring how VillagerAIBase holds its own
+///   combatEngageRange directly rather than delegating to a separate data component.
 /// - Retargeting on hit (shared CombatAIBase.HandleHitBy — off by default via inspector)
 ///
-/// Concrete subclasses (EnemyAI, BerserkerAI, WolfAI, etc.) extend this and
-/// call GetInitialState() to define their starting state.
+/// Concrete subclasses (EnemyAI, ArcherAI, etc.) extend this and call GetInitialState() to define
+/// their starting state. Enemy (the sibling component) only owns health/loot/XP/identity —
+/// nothing combat-numeric lives there anymore.
 /// </summary>
 [RequireComponent(typeof(EnemyController))]
 [RequireComponent(typeof(Enemy))]
@@ -15,12 +18,25 @@ public abstract class EnemyAIBase : CombatAIBase
     public Enemy           EnemyData       { get; private set; }
     public EnemyController EnemyController { get; private set; }
 
-    // Delegate CharacterAI virtual config to Enemy component
-    public override float AttackRange    => EnemyData != null ? EnemyData.GetAttackRange()    : base.AttackRange;
-    public override float MoveSpeed      => EnemyData != null ? EnemyData.moveSpeed           : base.MoveSpeed;
-    public override float ChaseSpeed     => EnemyData != null ? EnemyData.chaseSpeed          : base.ChaseSpeed;
+    [Header("Combat Stats")]
+    [SerializeField] private float attackRange    = 1.5f;
+    [SerializeField] private float damage         = 10f;
+    [SerializeField] private float attackCooldown = 1.5f;
+
+    public override float AttackRange => attackRange;
+
+    /// <summary>Flat damage this enemy deals on top of its weapon's own strength — the
+    /// "monsters hit harder than their gear alone implies" layer, kept deliberately asymmetric
+    /// from villagers (whose damage is purely weapon-derived). Read by EnemyController.OnHitTarget.</summary>
+    public float Damage => damage;
+
+    /// <summary>Base attack delay before the equipped weapon's own attackSpeed is added — read by
+    /// EnemyController.GetAttackDelay.</summary>
+    public float AttackCooldown => attackCooldown;
 
     [Header("Movement")]
+    [SerializeField] private float      moveSpeed         = 1.5f;
+    [SerializeField] private float      chaseSpeed        = 2.5f;
     [SerializeField] private float      wanderRadius      = 5f;
     [SerializeField] private float      idleTimeMin       = 1f;
     [SerializeField] private float      idleTimeMax       = 3f;
@@ -31,6 +47,8 @@ public abstract class EnemyAIBase : CombatAIBase
     [SerializeField] private float loseTargetTime = 3f;
     // retargetOnHit lives on CharacterAI base — defaults false for enemies via inspector
 
+    public override float     MoveSpeed       => moveSpeed;
+    public override float     ChaseSpeed      => chaseSpeed;
     public override float     WanderRadius    => wanderRadius;
     public override float     IdleTimeMin     => idleTimeMin;
     public override float     IdleTimeMax     => idleTimeMax;
@@ -63,7 +81,7 @@ public abstract class EnemyAIBase : CombatAIBase
     public void SetTarget(Transform target)
     {
         CurrentTarget = target;
-        ChangeState(new CombatApproachState());
+        ChangeState(GetApproachState());
     }
 
     // ── Debug gizmos ───────────────────────────────────────────────────────────

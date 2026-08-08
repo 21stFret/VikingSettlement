@@ -10293,7 +10293,6 @@ GameObject:
   - component: {fileID: 638782563166323672}
   - component: {fileID: 102607621922122272}
   - component: {fileID: 2467279123356572261}
-  - component: {fileID: 6647927474361151061}
   - component: {fileID: 7700225647313814493}
   - component: {fileID: 5984947108438692862}
   m_Layer: 7
@@ -10471,6 +10470,11 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 0
+  attackRange: 1.5
+  damage: 3
+  attackCooldown: 1.5
+  moveSpeed: 5
+  chaseSpeed: 6
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -10494,13 +10498,8 @@ MonoBehaviour:
   maxHealth: 30
   currentHealth: 0
   enemyName: Raider
-  damage: 2
-  attackRange: 1
-  attackCooldown: 0.5
   weaponName: Iron Sword
   shieldName: Shield
-  moveSpeed: 3
-  chaseSpeed: 6
   goldReward: 10
   lootChance: 0.3
   lootTable:
@@ -10630,19 +10629,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.2
---- !u!114 &6647927474361151061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7555521055352246155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae309141875fc5e4abea0c6871d6952c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RaiderBehaviour
-  shieldReplaceDelay: 0.3
 --- !u!114 &7700225647313814493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10809,6 +10795,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3092238208046221671}
     m_Modifications:
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 728731297633163358, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_Name
       value: EnemyCanvas
@@ -10891,6 +10917,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2994140505325197177, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -10469,6 +10469,11 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 0
+  attackRange: 2
+  damage: 4
+  attackCooldown: 1.5
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -10492,13 +10497,8 @@ MonoBehaviour:
   maxHealth: 30
   currentHealth: 0
   enemyName: Axe Draugr
-  damage: 3
-  attackRange: 3
-  attackCooldown: 2
   weaponName: DAxe
   shieldName: 1
-  moveSpeed: 1
-  chaseSpeed: 1.5
   goldReward: 10
   lootChance: 0.3
   lootTable:
@@ -10705,6 +10705,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3092238208046221671}
     m_Modifications:
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127783067199708240, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 363333833300313944, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 728731297633163358, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_Name
       value: EnemyCanvas
@@ -10787,6 +10827,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2994140505325197177, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5614280557337227178, guid: 2653dcfad18b1384e9f8ca44b50325ca, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -10470,6 +10470,11 @@ MonoBehaviour:
   separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 1
+  attackRange: 1.5
+  damage: 2
+  attackCooldown: 1.5
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -10622,13 +10627,8 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Shield Draugr
-  damage: 2
-  attackRange: 1
-  attackCooldown: 1.5
   weaponName: DSword
   shieldName: Shield
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
   lootTable:

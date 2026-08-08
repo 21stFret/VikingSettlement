@@ -54,7 +54,10 @@ public class CombatRecoveringState : AIStateBase
         _timer += Time.deltaTime;
         if (_timer < _duration) return;
 
-        ai.ChangeState(new CombatPressureState());
+        if (ai is CombatAIBase combatAI)
+            ai.ChangeState(combatAI.GetPressureState());
+        else
+            ai.ChangeState(new CombatPressureState());
     }
 
     public override void OnExit(CharacterAI ai)

@@ -33,6 +33,8 @@ public abstract class CombatAIBase : CharacterAI
             Controller.OnHitByAttacker -= HandleHitBy;
             Controller.OnStunned       -= HandleStunned;
         }
+        if (_subscribedShield != null)
+            _subscribedShield.OnBroken -= HandleShieldBroken;
     }
 
     // ── Unified target search tick ─────────────────────────────────────────────
@@ -127,13 +129,28 @@ public abstract class CombatAIBase : CharacterAI
     /// The base tick already gates this call behind (targetChanged || !IsInActiveCombatState()).
     /// </summary>
     protected virtual void OnTargetAcquired(CharacterBase target, bool targetChanged)
-        => ChangeState(new CombatApproachState());
+        => ChangeState(GetApproachState());
 
     /// <summary>Called when no target exists and no living current target remains.</summary>
     protected virtual void OnNoTargetFound() { }
 
     /// <summary>Idle/passive state to fall back to when combat ends.</summary>
     protected virtual AIStateBase GetDefaultIdleState() => new IdleState();
+
+    /// <summary>
+    /// State to enter when closing on / holding at a freshly (re)acquired target. Melee default is
+    /// CombatApproachState (claims a slot, walks to it). Overridden by ArcherAI (and anything else
+    /// ranged) to return a slot-less positioning state instead — see RangedCombatState.
+    /// </summary>
+    internal virtual AIStateBase GetApproachState() => new CombatApproachState();
+
+    /// <summary>
+    /// State to resume once a discrete action (attack, block/dodge) finishes and the fighter should
+    /// go back to holding at range. Melee default is CombatPressureState. Overridden alongside
+    /// GetApproachState() for ranged fighters — see RangedCombatState and ArcherAI's comment on why
+    /// both hooks map to the same state there.
+    /// </summary>
+    internal virtual AIStateBase GetPressureState() => new CombatPressureState();
 
     // ── Pack assist fallback ───────────────────────────────────────────────────
 
@@ -164,7 +181,9 @@ public abstract class CombatAIBase : CharacterAI
                CurrentState is CombatBlockState           ||
                CurrentState is CombatStunnedState         ||
                CurrentState is CombatRecoveringState      ||
-               CurrentState is VillagerPrepareCombatState;
+               CurrentState is VillagerPrepareCombatState ||
+               CurrentState is RangedCombatState          ||
+               CurrentState is FindEquipmentState;
     }
 
     // ── Commitment ──────────────────────────────────────────────────────────────
@@ -267,6 +286,63 @@ public abstract class CombatAIBase : CharacterAI
 
     public static bool IsTargetDead(Transform t) =>
         t?.GetComponent<TargetHealth>()?.IsDead() ?? true;
+
+    /// <summary>
+    /// Closest unequipped "Shield"-tagged pickup within radius, or null. Single shared
+    /// implementation for every "go find a shield" need in the codebase — pre-combat prep
+    /// (VillagerPrepareCombatState / VillagerAIBase.CanFindShield) and the mid-combat
+    /// FindEquipmentState below.
+    /// </summary>
+    public static GameObject FindNearestDroppedShield(Vector2 position, float radius = 5f)
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(position, radius);
+        float closestDist  = Mathf.Infinity;
+        GameObject closest = null;
+
+        foreach (var h in hits)
+        {
+            if (!h.CompareTag("Shield")) continue;
+            var item = h.GetComponent<EquipableItem>();
+            if (item == null || item.isEquipped) continue;
+
+            float d = Vector2.Distance(position, h.transform.position);
+            if (d < closestDist) { closestDist = d; closest = h.gameObject; }
+        }
+
+        return closest;
+    }
+
+    // ── Mid-combat shield recovery ────────────────────────────────────────────
+
+    private EquipableItem _subscribedShield;
+
+    /// <summary>
+    /// Called by ItemAttachment right after Controller.shield is assigned or cleared (EquipShield /
+    /// DropShield), so this AI's own OnBroken subscription always tracks whichever shield is
+    /// currently equipped — regardless of Awake/Start ordering across sibling components, since
+    /// this fires synchronously at the moment of equip rather than being set up once in Start().
+    /// </summary>
+    public void HandleShieldChanged(EquipableItem newShield)
+    {
+        if (_subscribedShield == newShield) return;
+        if (_subscribedShield != null) _subscribedShield.OnBroken -= HandleShieldBroken;
+        _subscribedShield = newShield;
+        if (_subscribedShield != null) _subscribedShield.OnBroken += HandleShieldBroken;
+    }
+
+    /// <summary>
+    /// Fires when the currently-equipped shield's durability hits zero. Interrupts whatever combat
+    /// state is active to go find a replacement (FindEquipmentState), unless there's nothing to
+    /// interrupt (no target) or the tick is otherwise suppressed (cutscene / shield wall / immature
+    /// life stage) — mirrors the same guard OnTargetSearchTick uses.
+    /// </summary>
+    private void HandleShieldBroken()
+    {
+        _subscribedShield = null;
+        if (CurrentTarget == null) return;
+        if (ShouldAbortSearchTick()) return;
+        ChangeState(new FindEquipmentState());
+    }
 
     // ── Retarget on hit ────────────────────────────────────────────────────────
 

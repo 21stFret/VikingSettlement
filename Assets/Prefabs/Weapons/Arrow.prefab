@@ -211,7 +211,7 @@ MonoBehaviour:
     m_Bits: 3273
   inFlightlifetime: 2
   lifetime: 8
-  noCollisionTimer: 0.1
+  noCollisionTimer: 0.05
   stuckMask: {fileID: 6903527040209096459}
 --- !u!114 &-4992888573384007004
 MonoBehaviour:

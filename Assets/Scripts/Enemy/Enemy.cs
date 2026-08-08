@@ -8,16 +8,9 @@ public class Enemy : TargetHealth
     [Header("Enemy Info")]
     public string enemyName = "Raider";
 
-    [Header("Combat Stats")]
-    public float damage = 10f;
-    public float attackRange = 1.5f;
-    public float attackCooldown = 1.5f;
+    [Header("Starting Equipment")]
     public string weaponName="";
     public string shieldName="";
-
-    [Header("Movement")]
-    public float moveSpeed = 1.5f;
-    public float chaseSpeed = 2.5f;
 
     [Header("Loot")]
     public int goldReward = 10;
@@ -178,22 +171,6 @@ public class Enemy : TargetHealth
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = originalColor;
         }
-    }
-
-    /// <summary>
-    /// Get the damage this enemy deals
-    /// </summary>
-    public float GetDamage()
-    {
-        return damage;
-    }
-
-    /// <summary>
-    /// Get the attack range of this enemy
-    /// </summary>
-    public float GetAttackRange()
-    {
-        return attackRange;
     }
 
 }
