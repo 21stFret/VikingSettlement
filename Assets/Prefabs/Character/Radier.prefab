@@ -10434,7 +10434,7 @@ Animator:
   m_GameObject: {fileID: 7555521055352246155}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d19827e0e2553f8438dddf15fe97ecb7, type: 2}
+  m_Controller: {fileID: 9100000, guid: 9cfaa1cf3997b174facc27766d88f51f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10471,10 +10471,10 @@ MonoBehaviour:
   retargetOnHit: 1
   showDebug: 0
   attackRange: 1.5
-  damage: 3
-  attackCooldown: 1.5
-  moveSpeed: 5
-  chaseSpeed: 6
+  damage: 2
+  attackCooldown: 0.5
+  moveSpeed: 4
+  chaseSpeed: 5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3

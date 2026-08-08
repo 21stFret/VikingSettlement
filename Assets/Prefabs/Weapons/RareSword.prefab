@@ -91,7 +91,7 @@ MonoBehaviour:
   shakeMagnitude: 0.06
   shakeDuration: 0.18
   shakeOscillations: 3
-  maxDurability: 20
+  maxDurability: 80
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}

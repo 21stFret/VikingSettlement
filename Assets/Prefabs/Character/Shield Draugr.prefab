@@ -10472,9 +10472,9 @@ MonoBehaviour:
   showDebug: 1
   attackRange: 1.5
   damage: 2
-  attackCooldown: 1.5
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
+  attackCooldown: 1
+  moveSpeed: 4
+  chaseSpeed: 4
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3

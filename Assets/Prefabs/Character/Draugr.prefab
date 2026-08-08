@@ -10473,8 +10473,8 @@ MonoBehaviour:
   attackRange: 1.5
   damage: 1
   attackCooldown: 1.5
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
+  moveSpeed: 3
+  chaseSpeed: 3
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3

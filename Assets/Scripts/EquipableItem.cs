@@ -98,11 +98,14 @@ public class EquipableItem : MonoBehaviour
             if (bonusXP) villager.skills.ImproveSkill(JobType.Warrior);
         }
 
-        if(IsShield)
+        if (IsShield)
         {
             StopCoroutine(nameof(ShakeCoroutine));
             StartCoroutine(nameof(ShakeCoroutine));
-            if (villager.isJarl) { Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false); }
+            if (villager != null)
+            { 
+                if (villager.isJarl) { Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false); }
+            }
 
             if (sheildSparkEffect == null)
             {

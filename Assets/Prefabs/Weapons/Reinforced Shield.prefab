@@ -19768,7 +19768,7 @@ MonoBehaviour:
   shakeMagnitude: 0.06
   shakeDuration: 0.18
   shakeOscillations: 3
-  maxDurability: 20
+  maxDurability: 50
   currentDurability: 10
   itemDamageSprites:
   - {fileID: 21300000, guid: b59017dcfb4829140bf3e05290cb6f2b, type: 3}

@@ -109853,7 +109853,7 @@ MonoBehaviour:
   rightHandAttachment: {fileID: 2137440896}
   backAttachment: {fileID: 0}
   shield: {fileID: 1359076105}
-  weapon: {fileID: 1549327588}
+  weapon: {fileID: 0}
   torch: {fileID: 0}
   shieldAttachPoint: 0
   weaponAttachPoint: 1
@@ -109882,6 +109882,11 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 0
   showDebug: 0
+  attackRange: 1.5
+  damage: 10
+  attackCooldown: 1.5
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
@@ -109965,13 +109970,8 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Raider
-  damage: 2
-  attackRange: 1.5
-  attackCooldown: 1.5
   weaponName: 
   shieldName: 
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
   lootTable: []
@@ -212396,6 +212396,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Iron Sword
       objectReference: {fileID: 0}
+    - target: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7362057055399559573, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -212444,11 +212448,6 @@ PrefabInstance:
 --- !u!4 &1549327587 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7362057055399559573, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
-  m_PrefabInstance: {fileID: 1549327586}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1549327588 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5733758703643807651, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
   m_PrefabInstance: {fileID: 1549327586}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &1551224133 stripped
@@ -266064,13 +266063,8 @@ MonoBehaviour:
   maxHealth: 2
   currentHealth: 0
   enemyName: Raider
-  damage: 2
-  attackRange: 1.5
-  attackCooldown: 1.5
   weaponName: 
   shieldName: 
-  moveSpeed: 1.5
-  chaseSpeed: 2.5
   goldReward: 10
   lootChance: 0.3
   lootTable: []
@@ -287343,6 +287337,11 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 0
   showDebug: 0
+  attackRange: 1.5
+  damage: 10
+  attackCooldown: 1.5
+  moveSpeed: 1.5
+  chaseSpeed: 2.5
   wanderRadius: 5
   idleTimeMin: 1
   idleTimeMax: 3
