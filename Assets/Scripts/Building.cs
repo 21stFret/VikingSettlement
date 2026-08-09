@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Linq;
 
 public class Building : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class Building : MonoBehaviour
 
     [Header("Production")]
     public float productionProgress = 0f; // 0 to 100
-    public float adjustedProductionAmount = 0f; // Production amount after seasonal modifiers (for UI)
+    public List<ResourceOutput> adjustedProductionAmounts = new List<ResourceOutput>(); // Production amounts after seasonal modifiers, one per output resource (for UI)
     public GameObject worldUI;
     public Image liveProgressBar;
 
@@ -197,11 +198,16 @@ public class Building : MonoBehaviour
     /// </summary>
     private void UpdateResourceGathering(float deltaTime)
     {
-        if (data.producedResource == ResourceType.None) return; // Building doesn't produce anything
+        if (data.resourceOutputs == null || data.resourceOutputs.Count == 0) return; // Building doesn't produce anything
 
-        // Update adjusted production amount for UI display
+        // Update adjusted production amounts for UI display
         float seasonalMultiplier = GetSeasonalMultiplier();
-        adjustedProductionAmount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(data.productionAmount * EffectiveProductionMultiplier * seasonalMultiplier));
+        adjustedProductionAmounts.Clear();
+        foreach (var output in data.resourceOutputs)
+        {
+            float amount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(output.amount * EffectiveProductionMultiplier * seasonalMultiplier));
+            adjustedProductionAmounts.Add(new ResourceOutput { resourceType = output.resourceType, amount = amount });
+        }
 
         // Calculate total production speed based on workers and their skills
         float productionSpeed = GetProductionSpeed(data.productionRate);
@@ -286,12 +292,18 @@ public class Building : MonoBehaviour
     /// </summary>
     private void CompleteResourceGathering()
     {
-        // Use the pre-calculated adjusted amount (already set in UpdateResourceGathering)
+        // Use the pre-calculated adjusted amounts (already set in UpdateResourceGathering)
         bool gefjonActive = DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive;
         float gefjonFoodPct = gefjonActive ? DeathTypeBuff.Instance.GetFoodProductionPercent() : 0f;
-        float amount = SettlementFormulas.ApplyGefjonFoodBonus(data.producedResource, adjustedProductionAmount, gefjonActive, gefjonFoodPct);
-        int finalAmount = Mathf.RoundToInt(amount);
-        ResourceManager.Instance.AddResource(data.producedResource, finalAmount);
+
+        var producedAmounts = new List<int>();
+        foreach (var output in adjustedProductionAmounts)
+        {
+            float amount = SettlementFormulas.ApplyGefjonFoodBonus(output.resourceType, output.amount, gefjonActive, gefjonFoodPct);
+            int finalAmount = Mathf.RoundToInt(amount);
+            ResourceManager.Instance.AddResource(output.resourceType, finalAmount);
+            producedAmounts.Add(finalAmount);
+        }
 
         // Reset progress (keep overflow for next cycle)
         productionProgress -= 100f;
@@ -302,18 +314,19 @@ public class Building : MonoBehaviour
             worker.skills.ImproveSkill(data.assignedJobType);
         }
 
+        string producedText = string.Join(", ", adjustedProductionAmounts.Select((output, i) => $"{producedAmounts[i]} {output.resourceType}"));
         float seasonalMultiplier = GetSeasonalMultiplier();
         if (seasonalMultiplier < 1.0f)
         {
-            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource} (reduced by {SeasonManager.Instance?.GetCurrentSeason()})");
+            Debug.Log($"{data.buildingName} produced {producedText} (reduced by {SeasonManager.Instance?.GetCurrentSeason()})");
         }
         else if (seasonalMultiplier > 1.0f)
         {
-            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource} (bonus from {SeasonManager.Instance?.GetCurrentSeason()})");
+            Debug.Log($"{data.buildingName} produced {producedText} (bonus from {SeasonManager.Instance?.GetCurrentSeason()})");
         }
         else
         {
-            Debug.Log($"{data.buildingName} produced {finalAmount} {data.producedResource}");
+            Debug.Log($"{data.buildingName} produced {producedText}");
         }
     }
 

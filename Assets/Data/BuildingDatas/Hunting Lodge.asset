@@ -10,24 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1020731d720ae548ba6fa48f8df179c, type: 3}
-  m_Name: Shipyard
+  m_Name: Hunting Lodge
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: Shipyard
-  buildingType: 12
+  buildingName: Hunting Lodge
+  buildingType: 17
   buildingSprite: {fileID: 21300000, guid: 57d8c36743bdcb042b300893e755e3c0, type: 3}
-  woodCost: 20
-  stoneCost: 10
-  ironCost: 8
-  constructionTime: 4
-  assignedJobType: 7
-  maxWorkers: 4
+  woodCost: 6
+  stoneCost: 4
+  ironCost: 0
+  constructionTime: 1.5
+  assignedJobType: 10
+  maxWorkers: 2
   productionType: 0
   resourceOutputs:
-  - resourceType: 10
-    amount: 1
-  productionRate: 0.3
-  producedResource: 10
-  productionAmount: 1
+  - resourceType: 16
+    amount: 8
+  - resourceType: 17
+    amount: 4
+  productionRate: 1
+  producedResource: 11
+  productionAmount: 4
   craftingRecipe:
     inputResources: []
     outputResource: 0
@@ -37,26 +39,26 @@ MonoBehaviour:
   levels:
   - level: 1
     upgradeCost: []
-    maxWorkers: 4
+    maxWorkers: 2
     productionMultiplier: 1
     populationCapBonus: 0
   - level: 2
     upgradeCost: []
-    maxWorkers: 4
+    maxWorkers: 2
     productionMultiplier: 1
     populationCapBonus: 0
   - level: 3
     upgradeCost: []
-    maxWorkers: 4
+    maxWorkers: 2
     productionMultiplier: 1
     populationCapBonus: 0
   - level: 4
     upgradeCost: []
-    maxWorkers: 4
+    maxWorkers: 2
     productionMultiplier: 1
     populationCapBonus: 0
   - level: 5
     upgradeCost: []
-    maxWorkers: 4
+    maxWorkers: 2
     productionMultiplier: 1
     populationCapBonus: 0

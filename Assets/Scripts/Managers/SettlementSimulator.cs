@@ -111,8 +111,10 @@ public static class SettlementSimulator
         var producedResourceTypes = new HashSet<ResourceType>(
             buildingRoster.Where(kvp => kvp.Value.Count > 0)
                 .Select(kvp => kvp.Key.data)
-                .Where(d => d != null && d.productionType == ProductionType.ResourceGathering && d.producedResource != ResourceType.None)
-                .Select(d => d.producedResource));
+                .Where(d => d != null && d.productionType == ProductionType.ResourceGathering && d.resourceOutputs != null)
+                .SelectMany(d => d.resourceOutputs)
+                .Select(o => o.resourceType)
+                .Where(rt => rt != ResourceType.None));
 
         // Deferred skill-gain bookkeeping — completions are tallied here and applied once, atomically, by
         // the caller (RaidManager.ApplySettlementReport), never mutated live from inside this loop.
@@ -216,14 +218,17 @@ public static class SettlementSimulator
 
                 if (completions <= 0) continue;
 
-                if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
+                if (data.productionType == ProductionType.ResourceGathering && data.resourceOutputs != null && data.resourceOutputs.Count > 0)
                 {
                     float seasonalMult = SeasonManager.Instance != null
                         ? SeasonManager.Instance.GetProductionMultiplierForDayOffset(data.buildingType, dayIndex)
                         : 1f;
-                    int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
-                        data.producedResource, data.productionAmount, seasonalMult, gefjonActive, gefjonFoodPct);
-                    report.resourceChanges[data.producedResource] += perCompletion * completions;
+                    foreach (var resourceOutput in data.resourceOutputs)
+                    {
+                        int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
+                            resourceOutput.resourceType, resourceOutput.amount, seasonalMult, gefjonActive, gefjonFoodPct);
+                        report.resourceChanges[resourceOutput.resourceType] += perCompletion * completions;
+                    }
                 }
                 else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
                 {
@@ -416,14 +421,17 @@ public static class SettlementSimulator
 
                 if (completions <= 0) continue;
 
-                if (data.productionType == ProductionType.ResourceGathering && data.producedResource != ResourceType.None)
+                if (data.productionType == ProductionType.ResourceGathering && data.resourceOutputs != null && data.resourceOutputs.Count > 0)
                 {
                     float seasonalMult = SeasonManager.Instance != null
                         ? SeasonManager.Instance.GetProductionMultiplierForDayOffset(data.buildingType, dayIndex)
                         : 1f;
-                    int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
-                        data.producedResource, data.productionAmount, seasonalMult, gefjonActive, gefjonFoodPct);
-                    report.resourceChanges[data.producedResource] += perCompletion * completions;
+                    foreach (var resourceOutput in data.resourceOutputs)
+                    {
+                        int perCompletion = SettlementFormulas.GetResourceGatheringOutputPerCompletion(
+                            resourceOutput.resourceType, resourceOutput.amount, seasonalMult, gefjonActive, gefjonFoodPct);
+                        report.resourceChanges[resourceOutput.resourceType] += perCompletion * completions;
+                    }
                 }
                 else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
                 {

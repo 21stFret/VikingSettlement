@@ -22,6 +22,9 @@ MonoBehaviour:
   assignedJobType: 5
   maxWorkers: 3
   productionType: 0
+  resourceOutputs:
+  - resourceType: 4
+    amount: 5
   producedResource: 4
   productionRate: 0.7
   productionAmount: 5

@@ -226,7 +226,7 @@ public class BuildingInfoPanel : MonoBehaviour
         }
 
         // Production info
-        bool producesResources = currentBuilding.data.producedResource != ResourceType.None;
+        bool producesResources = currentBuilding.data.resourceOutputs != null && currentBuilding.data.resourceOutputs.Count > 0;
 
         if (productionSection != null)
             productionSection.SetActive(producesResources);
@@ -353,19 +353,19 @@ public class BuildingInfoPanel : MonoBehaviour
             
             if (currentBuilding.data.productionType == ProductionType.ResourceGathering)
             {
-                string info = $"Produces: {currentBuilding.adjustedProductionAmount} {currentBuilding.data.producedResource}";
-                productionInfoText.text = info;
+                var outputs = currentBuilding.adjustedProductionAmounts;
+                string outputList = string.Join(", ", outputs.Select(o => $"{o.amount} {o.resourceType}"));
+                productionInfoText.text = $"Produces: {outputList}";
 
                 if (productionAmountText != null)
                 {
-                    productionAmountText.text = $"+ {currentBuilding.adjustedProductionAmount}";
+                    productionAmountText.text = "+ " + string.Join(", ", outputs.Select(o => $"{o.amount}"));
                 }
 
-                
-                // Update resource icon
-                if (resourceGeneratedIcon != null)
+                // Update resource icon (shows the first output resource)
+                if (resourceGeneratedIcon != null && outputs.Count > 0)
                 {
-                    Sprite icon = IconManager.Instance.GetIconForResource(currentBuilding.data.producedResource);
+                    Sprite icon = IconManager.Instance.GetIconForResource(outputs[0].resourceType);
                     resourceGeneratedIcon.sprite = icon;
                 }
             }
@@ -629,7 +629,7 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         if (currentBuilding == null) return;
 
-        bool producesResources = currentBuilding.data.producedResource != ResourceType.None;
+        bool producesResources = currentBuilding.data.resourceOutputs != null && currentBuilding.data.resourceOutputs.Count > 0;
 
         if (producesResources && !currentBuilding.needsRepair)
         {

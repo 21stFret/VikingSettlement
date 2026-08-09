@@ -24,16 +24,18 @@ Village management spans three linked systems: **buildings** (production sites c
 | `woodCost`, `stoneCost`, `ironCost`, `constructionTime` | Placement cost (see construction gap below) |
 | `assignedJobType`, `maxWorkers` (default 1) | Worker-slot config |
 | `productionType` (`ResourceGathering` / `Crafting`) | Which production path `Building.UpdateProduction` runs |
-| `producedResource`, `productionRate`, `productionAmount` | Gathering-only output config |
+| `resourceOutputs` (list of `ResourceOutput { resourceType, amount }`), `productionRate` | Gathering-only output config — every entry in `resourceOutputs` pays out together on each shared production cycle (e.g. a Hunter's Lodge producing Meat + Pelts per completion) |
 | `craftingRecipe` (nested `CraftingRecipe` class) | Crafting-only: `inputResources` (list), `outputResource`, `outputAmount`, `craftingRate` |
 
-Example (`Farm.asset`): `woodCost=8, stoneCost=3, maxWorkers=3, producedResource=Wheat, productionRate=0.8, productionAmount=10`.
+Example (`Farm.asset`): `woodCost=8, stoneCost=3, maxWorkers=3, resourceOutputs=[{Wheat, 10}], productionRate=0.8`.
+
+Legacy assets that predate `resourceOutputs` still carry their old single `producedResource`/`productionAmount` values in hidden fields; `BuildingData.OnAfterDeserialize` migrates them into `resourceOutputs` automatically the first time the asset loads.
 
 There is no tier/upgrade system — every building is single-configuration.
 
 ### `Building` (MonoBehaviour instance)
 
-Key fields: `uniqueId` (GUID), `data` (BuildingData ref), `gridPosition`, `isConstructed`, `constructionProgress`, `productionProgress` (0–100), `adjustedProductionAmount` (seasonally-scaled, for UI), `needsRepair` + `repairCosts[]`, `assignedWorkers` (`List<Villager>`).
+Key fields: `uniqueId` (GUID), `data` (BuildingData ref), `gridPosition`, `isConstructed`, `constructionProgress`, `productionProgress` (0–100), `adjustedProductionAmounts` (seasonally-scaled, one entry per output resource, for UI), `needsRepair` + `repairCosts[]`, `assignedWorkers` (`List<Villager>`).
 
 **Production tick** — `UpdateProduction(deltaTime)` (`Building.cs:141-154`), called every fast-update tick from `SettlementManager.UpdateBuildingProduction`, guarded by `isConstructed && !needsRepair && assignedWorkers.Count > 0`:
 

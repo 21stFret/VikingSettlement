@@ -22,13 +22,18 @@ MonoBehaviour:
   assignedJobType: 8
   maxWorkers: 2
   productionType: 0
-  producedResource: 11
+  resourceOutputs:
+  - resourceType: 12
+    amount: 4
   productionRate: 0.9
+  producedResource: 11
   productionAmount: 4
   craftingRecipe:
-    inputResources: []
-    outputResource: 0
-    outputAmount: 1
+    inputResources:
+    - resourceType: 17
+      amount: 1
+    outputResource: 12
+    outputAmount: 2
     craftingRate: 1
   maxLevel: 5
   levels:
