@@ -697,9 +697,7 @@ public class CharacterBase : MonoBehaviour
         var villager = GetComponent<Villager>();
         if (villager != null)
         {
-            villager.skills.ImproveSkill(JobType.Warrior);
-            if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
-                villager.skills.ImproveSkill(JobType.Warrior);
+            villager.skills.ImproveJob(JobType.Warrior);
         }
     }
 
@@ -720,6 +718,13 @@ public class CharacterBase : MonoBehaviour
         Arrow arrow = Go.GetComponent<Arrow>();
         arrow.Initialize(weapon.strength, direction, (Vector2)transform.position, gameObject);
         weapon.TakeDurabilityDamage(1);
+
+        // Improve combat skill on every swing, for all factions
+        var villager = GetComponent<Villager>();
+        if (villager != null)
+        {
+            villager.skills.ImproveJob(JobType.Archer);
+        }
     }
 
     /// <summary>
@@ -799,6 +804,8 @@ public class CharacterBase : MonoBehaviour
         {
             float woundDmgPenaltyPct = WoundDatabase.TotalAttackDamagePenaltyPct(villager.activeWounds);
             damage *= (1f - woundDmgPenaltyPct / 100f);
+
+            damage *= villager.GetSkillMultiplier(JobType.Warrior);
         }
 
         target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);

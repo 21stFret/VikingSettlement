@@ -600,7 +600,7 @@ public class RaidManager : MonoBehaviour
             Villager v = SettlementManager.Instance.GetVillagerById(gain.villagerId);
             if (v == null || v.IsDead()) continue;
             for (int i = 0; i < gain.completions; i++)
-                v.skills.ImproveSkill(gain.jobType);
+                v.skills.ImproveJob(gain.jobType);
         }
 
         // Per-villager outcomes — report.villagerOutcomes only ever contains villagers the simulator

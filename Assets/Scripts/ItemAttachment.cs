@@ -12,6 +12,11 @@ public class ItemAttachment : MonoBehaviour
     [SerializeField] public GameObject weapon;
     [SerializeField] public GameObject torch;
 
+    [Header("Equipped Items")]
+    [SerializeField] public EquipableItem shieldItem;
+    [SerializeField] public EquipableItem weaponItem;
+    [SerializeField] public EquipableItem torchItem;
+
     [Header("Settings")]
     [SerializeField] private AttachmentPoint shieldAttachPoint = AttachmentPoint.LeftHand;
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
@@ -55,10 +60,11 @@ public class ItemAttachment : MonoBehaviour
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
+        shieldItem = newShield.GetComponent<EquipableItem>();   
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.shield = newShield.GetComponent<EquipableItem>();
+            CC.shield = shieldItem;
             CC.shield.isEquipped = true;
             CC.shield.OnBroken += ShieldDestroyed;
             (CC.AI as CombatAIBase)?.HandleShieldChanged(CC.shield);
@@ -107,6 +113,7 @@ public class ItemAttachment : MonoBehaviour
         }
 
         shield = null;
+        shieldItem = null;
         item?.NotifyUnequipped();
     }
 
@@ -155,6 +162,7 @@ public class ItemAttachment : MonoBehaviour
         {
             Destroy(shield);
             shield = null;
+            shieldItem = null;
         }
     }
 
@@ -162,15 +170,15 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
-        var equipable = newWeapon.GetComponent<EquipableItem>();
-        if (equipable != null)
+        weaponItem = newWeapon.GetComponent<EquipableItem>();
+        if (weaponItem != null)
         {
-            equipable.isEquipped = true;
+            weaponItem.isEquipped = true;
         }
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.weapon = equipable;
+            CC.weapon = weaponItem;
             CC.weapon.OnBroken += WeaponDestroyed;
             CC.attackTargetLayer |= LayerMask.GetMask("Grass");
         }
@@ -186,7 +194,7 @@ public class ItemAttachment : MonoBehaviour
 
     public void UnequipWeapon()
     {
-        var item = weapon.GetComponent<EquipableItem>();
+        var item = weaponItem;
         if (item != null)
         {
             item.isEquipped = false;
@@ -206,6 +214,7 @@ public class ItemAttachment : MonoBehaviour
         if (weapon != null)
         {
             weapon = null;
+            weaponItem = null;
         }
 
     }
@@ -218,7 +227,7 @@ public class ItemAttachment : MonoBehaviour
     {
         if (weapon == null) return;
 
-        var item = weapon.GetComponent<EquipableItem>();
+        var item = weaponItem;
 
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
@@ -400,11 +409,11 @@ public class ItemAttachment : MonoBehaviour
     {
         if(weapon != null)
         {
-            weapon.GetComponent<EquipableItem>().SetDurability(values.x);
+            weaponItem.SetDurability(values.x);
         }
         if(shield != null)
         {
-            shield.GetComponent<EquipableItem>().SetDurability(values.y);
+            shieldItem.SetDurability(values.y);
         }
     }
 }

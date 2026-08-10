@@ -311,7 +311,7 @@ public class Building : MonoBehaviour
         // Improve worker skills slightly on each completion
         foreach (var worker in assignedWorkers)
         {
-            worker.skills.ImproveSkill(data.assignedJobType);
+            worker.skills.ImproveJob(data.assignedJobType);
         }
 
         string producedText = string.Join(", ", adjustedProductionAmounts.Select((output, i) => $"{producedAmounts[i]} {output.resourceType}"));
@@ -368,7 +368,7 @@ public class Building : MonoBehaviour
         // Improve worker skills on each completion
         foreach (var worker in assignedWorkers)
         {
-            worker.skills.ImproveSkill(data.assignedJobType);
+            worker.skills.ImproveJob(data.assignedJobType);
         }
 
         Debug.Log($"{data.buildingName} crafted {outputAmount} {data.craftingRecipe.outputResource}");

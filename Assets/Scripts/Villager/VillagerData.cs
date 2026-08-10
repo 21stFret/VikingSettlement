@@ -48,7 +48,7 @@ public class VillagerSkills
         } 
     }
     
-    public void ImproveSkill(JobType jobType)
+    public void ImproveJob(JobType jobType)
     {
         float _localLearningRate = Mathf.Max(0.1f, learningRate * (intelligence / 10f));
         float amount = 0.05f * _localLearningRate; // Base improvement amount

@@ -91,11 +91,11 @@ public class EquipableItem : MonoBehaviour
         var villager = GetComponentInParent<Villager>();
         if (villager != null)
         {
-            villager.skills.ImproveSkill(JobType.Warrior);
+            villager.skills.ImproveJob(JobType.Warrior);
             var cc = GetComponentInParent<CharacterBase>();
             bool bonusXP = (cc != null && cc.isParrying) ||
                            (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid);
-            if (bonusXP) villager.skills.ImproveSkill(JobType.Warrior);
+            if (bonusXP) villager.skills.ImproveJob(JobType.Warrior);
         }
 
         if (IsShield)

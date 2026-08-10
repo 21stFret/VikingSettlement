@@ -245,7 +245,7 @@ public class Villager : TargetHealth
         if (currentJob == JobType.None || assignedBuilding == null) return;
 
         // Improve skill over time
-        skills.ImproveSkill(currentJob);
+        skills.ImproveJob(currentJob);
     }
 
     public void MakeASpeechComment()
@@ -774,8 +774,8 @@ public class Villager : TargetHealth
         Vector2 state = Vector2.zero;
         if(itemAttachment != null)
         {
-            state.x = itemAttachment.weapon != null ? itemAttachment.weapon.GetComponent<EquipableItem>().CurrentDurability : 0f;
-            state.y = itemAttachment.shield != null ? itemAttachment.shield.GetComponent<EquipableItem>().CurrentDurability : 0f;
+            state.x = itemAttachment.weapon != null ? itemAttachment.weaponItem.CurrentDurability : 0f;
+            state.y = itemAttachment.shield != null ? itemAttachment.shieldItem.CurrentDurability : 0f;
         }
         return state;
     }

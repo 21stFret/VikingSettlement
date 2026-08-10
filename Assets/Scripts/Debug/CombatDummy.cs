@@ -58,7 +58,7 @@ public class CombatDummy : MonoBehaviour
 
         if (_cc.itemAttachment.weapon != null)
         {
-            _cc.itemAttachment.EquipWeapon(_cc.itemAttachment.weapon.gameObject);
+            _cc.itemAttachment.EquipWeapon(_cc.itemAttachment.weapon);
         }
 
 

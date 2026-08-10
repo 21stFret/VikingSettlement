@@ -748,6 +748,87 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Grind",
+            "id": "4aaaaaa9-62c2-46c9-ba4a-5ce032b9035a",
+            "actions": [
+                {
+                    "name": "GrindWheelSpeedUp",
+                    "type": "Button",
+                    "id": "08df5243-b6ae-430e-a6c9-780811214845",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StartGrinding",
+                    "type": "Button",
+                    "id": "0430954e-5778-4011-86e1-4cd9380c918a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "50aec666-5361-4355-999e-a3bbaf954ca1",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GrindWheelSpeedUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ea740e6-b766-4b27-9bb6-a0290227a85b",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GrindWheelSpeedUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4896c47d-e08d-404a-80c5-3e83c39dbc67",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "42e397e8-ca94-4f1c-a0bf-77a7de0e11f9",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "629ea3fa-17e4-4aa2-907e-0943ee1cdd1f",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

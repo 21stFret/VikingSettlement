@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float wallSlotSpacing = 1f;
 
     // Input System
-    private PlayerInputActions inputActions;
+    public PlayerInputActions inputActions;
 
     private void Awake()
     {

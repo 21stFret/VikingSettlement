@@ -544,6 +544,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
         return new List<Villager>(allVillagers);
     }
 
+    public Villager GetCurrentJarl()
+    {
+        return allVillagers.FirstOrDefault(v => v.isJarl);
+    }
+
     public Villager GetVillagerById(string uniqueId)
     {
         foreach (var v in allVillagers)

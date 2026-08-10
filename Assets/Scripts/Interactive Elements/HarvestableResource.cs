@@ -104,7 +104,7 @@ public class HarvestableResource : TargetHealth
             if (SkillTreeManager.Instance != null && xpPerHarvest > 0)
                 SkillTreeManager.Instance.AddXP(xpPerHarvest);
 
-            attacker.skills.ImproveSkill(GetJobTypeForResource());
+            attacker.skills.ImproveJob(GetJobTypeForResource());
         }
 
         OnHit?.Invoke();
