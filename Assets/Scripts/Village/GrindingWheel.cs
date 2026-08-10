@@ -19,6 +19,7 @@ public class GrindingWheel : WorldInteractable, IClickable
     public float grindSpeed = 1.0f;
     public float grindIncrease = 1.0f;
     public float grindDrag = 1.0f;
+    private float baseDrag;
     public float grindMaxSpeed = 5.0f;
 
     public float grindEffectMin = 10.0f;
@@ -33,6 +34,7 @@ public class GrindingWheel : WorldInteractable, IClickable
     void Start()
     {
         grindSpeed = 0;
+        baseDrag = grindDrag;
     }
     
     void SetupInputs()
@@ -76,9 +78,12 @@ public class GrindingWheel : WorldInteractable, IClickable
                 if (villager != null)
                 {
                      villager.skills.ImproveJob(JobType.Smith);
+                    if (villager.itemAttachment.weaponItem == null)
+                        return;
                     if(villager.itemAttachment.weaponItem.CurrentDurability < villager.itemAttachment.weaponItem.maxDurability)
                     {
                         int restoreAmount = Mathf.CeilToInt(restoreRate * villager.GetSkillMultiplier(JobType.Smith));
+                        restoreAmount = Mathf.CeilToInt(restoreAmount * (1 + (grindSpeed / grindMaxSpeed)));
                         villager.itemAttachment.weaponItem.RestoreDurability(restoreAmount);
                         return;
                     }
@@ -106,7 +111,7 @@ public class GrindingWheel : WorldInteractable, IClickable
             {
                 isGrinding = true;
                 grindEffect.Play();
-                grindDrag *= 2.0f; // Increase drag while grinding
+                grindDrag = baseDrag * 2.0f; // Increase drag while grinding
             }
         }
 
@@ -116,7 +121,7 @@ public class GrindingWheel : WorldInteractable, IClickable
             {
                 isGrinding = false;
                 grindEffect.Stop();
-                grindDrag /= 2.0f;
+                grindDrag = baseDrag;
             }
         }
     }
@@ -141,6 +146,9 @@ public class GrindingWheel : WorldInteractable, IClickable
         {
             if(grindEffect.isPlaying)
                 grindEffect.Stop();
+
+            isGrinding = false;
+            grindDrag = baseDrag; // Reset drag when not grinding
         }
     }
 

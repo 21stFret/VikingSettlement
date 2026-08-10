@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Grinding Wheel
-  - Tag: Untagged
+  - Name: Main Camera
+  - Tag: MainCamera
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
