@@ -20,7 +20,7 @@ public class EquipablePickup : WorldInteractable
 
     public override string PromptLabel => item != null ? $"Press E to /n Pick up {item.itemName}" : base.PromptLabel;
 
-    public override void Interact()
+    public override void Interact(WorldInteractionZone zone = null)
     {
         if (item == null || item.isEquipped) return;
 
@@ -34,5 +34,5 @@ public class EquipablePickup : WorldInteractable
             attachment.SwapWeapon(gameObject);
     }
 
-    public override void Deselect() { }
+    public override void Deselect(WorldInteractionZone zone = null) { }
 }

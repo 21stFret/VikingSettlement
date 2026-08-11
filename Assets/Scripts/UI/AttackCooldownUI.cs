@@ -102,6 +102,7 @@ public class AttackCooldownUI : MonoBehaviour
             if(lowDurability) return; // Already in low durability state
             lowDurability = true;
             _redWarningCoroutine = StartCoroutine(RedWarning());
+            InfoPopupUI.Push("Weapon Durability Low!", "Your weapon is about to break! Repair it at the grindstone.", _trackedWeapon.itemSpriteRenderer.sprite);
         }
         else
         {

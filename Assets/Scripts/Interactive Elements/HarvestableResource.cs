@@ -24,7 +24,7 @@ public class HarvestableResource : TargetHealth
     public float preferredToolMultiplier = 2f;
 
     [Tooltip("Multiplier when using wrong tool")]
-    public float wrongToolMultiplier = 0.5f;
+    public float wrongToolMultiplier = 1f;
 
     [Header("Respawn Settings")]
     [Tooltip("Should this resource respawn after depletion?")]
@@ -156,6 +156,7 @@ public class HarvestableResource : TargetHealth
             //remove all whole numbers and leave only decimal
             int yield = Mathf.FloorToInt(actualYield);
             actualYield -= yield;
+
             return yield;
         }
         return 0;

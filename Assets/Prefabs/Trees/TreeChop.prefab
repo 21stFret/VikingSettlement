@@ -5503,13 +5503,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 509106d4899ea05459e8d2d1ee88ec75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TreeResource
-  maxHealth: 5
+  maxHealth: 20
   currentHealth: 0
   resourceType: 3
   baseYield: 1
   preferredTool: 2
-  preferredToolMultiplier: 1
-  wrongToolMultiplier: 0.5
+  preferredToolMultiplier: 2
+  wrongToolMultiplier: 1
   canRespawn: 0
   respawnTime: 120
   xpPerHarvest: 5

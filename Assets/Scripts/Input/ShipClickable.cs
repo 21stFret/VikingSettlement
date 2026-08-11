@@ -50,13 +50,13 @@ public class ShipClickable : WorldInteractable, IClickable
         MouseInputController.UnregisterClickable(this);
     }
 
-    public override void Interact()
+    public override void Interact(WorldInteractionZone zone = null)
     {
         OpenRaidUI();
         PlayerController.Instance?.SetInputEnabled(false);
     }
 
-    public override void Deselect()
+    public override void Deselect(WorldInteractionZone zone = null)
     {
         raidUIPanel.CloseRaidUI();
         PlayerController.Instance?.SetInputEnabled(true);

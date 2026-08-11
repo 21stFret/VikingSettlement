@@ -477,7 +477,7 @@ public class BuildingInfoPanel : MonoBehaviour
             
             if (currentBuilding.assignedWorkers.Count == 0)
             {
-                estimatedTimeText.text = "No workers assigned";
+                estimatedTimeText.text = "No workers";
             }
             else if (float.IsInfinity(timeToComplete))
             {

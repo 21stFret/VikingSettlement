@@ -647,6 +647,9 @@ MonoBehaviour:
   shield: {fileID: 0}
   weapon: {fileID: 0}
   torch: {fileID: 0}
+  shieldItem: {fileID: 0}
+  weaponItem: {fileID: 0}
+  torchItem: {fileID: 0}
   shieldAttachPoint: 0
   weaponAttachPoint: 1
   torchAttachPoint: 1
@@ -6820,7 +6823,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0.5}
-  m_Radius: 1.5
+  m_Radius: 1
 --- !u!114 &7544866169877163440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6833,6 +6836,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27e2f55739a0cb24ab5508fd686e8758, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldInteractionZone
+  interacting: 0
   interactionPrompt: {fileID: 5966646752779631406}
   promptText: {fileID: 674149325604950188}
 --- !u!1 &8653237410769646383

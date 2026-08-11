@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Camera controller that smoothly follows the player
@@ -26,6 +27,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float minZoom = 3f;
     [SerializeField] private float maxZoom = 10f;
     [SerializeField] private float zoomSpeed = 1f;
+    public bool zoomedIn;
 
     [Header("Look Through (Optional)")]
     [SerializeField] private bool allowLookThrough = false;
@@ -37,6 +39,8 @@ public class CameraController : MonoBehaviour
 
     private Camera cam;
     private float targetZoom;
+
+    public PixelPerfectCamera pixelPerfectCamera;
 
     private void Awake()
     {
@@ -177,6 +181,15 @@ public class CameraController : MonoBehaviour
         
         // Smoothly interpolate to target zoom
         cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, smoothSpeed);
+    }
+
+    public void ZoomIn()
+    {
+        DOTween.To(() => pixelPerfectCamera.assetsPPU, x => pixelPerfectCamera.assetsPPU = x, 128, 0.5f).SetEase(Ease.Linear);
+    }
+    public void ZoomOut()
+    {
+        DOTween.To(() => pixelPerfectCamera.assetsPPU, x => pixelPerfectCamera.assetsPPU = x, 64, 0.5f).SetEase(Ease.Linear);
     }
 
     /// <summary>

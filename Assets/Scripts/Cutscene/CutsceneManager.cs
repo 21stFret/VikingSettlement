@@ -313,9 +313,15 @@ namespace Cutscenes
             overriddenVillagers.Clear();
         }
 
-        private void ShowLetterbox(bool show)
+        public void ShowLetterbox(bool show)
         {
             if (letterboxTop == null && letterboxBottom == null) return;
+
+            // Hide UI
+            if (gameUICanvas != null)
+            {
+                gameUICanvas.enabled = !show;
+            }
 
             // Stop any existing animation
             if (letterboxCoroutine != null)

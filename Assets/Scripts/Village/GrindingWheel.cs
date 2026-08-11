@@ -1,3 +1,4 @@
+using Cutscenes;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -152,16 +153,20 @@ public class GrindingWheel : WorldInteractable, IClickable
         }
     }
 
-    public override void Interact()
+    public override void Interact(WorldInteractionZone zone = null)
     {
         SetupInputs();
         PlayerController.Instance?.SetInputEnabled(false);
+        CutsceneManager.Instance.ShowLetterbox(true);
+        CameraController.Instance.ZoomIn();
     }
 
-    public override void Deselect()
+    public override void Deselect(WorldInteractionZone zone = null)
     {
         ReturnInputs();
         PlayerController.Instance?.SetInputEnabled(true);
+        CutsceneManager.Instance.ShowLetterbox(false);
+        CameraController.Instance.ZoomOut();
     }
 
     public override void FocusPanel()

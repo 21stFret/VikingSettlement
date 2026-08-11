@@ -16,6 +16,7 @@ public class WorldInteractionZone : MonoBehaviour
     private readonly List<WorldInteractable> nearby = new List<WorldInteractable>();
     private WorldInteractable active;
     private PlayerInputActions inputActions;
+    public bool interacting;
 
     public GameObject interactionPrompt;
 
@@ -62,6 +63,8 @@ public class WorldInteractionZone : MonoBehaviour
     // auto-equipped, without ever firing a trigger-exit since it stays parented to the hand.
     private void Update()
     {
+        if(interacting) return;
+
         WorldInteractable nearest = GetNearest();
 
         interactionPrompt.SetActive(nearest != null);
@@ -74,12 +77,16 @@ public class WorldInteractionZone : MonoBehaviour
     {
         if (ctx.phase != InputActionPhase.Performed) return;
         if (PlayerController.Instance != null && !PlayerController.Instance.IsInputEnabled()) return;
+        if(interacting) return;
+        interacting = true;
+        promptText.text = "";
+        interactionPrompt.SetActive(false);
 
         WorldInteractable target = GetNearest();
         if (target == null) return;
 
         active = target;
-        target.Interact();
+        target.Interact(this);
 
         // Delay focus by one frame so the same A press doesn't immediately click
         // the first button that gets focused (EventSystem Submit fires same frame).
@@ -95,8 +102,9 @@ public class WorldInteractionZone : MonoBehaviour
     private void OnClosePanel(InputAction.CallbackContext ctx)
     {
         if (active == null) return;
-        active.Deselect();
+        active.Deselect(this);
         active = null;
+        interacting = false;
         UIFocus.Clear();
     }
 

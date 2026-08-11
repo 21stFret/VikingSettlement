@@ -66,15 +66,19 @@ public class QuestGiver : WorldInteractable, IClickable
         }
     }
 
-    public override void Interact()
+    public override void Interact(WorldInteractionZone zone = null)
     {
         OnClicked();
         PlayerController.Instance?.SetInputEnabled(false);
     }
 
-    public override void Deselect()
+    public override void Deselect(WorldInteractionZone zone = null)
     {
         PlayerController.Instance?.SetInputEnabled(true);
+        if(zone != null)
+        {
+            zone.interacting = false;
+        }
     }
 
 
@@ -107,6 +111,7 @@ public class QuestGiver : WorldInteractable, IClickable
                 reminderDialogue.lines = new DialogueLine[] { startDialogue.lines[startDialogue.lines.Length - 1] };
                 reminderDialogue.offersQuest = false;
                 DialogueManager.Instance.StartDialogue(reminderDialogue);
+                DialogueManager.Instance.OnDialogueEnded += () => Deselect();
             }
         }
     }

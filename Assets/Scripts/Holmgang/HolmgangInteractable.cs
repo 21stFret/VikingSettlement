@@ -41,13 +41,13 @@ public class HolmgangInteractable : WorldInteractable, IClickable
         holmgangUI?.Open();
     }
 
-    public override void Interact()
+    public override void Interact(WorldInteractionZone zone = null)
     {
         PlayerController.Instance?.SetInputEnabled(false);
         holmgangUI?.Open();
     }
 
-    public override void Deselect()
+    public override void Deselect(WorldInteractionZone zone = null)
     {
         holmgangUI?.Close();
     }
