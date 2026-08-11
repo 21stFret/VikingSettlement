@@ -29,13 +29,8 @@ public class GameOverScreen : MonoBehaviour
     [Header("Blackout")]
     [SerializeField] private float blackoutFadeDuration = 1.2f;
 
-    [Header("Burn Effect")]
-    [SerializeField] private float burnStartValue = 1.9f;
-    [SerializeField] private float burnEndValue   = 6.7f;
-    [SerializeField] private float burnDuration   = 2f;
-    [SerializeField] private Ease  burnEase       = Ease.OutQuad;
-
-    private static readonly int BurnRadiusId = Shader.PropertyToID("_BurnRadius");
+    public CanvasGroup textCanvas;
+    public float textFadeDuration = 2f;
 
     // Runtime instance — created from the renderer so the shared asset stays clean
     private Material _instanceMaterial;
@@ -65,9 +60,6 @@ public class GameOverScreen : MonoBehaviour
         gameObject.SetActive(true);
         SetButtonsInteractable(false);
 
-        if (_instanceMaterial != null)
-            _instanceMaterial.SetFloat(BurnRadiusId, burnStartValue);
-
         rootCanvasGroup.DOFade(1f, blackoutFadeDuration)
             .OnComplete(PlayBurnEffect);
     }
@@ -81,12 +73,11 @@ public class GameOverScreen : MonoBehaviour
         }
 
         DOTween.To(
-            () => _instanceMaterial.GetFloat(BurnRadiusId),
-            v  => _instanceMaterial.SetFloat(BurnRadiusId, v),
-            burnEndValue,
-            burnDuration
+            () => textCanvas.alpha,
+            v  => textCanvas.alpha = v,
+            1f,
+            textFadeDuration
         )
-        .SetEase(burnEase)
         .OnComplete(() => SetButtonsInteractable(true));
     }
 

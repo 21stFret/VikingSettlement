@@ -430,7 +430,7 @@ public class JarlManager : MonoBehaviour, ISaveable
     /// </summary>
     private void TriggerGameOver()
     {
-        Debug.LogError("The settlement has no one left to lead. Game Over.");
+        Debug.Log("The settlement has no one left to lead. Game Over.");
         isInSuccession = false;
         GameOverScreen.Instance?.Show();
     }

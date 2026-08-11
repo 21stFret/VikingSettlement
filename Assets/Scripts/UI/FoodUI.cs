@@ -32,7 +32,7 @@ public class FoodUI : MonoBehaviour
 
     public void UpdateFoodUI()
     {
-        requiredWoodText.text = "x" + SettlementManager.Instance.fishPerVillagerPerDay.ToString();
-        totalRequiredWoodText.text = "(" + SettlementManager.Instance.totalFishNeeded.ToString() + ")";
+        requiredWoodText.text = "x" + SettlementManager.Instance.foodPerVillagerPerDay.ToString();
+        totalRequiredWoodText.text = "(" + SettlementManager.Instance.totalFoodNeeded.ToString() + ")";
     }
 }

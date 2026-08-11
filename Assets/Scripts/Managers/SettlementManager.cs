@@ -47,8 +47,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
     private float countingAge;
 
     [Header("Food Consumption")]
-    public float fishPerVillagerPerDay = 1f;
-    public float totalFishNeeded = 0f;
+    public float foodPerVillagerPerDay = 1f;
+    public float totalFoodNeeded = 0f;
     [SerializeField] private HungerDistributionMode hungerMode = HungerDistributionMode.Prioritized;
     [Tooltip("Minimum health lost per starvation tick regardless of current health. Lower this for testing.")]
     [SerializeField] public float minStarvationDamage = 5f;
@@ -111,6 +111,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
         else
         {
             Debug.LogWarning("SettlementManager: JarlManager not found during Initialize!");
+        }
+        
+        foreach(Building building in allBuildings)
+        {
+            building.Init();
         }
     }
 
@@ -251,7 +256,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         averageAge = allVillagers.Count > 0 ? totalAge / allVillagers.Count : 0f;
     }
     
-    #region Food Consumption
+    #region Wood Consumption
 
     // Food and wood both consumed here — population resource drain is SettlementManager's responsibility
     private void HandleNewDay()
@@ -342,6 +347,10 @@ public class SettlementManager : MonoBehaviour, ISaveable
     }
     public bool IsSettlementWarm() => isSettlementWarm;
 
+    #endregion
+
+    #region Food Consumption
+
     /// <summary>
     /// Handles meal time event from DayNightManager
     /// </summary>
@@ -352,23 +361,26 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
         int villagerCount = allVillagers.Count;
         float rationingModifier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetFoodConsumptionModifier() : 0f;
-        float effectiveFishPerVillager = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerPerDay, rationingModifier);
+        float effectiveFoodPerVillager = SettlementFormulas.GetEffectiveFoodPerVillager(foodPerVillagerPerDay, rationingModifier);
 
-        totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(villagerCount, effectiveFishPerVillager);
+        totalFoodNeeded = SettlementFormulas.GetTotalFoodNeeded(villagerCount, effectiveFoodPerVillager);
 
-        if (totalFishNeeded <= 0)
+        if (totalFoodNeeded <= 0)
         {
             Debug.Log("No villagers to feed.");
             return;
         }
 
-        float availableFish = ResourceManager.Instance.GetResource(ResourceType.Fish);
+        int availableFish = (int)ResourceManager.Instance.GetResource(ResourceType.Fish);
+        int availableMeat = (int)ResourceManager.Instance.GetResource(ResourceType.Meat);
+        int availableBread = (int)ResourceManager.Instance.GetResource(ResourceType.Bread);
+        int totalFoodAvailable = availableFish + availableMeat + availableBread;
 
-        if (availableFish >= totalFishNeeded)
+        if (totalFoodAvailable >= totalFoodNeeded)
         {
-            // Enough fish - consume it
-            ResourceManager.Instance.SpendResource(ResourceType.Fish, totalFishNeeded);
-            Debug.Log($"Fed {villagerCount} villagers ({totalFishNeeded} fish consumed). Remaining fish: {ResourceManager.Instance.GetResource(ResourceType.Fish)}");
+            // Enough food - consume it
+            EqualyReduceFoodSupplies(availableFish, availableMeat, availableBread, (int)totalFoodNeeded);
+            Debug.Log($"Fed {villagerCount} villagers ({totalFoodNeeded} food consumed). \n Remaining fish: {ResourceManager.Instance.GetResource(ResourceType.Fish)}. \n Remaining meat: {ResourceManager.Instance.GetResource(ResourceType.Meat)}. \n Remaining bread: {ResourceManager.Instance.GetResource(ResourceType.Bread)}");
             // All villagers are fed
             foreach (var villager in allVillagers)
             {
@@ -377,18 +389,54 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
         else
         {
-            print($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
-
-            if (availableFish > 0)
-                ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
+            print($"Not enough fish! Need {totalFoodNeeded} but only have {totalFoodAvailable}. Villagers are hungry!");
+            ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
+            ResourceManager.Instance.SpendResource(ResourceType.Meat, availableMeat);
+            ResourceManager.Instance.SpendResource(ResourceType.Bread, availableBread);
 
             if (hungerMode == HungerDistributionMode.Shared)
-                ApplySharedHunger(availableFish, effectiveFishPerVillager);
+                ApplySharedHunger(totalFoodAvailable, effectiveFoodPerVillager);
             else
-                ApplyPrioritizedHunger(availableFish, effectiveFishPerVillager);
+                ApplyPrioritizedHunger(totalFoodAvailable, effectiveFoodPerVillager);
         }
 
-        OnFoodConsumed?.Invoke(availableFish >= totalFishNeeded);
+        OnFoodConsumed?.Invoke(totalFoodAvailable >= totalFoodNeeded);
+    }
+
+    private void EqualyReduceFoodSupplies(int fish, int meat, int bread, int totalFoodRequired)
+    {
+        // Keep resource amounts in an array so we can cycle through them generically
+        ResourceType[] types = { ResourceType.Fish, ResourceType.Meat, ResourceType.Bread };
+        int[] amounts = { fish, meat, bread };
+
+        int startType = 0;
+
+        for (int i = 0; i < totalFoodRequired; i++)
+        {
+            bool foodConsumed = false;
+
+            // Try up to 3 resource types starting from the current cycle position
+            for (int attempt = 0; attempt < types.Length; attempt++)
+            {
+                int type = (startType + attempt) % types.Length;
+
+                if (amounts[type] > 0)
+                {
+                    ResourceManager.Instance.SpendResource(types[type], 1);
+                    amounts[type]--;
+                    foodConsumed = true;
+                    break;
+                }
+            }
+
+            if (!foodConsumed)
+            {
+                // All resources are exhausted, nothing left to spend
+                break;
+            }
+
+            startType = (startType + 1) % types.Length; // advance cycle for next unit of food
+        }
     }
 
     /// <summary>
@@ -997,7 +1045,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
             totalDeaths = data.stats.totalDeaths;
         }
 
-        totalFishNeeded = allVillagers.Count * fishPerVillagerPerDay;
+        totalFoodNeeded = allVillagers.Count * foodPerVillagerPerDay;
 
         // Refresh shadows to pick up newly spawned villagers.
         if (ShadowMaster.Instance != null)

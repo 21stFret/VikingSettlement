@@ -126,7 +126,7 @@ public static class SettlementSimulator
         if (DayNightManager.Instance == null)
             Debug.LogWarning("SettlementSimulator: DayNightManager unavailable, falling back to 120f day length.");
 
-        float fishPerVillagerBase = SettlementManager.Instance.fishPerVillagerPerDay;
+        float fishPerVillagerBase = SettlementManager.Instance.foodPerVillagerPerDay;
         float woodPerVillagerBase = SettlementManager.Instance.woodPerVillagerPerDay;
         HungerDistributionMode hungerMode = SettlementManager.Instance.GetHungerMode();
         float minStarvationDamage = SettlementManager.Instance.minStarvationDamage;
@@ -285,8 +285,8 @@ public static class SettlementSimulator
             }
 
             // ---- STEP D: FOOD / HUNGER ----
-            float effectiveFish = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerBase, rationingModifier);
-            float totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(population, effectiveFish);
+            float effectiveFish = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFishNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFish);
             if (totalFishNeeded > 0f)
             {
                 float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
@@ -454,8 +454,8 @@ public static class SettlementSimulator
             }
 
             // Food — deduct only, capped at what's available.
-            float effectiveFish = SettlementFormulas.GetEffectiveFishPerVillager(fishPerVillagerBase, rationingModifier);
-            float totalFishNeeded = SettlementFormulas.GetTotalFishNeeded(population, effectiveFish) * partialDay;
+            float effectiveFish = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFishNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFish) * partialDay;
             if (totalFishNeeded > 0f)
             {
                 float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);

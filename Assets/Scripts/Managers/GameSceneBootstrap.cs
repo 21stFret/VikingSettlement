@@ -61,7 +61,6 @@ public class GameSceneBootstrap : MonoBehaviour
         // Guarded on being in the actual game scene — the raid scene also carries a
         // GameSceneBootstrap (for its own camera/input/UI wiring) but has no VillagerSpawner of
         // its own, so this must never run there (see GameManager.InitializeGameAfterDelay).
-        JarlManager.Instance?.Init();
         bool isNewGame = isGameScene && !GameManager.Instance.ShouldLoadSave;
         if (isNewGame)
             VillagerSpawner.Instance?.SpawnInitialSettlement();

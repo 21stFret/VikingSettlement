@@ -76,15 +76,15 @@ public static class SettlementFormulas
     }
 
     // Mirrors SettlementManager.HandleMealTime
-    public static float GetEffectiveFishPerVillager(float fishPerVillagerPerDay, float rationingModifier)
-        => Mathf.Max(0f, fishPerVillagerPerDay + rationingModifier);
+    public static float GetEffectiveFoodPerVillager(float foodPerVillagerPerDay, float rationingModifier)
+        => Mathf.Max(0f, foodPerVillagerPerDay + rationingModifier);
 
-    public static float GetTotalFishNeeded(int villagerCount, float effectiveFishPerVillager)
-        => villagerCount * effectiveFishPerVillager;
+    public static float GetTotalFoodNeeded(int villagerCount, float effectiveFoodPerVillager)
+        => villagerCount * effectiveFoodPerVillager;
 
     // Mirrors ApplyPrioritizedHunger's fedCount calc
-    public static int GetFedCount(float availableFish, float fishPerVillager, int villagerCount)
-        => fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : villagerCount;
+    public static int GetFedCount(float availableFood, float foodPerVillager, int villagerCount)
+        => foodPerVillager > 0 ? Mathf.FloorToInt(availableFood / foodPerVillager) : villagerCount;
 
     public readonly struct HungerEffect
     {

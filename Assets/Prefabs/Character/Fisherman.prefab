@@ -10470,9 +10470,9 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 0
-  attackRange: 1.5
+  attackRange: 1.2
   damage: 2
-  attackCooldown: 1.5
+  attackCooldown: 0.5
   moveSpeed: 3
   chaseSpeed: 4
   wanderRadius: 5
@@ -10590,6 +10590,9 @@ MonoBehaviour:
   shield: {fileID: 0}
   weapon: {fileID: 0}
   torch: {fileID: 0}
+  shieldItem: {fileID: 0}
+  weaponItem: {fileID: 0}
+  torchItem: {fileID: 0}
   shieldAttachPoint: 0
   weaponAttachPoint: 1
   torchAttachPoint: 2

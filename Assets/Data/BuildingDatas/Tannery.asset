@@ -21,7 +21,7 @@ MonoBehaviour:
   constructionTime: 1.5
   assignedJobType: 8
   maxWorkers: 2
-  productionType: 0
+  productionType: 1
   resourceOutputs:
   - resourceType: 12
     amount: 4

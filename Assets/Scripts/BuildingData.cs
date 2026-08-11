@@ -196,4 +196,5 @@ public enum ResourceType
     Gold,
     Meat,
     Pelts,
+    Bread
 }

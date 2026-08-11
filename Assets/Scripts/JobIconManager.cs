@@ -23,6 +23,9 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite planksIcon;
     [SerializeField] private Sprite shieldIcon;
     [SerializeField] private Sprite honeyIcon;
+    [SerializeField] private Sprite meatIcon;
+    [SerializeField] private Sprite peltIcon;
+    [SerializeField] private Sprite leatherIcon;
 
     private void Awake()
     {
@@ -72,6 +75,9 @@ public class IconManager : MonoBehaviour
             case ResourceType.Planks: return planksIcon;
             case ResourceType.Shield: return shieldIcon;
             case ResourceType.Honey: return honeyIcon;
+            case ResourceType.Meat: return meatIcon;
+            case ResourceType.Pelts: return peltIcon;
+            case ResourceType.Leather: return leatherIcon;
             default: return null;
         }
     }

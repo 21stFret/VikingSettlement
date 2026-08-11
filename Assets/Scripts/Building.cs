@@ -71,6 +71,12 @@ public class Building : MonoBehaviour
         }
 
         worldUI.SetActive(false);
+
+    }
+
+    public void Init()
+    {
+        SetAdjustedProduction();
     }
     
     private void OnDestroy()
@@ -174,6 +180,18 @@ public class Building : MonoBehaviour
             worldUI.SetActive(false); // Hide UI when no workers are assigned
         }
     }
+
+    public void SetAdjustedProduction()
+    {
+        // Update adjusted production amounts for UI display
+        float seasonalMultiplier = GetSeasonalMultiplier();
+        adjustedProductionAmounts.Clear();
+        foreach (var output in data.resourceOutputs)
+        {
+            float amount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(output.amount * EffectiveProductionMultiplier * seasonalMultiplier));
+            adjustedProductionAmounts.Add(new ResourceOutput { resourceType = output.resourceType, amount = amount });
+        }
+    }
     
     /// <summary>
     /// Update production progress. Call this every frame or on ticks.
@@ -199,15 +217,6 @@ public class Building : MonoBehaviour
     private void UpdateResourceGathering(float deltaTime)
     {
         if (data.resourceOutputs == null || data.resourceOutputs.Count == 0) return; // Building doesn't produce anything
-
-        // Update adjusted production amounts for UI display
-        float seasonalMultiplier = GetSeasonalMultiplier();
-        adjustedProductionAmounts.Clear();
-        foreach (var output in data.resourceOutputs)
-        {
-            float amount = Mathf.Max(seasonalMultiplier > 0 ? 1 : 0, Mathf.Round(output.amount * EffectiveProductionMultiplier * seasonalMultiplier));
-            adjustedProductionAmounts.Add(new ResourceOutput { resourceType = output.resourceType, amount = amount });
-        }
 
         // Calculate total production speed based on workers and their skills
         float productionSpeed = GetProductionSpeed(data.productionRate);

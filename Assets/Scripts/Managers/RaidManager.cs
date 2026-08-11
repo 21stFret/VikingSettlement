@@ -261,6 +261,9 @@ public class RaidManager : MonoBehaviour
             return;
         }
 
+        JarlManager.Instance.Init();
+        JarlManager.Instance.SetJarl(playerControlled);
+
         PlayerController.Instance?.ClearRaidAllies();
         foreach (var villager in party)
         {
@@ -273,15 +276,6 @@ public class RaidManager : MonoBehaviour
                 PlayerController.Instance?.RegisterRaidAlly(ai);
             }
         }
-
-        var playerController = controllerOverride ?? PlayerController.Instance ?? FindAnyObjectByType<PlayerController>();
-        if (playerController != null)
-        {
-            playerController.SetControlTarget(playerControlled);
-            Debug.Log($"Player control set to {playerControlled.villagerName} for raid");
-        }
-        else
-            Debug.LogError("RaidManager.AssignPlayerControl: No PlayerController found in this scene!");
     }
 
     private void PauseSettlement()

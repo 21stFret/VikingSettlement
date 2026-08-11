@@ -20,8 +20,8 @@ MonoBehaviour:
   recommendedPartySize: 3
   enemyCount: 5
   enemyPrefabs:
-  - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
-  - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
+  - {fileID: 7555521055352246155, guid: 3587cad2be57f324d9872d36fd284e4c, type: 3}
+  - {fileID: 7555521055352246155, guid: 30f4056cb6664e04a93117aa22408a18, type: 3}
   spawnAll: 0
   lootTable:
   - resourceType: 15

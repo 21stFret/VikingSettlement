@@ -16,9 +16,11 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI buildingNameText;
     [SerializeField] private TextMeshProUGUI productionInfoText;
     [SerializeField] private TextMeshProUGUI productionAmountText;
+    [SerializeField] private TextMeshProUGUI productionAmountText2;
     [SerializeField] private TextMeshProUGUI consumeAmountText1;
     [SerializeField] private TextMeshProUGUI consumeAmountText2;
     [SerializeField] private Image resourceGeneratedIcon;
+    [SerializeField] private Image resourceGeneratedIcon2;
     [SerializeField] private Image resourceConsumedIcon1;
     [SerializeField] private Image resourceConsumedIcon2;
     [SerializeField] private Button closeBuildingPanelButton;
@@ -226,7 +228,7 @@ public class BuildingInfoPanel : MonoBehaviour
         }
 
         // Production info
-        bool producesResources = currentBuilding.data.resourceOutputs != null && currentBuilding.data.resourceOutputs.Count > 0;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count >0;
 
         if (productionSection != null)
             productionSection.SetActive(producesResources);
@@ -350,23 +352,37 @@ public class BuildingInfoPanel : MonoBehaviour
         {
             resourceConsumedIcon1.gameObject.SetActive(false);
             resourceConsumedIcon2.gameObject.SetActive(false);
-            
+            resourceGeneratedIcon2.gameObject.SetActive(false);
+
             if (currentBuilding.data.productionType == ProductionType.ResourceGathering)
             {
                 var outputs = currentBuilding.adjustedProductionAmounts;
                 string outputList = string.Join(", ", outputs.Select(o => $"{o.amount} {o.resourceType}"));
                 productionInfoText.text = $"Produces: {outputList}";
 
-                if (productionAmountText != null)
-                {
-                    productionAmountText.text = "+ " + string.Join(", ", outputs.Select(o => $"{o.amount}"));
-                }
-
                 // Update resource icon (shows the first output resource)
                 if (resourceGeneratedIcon != null && outputs.Count > 0)
                 {
-                    Sprite icon = IconManager.Instance.GetIconForResource(outputs[0].resourceType);
-                    resourceGeneratedIcon.sprite = icon;
+
+                    for (int i = 0; i < outputs.Count; i++)
+                    {
+                        Sprite icon = IconManager.Instance.GetIconForResource(outputs[i].resourceType);
+                        if(i==0)
+                        {
+                            resourceGeneratedIcon.sprite = icon;
+                            if (productionAmountText != null)
+                            {
+                                productionAmountText.text = "+ " + outputs[i].amount.ToString();
+                            }
+                        }
+                        if(i==1)
+                        {
+                            resourceGeneratedIcon2.gameObject.SetActive(true);
+                            resourceGeneratedIcon2.sprite = icon;
+                            productionAmountText2.text = "+ " + outputs[i].amount.ToString();
+                        }
+
+                    }
                 }
             }
             else if (currentBuilding.data.productionType == ProductionType.Crafting &&
