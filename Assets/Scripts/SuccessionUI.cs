@@ -103,7 +103,7 @@ public class SuccessionUI : MonoBehaviour
         }
 
         // Pause game
-        PauseManager.Instance?.EnterStrategicPause();
+        PauseManager.Instance?.EnterDialoguePause();
     }
 
     /// <summary>
@@ -120,7 +120,7 @@ public class SuccessionUI : MonoBehaviour
         HideAllCandidateItems();
 
         // Resume game
-        PauseManager.Instance?.ExitStrategicPause();
+        PauseManager.Instance?.ExitDialoguePause();
     }
 
     /// <summary>

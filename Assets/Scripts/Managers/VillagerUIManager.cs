@@ -5,8 +5,7 @@ using UnityEngine.UI;
 public class VillagerUIManager : MonoBehaviour
 {
     public VillagerListUI villagerListUI;
-    public GameObject villagerButtonGo;
-    public Button villagerButton;
+    public VillagerInfoPanel villagerInfoPanel;
     public Button closeBtn;
     private PlayerInputActions inputActions;
 
@@ -18,9 +17,7 @@ public class VillagerUIManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        villagerButton.onClick.AddListener(OnClick);
         closeBtn.onClick.AddListener(OnClick);
-
     }
 
     private void OnEnable()
@@ -45,22 +42,28 @@ public class VillagerUIManager : MonoBehaviour
 
     public void OnClick()
     {
-        if(villagerButtonGo.activeSelf)
-        {
-            villagerButtonGo.SetActive(false);
-            villagerListUI.gameObject.SetActive(true);
-            villagerListUI.OnOpen();
-            PlayerController.Instance?.SetInputEnabled(false);
-            GameTickManager.Instance?.PushUIPause();
-        }
-        else
-        {
-            villagerButtonGo.SetActive(true);
-            villagerListUI.OnClose();
-            villagerListUI.gameObject.SetActive(false);
-            PlayerController.Instance?.SetInputEnabled(true);
-            GameTickManager.Instance?.PopUIPause();
-        }
 
+    }
+
+    public void Open()
+    {
+        if (villagerListUI.gameObject.activeSelf) return;
+
+        villagerListUI.gameObject.SetActive(true);
+        villagerListUI.OnOpen();
+        villagerInfoPanel.ShowBlocker();
+        PlayerController.Instance?.SetInputEnabled(false);
+        GameTickManager.Instance?.PushUIPause();
+    }
+
+    public void Close()
+    {
+        if (!villagerListUI.gameObject.activeSelf) return;
+
+        villagerListUI.OnClose();
+        villagerListUI.gameObject.SetActive(false);
+        villagerInfoPanel.Hide();
+        PlayerController.Instance?.SetInputEnabled(true);
+        GameTickManager.Instance?.PopUIPause();
     }
 }

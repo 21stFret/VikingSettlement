@@ -61,6 +61,22 @@ public class MissionTrackerUI : MonoBehaviour
             UpdateDisplay();
     }
 
+    // ── Public API (for PlayerMenu's Quests tab) ─────────────────────────────
+    // Note: this panel is normally driven automatically by mission events (it shows
+    // itself on accept, hides itself when nothing is active). Open()/Close() just let
+    // the player pull it up/dismiss it manually from the menu on top of that.
+
+    public void Open()
+    {
+        if (MM != null) UpdateDisplay();
+        if (trackerPanel != null) trackerPanel.SetActive(true);
+    }
+
+    public void Close()
+    {
+        if (trackerPanel != null) trackerPanel.SetActive(false);
+    }
+
     private void UpdateDisplay()
     {
         foreach(var item in missionItems)

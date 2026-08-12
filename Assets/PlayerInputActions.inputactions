@@ -88,6 +88,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "TogglePlayerMenu",
+                    "type": "Button",
+                    "id": "981275ae-8f12-4527-9e04-8aea840240ef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ShieldWall",
                     "type": "Button",
                     "id": "1939b8f7-dd97-4fcf-b262-2186a4065399",
@@ -486,11 +495,22 @@
                 {
                     "name": "",
                     "id": "dd000759-6fb7-4103-a1d3-4f2c3c915441",
-                    "path": "<Keyboard>/tab",
+                    "path": "<Keyboard>/backquote",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "StrategicPause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8c3a7ec3-2178-4683-978c-83a46d960210",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TogglePlayerMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

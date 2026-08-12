@@ -57,6 +57,8 @@ public class VillagerInfoPanel : MonoBehaviour
     private Villager currentVillager;
 
     public Button closeButton;
+
+    public GameObject blocker;
     
     private void Start()
     {
@@ -72,10 +74,16 @@ public class VillagerInfoPanel : MonoBehaviour
         if (moraleBar != null) moraleBar.color = moraleColor;
         
         // Hide panel initially
-        gameObject.SetActive(false);
-        closeButton.onClick.AddListener(Hide);
+        //gameObject.SetActive(false);
+        //closeButton.onClick.AddListener(Hide);
     }
-    
+   
+    public void ShowBlocker()
+    {
+        blocker.gameObject.SetActive(true);
+        gameObject.SetActive(true);
+    }
+
     /// <summary>
     /// Display information for a specific villager
     /// </summary>
@@ -83,6 +91,7 @@ public class VillagerInfoPanel : MonoBehaviour
     {
         if (villager == null) return;
 
+        blocker.gameObject.SetActive(false);
         currentVillager = villager;
         gameObject.SetActive(true);
         UpdateDisplay();
@@ -113,7 +122,7 @@ public class VillagerInfoPanel : MonoBehaviour
                 "Unemployed" : currentVillager.currentJob.ToString();
 
         if (ageText != null)
-            ageText.text = currentVillager.age.ToString();
+            ageText.text = currentVillager.age.ToString("0");
 
         if(sexIcon != null)
             sexIcon.sprite = currentVillager.gender == Gender.Male? maleSymbol : femaleSymbol;

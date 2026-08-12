@@ -174,6 +174,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""TogglePlayerMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""981275ae-8f12-4527-9e04-8aea840240ef"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ShieldWall"",
                     ""type"": ""Button"",
                     ""id"": ""1939b8f7-dd97-4fcf-b262-2186a4065399"",
@@ -572,11 +581,22 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""dd000759-6fb7-4103-a1d3-4f2c3c915441"",
-                    ""path"": ""<Keyboard>/tab"",
+                    ""path"": ""<Keyboard>/backquote"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""StrategicPause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c3a7ec3-2178-4683-978c-83a46d960210"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TogglePlayerMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -930,6 +950,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_StrategicPause = m_Player.FindAction("StrategicPause", throwIfNotFound: true);
+        m_Player_TogglePlayerMenu = m_Player.FindAction("TogglePlayerMenu", throwIfNotFound: true);
         m_Player_ShieldWall = m_Player.FindAction("ShieldWall", throwIfNotFound: true);
         m_Player_SwapWeapon = m_Player.FindAction("SwapWeapon", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
@@ -1036,6 +1057,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_StrategicPause;
+    private readonly InputAction m_Player_TogglePlayerMenu;
     private readonly InputAction m_Player_ShieldWall;
     private readonly InputAction m_Player_SwapWeapon;
     private readonly InputAction m_Player_Interact;
@@ -1095,6 +1117,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/StrategicPause".
         /// </summary>
         public InputAction @StrategicPause => m_Wrapper.m_Player_StrategicPause;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/TogglePlayerMenu".
+        /// </summary>
+        public InputAction @TogglePlayerMenu => m_Wrapper.m_Player_TogglePlayerMenu;
         /// <summary>
         /// Provides access to the underlying input action "Player/ShieldWall".
         /// </summary>
@@ -1196,6 +1222,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started += instance.OnStrategicPause;
             @StrategicPause.performed += instance.OnStrategicPause;
             @StrategicPause.canceled += instance.OnStrategicPause;
+            @TogglePlayerMenu.started += instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.performed += instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.canceled += instance.OnTogglePlayerMenu;
             @ShieldWall.started += instance.OnShieldWall;
             @ShieldWall.performed += instance.OnShieldWall;
             @ShieldWall.canceled += instance.OnShieldWall;
@@ -1270,6 +1299,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started -= instance.OnStrategicPause;
             @StrategicPause.performed -= instance.OnStrategicPause;
             @StrategicPause.canceled -= instance.OnStrategicPause;
+            @TogglePlayerMenu.started -= instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.performed -= instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.canceled -= instance.OnTogglePlayerMenu;
             @ShieldWall.started -= instance.OnShieldWall;
             @ShieldWall.performed -= instance.OnShieldWall;
             @ShieldWall.canceled -= instance.OnShieldWall;
@@ -1516,6 +1548,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnStrategicPause(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "TogglePlayerMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTogglePlayerMenu(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "ShieldWall" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

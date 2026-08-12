@@ -76,16 +76,16 @@ public class DebugConsole : MonoBehaviour
             if (PauseManager.Instance != null &&
                 PauseManager.Instance.CurrentState == PauseManager.PauseState.Playing)
             {
-                PauseManager.Instance.EnterStrategicPause();
+                PauseManager.Instance.EnterDialoguePause();
                 pausedByConsole = true;
             }
         }
         else if (pausedByConsole)
         {
             if (PauseManager.Instance != null &&
-                PauseManager.Instance.CurrentState == PauseManager.PauseState.StrategicPause)
+                PauseManager.Instance.CurrentState == PauseManager.PauseState.DialoguePause)
             {
-                PauseManager.Instance.ExitStrategicPause();
+                PauseManager.Instance.ExitDialoguePause();
             }
             pausedByConsole = false;
         }

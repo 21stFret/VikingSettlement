@@ -101,30 +101,40 @@ public class SkillTreeUI : MonoBehaviour
     public void ToggleSkillTree()
     {
         if (skillTreePanel == null) return;
+        if (skillTreePanel.activeSelf) Close(); else Open();
+    }
 
-        bool show = !skillTreePanel.activeSelf;
-        skillTreePanel.SetActive(show);
+    // ── Public API (for PlayerMenu's Skills tab) ─────────────────────────────
 
-        if (show)
+    public void Open()
+    {
+        if (skillTreePanel == null || skillTreePanel.activeSelf) return;
+
+        skillTreePanel.SetActive(true);
+
+        if (!isInitialized)
         {
-            if (!isInitialized)
-            {
-                BuildTree();
-                isInitialized = true;
-            }
-            else
-            {
-                RefreshAllNodes();
-            }
-            UpdateXPDisplay(SkillTreeManager.Instance.CurrentXP);
-
-            GameTickManager.Instance?.PushUIPause();
+            BuildTree();
+            isInitialized = true;
         }
         else
         {
-            HideTooltip();
-            GameTickManager.Instance?.PopUIPause();
+            RefreshAllNodes();
         }
+
+        if (SkillTreeManager.Instance != null)
+            UpdateXPDisplay(SkillTreeManager.Instance.CurrentXP);
+
+        GameTickManager.Instance?.PushUIPause();
+    }
+
+    public void Close()
+    {
+        if (skillTreePanel == null || !skillTreePanel.activeSelf) return;
+
+        skillTreePanel.SetActive(false);
+        HideTooltip();
+        GameTickManager.Instance?.PopUIPause();
     }
 
     private void BuildTree()

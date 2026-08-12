@@ -119,17 +119,20 @@ public class InfoPopupUI : MonoBehaviour
     {
         if (_isOpen)
         {
-            ClosePopup();
+            Close();
         }
         else if (_queue.Count > 0)
         {
-            OpenPopup();
+            Open();
         }
     }
 
-    private void OpenPopup()
+    // ── Public API (for PlayerMenu's Notifications tab) ──────────────────────
+
+    /// <summary>Opens the popup for the current queued message, if any. No-op when the queue is empty.</summary>
+    public void Open()
     {
-        if (_queue.Count == 0) return;
+        if (_isOpen || _queue.Count == 0) return;
 
         _isOpen = true;
         ShowCurrentEntry();
@@ -140,8 +143,10 @@ public class InfoPopupUI : MonoBehaviour
         PlayerController.Instance?.SetInputEnabled(false);
     }
 
-    private void ClosePopup()
+    public void Close()
     {
+        if (!_isOpen) return;
+
         _isOpen = false;
         popupPanel.transform.DOScale(Vector3.zero, popupScaleDuration * 0.8f)
             .SetEase(Ease.InBack)
@@ -188,7 +193,7 @@ public class InfoPopupUI : MonoBehaviour
         else
         {
             // All read — close
-            ClosePopup();
+            Close();
             RefreshBadge();
         }
     }
