@@ -12,6 +12,8 @@ public class VillagerInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI jobText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI moraleText;
+    [SerializeField] private TextMeshProUGUI ageText;
+    [SerializeField] private Image sexIcon;
     
     [Header("Health/Morale Bars")]
     [SerializeField] private Image healthBar;
@@ -48,6 +50,9 @@ public class VillagerInfoPanel : MonoBehaviour
     [Header("Bar Colors")]
     [SerializeField] private Color healthColor = Color.green;
     [SerializeField] private Color moraleColor = Color.yellow;
+
+    public Sprite maleSymbol;
+    public Sprite femaleSymbol;
     
     private Villager currentVillager;
 
@@ -106,7 +111,13 @@ public class VillagerInfoPanel : MonoBehaviour
         if (jobText != null)
             jobText.text = currentVillager.currentJob == JobType.None ? 
                 "Unemployed" : currentVillager.currentJob.ToString();
-        
+
+        if (ageText != null)
+            ageText.text = currentVillager.age.ToString();
+
+        if(sexIcon != null)
+            sexIcon.sprite = currentVillager.gender == Gender.Male? maleSymbol : femaleSymbol;
+
         // Health and Morale
         if (healthText != null)
             healthText.text = $"Health: {currentVillager.currentHealth:F0}/{currentVillager.maxHealth:F0}";
