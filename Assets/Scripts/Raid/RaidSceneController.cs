@@ -312,6 +312,7 @@ public class RaidSceneController : MonoBehaviour
         Debug.Log($"VICTORY! Collected {collectedLoot.Count} loot items. Casualties: {casualties.Count}");
 
         OnRaidVictory?.Invoke();
+        CleanupLegRemnants();
 
         // Resolve this leg — player chooses Keep Sailing or Go Home next
         if (RaidManager.Instance != null)
@@ -348,12 +349,38 @@ public class RaidSceneController : MonoBehaviour
         raidActive = false;
 
         Debug.Log($"RETREAT! Collected {collectedLoot.Count} loot. Casualties: {casualties.Count}");
+        CleanupLegRemnants();
 
         // Resolve this leg — player chooses Keep Sailing or Go Home next
         if (RaidManager.Instance != null)
         {
             RaidManager.Instance.ResolveLeg(RaidResult.Retreat, collectedLoot, casualties);
         }
+    }
+
+    /// <summary>
+    /// Destroys leftover enemy corpses immediately when a leg resolves. Enemy.Die() only
+    /// schedules Destroy(gameObject, 5f) — a delayed self-destruct — so a corpse killed just
+    /// before the leg ends is often still alive (still ticking/tweening) when the player acts.
+    ///
+    /// "Keep Sailing" reloads this exact same scene (every raid destination shares one scene)
+    /// while the old instance is still alive — LoadingScreenManager holds allowSceneActivation
+    /// false for several seconds during the fade, so anything left running keeps running in the
+    /// background that whole time. A leftover corpse mid-fade (already observed logging a DOTween
+    /// "target destroyed" warning from its delayed-destroy timer) sitting through that window
+    /// froze the Editor solid on a chain hop (2026-08-11). Raid-party casualties are deliberately
+    /// left alone here — VillagerAIBase.Update() already no-ops once dead, and their Villager
+    /// reference/name needs to stay valid for the trip-summary screen, which can read it several
+    /// legs later.
+    /// </summary>
+    private void CleanupLegRemnants()
+    {
+        foreach (var enemy in spawnedEnemies)
+        {
+            if (enemy != null)
+                Destroy(enemy.gameObject);
+        }
+        spawnedEnemies.Clear();
     }
 
     #endregion

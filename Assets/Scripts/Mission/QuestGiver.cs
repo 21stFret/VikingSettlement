@@ -27,6 +27,8 @@ public class QuestGiver : WorldInteractable, IClickable
     public int ClickPriority => clickPriority;
     public bool IsClickable => CanInteract();
 
+    public override bool IsInteractable => CanInteract();
+
     /// <summary>
     /// Unique identifier for this quest giver (used by save system)
     /// </summary>
@@ -64,20 +66,30 @@ public class QuestGiver : WorldInteractable, IClickable
             MissionManager.Instance.OnMissionCompleted -= OnMissionCompleted;
             MissionManager.Instance.OnObjectiveUpdated -= OnObjectiveUpdated;
         }
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.OnDialogueEnded -= () => Deselect();
+        }
     }
 
     public override void Interact(WorldInteractionZone zone = null)
     {
         OnClicked();
         PlayerController.Instance?.SetInputEnabled(false);
+        base.Interact(zone);
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.OnDialogueEnded += () => Deselect();
+        }
     }
 
     public override void Deselect(WorldInteractionZone zone = null)
     {
         PlayerController.Instance?.SetInputEnabled(true);
-        if(zone != null)
+        base.Deselect();
+        if (DialogueManager.Instance != null)
         {
-            zone.interacting = false;
+            DialogueManager.Instance.OnDialogueEnded -= () => Deselect();
         }
     }
 
@@ -111,7 +123,6 @@ public class QuestGiver : WorldInteractable, IClickable
                 reminderDialogue.lines = new DialogueLine[] { startDialogue.lines[startDialogue.lines.Length - 1] };
                 reminderDialogue.offersQuest = false;
                 DialogueManager.Instance.StartDialogue(reminderDialogue);
-                DialogueManager.Instance.OnDialogueEnded += () => Deselect();
             }
         }
     }

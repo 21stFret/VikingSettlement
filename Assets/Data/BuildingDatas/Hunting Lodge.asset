@@ -24,9 +24,9 @@ MonoBehaviour:
   productionType: 0
   resourceOutputs:
   - resourceType: 16
-    amount: 8
-  - resourceType: 17
     amount: 4
+  - resourceType: 17
+    amount: 2
   productionRate: 1
   producedResource: 11
   productionAmount: 4

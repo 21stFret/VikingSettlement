@@ -28,6 +28,7 @@ public abstract class WorldInteractable : MonoBehaviour
     {
         if(CurrentZone != null) {
             CurrentZone.interacting = false;
+            CurrentZone.ShowPrompt();
             CurrentZone = null;
         }
     }

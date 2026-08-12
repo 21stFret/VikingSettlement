@@ -11,7 +11,7 @@ public class MissionManager : MonoBehaviour, ISaveable
     public static MissionManager Instance { get; private set; }
 
     [Header("Active Missions")]
-    [SerializeField] private List<ActiveMission> activeMissions = new List<ActiveMission>();
+    [SerializeField] public List<ActiveMission> activeMissions = new List<ActiveMission>();
     [SerializeField] private List<string> completedMissionIds = new List<string>();
 
     // Events
@@ -221,8 +221,14 @@ public class MissionManager : MonoBehaviour, ISaveable
                 if (mission.IsObjectiveComplete(i)) continue;
                 if (building.data == null || building.data.buildingType != template.targetBuildingType) continue;
 
-                mission.objectiveProgress[i] = template.targetAmount;
-                OnObjectiveUpdated?.Invoke(mission, i);
+                float currentAssigned = building.assignedWorkers.Count;
+                float previousAmount = mission.objectiveProgress[i];
+                mission.objectiveProgress[i] = Mathf.Min(currentAssigned, template.targetAmount);
+
+                if (Mathf.FloorToInt(mission.objectiveProgress[i]) != Mathf.FloorToInt(previousAmount))
+                {
+                    OnObjectiveUpdated?.Invoke(mission, i);
+                }
             }
         }
     }

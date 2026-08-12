@@ -19,6 +19,9 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
 
     public VillageArmoryManager villageArmoryManager;
 
+    public int startingWeaponsAmount;
+    public int startingShieldsAmount;
+
 
     private void Awake()
     {
@@ -31,10 +34,10 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             Destroy(gameObject);
             return;
         }
+    }
 
-        // Skip when a save is about to be loaded — LoadSaveData will populate the real
-        // armory a couple of frames later. Generating (and spawning) a throwaway armory
-        // here first just leaves orphaned duplicate props in the scene.
+    public void Init()
+    {
         bool willLoadSave = GameManager.Instance != null && GameManager.Instance.ShouldLoadSave;
         if (!willLoadSave)
             GenerateInitalArmory();
@@ -181,17 +184,18 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
 
     public void GenerateInitalArmory()
     {
-        int startingSize = 7;
-        for (int i = 0; i < startingSize; i++)
+        for (int i = 0; i < startingWeaponsAmount; i++)
         {
             var item = GetRandomWeapon();
             if (item != null) { AddItemToVillageArmory(item); }
         }
-        for (int i = 0; i < 2; i++)
+
+        for (int i = 0; i < startingShieldsAmount; i++)
         {
             var item = GetRandomShield(i);
             if (item != null) { AddItemToVillageArmory(item); }
         }
+
         print("Created new village armory as none existed.");
         if(villageArmoryManager != null)
         {
@@ -205,6 +209,14 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         EquipableItem newItem = CloneItem(item);
         villageArmory.Add(newItem);
         print($"Added {newItem.itemName} to the village armory.");
+        if(item.IsShield)
+        {
+           ResourceManager.Instance.AddResource(ResourceType.Shield, 1f);
+        }
+        if (item.IsWeapon)
+        {
+            ResourceManager.Instance.AddResource(ResourceType.Weapons, 1f);
+        }
     }
 
     /// <summary>

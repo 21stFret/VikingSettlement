@@ -5095,7 +5095,7 @@ MonoBehaviour:
   baseYield: 1
   preferredTool: 0
   preferredToolMultiplier: 2
-  wrongToolMultiplier: 0.5
+  wrongToolMultiplier: 1
   canRespawn: 1
   respawnTime: 60
   xpPerHarvest: 5
@@ -5105,3 +5105,4 @@ MonoBehaviour:
   OnHit:
     m_PersistentCalls:
       m_Calls: []
+  removeOnDeplete: 0

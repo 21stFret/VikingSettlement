@@ -122,6 +122,7 @@ public class Building : MonoBehaviour
         level++;
         OnLevelChanged?.Invoke(level);
         OnAnyBuildingUpgraded?.Invoke(this);
+        SetAdjustedProduction();
     }
 
     public void SetNeedsRepair(bool value)

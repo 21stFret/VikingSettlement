@@ -25,6 +25,7 @@ public class AttackCooldownUI : MonoBehaviour
     [Tooltip("Fallback sprite shown when no weapon is equipped.")]
     [SerializeField] private Sprite defaultWeaponSprite;
     private bool lowDurability = false;
+    public Image durFill;
 
     [Header("Timing")]
     [Tooltip("Seconds after the attack is ready before the indicator fades out.")]
@@ -93,11 +94,11 @@ public class AttackCooldownUI : MonoBehaviour
 
     }
 
-    private void OnWeaponDurability()
+    public void OnWeaponDurability()
     {
         if (_trackedWeapon == null) return;
-
-        if(_trackedWeapon.CurrentDurability <= 5)
+        durFill.fillAmount = (float)_trackedWeapon.CurrentDurability / (float)_trackedWeapon.maxDurability;
+        if (_trackedWeapon.CurrentDurability <= 5)
         {
             if(lowDurability) return; // Already in low durability state
             lowDurability = true;

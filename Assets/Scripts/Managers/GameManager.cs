@@ -224,10 +224,28 @@ public class GameManager : MonoBehaviour
 
     private void LoadScene(string sceneName)
     {
+        StartCoroutine(LoadSceneDeferred(sceneName));
+    }
+
+    /// <summary>
+    /// See RaidManager.LoadSceneDeferred for why this defers a frame and uses an async fallback:
+    /// callers here are also invoked synchronously from inside a UI Button's click-processing
+    /// call stack, and LoadingScreenManager.Instance is null unless Play started from MainMenu.
+    /// </summary>
+    private System.Collections.IEnumerator LoadSceneDeferred(string sceneName)
+    {
+        yield return null;
+
         if (LoadingScreenManager.Instance != null)
+        {
             LoadingScreenManager.Instance.LoadScene(sceneName);
+        }
         else
-            SceneManager.LoadScene(sceneName);
+        {
+            Debug.LogWarning("GameManager.LoadScene: LoadingScreenManager.Instance is null (it only " +
+                "exists in the MainMenu scene) — falling back to an async load with no loading screen.");
+            SceneManager.LoadSceneAsync(sceneName);
+        }
     }
 
     /// <summary>

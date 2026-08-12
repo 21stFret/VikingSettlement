@@ -10,25 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a10ed6e0abf66e9428b8794a2c078015, type: 3}
-  m_Name: DemoMIssiob
+  m_Name: MakeShieldMission
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinitionSO
-  missionId: 1
-  title: Gather Wood
-  description: Chop trees marked with a red X to gather wood and repair the Lumber
-    Camp.
+  missionId: 2
+  title: Craft Shield
+  description: Make planks at the Saw Mill and then make a shield at the Blacksmith
+    to go raiding with.
   objectives:
   - type: 0
-    resourceType: 3
+    resourceType: 14
     targetBuildingType: 0
-    targetAmount: 10
-  - type: 3
-    resourceType: 3
+    targetAmount: 5
+  - type: 0
+    resourceType: 10
     targetBuildingType: 3
     targetAmount: 1
-  rewards:
-  - rewardType: 0
-    resourceType: 4
-    amount: 10
-    itemReward: {fileID: 0}
-  startDialogue: {fileID: 11400000, guid: f514e290ac671a64eb86f030290599b6, type: 2}
-  completionDialogue: {fileID: 11400000, guid: 5dcfe1117f78efa4781e8851e73c1d8f, type: 2}
+  rewards: []
+  startDialogue: {fileID: 11400000, guid: 9cd2dc01f8d9e5143a88058646eb9720, type: 2}
+  completionDialogue: {fileID: 11400000, guid: 00609cb729e386e4b81f556d9d1bb4c2, type: 2}

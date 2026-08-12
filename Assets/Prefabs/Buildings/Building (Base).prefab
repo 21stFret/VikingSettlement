@@ -120,8 +120,8 @@ Transform:
   m_GameObject: {fileID: 657463046458136018}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.1731, y: 1.5324, z: 0}
-  m_LocalScale: {x: 5.5174413, y: 2.847949, z: 1}
+  m_LocalPosition: {x: 0.1731, y: 1.4566, z: 0}
+  m_LocalScale: {x: 5.5174413, y: 2.9996803, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4621647562876464504}
@@ -647,7 +647,7 @@ MonoBehaviour:
   gridPosition: {x: 0, y: 0}
   isConstructed: 1
   productionProgress: 0
-  adjustedProductionAmount: 0
+  adjustedProductionAmounts: []
   worldUI: {fileID: 7052376606316233473}
   liveProgressBar: {fileID: 6970300472084314237}
   startsDamaged: 0

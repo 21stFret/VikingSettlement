@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -477,10 +478,36 @@ public class RaidManager : MonoBehaviour
 
     private void LoadScene(string sceneName)
     {
+        StartCoroutine(LoadSceneDeferred(sceneName));
+    }
+
+    /// <summary>
+    /// Every caller of LoadScene() is invoked synchronously from inside a UI Button's own
+    /// click-processing call stack (EventSystem.Update -> InputSystemUIInputModule.Process ->
+    /// Button.OnPointerClick -> ... -> here). LoadingScreenManager only exists in the MainMenu
+    /// scene, so if Play was started directly in a gameplay scene (skipping MainMenu),
+    /// LoadingScreenManager.Instance is null for the whole session and this used to fall back to
+    /// a synchronous SceneManager.LoadScene() call made mid-click. Synchronously reloading the
+    /// very scene that owns the EventSystem/input module still executing on the stack — as
+    /// happens on a same-scene raid-chain hop, since every raid destination shares one scene —
+    /// froze the Editor solid (2026-08-11). The single-frame yield here guarantees neither branch
+    /// below ever runs inside that call stack, and the fallback is async instead of blocking.
+    /// </summary>
+    private IEnumerator LoadSceneDeferred(string sceneName)
+    {
+        yield return null;
+
         if (LoadingScreenManager.Instance != null)
+        {
             LoadingScreenManager.Instance.LoadScene(sceneName);
+        }
         else
-            SceneManager.LoadScene(sceneName);
+        {
+            Debug.LogWarning("RaidManager.LoadScene: LoadingScreenManager.Instance is null (it only " +
+                "exists in the MainMenu scene — Play was likely started directly in a gameplay scene) " +
+                "— falling back to an async load with no loading screen.");
+            SceneManager.LoadSceneAsync(sceneName);
+        }
     }
 
     #endregion

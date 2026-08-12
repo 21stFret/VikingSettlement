@@ -645,7 +645,7 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         if (currentBuilding == null) return;
 
-        bool producesResources = currentBuilding.data.resourceOutputs != null && currentBuilding.data.resourceOutputs.Count > 0;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0;
 
         if (producesResources && !currentBuilding.needsRepair)
         {

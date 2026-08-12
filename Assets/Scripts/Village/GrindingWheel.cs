@@ -1,4 +1,5 @@
 using Cutscenes;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,11 +32,13 @@ public class GrindingWheel : WorldInteractable, IClickable
 
     public float restoreRate = 1.0f;
 
+    public CanvasGroup canvasGroup;
 
     void Start()
     {
         grindSpeed = 0;
         baseDrag = grindDrag;
+        canvasGroup.alpha = 0;
     }
     
     void SetupInputs()
@@ -46,6 +49,7 @@ public class GrindingWheel : WorldInteractable, IClickable
         actions.Grind.StartGrinding.canceled += OnGrinding;
         actions.Player.Disable();
         actions.Grind.Enable();
+        canvasGroup.DOFade(1, 1f);
     }
 
     void ReturnInputs()
@@ -56,6 +60,7 @@ public class GrindingWheel : WorldInteractable, IClickable
         actions.Grind.StartGrinding.canceled -= OnGrinding;
         actions.Grind.Disable();
         actions.Player.Enable();
+        canvasGroup.DOFade(0, 1f);
     }
 
     // Update is called once per frame

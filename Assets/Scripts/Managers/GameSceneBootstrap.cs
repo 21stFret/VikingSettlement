@@ -48,6 +48,7 @@ public class GameSceneBootstrap : MonoBehaviour
             // ──────────────────────────────────────────────────────────────────────────
 
             SettlementManager.Instance?.Initialize();
+            WeaponDatabase.Instance.Init();
             MissionManager.Instance?.Initialize();
         }
 

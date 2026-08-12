@@ -150,6 +150,7 @@ public class EquipableItem : MonoBehaviour
     {
         if (maxDurability <= 0) return;
         currentDurability = Mathf.Min(maxDurability, currentDurability + amount);
+        AttackCooldownUI.Instance?.OnWeaponDurability();
     }
 
     public void SetDurability(float amount)

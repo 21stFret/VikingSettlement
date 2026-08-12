@@ -10,25 +10,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a10ed6e0abf66e9428b8794a2c078015, type: 3}
-  m_Name: DemoMIssiob
+  m_Name: FishMission
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinitionSO
-  missionId: 1
-  title: Gather Wood
-  description: Chop trees marked with a red X to gather wood and repair the Lumber
-    Camp.
+  missionId: 3
+  title: Fishing Time!
+  description: Repair and assign some fishermen so the village doesn't starve!
   objectives:
   - type: 0
-    resourceType: 3
+    resourceType: 2
     targetBuildingType: 0
-    targetAmount: 10
+    targetAmount: 20
+  - type: 4
+    resourceType: 2
+    targetBuildingType: 2
+    targetAmount: 2
   - type: 3
-    resourceType: 3
-    targetBuildingType: 3
+    resourceType: 2
+    targetBuildingType: 2
     targetAmount: 1
   rewards:
   - rewardType: 0
-    resourceType: 4
+    resourceType: 2
     amount: 10
     itemReward: {fileID: 0}
-  startDialogue: {fileID: 11400000, guid: f514e290ac671a64eb86f030290599b6, type: 2}
-  completionDialogue: {fileID: 11400000, guid: 5dcfe1117f78efa4781e8851e73c1d8f, type: 2}
+  startDialogue: {fileID: 11400000, guid: 4e08b01f54d32464a9966bb55a6a12ce, type: 2}
+  completionDialogue: {fileID: 11400000, guid: 96ee1cc2a73349143b43cb0cee4e37d9, type: 2}

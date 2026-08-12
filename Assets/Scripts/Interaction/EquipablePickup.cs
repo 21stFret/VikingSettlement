@@ -32,7 +32,10 @@ public class EquipablePickup : WorldInteractable
             attachment.SwapShield(gameObject);
         else if (item.IsWeapon)
             attachment.SwapWeapon(gameObject);
+
+        base.Interact(zone);
+        Deselect(zone);
     }
 
-    public override void Deselect(WorldInteractionZone zone = null) { }
+    public override void Deselect(WorldInteractionZone zone = null) {base.Deselect(zone);}
 }

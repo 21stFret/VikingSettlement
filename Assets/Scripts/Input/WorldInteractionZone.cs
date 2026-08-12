@@ -49,6 +49,7 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null && !nearby.Contains(interactable))
             nearby.Add(interactable);
+        ShowPrompt();
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -56,14 +57,12 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null)
             nearby.Remove(interactable);
+        ShowPrompt();
     }
 
-    // Re-evaluated every frame (rather than only on enter/exit) because an item's
-    // IsInteractable can flip — e.g. a weapon pickup becomes non-interactable the instant it's
-    // auto-equipped, without ever firing a trigger-exit since it stays parented to the hand.
-    private void Update()
+    public void ShowPrompt()
     {
-        if(interacting) return;
+        if (interacting) return;
 
         WorldInteractable nearest = GetNearest();
 
@@ -78,12 +77,13 @@ public class WorldInteractionZone : MonoBehaviour
         if (ctx.phase != InputActionPhase.Performed) return;
         if (PlayerController.Instance != null && !PlayerController.Instance.IsInputEnabled()) return;
         if(interacting) return;
-        interacting = true;
-        promptText.text = "";
-        interactionPrompt.SetActive(false);
 
         WorldInteractable target = GetNearest();
         if (target == null) return;
+
+        interacting = true;
+        promptText.text = "";
+        interactionPrompt.SetActive(false);
 
         active = target;
         target.Interact(this);
@@ -106,6 +106,7 @@ public class WorldInteractionZone : MonoBehaviour
         active = null;
         interacting = false;
         UIFocus.Clear();
+        ShowPrompt();
     }
 
     private WorldInteractable GetNearest()

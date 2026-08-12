@@ -1,6 +1,7 @@
 using System.Text;
 using TMPro;
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Simple HUD element that displays the currently active mission and objective progress.
@@ -9,93 +10,87 @@ public class MissionTrackerUI : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private GameObject trackerPanel;
-    [SerializeField] private TMP_Text missionTitleText;
-    [SerializeField] private TMP_Text objectivesText;
-
-    private ActiveMission trackedMission;
+    private List<MissionItemUI> missionItems = new List<MissionItemUI>();
     private StringBuilder sb = new StringBuilder();
+    private MissionManager MM;
 
     private void Start()
     {
         if (trackerPanel != null) trackerPanel.SetActive(false);
+        missionItems.Clear();
+        missionItems.AddRange(trackerPanel.GetComponentsInChildren<MissionItemUI>());
     }
 
     public void Init()
     {
         if (MissionManager.Instance != null)
         {
-            MissionManager.Instance.OnMissionAccepted += OnMissionAccepted;
-            MissionManager.Instance.OnMissionCompleted += OnMissionCompleted;
-            MissionManager.Instance.OnObjectiveUpdated += OnObjectiveUpdated;
+            MM = MissionManager.Instance;
+            MM.OnMissionAccepted += OnMissionAccepted;
+            MM.OnMissionCompleted += OnMissionCompleted;
+            MM.OnObjectiveUpdated += OnObjectiveUpdated;
         }
     }
 
     private void OnMissionAccepted(ActiveMission mission)
     {
-        trackedMission = mission;
         UpdateDisplay();
         if (trackerPanel != null) trackerPanel.SetActive(true);
     }
 
     private void OnMissionCompleted(ActiveMission mission)
     {
-        if (trackedMission == mission)
+        // Check if there's another active mission to track
+        if (MissionManager.Instance != null)
         {
-            trackedMission = null;
-
-            // Check if there's another active mission to track
-            if (MissionManager.Instance != null)
+            var active = MissionManager.Instance.GetActiveMissions();
+            if (active.Count > 0)
             {
-                var active = MissionManager.Instance.GetActiveMissions();
-                if (active.Count > 0)
-                {
-                    trackedMission = active[0];
-                    UpdateDisplay();
-                }
-                else
-                {
-                    if (trackerPanel != null) trackerPanel.SetActive(false);
-                }
+                UpdateDisplay();
+            }
+            else
+            {
+                if (trackerPanel != null) trackerPanel.SetActive(false);
             }
         }
+        
     }
 
     private void OnObjectiveUpdated(ActiveMission mission, int objectiveIndex)
     {
-        if (trackedMission == mission)
-        {
             UpdateDisplay();
-        }
     }
 
     private void UpdateDisplay()
     {
-        if (trackedMission == null) return;
-
-        if (missionTitleText != null)
-        {
-            missionTitleText.text = trackedMission.definition.title;
+        foreach(var item in missionItems)
+        { 
+            item.gameObject.SetActive(false);
         }
 
-        if (objectivesText != null && trackedMission.definition.objectives != null)
+        for(int i = 0; i < MM.activeMissions.Count; i++)
         {
-            sb.Clear();
-            for (int i = 0; i < trackedMission.definition.objectives.Length; i++)
+            var item = missionItems[i];
+            var activemission = MM.activeMissions[i];
+            string objectivesList = "";
+            item.missionTitleText.text = activemission.definition.title;
+            item.missionInfoText.text = activemission.definition.description;
+            for(int j = 0; j< activemission.definition.objectives.Length; j++)
             {
-                if (i > 0) sb.Append("\n");
-
-                if (trackedMission.IsObjectiveComplete(i))
+                string objective = activemission.GetObjectiveDescription(j);
+                if(activemission.IsObjectiveComplete(j))
                 {
-                    sb.Append("<s>");
-                    sb.Append(trackedMission.GetObjectiveDescription(i));
-                    sb.Append("</s>");
+                    objective = $"<s>{objective}</s>";
                 }
-                else
+                objectivesList += objective;
+                if (j+1 <= activemission.definition.objectives.Length)
                 {
-                    sb.Append(trackedMission.GetObjectiveDescription(i));
+                    objectivesList += "\n";
                 }
             }
-            objectivesText.text = sb.ToString();
+            item.objectivesText.text = objectivesList;
+            item.gameObject.SetActive(true);
         }
+
     }
 }
