@@ -1,5 +1,11 @@
 using UnityEngine;
 
+public enum UIIcons
+{
+    Quest,
+    Notification
+}
+
 public class IconManager : MonoBehaviour
 {
     public static IconManager Instance { get; private set; }
@@ -27,6 +33,10 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite peltIcon;
     [SerializeField] private Sprite leatherIcon;
 
+    [Header("UI Icons")]
+    [SerializeField] private Sprite questIcon;
+    [SerializeField] private Sprite notificationIcon;
+
     private void Awake()
     {
         // Singleton pattern
@@ -53,6 +63,7 @@ public class IconManager : MonoBehaviour
             case JobType.Brewer: return craftingIcon;
             case JobType.Warrior: return combatIcon;
             case JobType.Archer: return combatIcon;
+            case JobType.Healer: return farmerIcon;
             default: return null;
         }
     }
@@ -79,6 +90,16 @@ public class IconManager : MonoBehaviour
             case ResourceType.Pelts: return peltIcon;
             case ResourceType.Leather: return leatherIcon;
             default: return null;
+        }
+    }
+
+    public Sprite GetUIcon(UIIcons type)
+    {
+        switch(type)
+        {
+            case UIIcons.Quest: return questIcon;
+            case UIIcons.Notification: return notificationIcon;
+            default : return null;
         }
     }
 }

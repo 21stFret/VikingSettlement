@@ -1,7 +1,8 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using UnityEngine;
+using UnityEngine.Analytics;
 
 [System.Serializable]
 public class DeathRecord
@@ -668,6 +669,14 @@ public class SettlementManager : MonoBehaviour, ISaveable
             }
         }
         return result;
+    }
+
+    public Villager GetMostWoundedVillager()
+    {
+        var sortedList = allVillagers.OrderBy(villager => villager.currentHealth).ToList();
+        if (sortedList.Count == 0) return null;
+        if (sortedList[0].currentHealth == sortedList[0].maxHealth) return null;
+        return sortedList[0];
     }
     
     /// <summary>

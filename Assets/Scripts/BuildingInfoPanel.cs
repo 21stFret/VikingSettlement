@@ -61,6 +61,13 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI combatText;
     [SerializeField] private TextMeshProUGUI MoraleText;
 
+    [Header("Healers Hut")]
+    [SerializeField] private GameObject healersSection;
+    [SerializeField] private TextMeshProUGUI currentHealingBonus;
+    [SerializeField] private Button removeWoundButton;
+
+
+
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
     
@@ -227,6 +234,15 @@ public class BuildingInfoPanel : MonoBehaviour
             return;
         }
 
+        if (currentBuilding.data.buildingType == BuildingType.HealersHut)
+        {
+            if (productionSection != null) productionSection.SetActive(false);
+            if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
+            if (workersSection != null) workersSection.SetActive(true);
+            UpdateHealersDisplay();
+            return;
+        }
+
         // Production info
         bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count >0;
 
@@ -270,6 +286,11 @@ public class BuildingInfoPanel : MonoBehaviour
         combatText.text = $"Overall combat level: {settlement.GetOverrallCombat().ToString("F1")}";
         populationText.text = $"Population: {settlement.GetPopulation()} / {settlement.GetMaxPopulation()}";
         MoraleText.text = $"Morale: {settlement.GetOverrallMorale().ToString("F1")}";
+    }
+
+    private void UpdateHealersDisplay()
+    {
+
     }
 
     /// <summary>

@@ -377,6 +377,9 @@ public class SaveManager : MonoBehaviour
         if (CompendiumManager.Instance != null && CompendiumManager.Instance is ISaveable compendium)
             compendium.PopulateSaveData(data);
 
+        if (InfoPopupUI.Instance != null && InfoPopupUI.Instance is ISaveable notifications)
+            notifications.PopulateSaveData(data);
+
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.PopulateSaveData(data);
 
@@ -411,6 +414,9 @@ public class SaveManager : MonoBehaviour
 
         if (CompendiumManager.Instance != null && CompendiumManager.Instance is ISaveable compendium)
             compendium.LoadSaveData(data);
+
+        if (InfoPopupUI.Instance != null && InfoPopupUI.Instance is ISaveable notifications)
+            notifications.LoadSaveData(data);
 
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.LoadSaveData(data);

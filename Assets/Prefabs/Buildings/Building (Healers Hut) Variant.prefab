@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &397914605623365272
+--- !u!1001 &885552071123400525
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -20,21 +20,29 @@ PrefabInstance:
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.x
       value: 0.49999237
       objectReference: {fileID: 0}
-    - target: {fileID: 1179716513412565429, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
-      propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.y
-      value: 0.49999237
+    - target: {fileID: 2281449425707703887, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 4.49
+      objectReference: {fileID: 0}
+    - target: {fileID: 2281449425707703887, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.84
       objectReference: {fileID: 0}
     - target: {fileID: 3894525254671563332, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_Name
-      value: Building (Quarry) Variant
+      value: Building (Healers Hut) Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4368312874655745160, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.495685
       objectReference: {fileID: 0}
     - target: {fileID: 5767284595684287826, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 21.32
+      value: -13.36775
       objectReference: {fileID: 0}
     - target: {fileID: 5767284595684287826, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 12.46
+      value: -11.497543
       objectReference: {fileID: 0}
     - target: {fileID: 5767284595684287826, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_LocalPosition.z
@@ -71,21 +79,47 @@ PrefabInstance:
     - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: data
       value: 
-      objectReference: {fileID: 11400000, guid: 9dd57173bae5958439303c05a8ae1929, type: 2}
+      objectReference: {fileID: 11400000, guid: 47ce0883af59cb345a2a782939ef7c24, type: 2}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: needsRepair
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: startsDamaged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: repairCosts.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: repairCosts.Array.data[0].amount
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: repairCosts.Array.data[1].amount
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: repairCosts.Array.data[2].amount
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5825500295878824298, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+      propertyPath: repairCosts.Array.data[2].resourceType
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 6420303475588420695, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 2100000, guid: fd26566d75f806e4189339b5f6fd5cdc, type: 2}
+      objectReference: {fileID: 21300000, guid: 0a4ccf3765e826c4a8ee2ba08b8f2455, type: 3}
     - target: {fileID: 9042851631511440765, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 27ba92e1e0bc96b409a94020d58fec8c, type: 2}
+      objectReference: {fileID: 2458084022906774127, guid: db6553b7fae2bb741b3f9da587f4bc54, type: 3}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5891477090639853370, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
+    - {fileID: 1905495137142634550, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0c47b4dd0780ac9428b2823e8d1d5a64, type: 3}

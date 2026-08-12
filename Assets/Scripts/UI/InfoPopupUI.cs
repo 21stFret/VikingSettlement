@@ -25,13 +25,12 @@ using UnityEngine.InputSystem;
 ///   - iconImage           : (optional) icon inside the popup
 ///   - nextButton          : "Next" / "OK" button inside the popup
 /// </summary>
-public class InfoPopupUI : MonoBehaviour
+public class InfoPopupUI : MonoBehaviour, ISaveable
 {
     public static InfoPopupUI Instance { get; private set; }
 
     [Header("Notification Button")]
     [SerializeField] private Button notificationButton;
-    [SerializeField] private GameObject badgeObject;
     [SerializeField] private TextMeshProUGUI badgeCountText;
 
     [Header("Popup Panel")]
@@ -49,7 +48,22 @@ public class InfoPopupUI : MonoBehaviour
     private readonly Queue<NotificationEntry> _queue = new Queue<NotificationEntry>();
     private bool _isOpen;
 
+    // ── Persisted history ────────────────────────────────────────────────────
+    // Every pushed notification (whether or not it carries a dedupe id) is kept
+    // here newest-first, saved via ISaveable so the player can browse it later
+    // from PlayerMenu's Notifications tab (see NotificationHistoryUI).
+    private readonly List<NotificationRecord> _history = new List<NotificationRecord>();
+    private readonly HashSet<string> _historyIds = new HashSet<string>();
+
+    /// <summary>Full notification history, newest first. Read-only for UI consumers.</summary>
+    public IReadOnlyList<NotificationRecord> History => _history;
+
     private PlayerInputActions inputActions;
+
+    private const string CyanHex = "#00FFFF";
+    private const string GoldHex = "#E6B800";
+    private const string PurpleHex = "#B24BF3";
+
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -69,10 +83,21 @@ public class InfoPopupUI : MonoBehaviour
         nextButton.onClick.AddListener(OnNextClicked);
 
         popupPanel.SetActive(false);
-        badgeObject.SetActive(false);
+        notificationButton.gameObject.SetActive(false);
+    }
 
-        Enqueue(new NotificationEntry("Welcome to Jarlborn", "Lead your settlement, feed your vikings with fish and gather wood survive the harsh winters ahead. Good luck, Jarl.", null));
-        Enqueue(new NotificationEntry("Raiding", "If you don't want to stay here and cut trees go raiding from your longship, bring back some loot. Good luck, Jarl.", null));
+    /// <summary>
+    /// Pushes the one-time intro/tutorial messages. Each carries a dedupe id, so once a
+    /// save file has seen them they will never queue again on a later load — call this
+    /// only after save data has been applied (or confirmed to be a fresh game), see
+    /// GameManager.InitializeGameAfterDelay.
+    /// </summary>
+    public void TryShowIntroSequence()
+    {
+        Push("Welcome to Jarlborn!", "Repair your settlement, keep your vikings alive and happy, gather resources to improve and get stronger! Prepare for the harsh winters ahead. All Father be with you Jarl!", null, "intro_welcome");
+        Push("Meal Time", $"At <color={PurpleHex}>Noon</color> every day you must  <color={CyanHex}>feed your villagers</color>. You can see the food cost in the top right. Food is taken from <color={GoldHex}>Fish, Meat & Bread.</color>", null, "intro_mealtime");
+        Push("Fire Time", $"At <color={PurpleHex}>Midnight</color> every night the  <color={CyanHex}>Fire</color> must be restocked with <color={GoldHex}>Wood</color> for the coming day. The <color={CyanHex}>Weather & Population</color> change the amount needed. ", null, "intro_firetime");
+        Push("Raiding", $"Once you are better equipped and know your village you should go <color={CyanHex}>Raiding</color>. Here you can earn <color={GoldHex}>Gold</color> to upgrade your village further.", null, "intro_raiding");
     }
 
     private void OnEnable()
@@ -89,11 +114,21 @@ public class InfoPopupUI : MonoBehaviour
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// <summary>Queues a notification. Badge will appear if the popup is not already open.</summary>
-    public static void Push(string title, string message, Sprite icon = null)
+    /// <summary>
+    /// Queues a notification. Badge will appear if the popup is not already open.
+    /// Every push is also recorded to the persisted history (see <see cref="History"/>).
+    /// Pass <paramref name="id"/> to make this a one-time notification: if a history entry
+    /// with the same id already exists (this session or from a loaded save), the call is a
+    /// silent no-op — no popup, no duplicate history entry. Leave it null for notifications
+    /// that are allowed to repeat (e.g. recurring warnings).
+    /// </summary>
+    public static void Push(string title, string message, Sprite icon = null, string id = null)
     {
         if (Instance == null) return;
+        if (!string.IsNullOrEmpty(id) && Instance._historyIds.Contains(id)) return;
+
         Instance.Enqueue(new NotificationEntry(title, message, icon));
+        Instance.AddToHistory(id, title, message);
     }
 
     // ── Internal ──────────────────────────────────────────────────────────────
@@ -105,6 +140,14 @@ public class InfoPopupUI : MonoBehaviour
 
         // If already open, just update the badge count — player will hit Next
         // If closed, the badge appearing is the prompt to open
+    }
+
+    private void AddToHistory(string id, string title, string message)
+    {
+        //_history.Insert(0, new NotificationRecord(id, title, message)); // newest-first
+        _history.Add(new NotificationRecord(id, title, message));
+        if (!string.IsNullOrEmpty(id))
+            _historyIds.Add(id);
     }
 
     public void GamepadInput(InputAction.CallbackContext ctx)
@@ -201,10 +244,36 @@ public class InfoPopupUI : MonoBehaviour
     private void RefreshBadge()
     {
         bool hasUnread = _queue.Count > 0;
-        badgeObject.SetActive(hasUnread);
+        notificationButton.gameObject.SetActive(hasUnread);
 
         if (badgeCountText != null)
             badgeCountText.text = _queue.Count.ToString();
+    }
+
+    // ── ISaveable ─────────────────────────────────────────────────────────────
+
+    public void PopulateSaveData(SaveData data)
+    {
+        var entries = new List<NotificationRecordSave>(_history.Count);
+        foreach (var record in _history)
+            entries.Add(new NotificationRecordSave { id = record.id, title = record.title, message = record.message });
+
+        data.notificationHistoryData = new NotificationHistorySaveData { entries = entries };
+    }
+
+    public void LoadSaveData(SaveData data)
+    {
+        _history.Clear();
+        _historyIds.Clear();
+
+        if (data.notificationHistoryData?.entries == null) return;
+
+        foreach (var entry in data.notificationHistoryData.entries)
+        {
+            _history.Add(new NotificationRecord(entry.id, entry.title, entry.message));
+            if (!string.IsNullOrEmpty(entry.id))
+                _historyIds.Add(entry.id);
+        }
     }
 
     // ── Data ──────────────────────────────────────────────────────────────────
@@ -221,5 +290,20 @@ public class InfoPopupUI : MonoBehaviour
             this.message = message;
             this.icon    = icon;
         }
+    }
+}
+
+/// <summary>A single persisted notification history entry (title + message only, no icon).</summary>
+public readonly struct NotificationRecord
+{
+    public readonly string id;
+    public readonly string title;
+    public readonly string message;
+
+    public NotificationRecord(string id, string title, string message)
+    {
+        this.id      = id;
+        this.title   = title;
+        this.message = message;
     }
 }

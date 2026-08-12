@@ -54,12 +54,21 @@ public class ShipClickable : WorldInteractable, IClickable
     {
         OpenRaidUI();
         PlayerController.Instance?.SetInputEnabled(false);
+        base.Interact(zone);
     }
 
     public override void Deselect(WorldInteractionZone zone = null)
     {
-        raidUIPanel.CloseRaidUI();
-        PlayerController.Instance?.SetInputEnabled(true);
+        CloseRaidUI();
+    }
+    public void CloseRaidUI()
+    {
+        if (raidUIPanel != null)
+        {
+            raidUIPanel.CloseRaidUI();
+            PlayerController.Instance?.SetInputEnabled(true);
+            base.Deselect();
+        }
     }
 
     public override void FocusPanel()
@@ -102,4 +111,6 @@ public class ShipClickable : WorldInteractable, IClickable
             //Debug.LogWarning("No raid UI panel assigned to ShipClickable!");
         }
     }
+
+
 }

@@ -239,5 +239,31 @@ public class CompendiumUI : MonoBehaviour
         UpdateProgressDisplay();
     }
 
+    public void Open()
+    {
+        if (compendiumPanel == null) return;
+
+        compendiumPanel.SetActive(true);
+        isInitialized = true;
+        BuildList();
+        UpdateProgressDisplay();
+
+        PlayerController.Instance?.SetInputEnabled(false);
+        GameTickManager.Instance?.PushUIPause();
+
+    }
+
+    public void Close()
+    {
+        if (compendiumPanel == null) return;
+
+        compendiumPanel.SetActive(false);
+        HideDetail();
+
+        GameTickManager.Instance?.PopUIPause();
+        PlayerController.Instance?.SetInputEnabled(true);
+
+    }
+
     #endregion
 }

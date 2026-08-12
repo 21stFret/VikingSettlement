@@ -12,7 +12,7 @@ using UnityEngine.UI;
 /// </summary>
 public class PlayerMenu : MonoBehaviour
 {
-    private enum Tab { None, Calendar, Resources, Villagers, Quests, Notifications, Skills }
+    private enum Tab { None, Calendar, Resources, Villagers, Quests, Notifications, Skills, Compendium }
 
     [SerializeField] private GameObject menuPanel;
 
@@ -23,8 +23,9 @@ public class PlayerMenu : MonoBehaviour
     // See PlayerMenu.OnResourcesTabClick().
     [SerializeField] private VillagerUIManager villagersPanel;
     [SerializeField] private MissionTrackerUI QuestsPanel;
-    [SerializeField] private InfoPopupUI notificationsPanel;
+    [SerializeField] private NotificationHistoryUI notificationsPanel;
     [SerializeField] private SkillTreeUI skillsPanel;
+    [SerializeField] private CompendiumUI compendiumPanel;
 
     [Header("Category Tabs")]
     [SerializeField] private Button calendarTabButton;
@@ -33,6 +34,7 @@ public class PlayerMenu : MonoBehaviour
     [SerializeField] private Button QuestsTabButton;
     [SerializeField] private Button notificationsTabButton;
     [SerializeField] private Button skillsTabButton;
+    [SerializeField] private Button compendiumTabButton;
 
     private Tab activeTab = Tab.None;
     private PlayerInputActions inputActions;
@@ -61,6 +63,7 @@ public class PlayerMenu : MonoBehaviour
         BindTab(QuestsTabButton, Tab.Quests);
         BindTab(notificationsTabButton, Tab.Notifications);
         BindTab(skillsTabButton, Tab.Skills);
+        BindTab(compendiumTabButton, Tab.Compendium);
 
         CloseAllPanels();
         CloseMenu();
@@ -100,6 +103,7 @@ public class PlayerMenu : MonoBehaviour
             case Tab.Quests: QuestsPanel?.Open(); break;
             case Tab.Notifications: notificationsPanel?.Open(); break;
             case Tab.Skills: skillsPanel?.Open(); break;
+            case Tab.Compendium: compendiumPanel?.Open(); break;
         }
     }
 
@@ -113,6 +117,7 @@ public class PlayerMenu : MonoBehaviour
             case Tab.Quests: QuestsPanel?.Close(); break;
             case Tab.Notifications: notificationsPanel?.Close(); break;
             case Tab.Skills: skillsPanel?.Close(); break;
+            case Tab.Compendium: compendiumPanel?.Close(); break;
         }
     }
 
@@ -123,6 +128,7 @@ public class PlayerMenu : MonoBehaviour
         QuestsPanel?.Close();
         notificationsPanel?.Close();
         skillsPanel?.Close();
+        compendiumPanel?.Close();
         activeTab = Tab.None;
     }
 

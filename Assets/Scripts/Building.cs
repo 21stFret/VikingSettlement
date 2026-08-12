@@ -359,15 +359,29 @@ public class Building : MonoBehaviour
     {
         // Produce output resource
         float outputAmount = data.craftingRecipe.outputAmount;
-        if(isForArmory(data.craftingRecipe.outputResource))
+        var outputItem = data.craftingRecipe.outputResource;
+        if (isForArmory(outputItem))
         {
             WeaponDatabase wd = WeaponDatabase.Instance;
-            wd.AddItemToVillageArmory(wd.GetItemByName(data.craftingRecipe.outputResource.ToString()));
+            wd.AddItemToVillageArmory(wd.GetItemByName(outputItem.ToString()));
             wd.villageArmoryManager.SpawnArmory();
         }
         else
         {
-            ResourceManager.Instance.AddResource(data.craftingRecipe.outputResource, outputAmount);
+            if(outputItem == ResourceType.Heal)
+            {
+                // Heal the most injured villager for building amount (1)
+                Villager hurt = SettlementManager.Instance.GetMostWoundedVillager();
+                if(hurt!=null)
+                {
+                    hurt.Heal(outputAmount);
+                }
+            }
+            else
+            {
+                ResourceManager.Instance.AddResource(data.craftingRecipe.outputResource, outputAmount);
+            }
+
         }
 
 

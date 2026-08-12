@@ -206,6 +206,14 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (isGameScene)
+        {
+            // Runs after LoadGame (continuing) or the placeholder SaveToCurrentSlot (new game)
+            // above, so InfoPopupUI's history is either fully loaded or confirmed empty —
+            // its id-based dedupe relies on that ordering to avoid re-showing intro messages.
+            InfoPopupUI.Instance?.TryShowIntroSequence();
+        }
+
         GameInitialized = true;
 
         if(GSB != null)

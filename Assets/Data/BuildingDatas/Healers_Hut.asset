@@ -22,8 +22,11 @@ MonoBehaviour:
   assignedJobType: 11
   maxWorkers: 1
   productionType: 0
-  producedResource: 0
+  resourceOutputs:
+  - resourceType: 19
+    amount: 0
   productionRate: 0
+  producedResource: 0
   productionAmount: 0
   craftingRecipe:
     inputResources: []

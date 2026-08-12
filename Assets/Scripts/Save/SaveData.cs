@@ -33,6 +33,7 @@ public class SaveData
     public SettlementStatsSave stats;
     public SkillTreeSaveData skillTreeData;
     public CompendiumSaveData compendiumData;
+    public NotificationHistorySaveData notificationHistoryData;
     public RunestoneSaveData runestoneData;
     public DeathTypeBuffSaveData deathBuffData;
     public CalendarDayData[] calendarDays;
@@ -195,6 +196,20 @@ public class SkillTreeSaveData
 public class CompendiumSaveData
 {
     public List<string> discoveredIds;
+}
+
+[Serializable]
+public class NotificationHistorySaveData
+{
+    public List<NotificationRecordSave> entries;
+}
+
+[Serializable]
+public class NotificationRecordSave
+{
+    public string id;
+    public string title;
+    public string message;
 }
 
 [Serializable]
