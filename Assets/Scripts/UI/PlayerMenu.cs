@@ -1,3 +1,5 @@
+using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -15,6 +17,7 @@ public class PlayerMenu : MonoBehaviour
     private enum Tab { None, Calendar, Resources, Villagers, Quests, Notifications, Skills, Compendium }
 
     [SerializeField] private GameObject menuPanel;
+    [SerializeField] private RectTransform TabsPanel;
 
     [Header("Panels")]
     [SerializeField] private CalendarUI calendarPanel;
@@ -38,6 +41,9 @@ public class PlayerMenu : MonoBehaviour
 
     private Tab activeTab = Tab.None;
     private PlayerInputActions inputActions;
+    private bool inputBlocked;
+
+    public Ease ease;
 
     private void Awake()
     {
@@ -67,6 +73,7 @@ public class PlayerMenu : MonoBehaviour
 
         CloseAllPanels();
         CloseMenu();
+        ToggleTabs(false);
     }
 
     // ── Tab wiring ────────────────────────────────────────────────────────────
@@ -147,15 +154,45 @@ public class PlayerMenu : MonoBehaviour
         if (menuPanel.activeSelf) CloseMenu(); else OpenMenu();
     }
 
+    public void ToggleTabs(bool value)
+    {
+        if (value)
+        {
+            TabsPanel.DOAnchorPosX(-15, 0.5f).SetEase(ease).OnComplete(EnableMenu);
+        }
+        else
+        {
+            TabsPanel.DOAnchorPosX(-175, 0.5f).SetEase(ease).OnComplete(DisableMenu);
+        }
+    }
+
     public void OpenMenu()
     {
+        if (inputBlocked) return;
         if (menuPanel != null) menuPanel.SetActive(true);
+        inputBlocked = true;
+        ToggleTabs(true);
+        GameTickManager.Instance.PushUIPause();
     }
 
     public void CloseMenu()
     {
-        if (menuPanel != null) menuPanel.SetActive(false);
+        if (inputBlocked) return;
+        inputBlocked = true;
         CloseAllPanels();
+        ToggleTabs(false);
+        GameTickManager.Instance.PopUIPause();
+    }
+
+    private void DisableMenu()
+    {
+        if (menuPanel != null) menuPanel.SetActive(false);
+        inputBlocked = false;
+    }
+
+    private void EnableMenu()
+    {
+        inputBlocked = false;
     }
 
     private void OnTogglePlayerMenu(InputAction.CallbackContext _) => ToggleMenu();

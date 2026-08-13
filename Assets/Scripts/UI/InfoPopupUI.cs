@@ -60,9 +60,9 @@ public class InfoPopupUI : MonoBehaviour, ISaveable
 
     private PlayerInputActions inputActions;
 
-    private const string CyanHex = "#00FFFF";
-    private const string GoldHex = "#E6B800";
-    private const string PurpleHex = "#B24BF3";
+    public const string CyanHex = "#00FFFF";
+    public const string GoldHex = "#E6B800";
+    public const string PurpleHex = "#B24BF3";
 
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
