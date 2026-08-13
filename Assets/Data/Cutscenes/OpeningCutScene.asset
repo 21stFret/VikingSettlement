@@ -18,7 +18,9 @@ MonoBehaviour:
   pauseGameClock: 1
   hideUI: 1
   resumeAutoWeather: 1
+  playOnce: 1
   actions:
+  - rid: 8350825183430049960
   - rid: 1090071698288148617
   - rid: 2464580862522687597
   - rid: 2464580862522687598
@@ -53,7 +55,16 @@ MonoBehaviour:
         actor:
           referenceType: 2
           identifier: 
-        targetPosition: {x: 0, y: 0, z: 0}
+        targetPosition: {x: -0.6, y: -0.63, z: 0}
         useNavigation: 1
         moveSpeed: 2.5
         arrivalThreshold: 0.5
+    - rid: 8350825183430049960
+      type: {class: ActorTeleportAction, ns: Cutscenes, asm: Assembly-CSharp}
+      data:
+        actionName: 
+        waitForCompletion: 1
+        actor:
+          referenceType: 2
+          identifier: 
+        targetPosition: {x: -5.21, y: -8.9, z: 0}

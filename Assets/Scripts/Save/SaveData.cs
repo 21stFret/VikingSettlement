@@ -38,6 +38,7 @@ public class SaveData
     public DeathTypeBuffSaveData deathBuffData;
     public CalendarDayData[] calendarDays;
     public int currentGodiLevel;
+    public CutsceneSaveData cutsceneData;
 }
 
 [Serializable]
@@ -223,4 +224,10 @@ public class DeathTypeBuffSaveData
 {
     public int currentBuffType;
     public float remainingTime;
+}
+
+[Serializable]
+public class CutsceneSaveData
+{
+    public List<string> playedOneShotCutsceneIds;
 }

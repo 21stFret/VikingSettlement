@@ -186,6 +186,38 @@ namespace Cutscenes
     }
 
     /// <summary>
+    /// Teleport an actor to a position.
+    /// </summary>
+    [Serializable]
+    public class ActorTeleportAction : CutsceneAction
+    {
+        public ActorReference actor;
+        public Vector3 targetPosition;
+        private GameObject actorObject;
+        private VillagerAIBase villagerAI;
+
+        public override bool Execute(CutsceneManager manager)
+        {
+            actorObject = actor?.Resolve();
+            if (actorObject == null) return true;
+            return false;
+        }
+
+        public override bool Update(CutsceneManager manager)
+        {
+            if (actorObject == null) return true;
+
+            actorObject.transform.position = targetPosition;
+
+            return true;
+        }
+
+        public override void Cancel(CutsceneManager manager)
+        {
+
+        }
+    }
+    /// <summary>
     /// Move an actor to a position.
     /// Uses VillagerAI navigation when available; falls back to direct transform movement
     /// (required for enemies whose AI is disabled during cutscenes, e.g. Holmgang walk-in).

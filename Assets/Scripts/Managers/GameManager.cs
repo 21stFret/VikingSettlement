@@ -200,7 +200,7 @@ public class GameManager : MonoBehaviour
             else if (!ShouldLoadSave && SaveManager.Instance != null)
             {
                 // New game - create initial save after a short delay
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.2f);
                 SaveManager.Instance.SaveToCurrentSlot();
                 Debug.Log("Initial save created");
             }

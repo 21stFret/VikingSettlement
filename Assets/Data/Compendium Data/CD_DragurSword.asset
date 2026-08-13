@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b0efdb1c6acef1e46a12a729f69b16fe, type: 3}
-  m_Name: CD_DragurBlade
+  m_Name: CD_DragurSword
   m_EditorClassIdentifier: Assembly-CSharp::CompendiumEntrySO
-  id: weapon_dragur_blade
+  id: weapon_dsword
   category: 1
-  displayName: Corrupted Blade
-  description: A sword carried by the reanimated dead, its edge dulled by rot but its wielder feels no pain.
+  displayName: Corrupted Sword
+  description: A sword carried by the reanimated dead, its edge dulled by rot but
+    its wielder feels no pain.
   icon: {fileID: 21300000, guid: 33afd55c29e9d8b4299bbaca515b959d, type: 3}

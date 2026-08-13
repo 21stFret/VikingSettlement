@@ -10,15 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c62b495ef9243d944895c3c92ecaca87, type: 3}
-  m_Name: MakeShieldGive
+  m_Name: Demo1Give
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
-  dialogueId: 3
+  dialogueId: 1
   lines:
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Well done on repairing the lumber camp, now you can supply the Sawmill
-      to make Planks!
+    text: There have been many buildings damaged, first we need to get the lumber
+      camp working or it will be as cold as Friggs tits come night fall.
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Make some planks and get a blacksmith to make you a Shield!
+    text: Repair the camp and gather enough wood to keep us going a while.
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: You can chop down any tree marked with a red cross. They grow back fast,
+      only the Norns know why.
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: Well then, will you help?
   offersQuest: 1

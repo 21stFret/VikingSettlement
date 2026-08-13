@@ -380,6 +380,9 @@ public class SaveManager : MonoBehaviour
         if (InfoPopupUI.Instance != null && InfoPopupUI.Instance is ISaveable notifications)
             notifications.PopulateSaveData(data);
 
+        if (Cutscenes.CutsceneManager.Instance != null && Cutscenes.CutsceneManager.Instance is ISaveable cutscenes)
+            cutscenes.PopulateSaveData(data);
+
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.PopulateSaveData(data);
 
@@ -417,6 +420,9 @@ public class SaveManager : MonoBehaviour
 
         if (InfoPopupUI.Instance != null && InfoPopupUI.Instance is ISaveable notifications)
             notifications.LoadSaveData(data);
+
+        if (Cutscenes.CutsceneManager.Instance != null && Cutscenes.CutsceneManager.Instance is ISaveable cutscenes)
+            cutscenes.LoadSaveData(data);
 
         if (RunestoneManager.Instance != null && RunestoneManager.Instance is ISaveable runestone)
             runestone.LoadSaveData(data);
