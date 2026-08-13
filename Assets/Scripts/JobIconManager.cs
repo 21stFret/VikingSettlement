@@ -1,5 +1,11 @@
 using UnityEngine;
 
+public enum UIIcons
+{
+    Quest,
+    Notification
+}
+
 public class IconManager : MonoBehaviour
 {
     public static IconManager Instance { get; private set; }
@@ -10,7 +16,6 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite fishermanIcon;
     [SerializeField] private Sprite craftingIcon;
     [SerializeField] private Sprite combatIcon;
-    [SerializeField] private Sprite sailingIcon;
 
     [Header("Resource Icons")]
     [SerializeField] private Sprite wheatIcon;
@@ -19,8 +24,18 @@ public class IconManager : MonoBehaviour
     [SerializeField] private Sprite stoneIcon;
     [SerializeField] private Sprite ironIcon;
     [SerializeField] private Sprite meadIcon;
+    [SerializeField] private Sprite goldIcon;
     [SerializeField] private Sprite weaponsIcon;
     [SerializeField] private Sprite planksIcon;
+    [SerializeField] private Sprite shieldIcon;
+    [SerializeField] private Sprite honeyIcon;
+    [SerializeField] private Sprite meatIcon;
+    [SerializeField] private Sprite peltIcon;
+    [SerializeField] private Sprite leatherIcon;
+
+    [Header("UI Icons")]
+    [SerializeField] private Sprite questIcon;
+    [SerializeField] private Sprite notificationIcon;
 
     private void Awake()
     {
@@ -44,12 +59,11 @@ public class IconManager : MonoBehaviour
             case JobType.Fisherman: return fishermanIcon;
             case JobType.Smith: return craftingIcon;
             case JobType.Carpenter: return woodcutterIcon;
-            case JobType.Weaver: return craftingIcon;
             case JobType.Tanner: return farmerIcon;
-            case JobType.Shipwright: return sailingIcon;
             case JobType.Brewer: return craftingIcon;
             case JobType.Warrior: return combatIcon;
             case JobType.Archer: return combatIcon;
+            case JobType.Healer: return farmerIcon;
             default: return null;
         }
     }
@@ -67,9 +81,25 @@ public class IconManager : MonoBehaviour
             case ResourceType.Stone: return stoneIcon;
             case ResourceType.Iron: return ironIcon;
             case ResourceType.Mead: return meadIcon;
+            case ResourceType.Gold: return goldIcon;
             case ResourceType.Weapons: return weaponsIcon;
             case ResourceType.Planks: return planksIcon;
+            case ResourceType.Shield: return shieldIcon;
+            case ResourceType.Honey: return honeyIcon;
+            case ResourceType.Meat: return meatIcon;
+            case ResourceType.Pelts: return peltIcon;
+            case ResourceType.Leather: return leatherIcon;
             default: return null;
+        }
+    }
+
+    public Sprite GetUIcon(UIIcons type)
+    {
+        switch(type)
+        {
+            case UIIcons.Quest: return questIcon;
+            case UIIcons.Notification: return notificationIcon;
+            default : return null;
         }
     }
 }

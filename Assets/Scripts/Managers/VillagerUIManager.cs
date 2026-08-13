@@ -1,34 +1,69 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class VillagerUIManager : MonoBehaviour
 {
     public VillagerListUI villagerListUI;
-    public GameObject villagerButtonGo;
-    public Button villagerButton;
+    public VillagerInfoPanel villagerInfoPanel;
     public Button closeBtn;
+    private PlayerInputActions inputActions;
+
+    private void Awake()
+    {
+        inputActions = new PlayerInputActions();
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        villagerButton.onClick.AddListener(OnClick);
-        closeBtn.onClick.AddListener(OnClose);
+        closeBtn.onClick.AddListener(OnClick);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        
+        inputActions.Enable();
+        inputActions.Player.VillagerPanel.performed += GetAdvanceInput;
+    }
+
+    private void OnDisable()
+    {
+        inputActions.Player.VillagerPanel.performed -= GetAdvanceInput;
+        inputActions.Disable();
+    }
+
+    public void GetAdvanceInput(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            OnClick();
+        }
     }
 
     public void OnClick()
     {
-        villagerButtonGo.SetActive(false);
-        villagerListUI.gameObject.SetActive(true);
+
     }
 
-    private void OnClose()
+    public void Open()
     {
-        villagerButtonGo.SetActive(true);
+        if (villagerListUI.gameObject.activeSelf) return;
+
+        villagerListUI.gameObject.SetActive(true);
+        villagerListUI.OnOpen();
+        villagerInfoPanel.ShowBlocker();
+        PlayerController.Instance?.SetInputEnabled(false);
+        GameTickManager.Instance?.PushUIPause();
+    }
+
+    public void Close()
+    {
+        if (!villagerListUI.gameObject.activeSelf) return;
+
+        villagerListUI.OnClose();
         villagerListUI.gameObject.SetActive(false);
+        villagerInfoPanel.Hide();
+        PlayerController.Instance?.SetInputEnabled(true);
+        GameTickManager.Instance?.PopUIPause();
     }
 }

@@ -2,7 +2,29 @@
 **Game:** Jarl-Born
 **Version:** 1.0
 **Date:** February 16, 2026
-**Status:** Ready for Implementation
+
+## Implementation Status (updated 2026-06-27)
+| Component | Status |
+|-----------|--------|
+| `RunestoneManager.cs` | ✅ Implemented — manages active runestones, pool, save/load |
+| `DeathTypeBuff.cs` | ✅ Implemented — 10-min real-time buff, saves remaining time |
+| `RunestoneUI.cs` | ✅ Implemented |
+| 12 runestone pool | ✅ Implemented as `RunestoneType` enum |
+| Selection logic (3 options, dead Jarl's skill category) | ✅ Implemented |
+| Replacement UI (4th death forces swap) | ✅ Implemented |
+| Runestone bonuses applied via `RunestoneManager` query methods | ✅ Implemented |
+| Death cause detection (combat vs peaceful) | ✅ Implemented |
+| Save/load integration | ✅ Implemented |
+| Runestone inspection UI (click stone to view) | ❓ Unknown — verify in scene |
+| Visual stone placement animation | ❓ Unknown — verify in scene |
+| Ancestors' Fury cooldown reduction (requires Jarl abilities) | ❓ Jarl abilities status unknown |
+| Swift Recovery (halves heal time) | ✅ Implemented via `WoundManager` |
+
+**B28 fixed:** `SelectRunestone` at capacity now logs an error and leaves selection open for UI recovery instead of silently skipping `CompleteSelection()`.
+
+---
+
+**Status:** Implemented
 
 ---
 

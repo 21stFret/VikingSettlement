@@ -88,6 +88,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "TogglePlayerMenu",
+                    "type": "Button",
+                    "id": "981275ae-8f12-4527-9e04-8aea840240ef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "ShieldWall",
                     "type": "Button",
                     "id": "1939b8f7-dd97-4fcf-b262-2186a4065399",
@@ -136,6 +145,60 @@
                     "name": "ThrowShield",
                     "type": "Button",
                     "id": "d5e6f7a8-b9c0-1234-defa-567890123456",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Notifications",
+                    "type": "Button",
+                    "id": "8292f1bb-39fa-4a84-9d51-2e8e8d6fb8b3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VillagerPanel",
+                    "type": "Button",
+                    "id": "70c325bd-f81f-4985-a99e-c91eebee1b5f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ForwardDialogue",
+                    "type": "Button",
+                    "id": "b910aecc-7f0a-47ae-8455-05279080e9f2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleCalendar",
+                    "type": "Button",
+                    "id": "a1c2e3f4-b5d6-4789-8a9b-0c1d2e3f4a5b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleCompendium",
+                    "type": "Button",
+                    "id": "b56dd836-3740-491d-8d6d-38867a0644a6",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleSkillTree",
+                    "type": "Button",
+                    "id": "d0f93dec-9aa6-4dd6-8381-40436984ed0c",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -432,11 +495,22 @@
                 {
                     "name": "",
                     "id": "dd000759-6fb7-4103-a1d3-4f2c3c915441",
-                    "path": "<Keyboard>/tab",
+                    "path": "<Keyboard>/backquote",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "StrategicPause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8c3a7ec3-2178-4683-978c-83a46d960210",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "TogglePlayerMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -569,6 +643,208 @@
                     "processors": "",
                     "groups": "",
                     "action": "ThrowShield",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "064ca427-fb14-4b8c-be14-7ea0c4eef0ce",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Notifications",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c19df04f-d0a0-43b7-b886-e836aa1916b8",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VillagerPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9ec17578-fa14-4038-8f73-4e58f8e32a7d",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "615f27e8-b016-4d12-81a3-66f3c58853e3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d691593-cbe2-4e53-9076-e5443df9bfff",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ForwardDialogue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b2d3e4f5-c6a7-4890-9bcd-1e2f3a4b5c6d",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCalendar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c3e4f5a6-d7b8-5901-acde-2f3a4b5c6d7e",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCalendar",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b500155-0db5-42f0-bac7-b8cb644683b1",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCompendium",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5805a3d8-b8ae-4a14-8191-2650e1bc0bb2",
+                    "path": "<Gamepad>/select",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleCompendium",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1a260093-85e6-4e00-95fc-2819fe0a4725",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSkillTree",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8bcb9813-e770-4c89-a496-63e0c31e0a46",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSkillTree",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Grind",
+            "id": "4aaaaaa9-62c2-46c9-ba4a-5ce032b9035a",
+            "actions": [
+                {
+                    "name": "GrindWheelSpeedUp",
+                    "type": "Button",
+                    "id": "08df5243-b6ae-430e-a6c9-780811214845",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StartGrinding",
+                    "type": "Button",
+                    "id": "0430954e-5778-4011-86e1-4cd9380c918a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "50aec666-5361-4355-999e-a3bbaf954ca1",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GrindWheelSpeedUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8ea740e6-b766-4b27-9bb6-a0290227a85b",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "GrindWheelSpeedUp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4896c47d-e08d-404a-80c5-3e83c39dbc67",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "42e397e8-ca94-4f1c-a0bf-77a7de0e11f9",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "629ea3fa-17e4-4aa2-907e-0943ee1cdd1f",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartGrinding",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

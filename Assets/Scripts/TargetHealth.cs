@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using DG.Tweening;
 
 public class TargetHealth : MonoBehaviour
 {
@@ -25,7 +26,7 @@ public class TargetHealth : MonoBehaviour
     /// <param name="damage">Raw incoming damage</param>
     /// <param name="weapon">Weapon used (can be null)</param>
     /// <param name="trueDamage">If true, bypasses all damage reduction</param>
-    public virtual void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false)
+    public virtual void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false, Vector2 attackerPos = default)
     {
         if (isDead) return;
 
@@ -35,7 +36,7 @@ public class TargetHealth : MonoBehaviour
         lastDamageTime = Time.time;
 
         // Calculate final damage after reductions (unless trueDamage)
-        float finalDamage = trueDamage ? damage : CalculateFinalDamage(damage, weapon);
+        float finalDamage = trueDamage ? damage : CalculateFinalDamage(damage, weapon, attackerPos);
         finalDamage = Mathf.Max(0f, finalDamage); // Never negative
 
         currentHealth -= finalDamage;
@@ -43,12 +44,15 @@ public class TargetHealth : MonoBehaviour
         lastDamageWasCombat = (weapon != null);
 
         // Combat hits (weapon != null) can trigger wound rolls on significant damage
-        if (weapon != null && finalDamage > 0f)
+        if (finalDamage > 0f)
         {
             OnSignificantHPDamage(finalDamage);
             OnDamageTaken(finalDamage, weapon);
         }
-
+        if (gameObject.layer != 9 && weapon != null)
+        {
+            weapon.TakeDurabilityDamage(1);
+        }
 
         Debug.Log($"{gameObject.name} took {finalDamage} damage (raw: {damage}, trueDamage: {trueDamage})");
 
@@ -62,7 +66,7 @@ public class TargetHealth : MonoBehaviour
     /// Calculate final damage after applying defense, shields, etc.
     /// Override in subclasses to add damage reduction.
     /// </summary>
-    protected virtual float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    protected virtual float CalculateFinalDamage(float rawDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         return rawDamage;
     }
@@ -75,6 +79,18 @@ public class TargetHealth : MonoBehaviour
         // Base implementation does nothing - override in subclasses
     }
 
+    protected virtual void OnBlocked(EquipableItem weapon)
+    {
+        if (weapon == null) return;
+        // Base implementation does nothing - override in subclasses
+        if(weapon.itemType == EquipableItem.ItemType.Bow)
+        {
+            Arrow arrow = weapon.GetComponent<Arrow>();
+            arrow.ArrowStuck(GetComponent<CharacterBase>().shield.transform);
+            arrow.transform.localPosition = new Vector3(UnityEngine.Random.Range(0.25f, 0.9f), UnityEngine.Random.Range(-0.3f, 0.3f), 0);
+        }
+    }
+
     /// <summary>
     /// Called when a weapon-based hit deals damage. Override to roll for wounds.
     /// </summary>
@@ -84,6 +100,14 @@ public class TargetHealth : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
+
+        // Release all attacker slots so orbiters can re-engage a new target
+        GetComponent<CharacterBase>()?.ReleaseAllSlots();
+
+        // Release the slot this character itself was holding on its own target — its own
+        // Update loop stops running once dead, so without this the claim would otherwise only
+        // clear via OnDestroy, which can be long-delayed (corpse/removal effects) or never fire.
+        GetComponent<CharacterAI>()?.ReleaseEngagementSlot();
 
         // Fire death event
         OnDeath?.Invoke();

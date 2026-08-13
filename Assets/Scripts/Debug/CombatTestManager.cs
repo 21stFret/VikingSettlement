@@ -30,20 +30,21 @@ public class CombatTestManager : MonoBehaviour
     [Tooltip("Prefab for AI-controlled ally villagers. Useful for testing villager reactive blocking.")]
     [SerializeField] private GameObject allyPrefab;
     [SerializeField] private Transform[] allySpawnPoints;
+    public bool withShields;
+    public int skillLevel;
 
     [Header("Enemies")]
     [SerializeField] private EnemySpawnConfig[] enemyTypes;
     [Tooltip("Optional fixed spawn positions. If empty, enemies spawn in a ring around the player.")]
     [SerializeField] private Transform[] enemySpawnPoints;
     [SerializeField] private int defaultSpawnCount = 3;
+    private int enemySpawnedAmount;
 
     [System.Serializable]
     public class EnemySpawnConfig
     {
         public string label = "Enemy";
         public GameObject prefab;
-        public bool giveWeapon;
-        public bool giveShield;
     }
 
     private Villager _player;
@@ -52,6 +53,7 @@ public class CombatTestManager : MonoBehaviour
     private void Start()
     {
         _spawnCount = defaultSpawnCount;
+        enemySpawnedAmount = 0;
         SpawnPlayer();
     }
 
@@ -83,9 +85,8 @@ public class CombatTestManager : MonoBehaviour
         var ia = go.GetComponent<ItemAttachment>();
         if (ia != null)
         {
-            ia.GiveRandomWeapon();
-            //ia.GiveRandomShield();
-            //ia.GiveRandomTorch();
+            ia.GiveWeaponByName("Iron Sword");
+            ia.GiveShieldByName("Shield");
         }
 
         _player.ApplySkillBonuses();
@@ -115,24 +116,28 @@ public class CombatTestManager : MonoBehaviour
             return;
         }
 
-        foreach (var point in allySpawnPoints)
+        for(int i = 0; i < _spawnCount; i++)
         {
-            var go = Instantiate(allyPrefab, point.position, Quaternion.identity);
+            var go = Instantiate(allyPrefab, allySpawnPoints[i].position, Quaternion.identity);
             var villager = go.GetComponent<Villager>();
             if (villager == null) continue;
 
             var ia = go.GetComponent<ItemAttachment>();
             if (ia != null)
             {
-                ia.GiveRandomWeapon();
-                //ia.GiveRandomShield();
-            }
+                ia.GiveRandomWeeapon();
+                if (withShields)
+                {
+                    ia.GiveShieldByName("Shield");
+                }
 
+            }
+            villager.skills.SetSkillLevel(JobType.Warrior, skillLevel);
             villager.ApplySkillBonuses();
             villager.Init();
 
             // Set raid follow AI — allies follow the player character
-            var ai = go.GetComponent<VillagerAI>();
+            var ai = go.GetComponent<VillagerAIBase>();
             if (ai != null && _player != null)
             {
                 ai.SetRaidMode(true, _player.transform);
@@ -140,7 +145,7 @@ public class CombatTestManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"[CombatTest] Spawned {allySpawnPoints.Length} allies.");
+        Debug.Log($"[CombatTest] Spawned {_spawnCount} allies.");
     }
 
     public void ClearAllies()
@@ -167,17 +172,8 @@ public class CombatTestManager : MonoBehaviour
         {
             var go = Instantiate(enemyTypes[index].prefab, GetSpawnPoint(i), Quaternion.identity);
             go.GetComponent<Enemy>().InitializeEnemyStats();
-            /*
-            var ia = go.GetComponent<ItemAttachment>();
-            if (ia != null)
-            {
-                if (enemyTypes[index].giveWeapon)
-                    ia.GiveWeaponByName("DSword");
-
-                if (enemyTypes[index].giveShield)
-                    ia.GiveRandomShield();
-            }
-            */
+            go.gameObject.name = $"{enemyTypes[index].label} ({enemySpawnedAmount+ 1})";
+            enemySpawnedAmount++;
         }
             
 
@@ -201,6 +197,16 @@ public class CombatTestManager : MonoBehaviour
         Vector3 centre = playerSpawnPoint != null ? playerSpawnPoint.position : Vector3.zero;
         float angle = (360f / Mathf.Max(_spawnCount, 1)) * index * Mathf.Deg2Rad;
         return centre + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * 5f;
+    }
+
+    // ── Fights ─────────────────────────────────────────────────
+
+    public void PlaySetFight()
+    {
+        ClearEnemies();
+        ClearAllies();
+        SpawnEnemyType(0);
+        SpawnAllies();
     }
 
     // ── On-screen debug panel ─────────────────────────────────────────────────
@@ -235,10 +241,17 @@ public class CombatTestManager : MonoBehaviour
         GUILayout.Space(4);
         if (GUILayout.Button("Clear Enemies")) ClearEnemies();
 
+        GUILayout.Space(4);
+        if (GUILayout.Button("Test Fight")) PlaySetFight();
+
         if (allyPrefab != null)
         {
             GUILayout.Space(4);
             GUILayout.Label("Allies:");
+            GUILayout.Label($"Skill level: {skillLevel}", GUILayout.Width(80));
+            withShields  = GUILayout.Toggle(withShields, "With Shields");
+            if (GUILayout.Button("−", GUILayout.Width(30)) && skillLevel > 1) skillLevel--;
+            if (GUILayout.Button("+", GUILayout.Width(30))) skillLevel++;
             if (GUILayout.Button("Spawn Allies")) SpawnAllies();
             if (GUILayout.Button("Clear Allies")) ClearAllies();
         }

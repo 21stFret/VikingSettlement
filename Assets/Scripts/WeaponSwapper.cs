@@ -38,9 +38,9 @@ public class WeaponSwapper : MonoBehaviour
         {
             return;
         }
-        swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Sword");
-        axePrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Axe");
-        torchPrefab = WeaponDatabase.Instance.GetWeaponByName("Torch");
+        swordPrefab = WeaponDatabase.Instance.GetWeaponByName("Rare Sword");
+        axePrefab = WeaponDatabase.Instance.GetWeaponByName("Hammer");
+        torchPrefab = WeaponDatabase.Instance.GetWeaponByName("Basic Axe");
 
         Transform hand = itemAttachment.rightHandAttachment;
         if (hand == null)
@@ -49,16 +49,14 @@ public class WeaponSwapper : MonoBehaviour
             return;
         }
 
-        // Clear whatever GiveRandomWeapon put here so we own the slot
-        foreach (Transform child in hand)
-            Destroy(child.gameObject);
+        itemAttachment.UnequipWeapon();
 
         EquipableItem[] prefabs = { swordPrefab, axePrefab, torchPrefab };
         for (int i = 0; i < 3; i++)
         {
             if (prefabs[i] == null)
             {
-                Debug.LogWarning($"WeaponSwapper: slot {i} prefab is not assigned.");
+                //Debug.LogWarning($"WeaponSwapper: slot {i} prefab is not assigned.");
                 continue;
             }
             slots[i] = Instantiate(prefabs[i].gameObject, hand);
@@ -67,17 +65,15 @@ public class WeaponSwapper : MonoBehaviour
             slots[i].SetActive(i == 0);
         }
 
+        itemAttachment.EquipWeapon(slots[0]);
         currentIndex = 0;
-        charController.weapon = slots[0] != null ? slots[0].GetComponent<EquipableItem>() : null;
     }
 
     public void SwapToNext()
     {
-        slots[currentIndex]?.SetActive(false);
+        itemAttachment.UnequipWeapon();
         currentIndex = (currentIndex + 1) % 3;
-        slots[currentIndex]?.SetActive(true);
-        charController.weapon = slots[currentIndex] != null
-            ? slots[currentIndex].GetComponent<EquipableItem>() : null;
+        itemAttachment.EquipWeapon(slots[currentIndex]);
 
         Debug.Log($"WeaponSwapper: switched to slot {currentIndex} ({CurrentWeapon?.itemName ?? "empty"})");
     }

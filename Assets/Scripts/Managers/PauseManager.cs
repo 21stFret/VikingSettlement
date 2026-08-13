@@ -20,7 +20,8 @@ public class PauseManager : MonoBehaviour
         Playing,
         DialoguePause,
         StrategicPause,
-        MenuPause
+        MenuPause,
+        RaidReportPause
     }
 
     [Header("Current State")]
@@ -40,6 +41,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private Button testSceneButton;
+    [SerializeField] private Button holmgangSceneButton;
     [SerializeField] private Button closeMenuButton;
 
 
@@ -61,9 +63,6 @@ public class PauseManager : MonoBehaviour
     // Input
     private PlayerInputActions inputActions;
     private Vector2 cameraPanInput;
-
-    // Cached state for returning from strategic pause
-    private Transform cachedPlayerTarget;
 
     // Track which state we were in before dialogue (to restore after)
     private PauseState stateBeforeDialogue;
@@ -184,7 +183,19 @@ public class PauseManager : MonoBehaviour
         {
             testSceneButton.onClick.AddListener(() =>
             {
-                SceneManager.LoadScene("Combat Testing");
+                if (LoadingScreenManager.Instance != null)
+                    LoadingScreenManager.Instance.LoadScene("Combat Testing");
+                else
+                    SceneManager.LoadScene("Combat Testing");
+            });
+        }
+
+        if(holmgangSceneButton != null)
+        {
+            holmgangSceneButton.onClick.AddListener(() =>
+            {
+                if (LoadingScreenManager.Instance != null)
+                    LoadingScreenManager.Instance.LoadScene("Holmgang Scene");
             });
         }
 
@@ -279,6 +290,7 @@ public class PauseManager : MonoBehaviour
         if (strategicPauseIndicator != null) strategicPauseIndicator.SetActive(false);
 
         OnPauseStateChanged?.Invoke(currentState);
+        UIFocus.Set(settingsButton.gameObject);
         Debug.Log("Entered Menu Pause");
     }
 
@@ -327,12 +339,6 @@ public class PauseManager : MonoBehaviour
         if (GameTickManager.Instance != null)
         {
             GameTickManager.Instance.SetPaused(true);
-        }
-
-        // Cache current camera target (player) for snap-back
-        if (cameraController != null)
-        {
-            cachedPlayerTarget = cameraController.GetCurrentTarget();
         }
 
         // Enable free camera mode
@@ -385,9 +391,9 @@ public class PauseManager : MonoBehaviour
         {
             cameraController.SetFreeCameraMode(false);
 
-            if (snapToPlayer && cachedPlayerTarget != null)
+            if (snapToPlayer && cameraController.playerTarget != null)
             {
-                cameraController.SetTarget(cachedPlayerTarget);
+                cameraController.ReturnToPlayerTarget();
                 cameraController.SnapToTarget();
             }
         }
@@ -400,8 +406,6 @@ public class PauseManager : MonoBehaviour
 
         // Hide strategic pause indicator
         if (strategicPauseIndicator != null) strategicPauseIndicator.SetActive(false);
-
-        cachedPlayerTarget = null;
     }
 
     private void HandleStrategicPauseCameraPan()
@@ -444,6 +448,61 @@ public class PauseManager : MonoBehaviour
         {
             cameraController.PanCamera(panDirection.normalized * cameraPanSpeed * Time.unscaledDeltaTime);
         }
+    }
+
+    #endregion
+
+    #region Raid Report Pause
+
+    /// <summary>
+    /// Enter raid report pause - freezes everything (Time.timeScale = 0) for the
+    /// homecoming report screen. No side-panel/camera changes, unlike Menu/Strategic pause.
+    /// </summary>
+    public void EnterRaidReportPause()
+    {
+        if (currentState == PauseState.RaidReportPause) return;
+
+        currentState = PauseState.RaidReportPause;
+
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.SetPaused(true);
+        }
+
+        // Disable player movement during Pause
+        if (playerController != null)
+        {
+            playerController.SetInputEnabled(false);
+        }
+
+        OnPauseStateChanged?.Invoke(currentState);
+        Debug.Log("Entered Raid Report Pause");
+    }
+
+    /// <summary>
+    /// Resume game from raid report pause
+    /// </summary>
+    public void ExitRaidReportPause()
+    {
+        if (currentState != PauseState.RaidReportPause) return;
+
+        currentState = PauseState.Playing;
+
+        Time.timeScale = 1f;
+
+        if (GameTickManager.Instance != null)
+        {
+            GameTickManager.Instance.SetPaused(false);
+        }
+
+        // Disable player movement during dialogue
+        if (playerController != null)
+        {
+            playerController.SetInputEnabled(true);
+        }
+
+        OnPauseStateChanged?.Invoke(currentState);
+        Debug.Log("Exited Raid Report Pause");
     }
 
     #endregion
@@ -533,6 +592,8 @@ public class PauseManager : MonoBehaviour
                     ExitStrategicPause();
                 else if (currentState == PauseState.DialoguePause)
                     ExitDialoguePause();
+                else if (currentState == PauseState.RaidReportPause)
+                    ExitRaidReportPause();
                 break;
             case PauseState.MenuPause:
                 EnterMenuPause();
@@ -546,6 +607,9 @@ public class PauseManager : MonoBehaviour
                 break;
             case PauseState.DialoguePause:
                 EnterDialoguePause();
+                break;
+            case PauseState.RaidReportPause:
+                EnterRaidReportPause();
                 break;
         }
     }

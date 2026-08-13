@@ -5,20 +5,26 @@ using UnityEngine;
 /// </summary>
 public class EnemyController : CharacterBase
 {
-    private Enemy enemyData;
+    // enemyData: health/dead-state only (TargetHealth-derived). Combat stats (range/damage/
+    // cooldown) live on enemyAI now — see EnemyAIBase.
+    private Enemy       enemyData;
+    private EnemyAIBase enemyAI;
 
     protected override void Awake()
     {
         base.Awake();
         enemyData = GetComponent<Enemy>();
-        characterFaction = Faction.Enemy;
-        useReactiveBlocking = true;
+        enemyAI   = GetComponent<EnemyAIBase>();
+        // characterFaction is no longer forced here — each enemy prefab/instance is configured
+        // with its own clan (Draugr, Raider1, Raider2, ...) via the Inspector, so different
+        // hostile factions actually fight each other instead of all being lumped into one.
     }
 
     public override float GetAttackDelay()
     {
-        if (weapon != null) return Mathf.Max(0.1f, weapon.attackSpeed);
-        return enemyData != null ? enemyData.attackCooldown : attackDelay;
+        float delay = enemyAI != null ? enemyAI.AttackCooldown : 1.5f;
+        if (weapon != null) delay += weapon.attackSpeed;
+        return Mathf.Max(0.1f, delay);
     }
 
     protected override void Update()
@@ -66,7 +72,7 @@ public class EnemyController : CharacterBase
         {
             if (target.IsDead()) return;
 
-            float damage = enemyData.GetDamage();
+            float damage = enemyAI != null ? enemyAI.Damage : 0f;
             float weaponDamage = 0f;
             if (weapon != null)
             {
@@ -74,24 +80,27 @@ public class EnemyController : CharacterBase
             }
             float totalDamage = damage + weaponDamage;
             Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
-            target.TakeDamage(totalDamage, weapon);
+            target.TakeDamage(totalDamage, weapon, attackerPos: (Vector2)transform.position);
+            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }
     }
 
 
+    public override void OnHitBy(CharacterBase attacker)
+    {
+        base.OnHitBy(attacker); // fires OnHitByAttacker → CombatAIBase.HandleHitBy
+    }
+
     protected override void OnDrawGizmosSelected()
     {
         base.OnDrawGizmosSelected();
 
-        // Draw enemy-specific detection ranges
-        if (enemyData != null)
+        // Draw enemy-specific attack range
+        if (enemyAI != null)
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, enemyData.GetDetectionRange());
-
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, enemyData.GetAttackRange());
+            Gizmos.DrawWireSphere(transform.position, enemyAI.AttackRange);
         }
     }
 }

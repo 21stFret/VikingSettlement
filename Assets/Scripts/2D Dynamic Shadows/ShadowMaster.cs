@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [ExecuteInEditMode]
 public class ShadowMaster : MonoBehaviour
@@ -9,10 +12,7 @@ public class ShadowMaster : MonoBehaviour
     [Header("Sun Settings")]
     [Tooltip("The position of the sun in world space")]
     public Vector2 sunPosition = new Vector2(0, 10);
-
-    [Tooltip("The height of the sun above the ground plane")]
-    [Range(0f, 1f)]
-    public float sunHeight = 0.5f;
+    public float sunHeight;
 
     [Tooltip("Minimum sun height required for shadows to be visible")]
     [Range(0f, 1f)]
@@ -21,11 +21,6 @@ public class ShadowMaster : MonoBehaviour
     [Tooltip("Optional: Reference to a transform that represents the sun")]
     public Transform sunTransform;
 
-    [Header("Global Shadow Settings")]
-    [Tooltip("How dark the shadow should be (0 = black, 1 = original color)")]
-    [Range(0f, 1f)]
-    public float shadowDarkness = 0.3f;
-
     [Tooltip("Global multiplier for shadow distance from object")]
     [Range(0f, 5f)]
     public float shadowDistanceMultiplier = 1f;
@@ -33,13 +28,6 @@ public class ShadowMaster : MonoBehaviour
     [Tooltip("Global shadow intensity")]
     [Range(0f, 1f)]
     public float shadowIntensity = 0.5f;
-
-    [Tooltip("Maximum shadow length")]
-    [Range(1f, 20f)]
-    public float maxShadowLength = 5f;
-
-    [Tooltip("The order in layer for all shadows (should be below the main sprites)")]
-    public int shadowSortingOrder = -1;
 
     [Tooltip("How much the shadow's x-scale shrinks as sun gets lower (0 = no shrink, 1 = maximum shrink)")]
     [Range(0f, 1f)]
@@ -82,10 +70,19 @@ public class ShadowMaster : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            Instance = this;
-            RefreshShadows();
-            CalculateShadowProperties();
-            ApplyToAllShadows();
+#if UNITY_EDITOR
+            // Instantiating shadow objects here would trigger internal Unity
+            // SendMessage calls (e.g. OnSpriteRendererBoundsChanged), which Unity
+            // disallows while still inside OnValidate. Defer until afterward.
+            EditorApplication.delayCall += () =>
+            {
+                if (this == null) return;
+                Instance = this;
+                RefreshShadows();
+                CalculateShadowProperties();
+                ApplyToAllShadows();
+            };
+#endif
         }
     }
 
@@ -108,11 +105,15 @@ public class ShadowMaster : MonoBehaviour
         if (sunTransform != null)
         {
             sunPosition = sunTransform.position;
-            sunElevation = Mathf.Clamp01(sunTransform.position.z / 10f);
-        }
-        else
-        {
-            sunElevation = sunHeight;
+            if(DayNightManager.Instance !=null)
+            {
+                sunElevation = DayNightManager.Instance.GetSunElevation();
+            }
+            else
+            {
+                sunElevation= Mathf.Clamp01(sunTransform.position.z / 10f);
+            }
+            sunHeight = Mathf.Clamp01(sunTransform.position.z / 10f);
         }
 
         Vector2 directionToSun = sunPosition.normalized;
@@ -121,11 +122,11 @@ public class ShadowMaster : MonoBehaviour
         float angle = Mathf.Atan2(shadowDirection.y, shadowDirection.x) * Mathf.Rad2Deg - 90f;
         shadowQuaternion = Quaternion.Euler(0f, 0f, angle);
 
-        baseShadowColor = Color.Lerp(Color.black, Color.white, shadowDarkness);
+        baseShadowColor = Color.black;
 
         float targetAlpha = sunElevation < minSunHeightForShadows
             ? 0f
-            : Mathf.Lerp(shadowIntensity, 0.01f, sunElevation);
+            : Mathf.Lerp(0.2f, shadowIntensity, sunElevation);
 
         baseShadowAlpha = Mathf.MoveTowards(baseShadowAlpha, targetAlpha, Time.deltaTime * shadowFadeSpeed);
         baseShadowColor.a = baseShadowAlpha;
@@ -179,19 +180,9 @@ public class ShadowMaster : MonoBehaviour
 
     public int GetShadowCount() => shadows.Count;
 
-    public List<DynamicShadow2D> GetAllShadows() => new List<DynamicShadow2D>(shadows);
-
     public Vector2 GetShadowDirection() => shadowDirection;
 
     public float GetSunElevation() => sunElevation;
 
-    public float GetShadowXScale() => shadowXScale;
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(new Vector3(sunPosition.x, sunPosition.y, 0), 0.5f);
-        Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
-        Gizmos.DrawLine(new Vector3(sunPosition.x, sunPosition.y, 0), new Vector3(sunPosition.x, sunPosition.y, sunHeight * 10f));
-    }
+    public float GetSunHeight() => sunHeight;
 }

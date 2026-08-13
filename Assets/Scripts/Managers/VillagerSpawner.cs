@@ -32,6 +32,16 @@ public class VillagerSpawner : MonoBehaviour
         }
     }
 
+    // Without this, Instance keeps pointing at this (now-destroyed) object after a scene unload.
+    // A `?.` call elsewhere doesn't catch Unity's "fake null" on a destroyed object the way `==`
+    // does, so a stray VillagerSpawner.Instance?.Foo() in a scene with no VillagerSpawner of its
+    // own would silently call through to stale, already-destroyed scene data instead of no-op'ing.
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     /// <summary>
     /// Spawn the starting villagers for a brand-new game.
     /// Called by Bootstrap only when not loading from a save file.
@@ -44,17 +54,37 @@ public class VillagerSpawner : MonoBehaviour
             return;
         }
 
+        List<Gender> genders = BuildBalancedGenderList(initialVillagerCount);
+
         for (int i = 0; i < initialVillagerCount; i++)
-            SpawnVillager();
+            SpawnVillager(gender: genders[i]);
 
         Debug.Log($"VillagerSpawner: Spawned {initialVillagerCount} initial villagers");
+    }
+
+    private List<Gender> BuildBalancedGenderList(int count)
+    {
+        var list = new List<Gender>();
+        int half = count / 2;
+        for (int i = 0; i < half; i++) list.Add(Gender.Male);
+        for (int i = 0; i < half; i++) list.Add(Gender.Female);
+        if (count % 2 != 0)
+            list.Add(Random.value > 0.5f ? Gender.Male : Gender.Female);
+
+        // Fisher-Yates shuffle
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+        return list;
     }
 
     /// <summary>
     /// Instantiate a single fresh villager, configure it, and register it with SettlementManager
     /// via Villager.Init().
     /// </summary>
-    public Villager SpawnVillager(Vector3? position = null, Gender? gender = null, float? age = null)
+    public Villager SpawnVillager(Vector3? position = null, Gender? gender = null, float? age = null, bool giveEquipment = true)
     {
         if (villagerPrefab == null) return null;
 
@@ -68,15 +98,20 @@ public class VillagerSpawner : MonoBehaviour
         if (villager == null) return null;
 
         villager.gender = gender ?? (Random.value > 0.5f ? Gender.Male : Gender.Female);
-        villager.age = age ?? Random.Range(18f, 40f);
+        villager.age = age ?? Random.Range(18f, 30f);
 
         villager.skills.Randomize();
 
-        villager.itemAttachment.GiveRandomWeapon();
-        villager.itemAttachment.GiveRandomShield();
-        villager.itemAttachment.GiveRandomTorch();
+        if (giveEquipment)
+        {
+            //villager.itemAttachment.GiveStartingWeapon();
+            //villager.itemAttachment.GiveRandomShield();
+            //villager.itemAttachment.GiveRandomTorch();
+        }
 
-        villager.GetComponent<VillagerAI>()?.SetVillageCentre(villageCentre, 20f);
+
+        foreach (var ai in villager.GetComponents<VillagerAIBase>())
+            ai.SetVillageCentre(villageCentre, 20f);
 
         villager.ApplySkillBonuses();
         villager.Init();
@@ -121,6 +156,7 @@ public class VillagerSpawner : MonoBehaviour
         // Identity — set uniqueId before Init() so it isn't re-generated.
         v.uniqueId = vs.id;
         v.villagerName = vs.villagerName;
+        v.clanName = vs.clanName;
         villagerObj.name = vs.villagerName;
 
         // Core stats
@@ -137,7 +173,7 @@ public class VillagerSpawner : MonoBehaviour
 
         // Skills
         v.skills.farming       = vs.skills.farming;
-        v.skills.fishing       = vs.skills.fishing;
+        v.skills.hunting       = vs.skills.fishing;
         v.skills.mining        = vs.skills.mining;
         v.skills.woodcutting   = vs.skills.woodcutting;
         v.skills.crafting      = vs.skills.crafting;
@@ -198,18 +234,30 @@ public class VillagerSpawner : MonoBehaviour
 
         if (!string.IsNullOrEmpty(vs.weaponName))
         {
-            EquipableItem prefab = WeaponDatabase.Instance.GetWeaponByName(vs.weaponName);
+            EquipableItem prefab = WeaponDatabase.Instance.GetItemByName(vs.weaponName);
             if (prefab != null)
-                itemAttachment.EquipWeapon(Instantiate(prefab.gameObject));
+            {
+                GameObject weaponInstance = Instantiate(prefab.gameObject);
+                EquipableItem weaponItem = weaponInstance.GetComponent<EquipableItem>();
+                weaponItem.Init(true);
+                weaponItem.SetDurability(vs.weaponDurability);
+                itemAttachment.EquipWeapon(weaponInstance);
+            }
             else
                 Debug.LogWarning($"VillagerSpawner: Weapon '{vs.weaponName}' not found for {vs.villagerName}.");
         }
 
         if (!string.IsNullOrEmpty(vs.shieldName))
         {
-            EquipableItem prefab = WeaponDatabase.Instance.GetShieldByName(vs.shieldName);
+            EquipableItem prefab = WeaponDatabase.Instance.GetItemByName(vs.shieldName);
             if (prefab != null)
-                itemAttachment.EquipShield(Instantiate(prefab.gameObject));
+            {
+                GameObject shieldInstance = Instantiate(prefab.gameObject);
+                EquipableItem shieldItem = shieldInstance.GetComponent<EquipableItem>();
+                shieldItem.Init(true);
+                shieldItem.SetDurability(vs.shieldDurability);
+                itemAttachment.EquipShield(shieldInstance);
+            }
             else
                 Debug.LogWarning($"VillagerSpawner: Shield '{vs.shieldName}' not found for {vs.villagerName}.");
         }

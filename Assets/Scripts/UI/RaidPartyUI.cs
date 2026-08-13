@@ -31,7 +31,7 @@ public class RaidPartyUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI warningText;
 
     // Internal state
-    private RaidDestination selectedRaid;
+    private RaidDestinationData selectedRaid;
     private List<Villager> raidParty = new List<Villager>();
     private RaidUI raidUI;
 
@@ -98,7 +98,7 @@ public class RaidPartyUI : MonoBehaviour
     /// <summary>
     /// Open the party selection panel for a specific raid
     /// </summary>
-    public void OpenForRaid(RaidDestination raid)
+    public void OpenForRaid(RaidDestinationData raid)
     {
         if (raid == null)
         {

@@ -26,6 +26,8 @@ public class ShadowCastingLight : MonoBehaviour
     private HashSet<DynamicShadow2D> registeredShadows     = new HashSet<DynamicShadow2D>();
     private HashSet<MeshShadow2D>    registeredMeshShadows = new HashSet<MeshShadow2D>();
 
+    public LayerMask shadowCasterLayerMask = ~0; // Default to all layers
+
     void Awake()
     {
         light2D = GetComponent<Light2D>();
@@ -58,7 +60,7 @@ public class ShadowCastingLight : MonoBehaviour
         if (light2D == null) return;
 
         float radius = light2D.pointLightOuterRadius;
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius, shadowCasterLayerMask);
 
         foreach (var col in colliders)
         {

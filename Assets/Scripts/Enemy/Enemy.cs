@@ -7,19 +7,10 @@ public class Enemy : TargetHealth
 {
     [Header("Enemy Info")]
     public string enemyName = "Raider";
-    public EnemyType enemyType = EnemyType.Raider;
 
-    [Header("Combat Stats")]
-    public float damage = 10f;
-    public float attackRange = 1.5f;
-    public float attackCooldown = 1.5f;
-    public float detectionRange = 10f;
+    [Header("Starting Equipment")]
     public string weaponName="";
     public string shieldName="";
-
-    [Header("Movement")]
-    public float moveSpeed = 1.5f;
-    public float chaseSpeed = 2.5f;
 
     [Header("Loot")]
     public int goldReward = 10;
@@ -33,22 +24,12 @@ public class Enemy : TargetHealth
     [SerializeField] private ParticleSystem bloodEffect;
     [SerializeField] private SpriteRenderer spriteRenderer;
 
-    private EnemyController _controller;
+    public EnemyController _controller;
     private Material materialInstance;
     private Color originalColor;
     public EnemyPersonalUI personalUI;
 
     private bool initalized;
-
-    public enum EnemyType
-    {
-        Raider,
-        Warrior,
-        Berserker,
-        Archer,
-        Wolf,
-        Draugr
-    }
 
     public override void Awake()
     {
@@ -69,7 +50,7 @@ public class Enemy : TargetHealth
         InitializeEnemyStats();
     }
 
-    public void InitializeEnemyStats()
+    public virtual void InitializeEnemyStats()
     {
         if (initalized)
             return;
@@ -84,18 +65,10 @@ public class Enemy : TargetHealth
             {
                 ia.GiveWeaponByName(weaponName);
             }
-            else
-            {
-                ia.GiveRandomWeapon();
-            }
 
             if (shieldName != null || shieldName!="")
             {
                 ia.GiveShieldByName(shieldName);
-            }
-            else
-            {
-                ia.GiveRandomShield();
             }
         }
     }
@@ -103,14 +76,14 @@ public class Enemy : TargetHealth
     /// <summary>
     /// Apply shield reduction to incoming damage.
     /// </summary>
-    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon, Vector2 AttackerPos)
     {
         // Active block: route all damage to shield durability, no HP damage.
         // Attacks from behind bypass the block entirely.
         if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
         {
             if ((_controller.isBlocking || _controller.isParrying)
-                && !_controller.IsAttackFromBehind(_controller.lastAttackerPosition))
+                && !_controller.IsAttackFromBehind(AttackerPos))
             {
                 int durDamage = _controller.isParrying
                     ? Mathf.CeilToInt(rawDamage * 0.5f)
@@ -163,10 +136,22 @@ public class Enemy : TargetHealth
             DropLoot();
         }
 
+        if (CompendiumManager.Instance != null)
+        {
+            string name = enemyName.ToString().ToLower().Replace(" ", "_");
+            CompendiumManager.Instance.Discover("enemy_" + name);
+        }
+
         Debug.Log($"{enemyName} has been defeated!");
 
-        // Destroy after delay
-        personalUI.enabled = false;
+        // Destroy after delay. personalUI detaches itself from this transform in
+        // Awake (world-space canvas, avoids scaling with the enemy), so it must be
+        // destroyed separately or it survives the enemy's death forever.
+        if (personalUI != null)
+        {
+            personalUI.OnDeath();
+            Destroy(personalUI.gameObject, 5f);
+        }
         Destroy(gameObject, 5f);
     }
 
@@ -186,30 +171,6 @@ public class Enemy : TargetHealth
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.color = originalColor;
         }
-    }
-
-    /// <summary>
-    /// Get the damage this enemy deals
-    /// </summary>
-    public float GetDamage()
-    {
-        return damage;
-    }
-
-    /// <summary>
-    /// Get the attack range of this enemy
-    /// </summary>
-    public float GetAttackRange()
-    {
-        return attackRange;
-    }
-
-    /// <summary>
-    /// Get the detection range of this enemy
-    /// </summary>
-    public float GetDetectionRange()
-    {
-        return detectionRange;
     }
 
 }

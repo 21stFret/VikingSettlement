@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,8 +16,12 @@ public class WorldInteractionZone : MonoBehaviour
     private readonly List<WorldInteractable> nearby = new List<WorldInteractable>();
     private WorldInteractable active;
     private PlayerInputActions inputActions;
+    public bool interacting;
 
     public GameObject interactionPrompt;
+
+    [Tooltip("Optional — shows the nearest interactable's prompt label (e.g. \"Pick up Rare Sword\"). Leave unassigned to just show the icon.")]
+    public TMP_Text promptText;
 
     private void Awake()
     {
@@ -44,8 +49,7 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null && !nearby.Contains(interactable))
             nearby.Add(interactable);
-        if(nearby.Count > 0)
-            interactionPrompt.SetActive(true);
+        ShowPrompt();
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -53,20 +57,36 @@ public class WorldInteractionZone : MonoBehaviour
         var interactable = other.GetComponent<WorldInteractable>();
         if (interactable != null)
             nearby.Remove(interactable);
-        if(nearby.Count <= 0)
-            interactionPrompt.SetActive(false);
+        ShowPrompt();
+    }
+
+    public void ShowPrompt()
+    {
+        if (interacting) return;
+
+        WorldInteractable nearest = GetNearest();
+
+        interactionPrompt.SetActive(nearest != null);
+        if (nearest != null && promptText != null)
+            promptText.text = nearest.PromptLabel;
+        else promptText.text = "";
     }
 
     private void OnInteract(InputAction.CallbackContext ctx)
     {
         if (ctx.phase != InputActionPhase.Performed) return;
         if (PlayerController.Instance != null && !PlayerController.Instance.IsInputEnabled()) return;
+        if(interacting) return;
 
         WorldInteractable target = GetNearest();
         if (target == null) return;
 
+        interacting = true;
+        promptText.text = "";
+        interactionPrompt.SetActive(false);
+
         active = target;
-        target.Interact();
+        target.Interact(this);
 
         // Delay focus by one frame so the same A press doesn't immediately click
         // the first button that gets focused (EventSystem Submit fires same frame).
@@ -82,9 +102,11 @@ public class WorldInteractionZone : MonoBehaviour
     private void OnClosePanel(InputAction.CallbackContext ctx)
     {
         if (active == null) return;
-        active.Deselect();
+        active.Deselect(this);
         active = null;
+        interacting = false;
         UIFocus.Clear();
+        ShowPrompt();
     }
 
     private WorldInteractable GetNearest()

@@ -113,7 +113,7 @@ public class RunestoneManager : MonoBehaviour, ISaveable
         if (jarl == null || jarl.skills == null) return RunestoneCategory.Economy;
 
         float combatScore = jarl.skills.combat;
-        float economyScore = Mathf.Max(jarl.skills.farming, jarl.skills.fishing,
+        float economyScore = Mathf.Max(jarl.skills.farming, jarl.skills.hunting,
             jarl.skills.mining, jarl.skills.woodcutting, jarl.skills.crafting);
 
         return combatScore > economyScore ? RunestoneCategory.Combat : RunestoneCategory.Economy;
@@ -128,7 +128,13 @@ public class RunestoneManager : MonoBehaviour, ISaveable
             Debug.Log($"Runestone activated: {info.name} - {info.description}");
             CompleteSelection();
         }
-        // If at capacity, UI should call ReplaceRunestone instead
+        else
+        {
+            // At capacity — UI must call ReplaceRunestone instead.
+            // Calling CompleteSelection here would silently skip the replacement step,
+            // so log an error and leave selection open so the UI can recover.
+            Debug.LogError($"SelectRunestone called at capacity ({MAX_ACTIVE_RUNESTONES}). Call ReplaceRunestone to swap an existing stone.");
+        }
     }
 
     public void ReplaceRunestone(RunestoneType toRemove, RunestoneType newType)
@@ -176,7 +182,7 @@ public class RunestoneManager : MonoBehaviour, ISaveable
     }
 
     /// <summary>Winter's Friend: 0.7x firewood consumption</summary>
-    public float GetFirewoodConsumptionMultiplier()
+    public float GetWoodConsumptionMultiplier()
     {
         return HasRunestone(RunestoneType.WintersFriend) ? 0.7f : 1f;
     }

@@ -81,12 +81,14 @@ public class DayNightManager : MonoBehaviour, ISaveable
     // Events
     public event Action OnMealTime;
     public event Action OnNewDay;
+    public event Action OnDayEnd;
     public event Action<bool> OnDayNightChanged;
     public event Action<bool> OnDawnEveningChanged;
 
 
     public float eveningMultiplier = 1f;
     private bool wasDaytime = true;
+    private bool wasDawnEvening = false;
 
     private void Awake()
     {
@@ -152,7 +154,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void OnTick(float deltaTime)
     {
-
+        if (!enabled)
+            return;
         // Check if we've passed meal time
         if (!hasConsumedMealToday && currentTimeOfDay >= mealTime)
         {
@@ -163,9 +166,10 @@ public class DayNightManager : MonoBehaviour, ISaveable
         // Handle day rollover
         if (currentTimeOfDay >= 1f)
         {
-            currentTimeOfDay = 0f;
+            currentTimeOfDay -= 1f;
             currentDay++;
             hasConsumedMealToday = false;
+            OnDayEnd?.Invoke();
             OnNewDay?.Invoke();
             Debug.Log($"Day {currentDay} has begun!");
         }
@@ -175,6 +179,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void FastUpdate()
     {
+        if (!enabled)
+            return;
         // Optional: Smoothly update lighting for visual effects
         float timeIncrement = Time.deltaTime / dayLengthInSeconds;
         timeIncrement *= GameTickManager.Instance.TimeScale;
@@ -202,13 +208,16 @@ public class DayNightManager : MonoBehaviour, ISaveable
             OnDayNightChanged?.Invoke(isSunUp);
         }
 
-        // Check for dawn/dusk transitions
-        bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f; // Within 5% of sunrise time
-        bool isDusk = Mathf.Abs(currentTimeOfDay - sunsetTime) < 0.05f;   // Within 5% of sunset time
+        // Check for dawn/dusk transitions — fire once on the edge, not every frame
+        bool isDawnEvening = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f ||
+                             Mathf.Abs(currentTimeOfDay - sunsetTime)  < 0.05f;
+        bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f;
 
-        if (isDawn || isDusk)
+        if (isDawnEvening != wasDawnEvening)
         {
-            OnDawnEveningChanged?.Invoke(isDawn);
+            wasDawnEvening = isDawnEvening;
+            if (isDawnEvening)
+                OnDawnEveningChanged?.Invoke(isDawn);
         }
 
         // Update sun light
@@ -308,8 +317,8 @@ public class DayNightManager : MonoBehaviour, ISaveable
             dayBlend = 0.2f;
         }
 
-        // Smoothly interpolate intensity and color
-        ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend);
+        // Smoothly interpolate intensity and color; eveningMultiplier is set by SeasonManager
+        ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend) * eveningMultiplier;
         ambientLight.color = Color.Lerp(ambientNightColor, ambientDayColor, dayBlend);
     }
 
@@ -320,6 +329,28 @@ public class DayNightManager : MonoBehaviour, ISaveable
         // Trigger event for SettlementManager and other systems
         OnMealTime?.Invoke();
     }
+
+    // Change 1: expose current state as properties for simulator and raid return
+    public int CurrentAbsoluteDay => currentDay;
+    public float CurrentTimeOfDay => currentTimeOfDay;
+
+    /// <summary>
+    /// Teleports the clock to an exact position without firing OnNewDay.
+    /// Used by raid return to restore the post-raid time of day and date.
+    /// </summary>
+    public void SetDateTime(int absoluteDay, float timeOfDay)
+    {
+        currentDay = absoluteDay;
+        currentTimeOfDay = Mathf.Clamp01(timeOfDay);
+        hasConsumedMealToday = currentTimeOfDay > mealTime;
+        UpdateLighting();
+    }
+
+    [ContextMenu("Debug: Set Midday")]
+    private void DebugSetMidday() => SetDateTime(currentDay, 0.5f);
+
+    [ContextMenu("Debug: Set Midnight")]
+    private void DebugSetMidnight() => SetDateTime(currentDay, 0f);
 
     /// <summary>
     /// Get the current time of day (0-1)

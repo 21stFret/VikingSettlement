@@ -13,9 +13,25 @@ using UnityEngine;
 public abstract class WorldInteractable : MonoBehaviour
 {
     public virtual bool IsInteractable => true;
+    public WorldInteractionZone CurrentZone { get; set; }
+    /// <summary>
+    /// Text shown on the interaction prompt while this is the nearest interactable
+    /// (e.g. "Pick up Rare Sword"). Override to customize; default fits generic panels.
+    /// </summary>
+    public virtual string PromptLabel => "Interact";
 
-    public abstract void Interact();
-    public abstract void Deselect();
+    public virtual void Interact(WorldInteractionZone zone = null)
+    {
+        CurrentZone = zone;
+    }
+    public virtual void Deselect(WorldInteractionZone zone = null)
+    {
+        if(CurrentZone != null) {
+            CurrentZone.interacting = false;
+            CurrentZone.ShowPrompt();
+            CurrentZone = null;
+        }
+    }
 
     /// <summary>
     /// Called one frame after Interact() by WorldInteractionZone so the same button press

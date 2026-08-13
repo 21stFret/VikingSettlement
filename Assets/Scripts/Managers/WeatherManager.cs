@@ -56,18 +56,12 @@ public class WeatherManager : MonoBehaviour
     [SerializeField] private bool isStormActive = false;
     [SerializeField] private float weatherIntensity = 1f;
 
-    [Header("Weather Control")]
-    [Tooltip("When true, weather changes automatically. When false, weather stays until manually changed (for cutscenes).")]
-    public bool autoWeather = true;
-
     [Header("Weather Duration (Auto Mode)")]
     [Tooltip("Minimum weather duration in days (0.5 = half day)")]
     public float minWeatherDuration = 0.5f;
     [Tooltip("Maximum weather duration in days (1.0 = full day)")]
     public float maxWeatherDuration = 1f;
     [SerializeField] private float currentWeatherDuration = 0f;
-    [SerializeField] private float weatherTimeElapsed = 0f;
-    private float lastTimeOfDay = 0f;
 
     [Header("Rain/Storm Effects")]
     [Tooltip("Sun intensity multiplier during rain/storm (0.5 = 50% darker)")]
@@ -75,6 +69,12 @@ public class WeatherManager : MonoBehaviour
     public float stormSunIntensityMultiplier = 0.5f;
     private float originalSunIntensity = 1f;
     private bool hasDimmedSun = false;
+
+    [Header("Winter Snow")]
+    [Tooltip("Snow emission rate on calm winter days (ambient snowfall)")]
+    [SerializeField] private float ambientWinterSnowRate = 25f;
+    [Tooltip("Snow emission rate during winter storms (blizzard)")]
+    [SerializeField] private float stormSnowRate = 100f;
 
     [Header("Testing")]
     [Tooltip("Select weather type to test")]
@@ -127,6 +127,7 @@ public class WeatherManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
@@ -145,6 +146,7 @@ public class WeatherManager : MonoBehaviour
             if (DayNightManager.Instance != null)
             {
                 DayNightManager.Instance.OnDayNightChanged -= OnDayNightChanged;
+                DayNightManager.Instance.OnNewDay          -= OnWeatherNewDay;
             }
         }
     }
@@ -177,13 +179,20 @@ public class WeatherManager : MonoBehaviour
         {
             DayNightManager.Instance.OnDayNightChanged += OnDayNightChanged;
             DayNightManager.Instance.OnDawnEveningChanged += OnDawnEveningChanged;
+            DayNightManager.Instance.OnNewDay += OnWeatherNewDay;
         }
 
-        // Pick a random weather type for variety between scenes (only in auto mode)
-        if (autoWeather)
-        {
-            SetRandomWeather();
-        }
+        // Disabled — weather now driven by CalendarManager via ApplyWeatherForDay()
+        // if (autoWeather)
+        // {
+        //     SetRandomWeather();
+        // }
+
+        // Apply correct weather immediately so it's right on scene load, not after the first day tick
+        bool initIsStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool initIsWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        ApplyWeatherForDay(initIsStorm, initIsWinter, coldLevel);
     }
 
     private void OnDayNightChanged(bool isDaytime)
@@ -209,7 +218,7 @@ public class WeatherManager : MonoBehaviour
         // Sun beams/dust now handled by UpdateSunBeamTiming based on time window
 
         // Fireflies only at night (when Clear weather)
-        if (currentWeather == WeatherType.Clear)
+        if (currentWeather == WeatherType.Clear && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
         {
             EnableFireflies(!isDawn);
         }
@@ -253,11 +262,6 @@ public class WeatherManager : MonoBehaviour
 
         // Set random duration and reset timer
         currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-        weatherTimeElapsed = 0f;
-        if (DayNightManager.Instance != null)
-        {
-            lastTimeOfDay = DayNightManager.Instance.GetTimeOfDay();
-        }
 
         Debug.Log($"WeatherManager: Weather set to {randomWeather} for {currentWeatherDuration:F2} days");
     }
@@ -378,6 +382,8 @@ public class WeatherManager : MonoBehaviour
 
     private void UpdateWeatherDuration()
     {
+        // Disabled — weather now driven by CalendarManager via ApplyWeatherForDay()
+        /*
         // Skip auto weather changes when in manual mode
         if (!autoWeather) return;
         if (DayNightManager.Instance == null) return;
@@ -396,6 +402,7 @@ public class WeatherManager : MonoBehaviour
         {
             SetRandomWeather();
         }
+        */
     }
 
     private void UpdateSunDimming()
@@ -474,7 +481,10 @@ public class WeatherManager : MonoBehaviour
         {
             case WeatherType.Clear:
                 // Fireflies only at night during clear weather
-                EnableFireflies(!isDaytime);
+                if(SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
+                {
+                    EnableFireflies(!isDaytime);
+                }
                 break;
 
             case WeatherType.Sunny:
@@ -521,16 +531,61 @@ public class WeatherManager : MonoBehaviour
         if (enabled)
         {
             instance.SetActive(true);
-            if (!particles.isPlaying)
-            {
+            // isPlaying stays true during StopEmitting drain, so also check isEmitting
+            // to catch the case where DisableAllEffects() and re-enable happen in the same call.
+            if (particles.isStopped || !particles.isEmitting)
                 particles.Play();
-            }
         }
         else
         {
             // Stop emitting but let existing particles fade out
             particles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
+    }
+
+    // ── Calendar-driven weather ───────────────────────────────────────────────
+
+    private void OnWeatherNewDay()
+    {
+        bool isStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool isWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        ApplyWeatherForDay(isStorm, isWinter, coldLevel);
+    }
+
+    /// <summary>
+    /// Sets weather for the day based on storm/season state.
+    /// Called by OnWeatherNewDay and during Initialize() for correct scene-load state.
+    /// CalendarManager and StormScheduler are the source of truth; this method only executes.
+    /// </summary>
+    public void ApplyWeatherForDay(bool isStormDay, bool isWinter, int coldLevel)
+    {
+        if (isStormDay)
+        {
+            SetWeather(WeatherType.Storm);
+            return;
+        }
+
+        if (isWinter)
+        {
+            if(coldLevel>0)
+            {
+                SetSnowIntensity(coldLevel >1 ? stormSnowRate : ambientWinterSnowRate);
+                SetWeather(WeatherType.Snow);
+                return;
+            }
+        }
+        else
+        {
+            if(coldLevel<0)
+            {
+                SetWeather(WeatherType.Sunny);  // sun beams + fireflies
+                return;
+            }
+
+        }
+        SetWeather(WeatherType.Clear);
+
     }
 
     #region Public API
@@ -696,31 +751,7 @@ public class WeatherManager : MonoBehaviour
     /// </summary>
     public void SetManualWeather(WeatherType weather, float intensity = 1f)
     {
-        autoWeather = false;
         SetWeather(weather, intensity);
-    }
-
-    /// <summary>
-    /// Resume automatic weather changes
-    /// </summary>
-    public void ResumeAutoWeather()
-    {
-        autoWeather = true;
-        // Reset the timer so we get a full duration before next change
-        weatherTimeElapsed = 0f;
-        currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-        if (DayNightManager.Instance != null)
-        {
-            lastTimeOfDay = DayNightManager.Instance.GetTimeOfDay();
-        }
-    }
-
-    /// <summary>
-    /// Check if weather is in manual/cutscene mode
-    /// </summary>
-    public bool IsManualMode()
-    {
-        return !autoWeather;
     }
 
     /// <summary>
@@ -745,39 +776,6 @@ public class WeatherManager : MonoBehaviour
     public ParticleSystem GetSnowParticles()
     {
         return snowParticles;
-    }
-
-    #endregion
-
-    #region Testing Methods
-
-    /// <summary>
-    /// Apply the test weather type from inspector
-    /// </summary>
-    private void ApplyTestWeather()
-    {
-        SetWeather(testWeatherType);
-
-        // Apply intensity based on weather type
-        if (testWeatherType == WeatherType.Rain || testWeatherType == WeatherType.Storm)
-        {
-            SetRainIntensity(testIntensity);
-        }
-        else if (testWeatherType == WeatherType.Snow)
-        {
-            SetSnowIntensity(testIntensity);
-        }
-
-        Debug.Log($"WeatherManager: Applied weather - {testWeatherType} (intensity: {testIntensity})");
-    }
-
-    /// <summary>
-    /// Stop all weather effects
-    /// </summary>
-    private void StopAllWeather()
-    {
-        SetWeather(WeatherType.Clear);
-        Debug.Log("WeatherManager: All weather effects stopped");
     }
 
     #endregion

@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Villager controlTarget;
 
     private CharacterBase controller;
-    private VillagerAI targetAI;
+    private VillagerAIBase targetAI;
     private WeaponSwapper weaponSwapper;
     private Vector2 moveInput;
     private bool inputEnabled = true;
@@ -21,11 +21,6 @@ public class PlayerController : MonoBehaviour
     private bool isBlockHeld = false;
     private float blockPressTime = -999f;
     [SerializeField] private float parryWindowDuration = 0.3f;
-
-    // Shield pickup
-    private float _pickupCheckTimer;
-    [SerializeField] private float pickupCheckInterval = 0.15f;
-    [SerializeField] private float shieldPickupRadius = 0.5f;
 
     [Header("Shield Throw")]
     [SerializeField] private float throwSpeed = 12f;
@@ -35,14 +30,14 @@ public class PlayerController : MonoBehaviour
 
     // Shield wall
     private bool _shieldWallActive = false;
-    private readonly System.Collections.Generic.List<VillagerAI> _raidAllies
-        = new System.Collections.Generic.List<VillagerAI>();
+    private readonly System.Collections.Generic.List<VillagerAIBase> _raidAllies
+        = new System.Collections.Generic.List<VillagerAIBase>();
     [Header("Shield Wall")]
     [Tooltip("World-space gap between each villager in the formation.")]
     [SerializeField] private float wallSlotSpacing = 1f;
 
     // Input System
-    private PlayerInputActions inputActions;
+    public PlayerInputActions inputActions;
 
     private void Awake()
     {
@@ -255,31 +250,6 @@ public class PlayerController : MonoBehaviour
         {
             controller.Attack();
         }
-
-        // Auto-pickup shields the player walks over
-        _pickupCheckTimer -= Time.deltaTime;
-        if (_pickupCheckTimer <= 0f)
-        {
-            _pickupCheckTimer = pickupCheckInterval;
-            CheckShieldPickup();
-        }
-    }
-
-    private void CheckShieldPickup()
-    {
-        if (controller.shield != null) return;
-        if (controlTarget == null || controlTarget.itemAttachment == null) return;
-
-        Collider2D[] hits = Physics2D.OverlapCircleAll(controlTarget.transform.position, shieldPickupRadius);
-        foreach (var hit in hits)
-        {
-            if (!hit.CompareTag("Shield")) continue;
-            var item = hit.GetComponent<EquipableItem>();
-            if (item == null || item.isEquipped) continue;
-
-            controlTarget.itemAttachment.EquipShield(hit.gameObject);
-            return;
-        }
     }
     
     /// <summary>
@@ -313,16 +283,9 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Re-enable AI on previous target
-        if (targetAI != null)
-        {
-            targetAI.SetAIEnabled(true);
-        }
-
-        // Restore reactive blocking on old target and clear its block state
+        // Clear block state on old target — reactive blocking resumes automatically once its AI re-enables
         if (controller != null)
         {
-            controller.useReactiveBlocking = true;
             controller.isBlocking = false;
             controller.isParrying = false;
             controller.Stop();
@@ -331,7 +294,8 @@ public class PlayerController : MonoBehaviour
         // Set new target
         controlTarget = target;
         controller = target.GetComponent<CharacterBase>();
-        targetAI = target.GetComponent<VillagerAI>();
+        var allAIs = target.GetComponents<VillagerAIBase>();
+        targetAI = System.Array.Find(allAIs, ai => ai.enabled) ?? (allAIs.Length > 0 ? allAIs[0] : null);
         weaponSwapper = target.GetComponent<WeaponSwapper>();
 
         if (controller == null)
@@ -340,8 +304,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Disable reactive blocking and AI on new target (player controls this villager)
-        controller.useReactiveBlocking = false;
+        // Disable AI on new target (player controls this villager)
         if (targetAI != null)
         {
             targetAI.SetAIEnabled(false);
@@ -409,7 +372,7 @@ public class PlayerController : MonoBehaviour
     /// Register an ally villager's AI so it can be included in shield wall commands.
     /// Call once per ally when spawning/setting up raid mode.
     /// </summary>
-    public void RegisterRaidAlly(VillagerAI ai)
+    public void RegisterRaidAlly(VillagerAIBase ai)
     {
         if (ai != null && !_raidAllies.Contains(ai))
             _raidAllies.Add(ai);
@@ -450,7 +413,7 @@ public class PlayerController : MonoBehaviour
             int magnitude = slotIndex / 2 + 1;
             int side      = slotIndex % 2 == 0 ? 1 : -1;
             ai.wallFormationOffset = perp * (magnitude * side * wallSlotSpacing);
-            ai.SetRaidBehavior(VillagerAI.RaidBehavior.ShieldWall);
+            ai.SetRaidBehavior(RaidBehavior.ShieldWall);
 
             var villager = ai.GetComponent<Villager>();
             villager?.personalUI?.ShowSpeech("Shield Wall!", 2f);
@@ -473,7 +436,7 @@ public class PlayerController : MonoBehaviour
         foreach (var ai in _raidAllies)
         {
             if (ai == null) continue;
-            ai.SetRaidBehavior(VillagerAI.RaidBehavior.Follow);
+            ai.SetRaidBehavior(RaidBehavior.Follow);
         }
 
         _shieldWallActive = false;

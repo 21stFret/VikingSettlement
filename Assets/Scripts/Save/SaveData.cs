@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -20,17 +21,24 @@ public class SaveData
     public string saveName;
     public string saveTimestamp;
     public int slotNumber;
+    public string playerClanName;
 
     public GameStateSave gameState;
     public ResourceSave[] resources;
     public VillagerSave[] villagers;
     public BuildingSave[] buildings;
+    public ArmorySave[] armory;
     public MissionSaveData missions;
     public string currentJarlId;
     public SettlementStatsSave stats;
     public SkillTreeSaveData skillTreeData;
+    public CompendiumSaveData compendiumData;
+    public NotificationHistorySaveData notificationHistoryData;
     public RunestoneSaveData runestoneData;
     public DeathTypeBuffSaveData deathBuffData;
+    public CalendarDayData[] calendarDays;
+    public int currentGodiLevel;
+    public CutsceneSaveData cutsceneData;
 }
 
 [Serializable]
@@ -55,6 +63,7 @@ public class VillagerSave
 {
     public string id;
     public string villagerName;
+    public string clanName;
     public int gender;
     public float age;
     public float lifeExpectancy;
@@ -82,7 +91,9 @@ public class VillagerSave
     public float posZ;
     public string spriteVariant;
     public string weaponName;
+    public int weaponDurability;
     public string shieldName;
+    public int shieldDurability;
     public string torchName;
     public int[] activeWounds; // WoundType cast to int
 }
@@ -120,6 +131,15 @@ public class BuildingSave
     public float productionProgress;
     public string[] assignedWorkerIds;
     public bool needsRepair;
+    public int level;
+}
+
+[Serializable]
+public class ArmorySave
+{
+    public string[] itemNames;
+    public float[] itemDurabilites;
+    public string[] itemIDs;
 }
 
 [Serializable]
@@ -163,6 +183,7 @@ public class SaveSlotInfo
     public string saveTimestamp;
     public bool exists;
     public int slotNumber;
+    public string clanName;
 }
 
 [Serializable]
@@ -170,6 +191,26 @@ public class SkillTreeSaveData
 {
     public int currentXP;
     public string[] unlockedSkillIds;
+}
+
+[Serializable]
+public class CompendiumSaveData
+{
+    public List<string> discoveredIds;
+}
+
+[Serializable]
+public class NotificationHistorySaveData
+{
+    public List<NotificationRecordSave> entries;
+}
+
+[Serializable]
+public class NotificationRecordSave
+{
+    public string id;
+    public string title;
+    public string message;
 }
 
 [Serializable]
@@ -183,4 +224,10 @@ public class DeathTypeBuffSaveData
 {
     public int currentBuffType;
     public float remainingTime;
+}
+
+[Serializable]
+public class CutsceneSaveData
+{
+    public List<string> playedOneShotCutsceneIds;
 }

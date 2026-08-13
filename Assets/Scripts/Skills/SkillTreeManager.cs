@@ -48,7 +48,7 @@ public class SkillTreeManager : MonoBehaviour, ISaveable
     public void Initialize()
     {
         if (JarlManager.Instance != null)
-            JarlManager.Instance.OnJarlDied += OnJarlChanged;
+            JarlManager.Instance.OnJarlDied += OnJarlDied;
         else
             Debug.LogWarning("SkillTreeManager: JarlManager not found during Initialize!");
     }
@@ -57,7 +57,7 @@ public class SkillTreeManager : MonoBehaviour, ISaveable
     {
         if (JarlManager.Instance != null)
         {
-            JarlManager.Instance.OnJarlDied -= OnJarlChanged;
+            JarlManager.Instance.OnJarlDied -= OnJarlDied;
         }
     }
 
@@ -90,7 +90,7 @@ public class SkillTreeManager : MonoBehaviour, ISaveable
         Debug.Log("XP reset for new Jarl.");
     }
 
-    private void OnJarlChanged(Villager newJarl)
+    private void OnJarlDied(Villager newJarl)
     {
         ResetXP();
     }

@@ -42,8 +42,14 @@ public class SaveSlotItemUI : MonoBehaviour
         HasSave = info.exists;
         onSelected = onSelectedCallback;
 
-        // Format slot name for display
-        string displayName = FormatSlotName(info.slotName);
+        // Manual slots show the player's clan name once they have a save; autosave and
+        // empty slots fall back to the generic "Slot N" / "Auto Save" label.
+        string displayName;
+        if (info.slotName != SaveManager.AUTOSAVE_NAME && info.exists && !string.IsNullOrEmpty(info.clanName))
+            displayName = info.clanName;
+        else
+            displayName = FormatSlotName(info.slotName);
+
         if (slotNameText != null) slotNameText.text = displayName;
 
         // Show timestamp or empty indicator

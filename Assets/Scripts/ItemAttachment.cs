@@ -8,14 +8,21 @@ public class ItemAttachment : MonoBehaviour
     public Transform backAttachment;
 
     [Header("Equipped Items")]
-    [SerializeField] private GameObject shield;
-    [SerializeField] private GameObject weapon;
-    [SerializeField] private GameObject torch;
+    [SerializeField] public GameObject shield;
+    [SerializeField] public GameObject weapon;
+    [SerializeField] public GameObject torch;
+
+    [Header("Equipped Items")]
+    [SerializeField] public EquipableItem shieldItem;
+    [SerializeField] public EquipableItem weaponItem;
+    [SerializeField] public EquipableItem torchItem;
 
     [Header("Settings")]
     [SerializeField] private AttachmentPoint shieldAttachPoint = AttachmentPoint.LeftHand;
     [SerializeField] private AttachmentPoint weaponAttachPoint = AttachmentPoint.RightHand;
     [SerializeField] private AttachmentPoint torchAttachPoint = AttachmentPoint.Back;
+
+    private WeaponDatabase WD;
 
     public enum AttachmentPoint
     {
@@ -23,18 +30,10 @@ public class ItemAttachment : MonoBehaviour
         RightHand,
         Back
     }
-    
-    private void Start()
+
+    private void Awake()
     {
-        // Attach items to their points
-        if (shield != null)
-            EquipShield(shield);
-
-        if (weapon != null)
-            EquipWeapon(weapon);
-
-        if (torch != null)
-            EquipTorch(torch);
+        WD = WeaponDatabase.Instance;
     }
 
     private void AttachItem(Transform item, AttachmentPoint point)
@@ -47,20 +46,38 @@ public class ItemAttachment : MonoBehaviour
             item.localPosition = Vector3.zero;
             item.localRotation = Quaternion.identity;
         }
+        EquipableItem equipableItem = item.GetComponent<EquipableItem>();
+        WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+
+        if (CompendiumManager.Instance != null)
+        {
+            string weaponName = equipableItem.itemName.ToString().ToLower().Replace(" ", "_");
+            CompendiumManager.Instance.Discover("weapon_" + weaponName);
+        }
     }
 
     public void EquipShield(GameObject newShield)
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
+        shieldItem = newShield.GetComponent<EquipableItem>();   
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.shield = newShield.GetComponent<EquipableItem>();
+            CC.shield = shieldItem;
             CC.shield.isEquipped = true;
-            CC.shield.OnBroken += UnequipShield;
+            CC.shield.OnBroken += ShieldDestroyed;
+            (CC.AI as CombatAIBase)?.HandleShieldChanged(CC.shield);
         }
-        AttackCooldownUI.Instance.shieldUi.Init();
+        Villager V = GetComponent<Villager>();
+        if(V != null)
+        {
+            if(V.isJarl)
+            {
+                AttackCooldownUI.Instance.shieldUi.Init();
+            }
+        }
+
     }
 
     /// <summary>
@@ -77,12 +94,13 @@ public class ItemAttachment : MonoBehaviour
         CharacterBase cc = GetComponent<CharacterBase>();
         if (cc != null && cc.shield != null)
         {
-            cc.shield.OnBroken -= UnequipShield;
+            cc.shield.OnBroken -= ShieldDestroyed;
             cc.isBlocking = false;
             cc.isParrying = false;
             cc.shield.isEquipped = false;
             cc.shield = null;
         }
+        (cc?.AI as CombatAIBase)?.HandleShieldChanged(null);
 
         shield.transform.SetParent(null);
         shield.tag = "Shield";
@@ -95,14 +113,35 @@ public class ItemAttachment : MonoBehaviour
         }
 
         shield = null;
+        shieldItem = null;
         item?.NotifyUnequipped();
+    }
+
+    /// <summary>
+    /// Swap the currently equipped shield for one found on the ground: the old shield (if any)
+    /// is dropped where the new one was lying, and the new one is equipped in its place.
+    /// </summary>
+    public void SwapShield(GameObject newShieldGO)
+    {
+        if (newShieldGO == null) return;
+
+        Vector3 groundPosition = newShieldGO.transform.position;
+        GameObject oldShield = shield;
+
+        if (oldShield != null)
+        {
+            DropShield();
+            oldShield.transform.position = groundPosition;
+        }
+
+        EquipShield(newShieldGO);
     }
 
     /// <summary>
     /// Remove and destroy the equipped shield, clearing all related state.
     /// Called automatically when shield durability reaches zero.
     /// </summary>
-    public void UnequipShield()
+    public void ShieldDestroyed()
     {
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
@@ -123,6 +162,7 @@ public class ItemAttachment : MonoBehaviour
         {
             Destroy(shield);
             shield = null;
+            shieldItem = null;
         }
     }
 
@@ -130,16 +170,155 @@ public class ItemAttachment : MonoBehaviour
     {
         weapon = newWeapon;
         AttachItem(newWeapon.transform, weaponAttachPoint);
+        weaponItem = newWeapon.GetComponent<EquipableItem>();
+        if (weaponItem != null)
+        {
+            weaponItem.isEquipped = true;
+        }
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
-            CC.weapon = newWeapon.GetComponent<EquipableItem>();
+            CC.weapon = weaponItem;
+            CC.weapon.OnBroken += WeaponDestroyed;
+            CC.attackTargetLayer |= LayerMask.GetMask("Grass");
+        }
+        Villager V = GetComponent<Villager>();
+        if (V != null)
+        {
+            if (V.isJarl)
+            {
+                AttackCooldownUI.Instance.Init();
+            }
         }
     }
 
-    public void GiveRandomWeapon()
+    public void UnequipWeapon()
     {
-        // This is a placeholder implementation. Replace with actual weapon selection logic.
+        var item = weaponItem;
+        if (item != null)
+        {
+            item.isEquipped = false;
+        }
+
+        WD.AddItemToVillageArmory(item);
+        WD.villageArmoryManager.SpawnArmory();
+
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.weapon.OnBroken -= WeaponDestroyed;
+            CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
+            CC.weapon = null;
+        }
+
+        if (weapon != null)
+        {
+            weapon = null;
+            weaponItem = null;
+        }
+
+    }
+
+    /// <summary>
+    /// Detach the currently equipped weapon to the world so it can be picked up later.
+    /// Mirrors DropShield. Used when swapping for a weapon found on the ground.
+    /// </summary>
+    public void DropWeapon()
+    {
+        if (weapon == null) return;
+
+        var item = weaponItem;
+
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
+            CC.weapon.OnBroken -= WeaponDestroyed;
+            CC.weapon = null;
+        }
+
+        GameObject dropped = weapon;
+        weapon = null;
+
+        dropped.transform.SetParent(null);
+        dropped.tag = "Weapon";
+
+        if (dropped.GetComponent<Collider2D>() == null)
+        {
+            var col = dropped.AddComponent<CircleCollider2D>();
+            col.isTrigger = true;
+            col.radius = 0.3f;
+        }
+
+        if (item != null)
+        {
+            item.isEquipped = false;
+            item.NotifyUnequipped();
+        }
+    }
+
+    public void WeaponDestroyed()
+    {
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null)
+        {
+            CC.weapon = null;
+        }
+        if (weapon != null)
+        {
+            Destroy(weapon);
+            weapon = null;
+        }
+    }
+
+    /// <summary>
+    /// Swap the currently equipped weapon for one found on the ground: the old weapon (if any)
+    /// is dropped where the new one was lying, and the new one is equipped in its place.
+    /// </summary>
+    public void SwapWeapon(GameObject newWeaponGO)
+    {
+        if (newWeaponGO == null) return;
+
+        Vector3 groundPosition = newWeaponGO.transform.position;
+        GameObject oldWeapon = weapon;
+
+        if (oldWeapon != null)
+        {
+            DropWeapon();
+            oldWeapon.transform.position = groundPosition;
+        }
+
+        EquipWeapon(newWeaponGO);
+    }
+
+    public void TakeWeaponFromArmory()
+    {
+        EquipableItem armoryWeapon = WD.GetFirstWeaponFromVillageArmory();
+        if (armoryWeapon != null)
+        {
+            string armoryItemID = armoryWeapon.itemID;
+            EquipWeapon(WD.villageArmoryManager.GetSpawnedItem(armoryItemID, true));
+        }
+        else
+        {
+            print("No weapon found in village armory.");
+        }
+    }
+
+    public void GiveWeaponByName(string weaponName)
+    {
+        EquipableItem randomWeapon = WeaponDatabase.Instance.GetWeaponByName(weaponName);
+        if (randomWeapon != null)
+        {
+            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            weaponInstance.GetComponent<EquipableItem>().Init();
+            EquipWeapon(weaponInstance);
+        }
+    }
+
+    public void GiveRandomWeeapon()
+    {
+        if (WeaponDatabase.Instance == null) return;
         EquipableItem randomWeapon = WeaponDatabase.Instance.GetRandomWeapon();
         if (randomWeapon != null)
         {
@@ -148,25 +327,17 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
-    public void GiveWeaponByName(string weaponName)
+    public void TakeShieldFromArmory()
     {
-        // This is a placeholder implementation. Replace with actual weapon selection logic.
-        EquipableItem randomWeapon = WeaponDatabase.Instance.GetWeaponByName(weaponName);
-        if (randomWeapon != null)
+        EquipableItem armoryShield = WD.GetFirstShieldFromVillageArmory();
+        if (armoryShield != null)
         {
-            GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
-            EquipWeapon(weaponInstance);
+            string armoryItemID = armoryShield.itemID;
+            EquipShield(WD.villageArmoryManager.GetSpawnedItem(armoryItemID, true));
         }
-    }
-
-    public void GiveRandomShield()
-    {
-        // This is a placeholder implementation. Replace with actual shield selection logic.
-        EquipableItem randomShield = WeaponDatabase.Instance.GetRandomShield();
-        if (randomShield != null)
+        else
         {
-            GameObject shieldInstance = Instantiate(randomShield.gameObject);
-            EquipShield(shieldInstance);
+            print("No shield found in village armory.");
         }
     }
 
@@ -177,6 +348,7 @@ public class ItemAttachment : MonoBehaviour
         if (randomWeapon != null)
         {
             GameObject weaponInstance = Instantiate(randomWeapon.gameObject);
+            weaponInstance.GetComponent<EquipableItem>().Init();
             EquipShield(weaponInstance);
         }
     }
@@ -231,5 +403,17 @@ public class ItemAttachment : MonoBehaviour
     {
         if (item != null)
             item.enabled = visible;
+    }
+
+    public void SetDurability(Vector2 values)
+    {
+        if(weapon != null)
+        {
+            weaponItem.SetDurability(values.x);
+        }
+        if(shield != null)
+        {
+            shieldItem.SetDurability(values.y);
+        }
     }
 }

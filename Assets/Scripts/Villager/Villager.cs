@@ -1,24 +1,28 @@
+using DG.Tweening;
 using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem.XR;
 
 public class Villager : TargetHealth
 {
     public string uniqueId;
     public string villagerName;
+    public string clanName;
     public JobType currentJob = JobType.None;
     public Building assignedBuilding;
 
     public VillagerSkills skills = new VillagerSkills();
     public float skillGainRate = 1f; // Multiplier for skill gain speed
     public CombatStats combatStats = new CombatStats();
-    
+
     [Header("Status")]
     public float morale = 100f;
     public float maxMorale = 100f;
     public bool isHungry = false;
     public bool isCold = false;
     public bool isOnRaid = false;
+    public DeathCause deathCause = DeathCause.Other;
     public float healthRegenFromFood = 1; // Health regained when fed
     public float moraleRegenFromFood = 5; // Morale regained when fed
 
@@ -85,8 +89,13 @@ public class Villager : TargetHealth
 
         if (string.IsNullOrEmpty(villagerName))
         {
-            villagerName = VillagerNameGenerator.GenerateNorseName(gender);
+            villagerName = VillagerNameGenerator.GenerateNorseName(gender, "");
             gameObject.name = villagerName;
+        }
+
+        if (string.IsNullOrEmpty(clanName))
+        {
+            clanName = VillagerNameGenerator.GenerateClanName();
         }
 
         // Set initial life stage based on age (skip if loaded from save - it's already set)
@@ -105,7 +114,7 @@ public class Villager : TargetHealth
         if (!loadedFromSave)
         {
             currentHealth = maxHealth;
-            morale = maxMorale;
+            morale = maxMorale / 2;
         }
 
         // Subscribe to skill changes if we're the Jarl
@@ -142,9 +151,35 @@ public class Villager : TargetHealth
             _speechCooldown = Random.Range(_speechMinCooldown, _speechMaxCooldown); // Randomize next speech time
         }
     }
-    
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!isJarl) return;
+
+        if (collision.CompareTag("Shield"))
+        {
+            if (_controller.shield != null) return;
+            var item = collision.GetComponent<EquipableItem>();
+            if (item != null && !item.isEquipped)
+            {
+                itemAttachment.EquipShield(collision.gameObject);
+                return;
+            }
+        }
+
+        if (collision.CompareTag("Weapon"))
+        {
+            if (_controller.weapon != null) return;
+            var item = collision.GetComponent<EquipableItem>();
+            if (item != null && !item.isEquipped)
+            {
+                itemAttachment.EquipWeapon(collision.gameObject);
+            }
+        }
+    }
+
     #region Job Management
-    
+
     public void AssignJob(JobType job, Building building)
     {
         // Only mature villagers can work
@@ -156,20 +191,22 @@ public class Villager : TargetHealth
         
         currentJob = job;
         assignedBuilding = building;
+
+        foreach (var ai in GetComponents<VillagerAIBase>())
+            ai.SetWorkLocation(building != null ? building.transform : null);
     }
-    
+
     public void UnassignJob()
     {
         currentJob = JobType.None;
         assignedBuilding = null;
+
+        foreach (var ai in GetComponents<VillagerAIBase>())
+            ai.SetWorkLocation(null);
     }
 
     public float GetSkillMultiplier(JobType job)
-    {
-        float baseSkill = skills.GetSkillForJob(job);
-        float moraleModifier = morale / 100f;
-        return (1f + baseSkill * 0.5f) * moraleModifier;
-    }
+        => SettlementFormulas.GetSkillMultiplier(skills.GetSkillForJob(job), morale);
 
     public void UpdateLife(float deltaTime)
     {
@@ -208,7 +245,7 @@ public class Villager : TargetHealth
         if (currentJob == JobType.None || assignedBuilding == null) return;
 
         // Improve skill over time
-        skills.ImproveSkill(currentJob);
+        skills.ImproveJob(currentJob);
     }
 
     public void MakeASpeechComment()
@@ -262,16 +299,6 @@ public class Villager : TargetHealth
     {
         Debug.Log($"{villagerName} transitioned from {from} to {to} at age {age:F1}");
         
-        // Unassign job if no longer mature
-        if (to != LifeStage.Mature && currentJob != JobType.None)
-        {
-            UnassignJob();
-            if (assignedBuilding != null)
-            {
-                assignedBuilding.RemoveWorker(this);
-            }
-        }
-        
         // Handle death transition
         if (to == LifeStage.Dead)
         {
@@ -283,34 +310,47 @@ public class Villager : TargetHealth
     {
         // Only mature villagers can reproduce
         if (currentLifeStage != LifeStage.Mature) return;
-        
-        // Calculate effective reproduction cooldown with birth rate modifiers
-        float effectiveCooldown = _settlementManager.reproductionCooldown;
 
-        // Apply Fertile Lands runestone bonus (+20% birth rate = reduce cooldown)
-        if (RunestoneManager.Instance != null)
-        {
-            effectiveCooldown /= RunestoneManager.Instance.GetBirthRateMultiplier();
-        }
+        // Village must have spare housing capacity (Longhouse level) before a new villager can be born
+        if (_settlementManager != null && !_settlementManager.HasPopulationCapacity()) return;
 
-        // Apply Gefjon's Blessing birth rate bonus (+10%)
-        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-        {
-            effectiveCooldown /= (1f + DeathTypeBuff.Instance.GetBirthRatePercent() / 100f);
-        }
+        // stops 1 guy hvaing all the children all the time
+        if (_settlementManager.GetAverageChildCount() > childrenCount) return;
 
-        // Must have waited long enough since last child
-        if (timeSinceLastChild < effectiveCooldown) return;
-        
         // Need to find a partner if we don't have one
         if (partner == null)
         {
             partner = FindPotentialPartner();
         }
-        
+
         // If we have a valid partner, create a child
         if (partner != null && partner.currentLifeStage == LifeStage.Mature)
         {
+            // Calculate effective reproduction cooldown with birth rate modifiers
+            float effectiveCooldown = _settlementManager.reproductionCooldown;
+
+            // Apply Fertile Lands runestone bonus (+20% birth rate = reduce cooldown)
+            if (RunestoneManager.Instance != null)
+            {
+                effectiveCooldown /= RunestoneManager.Instance.GetBirthRateMultiplier();
+            }
+
+            // Apply Gefjon's Blessing birth rate bonus (+10%)
+            if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
+            {
+                effectiveCooldown /= (1f + DeathTypeBuff.Instance.GetBirthRatePercent() / 100f);
+            }
+
+            // Happier couples have children more often — low morale stretches out the cooldown
+            float averageMorale = (morale + partner.morale) / 2f;
+            effectiveCooldown /= SettlementFormulas.GetMoraleBirthRateMultiplier(averageMorale);
+
+            // Must have waited long enough since last child
+            if (timeSinceLastChild < effectiveCooldown) return;
+
+            // Stagger the births slightly
+            if(_settlementManager.timeSinceLastBirth < 10) return;
+
             // Only one partner creates the child to avoid duplicates
             if (gender == Gender.Female)
             {
@@ -321,6 +361,7 @@ public class Villager : TargetHealth
                 partner.childrenCount++;
                 personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
                 partner.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Love);
+                _settlementManager.timeSinceLastBirth = 0f;
             }
         }
     }
@@ -349,46 +390,44 @@ public class Villager : TargetHealth
 
     private void CreateChild(Villager mother, Villager father)
     {
-        // Instantiate a new villager (you'll need to have a villager prefab set up)
-        GameObject childObject = Instantiate(gameObject, transform.position + Vector3.right * 0.5f, Quaternion.identity);
-        Villager child = childObject.GetComponent<Villager>();
+        if (VillagerSpawner.Instance == null)
+        {
+            Debug.LogError("VillagerSpawner not found — cannot create child!");
+            return;
+        }
 
-        // Set basic properties
-        child.age = 0f;
-        child.lifeExpectancy = Random.Range(50f, 70f); // Slight variation in lifespan
-        child.gender = Random.value > 0.5f ? Gender.Male : Gender.Female;
-        child.villagerName = VillagerNameGenerator.GenerateNorseName(child.gender);
-        gameObject.name = villagerName;
+        Gender childGender = Random.value > 0.5f ? Gender.Male : Gender.Female;
+        Vector3 spawnPos = transform.position + Vector3.right * 0.5f;
 
-        // Set parents
+        // SpawnVillager handles instantiation from the prefab, AI setup, and Init() (which registers with SettlementManager)
+        Villager child = VillagerSpawner.Instance.SpawnVillager(spawnPos, childGender, age: 0f, giveEquipment: false);
+        if (child == null) return;
+
+        child.lifeExpectancy = Random.Range(50f, 70f);
+
+        // Override the spawner's random name with a freshly generated one (gender already correct)
+        child.villagerName = VillagerNameGenerator.GenerateNorseName(childGender, father.villagerName);
+        child.gameObject.name = child.villagerName;
+        child.clanName = father.clanName; // Inherit clan name from father
+
         child.parent1 = mother;
         child.parent2 = father;
 
-        // Inherit skills from parents (mean of both parents)
+        // Override randomised skills with inherited values
         child.skills = VillagerSkills.Inherit(mother.skills, father.skills);
 
-        // Apply Education runestone bonus (+2 to 2 random skills)
         if (RunestoneManager.Instance != null)
         {
             int bonus = RunestoneManager.Instance.GetEducationSkillBonus();
             if (bonus > 0)
-            {
                 child.skills.ApplyRandomSkillBonuses(bonus, 2);
-            }
         }
 
-        // Inherit combat stats (mean of both parents)
         child.combatStats.strength = (mother.combatStats.strength + father.combatStats.strength) / 2f;
         child.combatStats.defense = (mother.combatStats.defense + father.combatStats.defense) / 2f;
 
-        // Add some random variation to inherited traits
-        child.skillGainRate = (mother.skillGainRate + father.skillGainRate) / 2f + Random.Range(-0.1f, 0.1f);
-        child.skillGainRate = Mathf.Max(0.5f, child.skillGainRate); // Minimum 0.5
+        child.skillGainRate = Mathf.Max(0.5f, (mother.skillGainRate + father.skillGainRate) / 2f + Random.Range(-0.1f, 0.1f));
 
-        child.currentJob = JobType.None;
-        child.assignedBuilding = null;
-
-        // Track Jarl lineage for inheritance
         if (mother.isJarl || father.isJarl)
         {
             child.isOfJarlLineage = true;
@@ -397,7 +436,6 @@ public class Villager : TargetHealth
         else if (mother.isOfJarlLineage || father.isOfJarlLineage)
         {
             child.isOfJarlLineage = true;
-            // Inherit the closest lineage distance + 1
             int motherGen = mother.generationsFromJarl >= 0 ? mother.generationsFromJarl : int.MaxValue;
             int fatherGen = father.generationsFromJarl >= 0 ? father.generationsFromJarl : int.MaxValue;
             child.generationsFromJarl = Mathf.Min(motherGen, fatherGen) + 1;
@@ -405,7 +443,6 @@ public class Villager : TargetHealth
 
         child.spriteVariant = InheritSpriteVariant(mother.spriteVariant, father.spriteVariant);
         child.ApplySpriteVariant();
-
         child.ApplySkillBonuses();
 
         Debug.Log($"{mother.villagerName} and {father.villagerName} had a child: {child.villagerName}!");
@@ -461,19 +498,20 @@ public class Villager : TargetHealth
     /// <summary>
     /// Apply defense and shield reduction to incoming damage.
     /// </summary>
-    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon)
+    protected override float CalculateFinalDamage(float rawDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         // Active block: route all damage to shield durability, no HP damage.
         // Attacks from behind bypass the block entirely.
         if (_controller != null && _controller.shield != null && !_controller.shield.IsBroken)
         {
             if ((_controller.isBlocking || _controller.isParrying)
-                && !_controller.IsAttackFromBehind(_controller.lastAttackerPosition))
+                && !_controller.IsAttackFromBehind(attackerPos))
             {
                 int durDamage = _controller.isParrying
                     ? Mathf.CeilToInt(rawDamage * 0.5f)
                     : Mathf.CeilToInt(rawDamage);
                 _controller.shield.TakeDurabilityDamage(durDamage);
+                OnBlocked(weapon);
                 return 0f;
             }
         }
@@ -535,6 +573,11 @@ public class Villager : TargetHealth
         }
 
         StartCoroutine(FlashRedOnDamage());
+
+        if(isJarl)
+        {
+            Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
+        }
     }
 
     public void HandleHunger(bool _isHungry)
@@ -565,32 +608,28 @@ public class Villager : TargetHealth
         }
 
         float minDmg = SettlementManager.Instance != null ? SettlementManager.Instance.minStarvationDamage : 5f;
-        float fullDamage = Mathf.Max(currentHealth / 2f, minDmg);
-        TakeDamage(fullDamage * hungerFraction, null, true);
-        ChangeMorale(-10f * hungerFraction);
+        var effect = SettlementFormulas.GetSharedHungerEffect(currentHealth, minDmg, hungerFraction);
+        TakeDamage(effect.healthDamage, null, true);
+        ChangeMorale(effect.moraleDelta);
         personalUI.ShowSpeech(hungerFraction >= 1f ? "I'm starving..." : "I'm hungry...", 2.0f);
     }
 
     private void ReduceHealthAndMoraleDueToHunger()
     {
-        // Reduce health and morale due to hunger
-        int minDmg = SettlementManager.Instance != null ? Mathf.FloorToInt(SettlementManager.Instance.minStarvationDamage) : 5;
-        int hungerDamage = Mathf.FloorToInt(currentHealth / 2);
-        hungerDamage = Mathf.Max(hungerDamage, minDmg);
-        TakeDamage(hungerDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
-        ChangeMorale(-10f); // Lose 10 morale due to hunger
+        float minDmg = SettlementManager.Instance != null ? SettlementManager.Instance.minStarvationDamage : 5f;
+        var effect = SettlementFormulas.GetPrioritizedHungerEffect(currentHealth, minDmg);
+        TakeDamage(effect.healthDamage, null, true); // Lose health due to hunger (true damage bypasses defense)
+        ChangeMorale(effect.moraleDelta);
         personalUI.ShowSpeech("I'm starving...", 2.0f);
     }
 
     private void HealFromFood(float healthAmount, float moraleAmount)
     {
-        // Apply Gefjon's Blessing heal speed bonus
-        if (DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive)
-        {
-            healthAmount *= (1f + DeathTypeBuff.Instance.GetHealSpeedPercent() / 100f);
-        }
-        Heal(healthAmount);
-        ChangeMorale(moraleAmount);
+        bool gefjonActive = DeathTypeBuff.Instance != null && DeathTypeBuff.Instance.IsActive;
+        float gefjonHealPct = gefjonActive ? DeathTypeBuff.Instance.GetHealSpeedPercent() : 0f;
+        var (healthGain, moraleGain) = SettlementFormulas.GetFoodHealEffect(healthAmount, moraleAmount, gefjonActive, gefjonHealPct);
+        Heal(healthGain);
+        ChangeMorale(moraleGain);
         personalUI.ShowSpeech("That was a good meal!", 2.0f);
     }
     
@@ -612,21 +651,21 @@ public class Villager : TargetHealth
         base.Die();
         Debug.Log($"{villagerName} has died at age {age:F1}");
 
+        // Determine cause of death for all villagers
+        deathCause = DeathCause.Other;
+        if (lastDamageWasCombat)
+            deathCause = DeathCause.Combat;
+        else if (age >= lifeExpectancy)
+            deathCause = DeathCause.OldAge;
+        else if (isHungry)
+            deathCause = DeathCause.Starvation;
+        else if (isCold)
+            deathCause = DeathCause.Cold;
+
         // If the Jarl is dying, trigger succession
         if (isJarl && JarlManager.Instance != null)
         {
-            // Determine cause of death
-            DeathCause cause = DeathCause.Other;
-            if (lastDamageWasCombat)
-                cause = DeathCause.Combat;
-            else if (age >= lifeExpectancy)
-                cause = DeathCause.OldAge;
-            else if (isHungry)
-                cause = DeathCause.Starvation;
-            else if (isCold)
-                cause = DeathCause.Cold;
-
-            JarlManager.Instance.OnCurrentJarlDied(cause);
+            JarlManager.Instance.OnCurrentJarlDied(deathCause);
         }
 
         currentLifeStage = LifeStage.Dead;
@@ -661,11 +700,12 @@ public class Villager : TargetHealth
     }
 
     /// <summary>
-    /// Remove the villager game object at the end of death animation with animation event
+    /// Called by the death animation event — spawns the Valkyrie which handles body removal.
     /// </summary>
-    public void RemoveAtEndofAnimation()
+    public void SpawnValkyrie()
     {
-        Destroy(gameObject, 0.5f);
+        if (ValkyrieManager.Instance != null)
+            ValkyrieManager.Instance.SpawnForVillager(this);
     }
 
     #endregion
@@ -727,6 +767,17 @@ public class Villager : TargetHealth
             var swapper = GetComponent<SpriteLibrarySwapper>();
             return swapper != null ? swapper.GetRandomVariant() : parent1Variant;
         }
+    }
+
+    public Vector2 GetEquipmentState()
+    {
+        Vector2 state = Vector2.zero;
+        if(itemAttachment != null)
+        {
+            state.x = itemAttachment.weapon != null ? itemAttachment.weaponItem.CurrentDurability : 0f;
+            state.y = itemAttachment.shield != null ? itemAttachment.shieldItem.CurrentDurability : 0f;
+        }
+        return state;
     }
 
     #region Skill Bonuses
@@ -860,7 +911,7 @@ public class Villager : TargetHealth
         // Combat weighted higher for Jarl candidates
         return skills.combat * 2f +
                skills.farming +
-               skills.fishing +
+               skills.hunting +
                skills.mining +
                skills.woodcutting +
                skills.crafting +

@@ -129,7 +129,13 @@ public class LootDrop : MonoBehaviour
     {
         if (other.gameObject.layer != 6) return; // Player layer
 
-        if (ResourceManager.Instance != null)
+        // In a raid, defer to trip loot (applied on return to settlement) instead of
+        // granting resources mid-raid — keeps enemy "pocket" drops consistent with chest loot.
+        if (RaidSceneController.Instance != null)
+        {
+            RaidSceneController.Instance.AddLoot(resourceType, amount);
+        }
+        else if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.AddResource(resourceType, amount);
         }

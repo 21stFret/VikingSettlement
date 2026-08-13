@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03aa4764f79f74c42aa7e8bc213f9d2c, type: 3}
+  m_Name: Fishing Raid
+  m_EditorClassIdentifier: Assembly-CSharp::RaidDestinationData
+  destinationName: Fishing Village
+  sceneName: Demo Raid Scene
+  description: A small fishing village, lightly guarded.
+  travelTimeHours: 24
+  realTimeLimit: 300
+  recommendedPartySize: 2
+  enemyCount: 5
+  enemyPrefabs:
+  - {fileID: 7555521055352246155, guid: 9b03fe44e89a105419364b13f069e877, type: 3}
+  spawnAll: 0
+  lootTable:
+  - resourceType: 15
+    dropChance: 1
+    minAmount: 10
+    maxAmount: 15
+  - resourceType: 2
+    dropChance: 1
+    minAmount: 10
+    maxAmount: 15

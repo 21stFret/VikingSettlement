@@ -16,6 +16,10 @@ public class ResourceManager : MonoBehaviour, ISaveable
     public float testWheatAmount = 30f;
     public float testFishAmount = 20f;
     public float testIronAmount = 15f;
+    public float testGoldAmount = 10f;
+    public float testMeatAmount = 10f;
+    public float testPeltAmount = 10f;
+    public float testLeatherAmount = 10f;
 
     private void Awake()
     {
@@ -43,12 +47,21 @@ public class ResourceManager : MonoBehaviour, ISaveable
         resources[ResourceType.Wheat] = testWheatAmount;
         resources[ResourceType.Fish] = testFishAmount;
         resources[ResourceType.Iron] = testIronAmount;
+        resources[ResourceType.Gold] = testGoldAmount;
+        resources[ResourceType.Meat] = testMeatAmount;
+        resources[ResourceType.Pelts] = testPeltAmount;
+        resources[ResourceType.Leather] = testLeatherAmount;
     }
 
     public void AddResource(ResourceType type, float amount)
     {
         resources[type] += amount;
         OnResourceAdded?.Invoke(type, amount);
+
+        if(CompendiumManager.Instance != null)
+        {
+            CompendiumManager.Instance.Discover("resource_" + type.ToString().ToLower());
+        }
     }
 
     public bool SpendResource(ResourceType type, float amount)

@@ -5,7 +5,7 @@ using UnityEngine;
 /// Shows icons above the NPC to indicate quest availability or completion.
 /// Implements IClickable so the player can interact with it.
 /// </summary>
-public class QuestGiver : MonoBehaviour, IClickable
+public class QuestGiver : WorldInteractable, IClickable
 {
     [Header("Missions")]
     [SerializeField] private MissionDefinitionSO[] availableMissions;
@@ -26,6 +26,8 @@ public class QuestGiver : MonoBehaviour, IClickable
     public Collider2D Collider => interactionCollider;
     public int ClickPriority => clickPriority;
     public bool IsClickable => CanInteract();
+
+    public override bool IsInteractable => CanInteract();
 
     /// <summary>
     /// Unique identifier for this quest giver (used by save system)
@@ -64,7 +66,33 @@ public class QuestGiver : MonoBehaviour, IClickable
             MissionManager.Instance.OnMissionCompleted -= OnMissionCompleted;
             MissionManager.Instance.OnObjectiveUpdated -= OnObjectiveUpdated;
         }
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.OnDialogueEnded -= () => Deselect();
+        }
     }
+
+    public override void Interact(WorldInteractionZone zone = null)
+    {
+        OnClicked();
+        PlayerController.Instance?.SetInputEnabled(false);
+        base.Interact(zone);
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.OnDialogueEnded += () => Deselect();
+        }
+    }
+
+    public override void Deselect(WorldInteractionZone zone = null)
+    {
+        PlayerController.Instance?.SetInputEnabled(true);
+        base.Deselect();
+        if (DialogueManager.Instance != null)
+        {
+            DialogueManager.Instance.OnDialogueEnded -= () => Deselect();
+        }
+    }
+
 
     /// <summary>
     /// Called when the player clicks this quest giver

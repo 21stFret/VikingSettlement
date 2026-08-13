@@ -4,7 +4,6 @@ Shader "Custom/Shadow2DStencilOnce"
     {
         _MainTex    ("Sprite Texture", 2D)    = "white" {}
         _Color      ("Tint",          Color)  = (1,1,1,1)
-        _StencilRef ("Stencil Ref",   Int)    = 1
     }
     SubShader
     {
@@ -14,13 +13,6 @@ Shader "Custom/Shadow2DStencilOnce"
         Lighting Off
         ZWrite Off
         Blend SrcAlpha OneMinusSrcAlpha
-
-        Stencil
-        {
-            Ref  [_StencilRef]
-            Comp NotEqual   // skip if this stencil ref already drawn here this frame
-            Pass Replace    // mark pixel after drawing
-        }
 
         Pass
         {

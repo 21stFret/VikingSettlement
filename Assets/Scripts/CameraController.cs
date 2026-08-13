@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 /// <summary>
 /// Camera controller that smoothly follows the player
@@ -21,11 +22,10 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector2 minBounds; // Minimum X and Y position
     [SerializeField] private Vector2 maxBounds; // Maximum X and Y position
     
-    [Header("Zoom (Optional)")]
-    [SerializeField] private bool allowZoom = false;
-    [SerializeField] private float minZoom = 3f;
-    [SerializeField] private float maxZoom = 10f;
-    [SerializeField] private float zoomSpeed = 1f;
+    [Header("Zoom")]
+    public float zoomMultiplier = 1f; // Multiplier for zoom level
+    private int basePPU = 64; // Base Pixels Per Unit for zooming
+    public bool zoomedIn;
 
     [Header("Look Through (Optional)")]
     [SerializeField] private bool allowLookThrough = false;
@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private bool isFreeCameraMode = false;
 
     private Camera cam;
-    private float targetZoom;
+    public PixelPerfectCamera pixelPerfectCamera;
 
     private void Awake()
     {
@@ -45,16 +45,12 @@ public class CameraController : MonoBehaviour
         {
             Instance = this;
         }
+        basePPU = pixelPerfectCamera.assetsPPU;
     }
     
     public void Init()
     {
         cam = GetComponent<Camera>();
-        
-        if (cam != null && cam.orthographic)
-        {
-            targetZoom = cam.orthographicSize;
-        }
         
         // If no target assigned, try to find player
         if (target == null)
@@ -65,6 +61,7 @@ public class CameraController : MonoBehaviour
                 target = player.transform;
             }
         }
+        transform.position = target.position + offset;
     }
     
     private void LateUpdate()
@@ -97,12 +94,6 @@ public class CameraController : MonoBehaviour
             {
                 HandleLookThrough();
             }
-        }
-
-        // Handle zoom (always available)
-        if (allowZoom && cam != null && cam.orthographic)
-        {
-            HandleZoom();
         }
     }
 
@@ -161,21 +152,13 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Handle zoom with mouse scroll wheel
-    /// </summary>
-    private void HandleZoom()
+    public void ZoomIn()
     {
-        float scroll = Input.mouseScrollDelta.y;
-        
-        if (scroll != 0)
-        {
-            targetZoom -= scroll * zoomSpeed;
-            targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
-        }
-        
-        // Smoothly interpolate to target zoom
-        cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, smoothSpeed);
+        DOTween.To(() => pixelPerfectCamera.assetsPPU, x => pixelPerfectCamera.assetsPPU = x, Mathf.FloorToInt(basePPU * zoomMultiplier), 0.5f).SetEase(Ease.InOutSine);
+    }
+    public void ZoomOut()
+    {
+        DOTween.To(() => pixelPerfectCamera.assetsPPU, x => pixelPerfectCamera.assetsPPU = x, basePPU, 0.5f).SetEase(Ease.Linear);
     }
 
     /// <summary>

@@ -177,10 +177,10 @@ public class DialogueManager : MonoBehaviour
             PauseManager.Instance.ExitDialoguePause();
         }
 
-        OnDialogueEnded?.Invoke();
-
         // Fire completion callback
         onDialogueComplete?.Invoke();
+
+        OnDialogueEnded?.Invoke();
 
         // Clear references
         currentDialogue = null;

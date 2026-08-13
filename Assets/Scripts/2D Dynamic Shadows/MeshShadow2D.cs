@@ -49,6 +49,8 @@ public class MeshShadow2D : MonoBehaviour
 
     // Cached tight visual bounds in sprite local space (from sprite.vertices)
     private float localMinX, localMaxX, localMinY, localMaxY;
+    private Vector3[] cachedVerts = new Vector3[4];
+    private Color[] cachedColors = new Color[4];
 
     // -------------------------------------------------------------------------
 
@@ -119,6 +121,8 @@ public class MeshShadow2D : MonoBehaviour
         shadowMeshFilter   = shadowObject.AddComponent<MeshFilter>();
         shadowMeshRenderer = shadowObject.AddComponent<MeshRenderer>();
 
+        shadowObject.transform.SetParent(transform, false);
+
         shadowMesh = new Mesh();
         shadowMesh.MarkDynamic();
         shadowMesh.vertices  = new Vector3[4];
@@ -126,10 +130,8 @@ public class MeshShadow2D : MonoBehaviour
         shadowMesh.uv        = new Vector2[4];
         shadowMeshFilter.mesh = shadowMesh;
 
-        // Stencil ref 1 = "sun shadow" — all objects share the same ref so overlapping quads merge
         var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
         shadowMaterial = new Material(stencilShader != null ? stencilShader : Shader.Find("Sprites/Default"));
-        shadowMaterial.SetInt("_StencilRef", 1);
         shadowMeshRenderer.sharedMaterial = shadowMaterial;
         shadowMeshRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         shadowMeshRenderer.sortingOrder   = spriteRenderer.sortingOrder - 1;
@@ -273,35 +275,44 @@ public class MeshShadow2D : MonoBehaviour
         float worldHeight = Mathf.Abs(transform.lossyScale.y) * (localMaxY - localMinY);
 
         // --- Sun shadow ---
+        float sunHeight = master.GetSunHeight();
         float sunElevation = master.GetSunElevation();
         Vector2 shadowDir  = master.GetShadowDirection();
 
         float sunExtension = Mathf.Lerp(
             master.shadowDistanceMultiplier * Mathf.Max(0f, objectHeight) * worldHeight,
-            0f, sunElevation);
+            0f, sunHeight);
 
         Vector3 sunVec = new Vector3(shadowDir.x, shadowDir.y, 0f) * sunExtension;
 
-        shadowMesh.vertices = new Vector3[]
-        {
-            bl_world, br_world, br_world + sunVec, bl_world + sunVec
-        };
+        cachedVerts[0] = bl_world;
+        cachedVerts[1] = br_world;
+        cachedVerts[2] = br_world + sunVec;
+        cachedVerts[3] = bl_world + sunVec;
+
+
+        shadowMesh.vertices = cachedVerts;
         shadowMesh.RecalculateBounds();
 
         float targetAlpha = sunElevation < master.minSunHeightForShadows
             ? 0f
-            : Mathf.Lerp(master.shadowIntensity, 0.01f, sunElevation);
+            : Mathf.Lerp(0.2f, master.shadowIntensity, sunElevation);
 
         float deltaTime = Application.isPlaying ? Time.deltaTime : 1f;
         currentAlpha = Mathf.MoveTowards(currentAlpha, targetAlpha, deltaTime * master.shadowFadeSpeed);
 
-        Color sunColor = Color.Lerp(Color.black, Color.white, master.shadowDarkness);
+        Color sunColor = Color.black;
         sunColor.a = currentAlpha;
-        shadowMesh.colors = new Color[] { sunColor, sunColor, sunColor, sunColor };
+        cachedColors[0] = sunColor;
+        cachedColors[1] = sunColor;
+        cachedColors[2] = sunColor;
+        cachedColors[3] = sunColor;
+
+        shadowMesh.colors = cachedColors;
 
         // --- Fire/torch light shadows ---
         if (Application.isPlaying)
-            UpdateAutoLightShadows(sunElevation, bl_world, br_world, worldHeight, master);
+            UpdateAutoLightShadows(sunHeight, bl_world, br_world, worldHeight, master);
     }
 
     void UpdateAutoLightShadows(float sunElevation, Vector3 bl_world, Vector3 br_world,

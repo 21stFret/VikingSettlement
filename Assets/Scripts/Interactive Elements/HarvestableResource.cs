@@ -24,7 +24,7 @@ public class HarvestableResource : TargetHealth
     public float preferredToolMultiplier = 2f;
 
     [Tooltip("Multiplier when using wrong tool")]
-    public float wrongToolMultiplier = 0.5f;
+    public float wrongToolMultiplier = 1f;
 
     [Header("Respawn Settings")]
     [Tooltip("Should this resource respawn after depletion?")]
@@ -47,13 +47,12 @@ public class HarvestableResource : TargetHealth
     [Tooltip("Shake intensity")]
     public float shakeIntensity = 0.1f;
 
-    // State
-    private bool isDepleted = false;
     private SpriteRenderer spriteRenderer;
     private Vector3 originalPosition;
     private float shakeTimer = 0f;
     private bool isRespawning = false;
     public UnityEvent OnHit;
+    public bool removeOnDeplete = false;
 
     public override void Awake()
     {
@@ -86,9 +85,9 @@ public class HarvestableResource : TargetHealth
         }
     }
 
-    public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false)
+    public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false, Vector2 attackerPos = default)
     {
-        if (isDepleted) return;
+        base.TakeDamage(damage, weapon, trueDamage, attackerPos);
 
         Villager attacker = weapon != null ? weapon.GetComponentInParent<Villager>() : null;
         int yield = CalculateYield(weapon, attacker);
@@ -105,7 +104,7 @@ public class HarvestableResource : TargetHealth
             if (SkillTreeManager.Instance != null && xpPerHarvest > 0)
                 SkillTreeManager.Instance.AddXP(xpPerHarvest);
 
-            attacker.skills.ImproveSkill(GetJobTypeForResource());
+            attacker.skills.ImproveJob(GetJobTypeForResource());
         }
 
         OnHit?.Invoke();
@@ -119,16 +118,6 @@ public class HarvestableResource : TargetHealth
         if (shakeOnHit)
         {
             shakeTimer = 0.2f;
-        }
-
-        if (currentHealth > 0)
-        {
-            currentHealth -= yield;
-
-            if (currentHealth <= 0)
-            {
-                Deplete();
-            }
         }
     }
 
@@ -167,6 +156,7 @@ public class HarvestableResource : TargetHealth
             //remove all whole numbers and leave only decimal
             int yield = Mathf.FloorToInt(actualYield);
             actualYield -= yield;
+
             return yield;
         }
         return 0;
@@ -199,16 +189,25 @@ public class HarvestableResource : TargetHealth
         return false;
     }
 
+    public override void Die()
+    {
+        base.Die();
+        Deplete();
+    }
+
     /// <summary>
     /// Called when the resource is fully depleted
     /// </summary>
     protected virtual void Deplete()
     {
-        isDepleted = true;
-        isDead = true;
-
         Debug.Log($"{gameObject.name} depleted!");
 
+        canRespawn = true;
+
+        if (!removeOnDeplete)
+        {
+            return;
+        }
         // Hide the object
         if (spriteRenderer != null)
         {
@@ -222,7 +221,6 @@ public class HarvestableResource : TargetHealth
             col.enabled = false;
         }
 
-        canRespawn = true;
     }
 
     /// <summary>
@@ -230,7 +228,6 @@ public class HarvestableResource : TargetHealth
     /// </summary>
     protected virtual void Respawn()
     {
-        isDepleted = false;
         isRespawning = false;
         canRespawn = false;
         isDead = false;
@@ -250,14 +247,6 @@ public class HarvestableResource : TargetHealth
         }
 
         Debug.Log($"{gameObject.name} respawned!");
-    }
-
-    /// <summary>
-    /// Check if this resource is depleted
-    /// </summary>
-    public bool IsDepleted()
-    {
-        return isDepleted;
     }
 
     /// <summary>

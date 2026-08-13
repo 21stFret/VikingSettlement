@@ -71,16 +71,15 @@ public class ActiveMission
             case MissionObjectiveType.GatherResource:
                 return $"{template.resourceType}: {Mathf.FloorToInt(current)}/{Mathf.FloorToInt(template.targetAmount)}";
             case MissionObjectiveType.CompleteRaid:
-                string raidStatus = current >= template.targetAmount ? "Done" : "Incomplete";
-                return $"Complete a raid: {raidStatus}";
+                return $"Complete a raid";
             case MissionObjectiveType.SurviveTime:
                 int currentDays = Mathf.FloorToInt(current);
                 int targetDays = Mathf.FloorToInt(template.targetAmount);
                 return $"Survive: {currentDays}/{targetDays} days";
             case MissionObjectiveType.RepairBuilding:
-                return $"Repair {template.targetBuildingType}: {(current >= template.targetAmount ? "Done" : "Incomplete")}";
+                return $"Repair {template.targetBuildingType}";
             case MissionObjectiveType.AssignVillager:
-                return $"Assign villager to {template.targetBuildingType}: {(current >= template.targetAmount ? "Done" : "Incomplete")}";
+                return $"Assign {template.targetAmount} villager/s to {template.targetBuildingType}";
             default:
                 return "Unknown objective";
         }

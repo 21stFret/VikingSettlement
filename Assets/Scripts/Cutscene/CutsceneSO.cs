@@ -28,6 +28,11 @@ namespace Cutscenes
         [Tooltip("Resume auto weather when cutscene ends?")]
         public bool resumeAutoWeather = true;
 
+        [Tooltip("If true, this cutscene only ever plays once per save file. Once it finishes " +
+                 "(or is skipped), CutsceneManager records its cutsceneId in the save data and " +
+                 "silently refuses to play it again. Leave false for reusable cutscenes (e.g. Holmgang).")]
+        public bool playOnce = false;
+
         [Header("Actions")]
         [SerializeReference]
         public List<CutsceneAction> actions = new List<CutsceneAction>();

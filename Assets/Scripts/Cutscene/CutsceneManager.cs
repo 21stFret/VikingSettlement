@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cutscenes
 {
@@ -9,7 +10,7 @@ namespace Cutscenes
     /// Manages playing cutscenes - sequences of actions like camera moves, dialogue, actor movement.
     /// Actors not involved in the cutscene continue their normal behavior.
     /// </summary>
-    public class CutsceneManager : MonoBehaviour
+    public class CutsceneManager : MonoBehaviour, ISaveable
     {
         public static CutsceneManager Instance { get; private set; }
 
@@ -53,8 +54,13 @@ namespace Cutscenes
         private CutsceneAction currentAction;
         private List<CutsceneAction> runningActions = new List<CutsceneAction>();
         private HashSet<Villager> overriddenVillagers = new HashSet<Villager>();
+        private HashSet<string> playedCutsceneIds = new HashSet<string>();
         private bool wasPlayerControlEnabled;
         private bool wasGameClockPaused;
+
+        // Standalone cinematic mode (used by non-cutscene sequences like Holmgang)
+        private bool _cinematicActive;
+        private bool _cinematicWasControlEnabled;
 
         // Letterbox animation
         private Vector2 letterboxTopTarget;
@@ -62,6 +68,8 @@ namespace Cutscenes
         private Vector2 letterboxTopHidden;
         private Vector2 letterboxBottomHidden;
         private Coroutine letterboxCoroutine;
+
+        public bool autoplay;
 
         private void Awake()
         {
@@ -81,6 +89,10 @@ namespace Cutscenes
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
             letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
             letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
+            if(autoplay)
+            {
+                Invoke("PlayTestCutscene", 0.5f);
+            }
         }
 
         private void Update()
@@ -112,14 +124,25 @@ namespace Cutscenes
         }
 
         /// <summary>
-        /// Play a cutscene
+        /// Play a cutscene. Returns false without playing if this is a one-shot ('playOnce')
+        /// cutscene that has already played (and been recorded in save data) once, unless
+        /// forceReplay is set.
         /// </summary>
-        public void PlayCutscene(CutsceneSO cutscene)
+        public bool PlayCutscene(CutsceneSO cutscene, bool forceReplay = false)
         {
             if (cutscene == null)
             {
                 Debug.LogError("CutsceneManager: Cannot play null cutscene!");
-                return;
+                return false;
+            }
+
+            if (cutscene.playOnce && !forceReplay && playedCutsceneIds.Contains(cutscene.cutsceneId))
+            {
+                Debug.Log($"CutsceneManager: Skipping already-played one-shot cutscene '{cutscene.displayName}'");
+                // Fire OnCutsceneEnded (but not OnCutsceneStarted) so callers waiting on completion
+                // via that event don't hang, without touching isPlaying/currentCutscene state.
+                OnCutsceneEnded?.Invoke(cutscene);
+                return false;
             }
 
             if (isPlaying)
@@ -143,12 +166,16 @@ namespace Cutscenes
 
             // Start first action
             AdvanceToNextAction();
+
+            return true;
         }
 
         /// <summary>
-        /// Stop the current cutscene
+        /// Stop the current cutscene. Pass markAsPlayed: true when the stop represents the
+        /// player having seen it (e.g. an explicit skip) so one-shot cutscenes get recorded;
+        /// leave false when a new cutscene is interrupting this one mid-playback.
         /// </summary>
-        public void StopCutscene()
+        public void StopCutscene(bool markAsPlayed = false)
         {
             if (!isPlaying) return;
 
@@ -163,6 +190,11 @@ namespace Cutscenes
             RestoreCutsceneState();
 
             var endedCutscene = currentCutscene;
+            if (markAsPlayed && endedCutscene != null && endedCutscene.playOnce)
+            {
+                playedCutsceneIds.Add(endedCutscene.cutsceneId);
+            }
+
             currentCutscene = null;
             currentCutsceneId = null;
             currentAction = null;
@@ -173,11 +205,12 @@ namespace Cutscenes
         }
 
         /// <summary>
-        /// Skip to the end of the current cutscene
+        /// Skip to the end of the current cutscene. Counts as having been seen, so one-shot
+        /// cutscenes won't play again.
         /// </summary>
         public void SkipCutscene()
         {
-            StopCutscene();
+            StopCutscene(true);
         }
 
         private void AdvanceToNextAction()
@@ -226,6 +259,11 @@ namespace Cutscenes
             RestoreCutsceneState();
 
             var completedCutscene = currentCutscene;
+            if (completedCutscene != null && completedCutscene.playOnce)
+            {
+                playedCutsceneIds.Add(completedCutscene.cutsceneId);
+            }
+
             currentCutscene = null;
             currentCutsceneId = null;
             currentAction = null;
@@ -288,18 +326,12 @@ namespace Cutscenes
             // Hide letterbox with animation
             ShowLetterbox(false);
 
-            // Resume auto weather
-            if (currentCutscene.resumeAutoWeather && WeatherManager.Instance != null)
-            {
-                WeatherManager.Instance.ResumeAutoWeather();
-            }
-
             // Release all overridden villagers
             foreach (var villager in overriddenVillagers)
             {
                 if (villager != null)
                 {
-                    var ai = villager.GetComponent<VillagerAI>();
+                    var ai = villager.GetComponent<VillagerAIBase>();
                     if (ai != null)
                     {
                         ai.ClearCutsceneTarget();
@@ -309,9 +341,15 @@ namespace Cutscenes
             overriddenVillagers.Clear();
         }
 
-        private void ShowLetterbox(bool show)
+        public void ShowLetterbox(bool show)
         {
             if (letterboxTop == null && letterboxBottom == null) return;
+
+            // Hide UI
+            if (gameUICanvas != null)
+            {
+                gameUICanvas.enabled = !show;
+            }
 
             // Stop any existing animation
             if (letterboxCoroutine != null)
@@ -409,6 +447,81 @@ namespace Cutscenes
         /// Get the current cutscene ID
         /// </summary>
         public string CurrentCutsceneId => currentCutsceneId;
+
+        /// <summary>
+        /// Whether the one-shot cutscene with this cutsceneId has already played (and been
+        /// recorded to save data).
+        /// </summary>
+        public bool HasPlayedCutscene(string cutsceneId)
+        {
+            return !string.IsNullOrEmpty(cutsceneId) && playedCutsceneIds.Contains(cutsceneId);
+        }
+
+        #region ISaveable
+
+        public void PopulateSaveData(SaveData data)
+        {
+            data.cutsceneData = new CutsceneSaveData
+            {
+                playedOneShotCutsceneIds = playedCutsceneIds.ToList()
+            };
+        }
+
+        public void LoadSaveData(SaveData data)
+        {
+            playedCutsceneIds.Clear();
+            if (data.cutsceneData?.playedOneShotCutsceneIds != null)
+            {
+                foreach (var id in data.cutsceneData.playedOneShotCutsceneIds)
+                {
+                    playedCutsceneIds.Add(id);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Cinematic Mode (standalone, no CutsceneSO required)
+
+        /// <summary>
+        /// Enter letterbox + UI-hide + player-control-off without starting a full cutscene.
+        /// Call ExitCinematicMode() when the sequence is done.
+        /// </summary>
+        public void EnterCinematicMode()
+        {
+            if (_cinematicActive || isPlaying) return;
+            _cinematicActive = true;
+
+            if (PlayerController.Instance != null)
+            {
+                _cinematicWasControlEnabled = PlayerController.Instance.enabled;
+                PlayerController.Instance.enabled = false;
+            }
+
+            if (gameUICanvas != null)
+                gameUICanvas.enabled = false;
+
+            ShowLetterbox(true);
+        }
+
+        /// <summary>
+        /// Reverse EnterCinematicMode — slide letterbox out, restore UI and player control.
+        /// </summary>
+        public void ExitCinematicMode()
+        {
+            if (!_cinematicActive) return;
+            _cinematicActive = false;
+
+            if (PlayerController.Instance != null)
+                PlayerController.Instance.enabled = _cinematicWasControlEnabled;
+
+            if (gameUICanvas != null)
+                gameUICanvas.enabled = true;
+
+            ShowLetterbox(false);
+        }
+
+        #endregion
 
         #region Testing
 

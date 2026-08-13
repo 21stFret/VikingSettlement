@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using UnityEngine;
 
@@ -12,10 +13,12 @@ public class EquipableItem : MonoBehaviour
         Shield,
         Armor,
         Accessory,
-        Torch
+        Torch, 
+        Bow
     }
 
     [Header("Item Info")]
+    public string itemID;
     public ItemType itemType;
     public string itemName;
     public int strength;
@@ -43,6 +46,8 @@ public class EquipableItem : MonoBehaviour
     public SpriteRenderer itemSpriteRenderer;
 
     public bool IsShield => itemType == ItemType.Shield;
+    public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer || itemType == ItemType.Bow;
+
     public bool IsBroken => maxDurability > 0 && currentDurability <= 0;
     public int CurrentDurability => currentDurability;
 
@@ -52,10 +57,13 @@ public class EquipableItem : MonoBehaviour
 
     public void NotifyUnequipped() => OnUnequipped?.Invoke();
 
-    private void Awake()
+    public void Init(bool fromLoad = false)
     {
-        if (maxDurability > 0)
+
+        if (maxDurability > 0 && !fromLoad)
             currentDurability = maxDurability;
+        if(!fromLoad)
+            itemID = System.Guid.NewGuid().ToString();
         if (itemSpriteRenderer == null)
         {
             itemSpriteRenderer = GetComponent<SpriteRenderer>();
@@ -83,22 +91,21 @@ public class EquipableItem : MonoBehaviour
         var villager = GetComponentInParent<Villager>();
         if (villager != null)
         {
-            villager.skills.ImproveSkill(JobType.Warrior);
+            villager.skills.ImproveJob(JobType.Warrior);
             var cc = GetComponentInParent<CharacterBase>();
             bool bonusXP = (cc != null && cc.isParrying) ||
                            (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid);
-            if (bonusXP) villager.skills.ImproveSkill(JobType.Warrior);
+            if (bonusXP) villager.skills.ImproveJob(JobType.Warrior);
         }
-        if (currentDurability <= 0)
-        {
-            Debug.Log($"{itemName} has shattered!");
-            OnBroken?.Invoke();
-            return;
-        }
-        if(IsShield)
+
+        if (IsShield)
         {
             StopCoroutine(nameof(ShakeCoroutine));
             StartCoroutine(nameof(ShakeCoroutine));
+            if (villager != null)
+            { 
+                if (villager.isJarl) { Camera.main.DOShakePosition(0.1f, 0.1f, 10, 90, false); }
+            }
 
             if (sheildSparkEffect == null)
             {
@@ -112,6 +119,12 @@ public class EquipableItem : MonoBehaviour
             Vector2 sparkPosition = (Vector2)transform.position + (Random.insideUnitCircle * 0.3f);
             sheildSparkEffect.transform.position = sparkPosition;
             sheildSparkEffect.Play();
+        }
+
+        if (currentDurability <= 0)
+        {
+            Debug.Log($"{itemName} has shattered!");
+            OnBroken?.Invoke();
         }
     }
 
@@ -137,5 +150,17 @@ public class EquipableItem : MonoBehaviour
     {
         if (maxDurability <= 0) return;
         currentDurability = Mathf.Min(maxDurability, currentDurability + amount);
+        AttackCooldownUI.Instance?.OnWeaponDurability();
+    }
+
+    public void SetDurability(float amount)
+    {
+        currentDurability = (int)amount;
+        if (itemDamageSprites.Length > 0 && itemSpriteRenderer != null)
+        {
+            int damageLevel = Mathf.FloorToInt(((float)(maxDurability - currentDurability) / maxDurability) * itemDamageSprites.Length);
+            damageLevel = Mathf.Clamp(damageLevel, 0, itemDamageSprites.Length - 1);
+            itemSpriteRenderer.sprite = itemDamageSprites[damageLevel];
+        }
     }
 }

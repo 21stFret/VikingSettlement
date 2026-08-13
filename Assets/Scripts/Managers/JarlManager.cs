@@ -77,12 +77,11 @@ public class JarlManager : MonoBehaviour, ISaveable
             currentJarl.currentJob = JobType.None;
             currentJarl.OnJarlStatusChanged(false);
 
-            // Re-enable AI on previous Jarl
-            var prevAI = currentJarl.GetComponent<VillagerAI>();
-            if (prevAI != null)
-            {
-                prevAI.SetAIEnabled(true);
-            }
+            // Switch previous Jarl back to standard villager AI
+            var prevJarlAI = currentJarl.GetComponent<JarlAI>();
+            if (prevJarlAI != null) prevJarlAI.enabled = false;
+            var prevVillagerAI = currentJarl.GetComponent<VillagerAI>();
+            if (prevVillagerAI != null) prevVillagerAI.enabled = true;
         }
 
         // Set new Jarl
@@ -93,7 +92,13 @@ public class JarlManager : MonoBehaviour, ISaveable
         villager.currentJob = JobType.Jarl;
         villager.OnJarlStatusChanged(true);
 
-        // Transfer player control
+        // Switch new Jarl to dedicated JarlAI
+        var newVillagerAI = villager.GetComponent<VillagerAI>();
+        if (newVillagerAI != null) newVillagerAI.enabled = false;
+        var jarlAI = villager.GetComponent<JarlAI>();
+        if (jarlAI != null) jarlAI.enabled = true;
+
+        // Transfer player control (PlayerController will call SetAIEnabled(false) on JarlAI)
         if (playerController != null)
         {
             playerController.SetControlTarget(villager);
@@ -102,10 +107,13 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Update camera
         if (CameraController.Instance != null)
         {
-            CameraController.Instance.SetTarget(villager.transform);
+            CameraController.Instance.SetPlayerTarget(villager.transform);
         }
 
         Debug.Log($"{villager.villagerName} is now the Jarl!");
+
+        AttackCooldownUI.Instance?.Init(); // Ensure UI is initialized for new Jarl
+        DodgeCooldownUI.Instance?.Init();
 
         if (!isInitial)
         {
@@ -161,16 +169,18 @@ public class JarlManager : MonoBehaviour, ISaveable
         // Fire succession started event - UI should respond
         OnSuccessionStarted?.Invoke(candidates);
 
-        // Wait for player selection
-        while (isInSuccession)
+        // Wait for player selection — 120 s real-time fallback in case UI never fires
+        float elapsed = 0f;
+        while (isInSuccession && elapsed < 120f)
         {
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        // If still in succession after timeout, auto-select first candidate
+        // Timeout: auto-select best candidate so the game never hard-locks
         if (isInSuccession && candidates.Count > 0)
         {
-            Debug.Log("Succession timeout - auto-selecting best candidate");
+            Debug.LogWarning("Succession timeout — auto-selecting best candidate");
             SelectHeir(candidates[0].Villager);
         }
     }
@@ -406,6 +416,7 @@ public class JarlManager : MonoBehaviour, ISaveable
                 // TODO: Implement regent system
                 Debug.Log("Only children remain - the settlement awaits a new leader...");
                 isInSuccession = false;
+                OnSuccessionEnded?.Invoke();
             }
             else
             {
@@ -419,7 +430,7 @@ public class JarlManager : MonoBehaviour, ISaveable
     /// </summary>
     private void TriggerGameOver()
     {
-        Debug.LogError("The settlement has no one left to lead. Game Over.");
+        Debug.Log("The settlement has no one left to lead. Game Over.");
         isInSuccession = false;
         GameOverScreen.Instance?.Show();
     }
@@ -475,6 +486,7 @@ public class JarlManager : MonoBehaviour, ISaveable
             newJarl.isJarl = true;
             newJarl.isOfJarlLineage = true;
             newJarl.generationsFromJarl = 0;
+            newJarl.age = 20;
             SetInitialJarl(newJarl);
             Debug.Log($"JarlManager: Assigned {newJarl.villagerName} as initial Jarl");
         }

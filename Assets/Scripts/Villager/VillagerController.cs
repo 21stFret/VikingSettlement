@@ -13,17 +13,17 @@ public class VillagerController : CharacterBase
         base.Awake();
         villagerData = GetComponent<Villager>();
         characterFaction = Faction.Player;
-        useReactiveBlocking = true;
+        moveSpeed = walkMoveSpeed;
     }
 
     /// <summary>
     /// Combat skill multiplier — scales attack speed, damage, and block cooldown.
     /// Ranges from 0.5× at skill 1 to 1.5× at skill 10.
     /// </summary>
-    private float GetCombatSkillMultiplier()
+    public float GetCombatSkillMultiplier()
     {
         if (villagerData == null) return 0.5f;
-        return Mathf.Lerp(0.5f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
+        return Mathf.Lerp(0.75f, 1.5f, (villagerData.skills.combat - 1f) / 9f);
     }
 
     /// <summary>
@@ -32,14 +32,6 @@ public class VillagerController : CharacterBase
     public override float GetAttackDelay()
     {
         return base.GetAttackDelay() / GetCombatSkillMultiplier();
-    }
-
-    /// <summary>
-    /// Block cooldown reduced by combat skill — higher skill = charges refill faster.
-    /// </summary>
-    protected override float GetEffectiveBlockCooldown()
-    {
-        return base.GetEffectiveBlockCooldown() / GetCombatSkillMultiplier();
     }
 
     protected override void Update()
@@ -60,9 +52,10 @@ public class VillagerController : CharacterBase
         base.FlipSprite(faceRight);
         if (villagerData != null)
         {
-            var personalUI = villagerData.personalUI.textCanvas.transform;
+            var personalUI = villagerData.personalUI.transform;
+            float scaleX = Mathf.Abs(personalUI.localScale.x);
             personalUI.localScale = new Vector3(
-                faceRight ? -1f : 1f,
+                faceRight ? -scaleX : scaleX,
                 personalUI.localScale.y,
                 personalUI.localScale.z);
         }
@@ -96,13 +89,15 @@ public class VillagerController : CharacterBase
         if (target != null && villagerData != null)
         {
             if (target.IsDead()) return;
+            if (isRolling) return;
 
             float weaponDamage = weapon?.strength ?? 0f;
             float villagerDamage = villagerData.combatStats.strength;
             float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();
             print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
 
-            target.TakeDamage(damage, weapon);
+            target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);
+            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
             CheckParryAndStun(hit);
         }
     }

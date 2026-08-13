@@ -19,7 +19,6 @@ public class SuccessionUI : MonoBehaviour
 
     private List<SuccessionCandidateItem> candidateItems = new List<SuccessionCandidateItem>();
     private List<SuccessionCandidate> currentCandidates;
-    private float autoSelectTimer;
     private bool isShowing = false;
 
     private void Awake()
@@ -78,8 +77,8 @@ public class SuccessionUI : MonoBehaviour
         currentCandidates = candidates;
         isShowing = true;
 
-        // Clear existing items
-        ClearCandidateItems();
+        // Deactivate existing items (pooled, not destroyed)
+        HideAllCandidateItems();
 
         // Show panel
         successionPanel.SetActive(true);
@@ -90,25 +89,21 @@ public class SuccessionUI : MonoBehaviour
             titleText.text = "THE JARL HAS FALLEN";
         }
 
-        // Create candidate items
+        // Assign candidate items from the pool (grows pool on demand, never destroys)
         if (candidateContainer != null && candidateItemPrefab != null)
         {
             for (int i = 0; i < candidates.Count; i++)
             {
-                var candidate = candidates[i];
-                var itemObj = Instantiate(candidateItemPrefab, candidateContainer);
-                var item = itemObj.GetComponent<SuccessionCandidateItem>();
+                var item = GetPooledCandidateItem(i);
+                if (item == null) continue;
 
-                if (item != null)
-                {
-                    item.Setup(candidate, this, i == 0); // First candidate is recommended
-                    candidateItems.Add(item);
-                }
+                item.gameObject.SetActive(true);
+                item.Setup(candidates[i], this, i == 0); // First candidate is recommended
             }
         }
 
         // Pause game
-        PauseManager.Instance?.EnterStrategicPause();
+        PauseManager.Instance?.EnterDialoguePause();
     }
 
     /// <summary>
@@ -122,25 +117,46 @@ public class SuccessionUI : MonoBehaviour
         }
 
         isShowing = false;
-        ClearCandidateItems();
+        HideAllCandidateItems();
 
         // Resume game
-        PauseManager.Instance?.ExitStrategicPause();
+        PauseManager.Instance?.ExitDialoguePause();
     }
 
     /// <summary>
-    /// Clear all candidate item UI elements
+    /// Get (or create) the pooled candidate item at the given index.
+    /// Reusing items instead of Instantiate/Destroy avoids a burst of GPU
+    /// resource churn right as strategic pause kicks in — that churn was
+    /// implicated in an intermittent D3D12 render-thread crash.
     /// </summary>
-    private void ClearCandidateItems()
+    private SuccessionCandidateItem GetPooledCandidateItem(int index)
+    {
+        if (index < candidateItems.Count)
+        {
+            return candidateItems[index];
+        }
+
+        var itemObj = Instantiate(candidateItemPrefab, candidateContainer);
+        var item = itemObj.GetComponent<SuccessionCandidateItem>();
+        if (item != null)
+        {
+            candidateItems.Add(item);
+        }
+        return item;
+    }
+
+    /// <summary>
+    /// Deactivate all pooled candidate items without destroying them
+    /// </summary>
+    private void HideAllCandidateItems()
     {
         foreach (var item in candidateItems)
         {
             if (item != null)
             {
-                Destroy(item.gameObject);
+                item.gameObject.SetActive(false);
             }
         }
-        candidateItems.Clear();
     }
 
     /// <summary>
@@ -208,9 +224,6 @@ public class SuccessionUI : MonoBehaviour
         }
 
         GUILayout.FlexibleSpace();
-
-        // Timer
-        GUILayout.Label($"Auto-select best candidate in {Mathf.CeilToInt(autoSelectTimer)}s");
 
         GUILayout.EndArea();
     }

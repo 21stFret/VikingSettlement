@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -46,6 +47,20 @@ public static class UIFocus
     private static void Apply(GameObject target)
     {
         Current = target;
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(target);
+    }
+
+    public static void SetNextFrame(GameObject target)
+    {
+        Current = target;
+        if (EventSystem.current != null)
+            EventSystem.current.StartCoroutine(SetNextFrameRoutine(target));
+    }
+
+    private static IEnumerator SetNextFrameRoutine(GameObject target)
+    {
+        yield return null; // Wait one frame
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(target);
     }

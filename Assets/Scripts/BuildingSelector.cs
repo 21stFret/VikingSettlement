@@ -19,7 +19,7 @@ public class BuildingSelector : WorldInteractable, IClickable
 
     // WorldInteractable
     public override bool IsInteractable => building != null && building.isConstructed;
-    public override void Interact() => SelectBuilding();
+
     public override void FocusPanel() => BuildingInfoPanel.Instance?.FocusForController();
 
     // IClickable (mouse)
@@ -53,6 +53,13 @@ public class BuildingSelector : WorldInteractable, IClickable
         // Unregister when destroyed
         MouseInputController.UnregisterClickable(this);
     }
+
+    public override void Interact(WorldInteractionZone zone = null)
+    {
+        base.Interact(zone);
+        SelectBuilding();
+    }
+
 
     /// <summary>
     /// Called by MouseInputController when this building is clicked
@@ -109,7 +116,7 @@ public class BuildingSelector : WorldInteractable, IClickable
     /// <summary>
     /// Deselect this building
     /// </summary>
-    public override void Deselect()
+    public override void Deselect(WorldInteractionZone zone = null)
     {
         isSelected = false;
 
@@ -126,6 +133,7 @@ public class BuildingSelector : WorldInteractable, IClickable
         {
             CameraController.Instance.ReturnToPlayerTarget();
         }
+        base.Deselect();
     }
     
     /// <summary>

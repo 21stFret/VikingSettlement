@@ -131,8 +131,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightningController
   directionalLight: {fileID: 3306447795345121707}
-  minInterval: 1
-  maxInterval: 2
+  minInterval: 10
+  maxInterval: 20
   baseIntensity: 0
   maxIntensity: 0.05
   audioSource: {fileID: 5970966138269861270}

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62b495ef9243d944895c3c92ecaca87, type: 3}
+  m_Name: MakeShieldGive
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
+  dialogueId: 3
+  lines:
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: Well done repairing the lumber camp, but that's only the start!
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: If we want to build back and be able to fight we will need Planks. Wood
+      is good but Planks can make a good boat or good shield.
+  - speakerName: Villager
+    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
+    text: Supply the Sawmill with Wood to make Planks! You can then use them and
+      get a blacksmith to make you a Shield!
+  offersQuest: 1

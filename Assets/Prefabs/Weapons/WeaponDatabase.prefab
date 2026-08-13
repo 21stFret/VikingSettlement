@@ -47,8 +47,15 @@ MonoBehaviour:
   availableWeapons:
   - {fileID: 8754541858049918560, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
   - {fileID: 8754541858049918560, guid: 07944d25be7f9b541aa938d6e5f8cce2, type: 3}
+  - {fileID: 8754541858049918560, guid: 3103aa2b08d1e6d4f8a056f101253583, type: 3}
+  - {fileID: 8754541858049918560, guid: c273887eefcfb8447b9c7f52731d3dac, type: 3}
+  - {fileID: 8754541858049918560, guid: a4dc7c66707d89b49b5f02be08e319db, type: 3}
   - {fileID: 8754541858049918560, guid: 485d85b6e06938841bc62e5d476d8899, type: 3}
+  - {fileID: 8754541858049918560, guid: 3b5258ed17c3a0449a9ae1d69f0c563c, type: 3}
   availableShields:
   - {fileID: 1866138473353848901, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
+  - {fileID: 1866138473353848901, guid: 73e1720b98884de45beed228d317a2da, type: 3}
   availableTorches:
   - {fileID: 8754541858049918560, guid: 7a72bffbb5f0e284c8311b56b15a85fd, type: 3}
+  villageArmory: []
+  villageArmoryManager: {fileID: 0}

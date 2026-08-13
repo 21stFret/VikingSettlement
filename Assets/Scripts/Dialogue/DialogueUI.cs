@@ -48,6 +48,8 @@ public class DialogueUI : MonoBehaviour
     private Action onAcceptQuest;
     private Action onDeclineQuest;
 
+    private PlayerInputActions inputActions;
+
     private void Awake()
     {
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
@@ -56,21 +58,26 @@ public class DialogueUI : MonoBehaviour
 
         if (acceptButton != null) acceptButton.onClick.AddListener(HandleAcceptClicked);
         if (declineButton != null) declineButton.onClick.AddListener(HandleDeclineClicked);
+
+        inputActions = new PlayerInputActions();
+
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        if (!IsVisible()) return;
+        inputActions.Enable();
+        inputActions.Player.ForwardDialogue.performed += GetAdvanceInput;
+    }
 
-        // Check for advance input (mouse click or keyboard)
-        bool advancePressed = false;
+    private void OnDisable()
+    {
+        inputActions.Player.ForwardDialogue.performed -= GetAdvanceInput;
+        inputActions.Disable();
+    }
 
-        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
-            advancePressed = true;
-        if (Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame || Keyboard.current.enterKey.wasPressedThisFrame))
-            advancePressed = true;
-
-        if (advancePressed && questButtonContainer != null && !questButtonContainer.activeSelf)
+    public void GetAdvanceInput(InputAction.CallbackContext context)
+    {
+        if (context.performed && questButtonContainer != null && !questButtonContainer.activeSelf)
         {
             HandleAdvanceInput();
         }
@@ -106,6 +113,7 @@ public class DialogueUI : MonoBehaviour
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
         if (questButtonContainer != null) questButtonContainer.SetActive(false);
         if (continueIndicator != null) continueIndicator.SetActive(false);
+        PlayerController.Instance?.SetInputEnabled(true);
     }
 
     /// <summary>
@@ -153,6 +161,7 @@ public class DialogueUI : MonoBehaviour
     {
         if (questButtonContainer != null) questButtonContainer.SetActive(true);
         if (continueIndicator != null) continueIndicator.SetActive(false);
+        UIFocus.SetNextFrame(acceptButton.gameObject);
     }
 
     /// <summary>
@@ -245,6 +254,7 @@ public class DialogueUI : MonoBehaviour
         lastAdvanceTime = Time.unscaledTime;
 
         if (continueIndicator != null) continueIndicator.SetActive(true);
+        UIFocus.Set(continueIndicator.gameObject);
     }
 
     private void StopTypewriter()

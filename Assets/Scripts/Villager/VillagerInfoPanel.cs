@@ -12,6 +12,8 @@ public class VillagerInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI jobText;
     [SerializeField] private TextMeshProUGUI healthText;
     [SerializeField] private TextMeshProUGUI moraleText;
+    [SerializeField] private TextMeshProUGUI ageText;
+    [SerializeField] private Image sexIcon;
     
     [Header("Health/Morale Bars")]
     [SerializeField] private Image healthBar;
@@ -48,10 +50,15 @@ public class VillagerInfoPanel : MonoBehaviour
     [Header("Bar Colors")]
     [SerializeField] private Color healthColor = Color.green;
     [SerializeField] private Color moraleColor = Color.yellow;
+
+    public Sprite maleSymbol;
+    public Sprite femaleSymbol;
     
     private Villager currentVillager;
 
     public Button closeButton;
+
+    public GameObject blocker;
     
     private void Start()
     {
@@ -67,23 +74,29 @@ public class VillagerInfoPanel : MonoBehaviour
         if (moraleBar != null) moraleBar.color = moraleColor;
         
         // Hide panel initially
-        gameObject.SetActive(false);
-        closeButton.onClick.AddListener(Hide);
+        //gameObject.SetActive(false);
+        //closeButton.onClick.AddListener(Hide);
     }
-    
+   
+    public void ShowBlocker()
+    {
+        blocker.gameObject.SetActive(true);
+        gameObject.SetActive(true);
+    }
+
     /// <summary>
     /// Display information for a specific villager
     /// </summary>
     public void ShowVillager(Villager villager)
     {
         if (villager == null) return;
-        
+
+        blocker.gameObject.SetActive(false);
         currentVillager = villager;
         gameObject.SetActive(true);
-        
         UpdateDisplay();
     }
-    
+
     /// <summary>
     /// Hide the info panel
     /// </summary>
@@ -107,7 +120,13 @@ public class VillagerInfoPanel : MonoBehaviour
         if (jobText != null)
             jobText.text = currentVillager.currentJob == JobType.None ? 
                 "Unemployed" : currentVillager.currentJob.ToString();
-        
+
+        if (ageText != null)
+            ageText.text = currentVillager.age.ToString("0");
+
+        if(sexIcon != null)
+            sexIcon.sprite = currentVillager.gender == Gender.Male? maleSymbol : femaleSymbol;
+
         // Health and Morale
         if (healthText != null)
             healthText.text = $"Health: {currentVillager.currentHealth:F0}/{currentVillager.maxHealth:F0}";
@@ -123,7 +142,7 @@ public class VillagerInfoPanel : MonoBehaviour
         
         // Skills
         UpdateSkillBar(farmingBar, farmingText, currentVillager.skills.farming, "Farming");
-        UpdateSkillBar(fishingBar, fishingText, currentVillager.skills.fishing, "Fishing");
+        UpdateSkillBar(fishingBar, fishingText, currentVillager.skills.hunting, "Fishing");
         UpdateSkillBar(miningBar, miningText, currentVillager.skills.mining, "Mining");
         UpdateSkillBar(woodcuttingBar, woodcuttingText, currentVillager.skills.woodcutting, "Woodcutting");
         UpdateSkillBar(craftingBar, craftingText, currentVillager.skills.crafting, "Crafting");
@@ -145,7 +164,7 @@ public class VillagerInfoPanel : MonoBehaviour
         if (bar != null)
         {
             // Normalize skill value (assuming max skill is 10)
-            bar.fillAmount = Mathf.Clamp01(skillValue / 10f);
+            bar.fillAmount = Mathf.Clamp01(skillValue / currentVillager.skills.maxSkillLevel);
         }
         
         if (text != null)

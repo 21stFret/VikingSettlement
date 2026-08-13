@@ -12,6 +12,7 @@ public class MainMenuUI : MonoBehaviour
 {
     [Header("Main Buttons Panel")]
     [SerializeField] private GameObject mainButtonsPanel;
+    [SerializeField] private Button continueButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button loadGameButton;
 
@@ -29,6 +30,14 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button deleteConfirmYes;
     [SerializeField] private Button deleteConfirmNo;
     [SerializeField] private TextMeshProUGUI deleteConfirmText;
+
+    [Header("Clan Name Entry")]
+    [SerializeField] private GameObject clanNameEntryPanel;
+    [SerializeField] private TMP_InputField clanNameInputField;
+    [SerializeField] private Button clanNameConfirmButton;
+    [SerializeField] private Button clanNameCancelButton;
+    [SerializeField] private Button clanNameRandomButton;
+    private const int MaxClanNameLength = 24;
 
     private bool isNewGameMode;
     private int selectedSlot;
@@ -59,6 +68,7 @@ public class MainMenuUI : MonoBehaviour
 
     private void SetupButtonListeners()
     {
+        if (continueButton != null) continueButton.onClick.AddListener(OnContinueClicked);
         if (newGameButton != null) newGameButton.onClick.AddListener(OnNewGameClicked);
         if (loadGameButton != null) loadGameButton.onClick.AddListener(OnLoadGameClicked);
         if (backButton != null) backButton.onClick.AddListener(OnBackClicked);
@@ -66,6 +76,9 @@ public class MainMenuUI : MonoBehaviour
         if (deleteButton != null) deleteButton.onClick.AddListener(OnDeleteButtonClicked);
         if (deleteConfirmYes != null) deleteConfirmYes.onClick.AddListener(OnDeleteConfirmed);
         if (deleteConfirmNo != null) deleteConfirmNo.onClick.AddListener(OnDeleteCancelled);
+        if (clanNameConfirmButton != null) clanNameConfirmButton.onClick.AddListener(OnClanNameConfirmClicked);
+        if (clanNameCancelButton != null) clanNameCancelButton.onClick.AddListener(OnClanNameCancelClicked);
+        if (clanNameRandomButton != null) clanNameRandomButton.onClick.AddListener(OnClanNameRandomClicked);
         slotItemPrefab.Clear();
         var items = slotContainer.GetComponentsInChildren<SaveSlotItemUI>(true);
         foreach (var item in items)
@@ -80,9 +93,12 @@ public class MainMenuUI : MonoBehaviour
         SetPanelActive(mainButtonsPanel, true);
         SetPanelActive(slotSelectionPanel, false);
         SetPanelActive(deleteConfirmPanel, false);
+        SetPanelActive(clanNameEntryPanel, false);
         UpdateLoadButtonState();
         UpdateDeleteButtonState();
-        UIFocus.Set(newGameButton?.gameObject);
+        UpdateContinueButtonState();
+        bool continueAvailable = continueButton != null && continueButton.interactable;
+        UIFocus.Set(continueAvailable ? continueButton.gameObject : newGameButton?.gameObject);
     }
 
     private void SetPanelActive(GameObject panel, bool active)
@@ -112,6 +128,37 @@ public class MainMenuUI : MonoBehaviour
 
         bool slotHasSave = SaveManager.Instance.SlotHasSave(selectedSlot);
         deleteButton.interactable = slotHasSave;
+    }
+
+    private void UpdateContinueButtonState()
+    {
+        if (continueButton == null || SaveManager.Instance == null) return;
+
+        bool hasAutosave = SaveManager.Instance.HasAutosave();
+        int lastSlot = SaveManager.GetLastPlayedSlot();
+        bool hasLastSlotSave = lastSlot > 0 && SaveManager.Instance.SlotHasSave(lastSlot);
+        continueButton.interactable = hasAutosave || hasLastSlotSave;
+    }
+
+    private void OnContinueClicked()
+    {
+        if (SaveManager.Instance == null) return;
+
+        // Continue should resume wherever the player actually left off — that can be either
+        // the shared autosave or a manual save in the last-played slot, whichever is newer.
+        SaveSlotInfo autosaveInfo = SaveManager.Instance.GetAutosaveInfo();
+        int lastSlot = SaveManager.GetLastPlayedSlot();
+        SaveSlotInfo slotInfo = lastSlot > 0 ? SaveManager.Instance.GetSaveInfo(SaveManager.GetSlotName(lastSlot)) : null;
+
+        bool slotIsNewer = slotInfo != null && slotInfo.exists
+            && SaveManager.GetTimestamp(slotInfo) > SaveManager.GetTimestamp(autosaveInfo);
+
+        if (slotIsNewer)
+            GameManager.Instance?.LoadSlot(lastSlot);
+        else if (autosaveInfo.exists)
+            GameManager.Instance?.LoadAutosave();
+        else if (slotInfo != null && slotInfo.exists)
+            GameManager.Instance?.LoadSlot(lastSlot);
     }
 
     private void OnNewGameClicked()
@@ -236,11 +283,11 @@ public class MainMenuUI : MonoBehaviour
             bool slotHasSave = SaveManager.Instance?.SlotHasSave(selectedSlot) ?? false;
             if (slotHasSave)
             {
-                ShowDeleteConfirmation($"Slot {selectedSlot} has a save.\nDelete and start new game?");
+                ShowOverwriteConfirmation($"Slot {selectedSlot} has a save.\nDelete and start new game?");
             }
             else
             {
-                GameManager.Instance?.StartNewGame(selectedSlot);
+                ShowClanNameEntry();
             }
         }
         else
@@ -287,13 +334,71 @@ public class MainMenuUI : MonoBehaviour
         };
     }
 
+    private void ShowOverwriteConfirmation(string message)
+    {
+        SetPanelActive(deleteConfirmPanel, true);
+        if (deleteConfirmText != null) deleteConfirmText.text = message;
+        UIFocus.Push(deleteConfirmNo?.gameObject);
+
+        pendingAction = () =>
+        {
+            SaveManager.Instance?.DeleteSlot(selectedSlot);
+            ShowClanNameEntry();
+        };
+    }
+
+    private void ShowClanNameEntry()
+    {
+        SetPanelActive(slotSelectionPanel, false);
+        SetPanelActive(clanNameEntryPanel, true);
+        if (clanNameInputField != null)
+        {
+            clanNameInputField.characterLimit = MaxClanNameLength;
+            clanNameInputField.text = "";
+        }
+        UIFocus.Set(clanNameInputField != null ? clanNameInputField.gameObject : clanNameConfirmButton?.gameObject);
+    }
+
+    private void OnClanNameRandomClicked()
+    {
+        if (clanNameInputField != null)
+        {
+            clanNameInputField.text = VillagerNameGenerator.GenerateClanName();
+        }
+    }
+
+    private void OnClanNameConfirmClicked()
+    {
+        string clanName = clanNameInputField != null ? clanNameInputField.text.Trim() : "";
+        if (string.IsNullOrEmpty(clanName))
+        {
+            clanName = VillagerNameGenerator.GenerateClanName();
+        }
+
+        SetPanelActive(clanNameEntryPanel, false);
+        GameManager.Instance?.StartNewGame(selectedSlot, clanName);
+    }
+
+    private void OnClanNameCancelClicked()
+    {
+        SetPanelActive(clanNameEntryPanel, false);
+        SetPanelActive(slotSelectionPanel, true);
+        UIFocus.Set(loadButton?.gameObject);
+    }
+
     private void OnDeleteConfirmed()
     {
         SetPanelActive(deleteConfirmPanel, false);
         pendingAction?.Invoke();
         pendingAction = null;
-        RefreshSlotList();
-        UpdateDeleteButtonState();
+
+        // The overwrite-confirm path routes into clan name entry instead of back to the slot
+        // list; skip the refresh so it doesn't steal focus from the (now hidden) slot panel.
+        if (clanNameEntryPanel == null || !clanNameEntryPanel.activeSelf)
+        {
+            RefreshSlotList();
+            UpdateDeleteButtonState();
+        }
     }
 
     private void OnDeleteCancelled()

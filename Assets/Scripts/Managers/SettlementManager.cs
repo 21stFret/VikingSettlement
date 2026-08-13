@@ -1,18 +1,31 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using UnityEngine;
+using UnityEngine.Analytics;
+
+[System.Serializable]
+public class DeathRecord
+{
+    public string name;
+    public string uniqueId;
+    public float ageAtDeath;
+    public DeathCause cause;
+    public bool wasJarl;
+    public float timeOfDeath;
+}
 
 public class SettlementManager : MonoBehaviour, ISaveable
 {
     public static SettlementManager Instance { get; private set; }
-    
+
     [Header("Buildings")]
     private List<Building> allBuildings = new List<Building>();
-    
+
     [Header("Villagers")]
     private List<Villager> allVillagers = new List<Villager>();
-    
+    private List<DeathRecord> _deathLog = new List<DeathRecord>();
+
     [Header("Population Statistics")]
     [SerializeField] private int youngCount = 0;
     [SerializeField] private int matureCount = 0;
@@ -21,6 +34,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     [SerializeField] private int totalBirths = 0;
     [SerializeField] private int totalDeaths = 0;
     [SerializeField] private float averageAge = 0f;
+    public float timeSinceLastBirth;
 
     [Header("Population Display")]
     [SerializeField] private bool showPopulationUI = true;
@@ -34,12 +48,29 @@ public class SettlementManager : MonoBehaviour, ISaveable
     private float countingAge;
 
     [Header("Food Consumption")]
-    public float fishPerVillagerPerDay = 1f;
-    public float totalFishNeeded = 0f;
+    public float foodPerVillagerPerDay = 1f;
+    public float totalFoodNeeded = 0f;
     [SerializeField] private HungerDistributionMode hungerMode = HungerDistributionMode.Prioritized;
     [Tooltip("Minimum health lost per starvation tick regardless of current health. Lower this for testing.")]
     [SerializeField] public float minStarvationDamage = 5f;
     public event Action<bool> OnFoodConsumed;
+
+    [Header("Warmth System (Winter)")]
+    [Tooltip("Wood consumed per villager per day in winter")]
+    public float woodPerVillagerPerDay = 0.5f;
+    [Tooltip("Morale penalty per day when settlement is cold")]
+    public float coldMoralePenalty = 10f;
+    [Tooltip("Morale bonus per day when settlement is warm")]
+    public float warmthMoraleBonus = 5f;
+    [Tooltip("Health damage per day when settlement is cold (0 to disable)")]
+    public float coldHealthDamage = 0f;
+    [Tooltip("Current warmth status")]
+    [SerializeField] private bool isSettlementWarm = true;
+    [Tooltip("Wood consumed today")]
+    [SerializeField] private float woodConsumedToday = 0f;
+    [Tooltip("Wood needed today")]
+    [SerializeField] private float woodNeededToday = 0f;
+    public event Action<bool> OnWarmthChanged; // true = warm, false = cold
 
     private void Awake()
     {
@@ -56,7 +87,10 @@ public class SettlementManager : MonoBehaviour, ISaveable
     public void Initialize()
     {
         if (DayNightManager.Instance != null)
+        {
             DayNightManager.Instance.OnMealTime += HandleMealTime;
+            DayNightManager.Instance.OnDayEnd += HandleNewDay;
+        }
         else
             Debug.LogWarning("SettlementManager: DayNightManager not found during Initialize!");
 
@@ -79,6 +113,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
         {
             Debug.LogWarning("SettlementManager: JarlManager not found during Initialize!");
         }
+        
+        foreach(Building building in allBuildings)
+        {
+            building.Init();
+        }
     }
 
     private void OnDestroy()
@@ -92,6 +131,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         if (DayNightManager.Instance != null)
         {
             DayNightManager.Instance.OnMealTime -= HandleMealTime;
+            DayNightManager.Instance.OnDayEnd -= HandleNewDay;
         }
         if (JarlManager.Instance != null)
         {
@@ -126,6 +166,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         Debug.Log($"The settlement celebrates {newJarl.villagerName} as the new Jarl!");
 
+        AttackCooldownUI.Instance.Init();
+        DodgeCooldownUI.Instance?.Init();
+
         // Apply morale bonus for new leader
         foreach (var villager in allVillagers)
         {
@@ -153,6 +196,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
             countingAge += ageingAmount;
             age = Mathf.FloorToInt(countingAge);
         }
+
+        timeSinceLastBirth += deltaTime;
     }
 
     private void FastUpdate()
@@ -212,6 +257,99 @@ public class SettlementManager : MonoBehaviour, ISaveable
         averageAge = allVillagers.Count > 0 ? totalAge / allVillagers.Count : 0f;
     }
     
+    #region Wood Consumption
+
+    // Food and wood both consumed here — population resource drain is SettlementManager's responsibility
+    private void HandleNewDay()
+    {
+        ConsumeFirewood();
+    }
+
+    private void ConsumeFirewood()
+    {
+        woodNeededToday = GetTodayWoodCost();
+        float woodAvailable = ResourceManager.Instance.GetResource(ResourceType.Wood);
+        if (woodNeededToday > woodAvailable)
+        {
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodAvailable);
+            woodConsumedToday = woodAvailable;
+            ApplyColdEffects();
+            SetWarmthStatus(false);
+        }
+        else
+        {
+            ResourceManager.Instance.SpendResource(ResourceType.Wood, woodNeededToday);
+            woodConsumedToday = woodNeededToday;
+            ApplyWarmEffects();
+            SetWarmthStatus(true);
+        }
+    }
+
+    public float GetTodayWoodCost()
+    {
+        int population = GetPopulation();
+
+        SeasonManager.Season season = SeasonManager.Instance.GetCurrentSeason();
+
+        ColdDayType coldDay = StormScheduler.Instance != null && DayNightManager.Instance != null
+            ? StormScheduler.Instance.GetColdDayType(DayNightManager.Instance.CurrentAbsoluteDay)
+            : ColdDayType.Chilly;
+
+        // Cold day type and storm are independent — they stack rather than override each other.
+        float stormMultiplier = StormScheduler.Instance != null ? StormScheduler.Instance.GetCurrentDayWoodMultiplier() : 1.0f;
+        float runestoneMultiplier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetWoodConsumptionMultiplier() : 1.0f;
+        return SettlementFormulas.GetWoodCost(population, woodPerVillagerPerDay, season, coldDay, stormMultiplier, runestoneMultiplier);
+    }
+
+    private void ApplyWarmEffects()
+    {
+        foreach (var villager in GetAllVillagers())
+        {
+            if (villager == null || villager.IsDead()) continue;
+            villager.isCold = false;
+            villager.ChangeMorale(warmthMoraleBonus);
+        }
+
+        Debug.Log("Settlement is warm. No negative effects applied.");
+    }
+
+    private void ApplyColdEffects()
+    {
+        var villagers = SettlementManager.Instance.GetAllVillagers();
+
+        int villagersAffected = SettlementFormulas.GetColdAffectedCount(villagers.Count, woodNeededToday, woodConsumedToday);
+
+        for (int i = 0; i < villagersAffected; i++)
+        {
+            var villager = villagers[i];
+            if (villager == null || villager.IsDead()) continue;
+
+            if (coldMoralePenalty > 0)
+                villager.ChangeMorale(-coldMoralePenalty);
+
+            if (coldHealthDamage > 0)
+                villager.TakeDamage(coldHealthDamage, null, true);
+
+            villager.personalUI.ShowSpeech("I'm freezing!", 2.0f);
+            villager.isCold = true;
+            villager.personalUI.UpdateStatusEffectIcon(VillagerStatusEffect.Cold);
+        }
+
+        Debug.Log($"Cold effects applied: -{coldMoralePenalty} morale{(coldHealthDamage > 0 ? $", -{coldHealthDamage} health" : "")} to {villagersAffected} villagers");
+    }
+
+    private void SetWarmthStatus(bool isWarm)
+    {
+        if (isSettlementWarm != isWarm)
+        {
+            isSettlementWarm = isWarm;
+            OnWarmthChanged?.Invoke(isWarm);
+        }
+    }
+    public bool IsSettlementWarm() => isSettlementWarm;
+
+    #endregion
+
     #region Food Consumption
 
     /// <summary>
@@ -223,30 +361,27 @@ public class SettlementManager : MonoBehaviour, ISaveable
             return;
 
         int villagerCount = allVillagers.Count;
-        float effectiveFishPerVillager = fishPerVillagerPerDay;
+        float rationingModifier = RunestoneManager.Instance != null ? RunestoneManager.Instance.GetFoodConsumptionModifier() : 0f;
+        float effectiveFoodPerVillager = SettlementFormulas.GetEffectiveFoodPerVillager(foodPerVillagerPerDay, rationingModifier);
 
-        // Apply Rationing runestone bonus (-1 food per villager)
-        if (RunestoneManager.Instance != null)
-        {
-            effectiveFishPerVillager += RunestoneManager.Instance.GetFoodConsumptionModifier();
-            effectiveFishPerVillager = Mathf.Max(0f, effectiveFishPerVillager);
-        }
+        totalFoodNeeded = SettlementFormulas.GetTotalFoodNeeded(villagerCount, effectiveFoodPerVillager);
 
-        totalFishNeeded = villagerCount * effectiveFishPerVillager;
-
-        if (totalFishNeeded <= 0)
+        if (totalFoodNeeded <= 0)
         {
             Debug.Log("No villagers to feed.");
             return;
         }
 
-        float availableFish = ResourceManager.Instance.GetResource(ResourceType.Fish);
+        int availableFish = (int)ResourceManager.Instance.GetResource(ResourceType.Fish);
+        int availableMeat = (int)ResourceManager.Instance.GetResource(ResourceType.Meat);
+        int availableBread = (int)ResourceManager.Instance.GetResource(ResourceType.Bread);
+        int totalFoodAvailable = availableFish + availableMeat + availableBread;
 
-        if (availableFish >= totalFishNeeded)
+        if (totalFoodAvailable >= totalFoodNeeded)
         {
-            // Enough fish - consume it
-            ResourceManager.Instance.SpendResource(ResourceType.Fish, totalFishNeeded);
-            Debug.Log($"Fed {villagerCount} villagers ({totalFishNeeded} fish consumed). Remaining fish: {ResourceManager.Instance.GetResource(ResourceType.Fish)}");
+            // Enough food - consume it
+            EqualyReduceFoodSupplies(availableFish, availableMeat, availableBread, (int)totalFoodNeeded);
+            Debug.Log($"Fed {villagerCount} villagers ({totalFoodNeeded} food consumed). \n Remaining fish: {ResourceManager.Instance.GetResource(ResourceType.Fish)}. \n Remaining meat: {ResourceManager.Instance.GetResource(ResourceType.Meat)}. \n Remaining bread: {ResourceManager.Instance.GetResource(ResourceType.Bread)}");
             // All villagers are fed
             foreach (var villager in allVillagers)
             {
@@ -255,18 +390,54 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
         else
         {
-            print($"Not enough fish! Need {totalFishNeeded} but only have {availableFish}. Villagers are hungry!");
-
-            if (availableFish > 0)
-                ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
+            print($"Not enough fish! Need {totalFoodNeeded} but only have {totalFoodAvailable}. Villagers are hungry!");
+            ResourceManager.Instance.SpendResource(ResourceType.Fish, availableFish);
+            ResourceManager.Instance.SpendResource(ResourceType.Meat, availableMeat);
+            ResourceManager.Instance.SpendResource(ResourceType.Bread, availableBread);
 
             if (hungerMode == HungerDistributionMode.Shared)
-                ApplySharedHunger(availableFish, effectiveFishPerVillager);
+                ApplySharedHunger(totalFoodAvailable, effectiveFoodPerVillager);
             else
-                ApplyPrioritizedHunger(availableFish, effectiveFishPerVillager);
+                ApplyPrioritizedHunger(totalFoodAvailable, effectiveFoodPerVillager);
         }
 
-        OnFoodConsumed?.Invoke(availableFish >= totalFishNeeded);
+        OnFoodConsumed?.Invoke(totalFoodAvailable >= totalFoodNeeded);
+    }
+
+    private void EqualyReduceFoodSupplies(int fish, int meat, int bread, int totalFoodRequired)
+    {
+        // Keep resource amounts in an array so we can cycle through them generically
+        ResourceType[] types = { ResourceType.Fish, ResourceType.Meat, ResourceType.Bread };
+        int[] amounts = { fish, meat, bread };
+
+        int startType = 0;
+
+        for (int i = 0; i < totalFoodRequired; i++)
+        {
+            bool foodConsumed = false;
+
+            // Try up to 3 resource types starting from the current cycle position
+            for (int attempt = 0; attempt < types.Length; attempt++)
+            {
+                int type = (startType + attempt) % types.Length;
+
+                if (amounts[type] > 0)
+                {
+                    ResourceManager.Instance.SpendResource(types[type], 1);
+                    amounts[type]--;
+                    foodConsumed = true;
+                    break;
+                }
+            }
+
+            if (!foodConsumed)
+            {
+                // All resources are exhausted, nothing left to spend
+                break;
+            }
+
+            startType = (startType + 1) % types.Length; // advance cycle for next unit of food
+        }
     }
 
     /// <summary>
@@ -274,7 +445,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     /// </summary>
     private void ApplyPrioritizedHunger(float availableFish, float fishPerVillager)
     {
-        int fedCount = fishPerVillager > 0 ? Mathf.FloorToInt(availableFish / fishPerVillager) : allVillagers.Count;
+        int fedCount = SettlementFormulas.GetFedCount(availableFish, fishPerVillager, allVillagers.Count);
         print($"Prioritized hunger: {fedCount}/{allVillagers.Count} villagers fed.");
 
         List<Villager> shuffled = allVillagers.OrderBy(v => UnityEngine.Random.value).ToList();
@@ -290,8 +461,8 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         if (fishPerVillager <= 0f || allVillagers.Count == 0) return;
 
+        float hungerFraction = SettlementFormulas.GetSharedHungerFraction(availableFish, fishPerVillager, allVillagers.Count);
         float foodPerVillager = availableFish / allVillagers.Count;
-        float hungerFraction = Mathf.Clamp01((fishPerVillager - foodPerVillager) / fishPerVillager);
 
         Debug.LogWarning($"Shared hunger: {foodPerVillager:F2}/{fishPerVillager:F2} food each ({hungerFraction * 100f:F0}% shortage).");
 
@@ -397,9 +568,22 @@ public class SettlementManager : MonoBehaviour, ISaveable
         {
             allVillagers.Remove(villager);
             totalDeaths++;
-            Debug.Log($"Unregistered villager: {villager.villagerName} (Age: {villager.age:F1}). Total population: {allVillagers.Count}");
+
+            _deathLog.Add(new DeathRecord
+            {
+                name       = villager.villagerName,
+                uniqueId   = villager.uniqueId,
+                ageAtDeath = villager.age,
+                cause      = villager.deathCause,
+                wasJarl    = villager.isJarl,
+                timeOfDeath = Time.time
+            });
+
+            Debug.Log($"Unregistered villager: {villager.villagerName} (Age: {villager.age:F1}, Cause: {villager.deathCause}). Total population: {allVillagers.Count}");
         }
     }
+
+    public List<DeathRecord> GetDeathLog() => new List<DeathRecord>(_deathLog);
     
     /// <summary>
     /// Get all villagers
@@ -407,6 +591,11 @@ public class SettlementManager : MonoBehaviour, ISaveable
     public List<Villager> GetAllVillagers()
     {
         return new List<Villager>(allVillagers);
+    }
+
+    public Villager GetCurrentJarl()
+    {
+        return allVillagers.FirstOrDefault(v => v.isJarl);
     }
 
     public Villager GetVillagerById(string uniqueId)
@@ -481,6 +670,14 @@ public class SettlementManager : MonoBehaviour, ISaveable
         }
         return result;
     }
+
+    public Villager GetMostWoundedVillager()
+    {
+        var sortedList = allVillagers.OrderBy(villager => villager.currentHealth).ToList();
+        if (sortedList.Count == 0) return null;
+        if (sortedList[0].currentHealth == sortedList[0].maxHealth) return null;
+        return sortedList[0];
+    }
     
     /// <summary>
     /// Get total population count
@@ -489,7 +686,37 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         return allVillagers.Count;
     }
-    
+
+    /// <summary>
+    /// Max village population, driven entirely by constructed Longhouse(s)' current level.
+    /// </summary>
+    public int GetMaxPopulation()
+    {
+        int cap = 0;
+        foreach (var b in allBuildings)
+        {
+            if (b == null || !b.isConstructed || b.data == null) continue;
+            if (b.data.buildingType != BuildingType.Longhouse) continue;
+            cap += b.CurrentLevelData.populationCapBonus;
+        }
+        return cap;
+    }
+
+    public bool HasPopulationCapacity()
+    {
+        return GetPopulation() < GetMaxPopulation();
+    }
+
+    public int GetAverageChildCount()
+    {
+        int averagechildCount = 0;
+        foreach (Villager v in allVillagers)
+        {
+            averagechildCount += v.childrenCount;
+        }
+        averagechildCount /= allVillagers.Count;
+        return averagechildCount;
+    }
     /// <summary>
     /// Get population statistics
     /// </summary>
@@ -508,11 +735,33 @@ public class SettlementManager : MonoBehaviour, ISaveable
             availableWorkers = GetAvailableWorkers().Count
         };
     }
-    
+
+    public float GetOverrallMorale()
+    {
+        if (allVillagers.Count == 0) return 0f;
+        float totalMorale = 0f;
+        foreach (var villager in allVillagers)
+        {
+            totalMorale += villager.morale;
+        }
+        return totalMorale / allVillagers.Count;
+    }
+
+    public float GetOverrallCombat()
+    {
+        if (allVillagers.Count == 0) return 0f;
+        float totalCombat = 0f;
+        foreach (var villager in allVillagers)
+        {
+            totalCombat += villager.skills.combat;
+        }
+        return totalCombat / allVillagers.Count;
+    }
+
     #endregion
-    
+
     #region UI Display
-    
+
     private void OnGUI()
     {
         if (!showPopulationUI) return;
@@ -556,26 +805,69 @@ public class SettlementManager : MonoBehaviour, ISaveable
     #region ISaveable
 
     /// <summary>
-    /// Gets the name of an equipable item for saving.
-    /// Falls back to GameObject name (without Clone suffix) if itemName is empty.
+    /// Builds a serializable snapshot of a single villager's full state. Pure function of the
+    /// passed-in Villager — no dependency on SettlementManager.Instance — so it's safe to call
+    /// from any scene (e.g. RaidManager capturing a raid party's state between scene loads).
     /// </summary>
-    private string GetEquipableItemName(EquipableItem item)
+    public static VillagerSave BuildVillagerSave(Villager v)
     {
-        if (item == null) return "";
+        CharacterBase cb = v.GetComponent<CharacterBase>();
 
-        // Use itemName if it's set
-        if (!string.IsNullOrEmpty(item.itemName))
+        return new VillagerSave
         {
-            return item.itemName;
-        }
-
-        // Fall back to GameObject name, stripping "(Clone)" suffix
-        string goName = item.gameObject.name;
-        if (goName.EndsWith("(Clone)"))
-        {
-            goName = goName.Substring(0, goName.Length - 7).Trim();
-        }
-        return goName;
+            weaponName = cb?.weapon?.itemName,
+            weaponDurability = cb?.weapon ? cb.weapon.CurrentDurability : 0,
+            shieldName = cb?.shield?.itemName,
+            shieldDurability = cb?.shield ? cb.shield.CurrentDurability : 0,
+            torchName = cb?.torch?.itemName,
+            id = v.uniqueId,
+            villagerName = v.villagerName,
+            clanName = v.clanName,
+            gender = (int)v.gender,
+            age = v.age,
+            lifeExpectancy = v.lifeExpectancy,
+            currentLifeStage = (int)v.currentLifeStage,
+            health = v.currentHealth,
+            maxHealth = v.maxHealth,
+            morale = v.morale,
+            maxMorale = v.maxMorale,
+            isHungry = v.isHungry,
+            isCold = v.isCold,
+            currentJob = (int)v.currentJob,
+            assignedBuildingId = v.assignedBuilding != null && v.assignedBuilding.data != null ? v.assignedBuilding.data.name : "",
+            skills = new VillagerSkillsSave
+            {
+                farming = v.skills.farming,
+                fishing = v.skills.hunting,
+                mining = v.skills.mining,
+                woodcutting = v.skills.woodcutting,
+                crafting = v.skills.crafting,
+                combat = v.skills.combat,
+                sailing = v.skills.sailing,
+                intelligence = v.skills.intelligence,
+                learningRate = v.skills.learningRate
+            },
+            combatStats = new CombatStatsSave
+            {
+                strength = v.combatStats.strength,
+                defense = v.combatStats.defense
+            },
+            parent1Id = v.parent1 != null ? v.parent1.uniqueId : "",
+            parent2Id = v.parent2 != null ? v.parent2.uniqueId : "",
+            partnerId = v.partner != null ? v.partner.uniqueId : "",
+            childrenCount = v.childrenCount,
+            timeSinceLastChild = v.timeSinceLastChild,
+            isJarl = v.isJarl,
+            isOfJarlLineage = v.isOfJarlLineage,
+            generationsFromJarl = v.generationsFromJarl,
+            posX = v.transform.position.x,
+            posY = v.transform.position.y,
+            posZ = v.transform.position.z,
+            spriteVariant = v.spriteVariant,
+            activeWounds = v.activeWounds != null
+                ? v.activeWounds.Select(w => (int)w).ToArray()
+                : new int[0]
+        };
     }
 
     public void PopulateSaveData(SaveData data)
@@ -585,67 +877,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
         foreach (var v in allVillagers.ToList())
         {
             if (v == null || v.IsDead()) continue;
-
-            var vs = new VillagerSave
-            {
-                id = v.uniqueId,
-                villagerName = v.villagerName,
-                gender = (int)v.gender,
-                age = v.age,
-                lifeExpectancy = v.lifeExpectancy,
-                currentLifeStage = (int)v.currentLifeStage,
-                health = v.currentHealth,
-                maxHealth = v.maxHealth,
-                morale = v.morale,
-                maxMorale = v.maxMorale,
-                isHungry = v.isHungry,
-                isCold = v.isCold,
-                currentJob = (int)v.currentJob,
-                assignedBuildingId = v.assignedBuilding != null && v.assignedBuilding.data != null ? v.assignedBuilding.data.name : "",
-                skills = new VillagerSkillsSave
-                {
-                    farming = v.skills.farming,
-                    fishing = v.skills.fishing,
-                    mining = v.skills.mining,
-                    woodcutting = v.skills.woodcutting,
-                    crafting = v.skills.crafting,
-                    combat = v.skills.combat,
-                    sailing = v.skills.sailing,
-                    intelligence = v.skills.intelligence,
-                    learningRate = v.skills.learningRate
-                },
-                combatStats = new CombatStatsSave
-                {
-                    strength = v.combatStats.strength,
-                    defense = v.combatStats.defense
-                },
-                parent1Id = v.parent1 != null ? v.parent1.uniqueId : "",
-                parent2Id = v.parent2 != null ? v.parent2.uniqueId : "",
-                partnerId = v.partner != null ? v.partner.uniqueId : "",
-                childrenCount = v.childrenCount,
-                timeSinceLastChild = v.timeSinceLastChild,
-                isJarl = v.isJarl,
-                isOfJarlLineage = v.isOfJarlLineage,
-                generationsFromJarl = v.generationsFromJarl,
-                posX = v.transform.position.x,
-                posY = v.transform.position.y,
-                posZ = v.transform.position.z,
-                spriteVariant = v.spriteVariant,
-                weaponName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.weapon),
-                shieldName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.shield),
-                torchName = GetEquipableItemName(v.GetComponent<CharacterBase>()?.torch),
-                activeWounds = v.activeWounds != null
-                    ? v.activeWounds.Select(w => (int)w).ToArray()
-                    : new int[0]
-            };
-
-            // Debug: Log weapon/shield being saved
-            if (!string.IsNullOrEmpty(vs.weaponName) || !string.IsNullOrEmpty(vs.shieldName))
-            {
-                Debug.Log($"Saving {v.villagerName}: weapon='{vs.weaponName}', shield='{vs.shieldName}'");
-            }
-
-            villagerSaves.Add(vs);
+            villagerSaves.Add(BuildVillagerSave(v));
         }
         data.villagers = villagerSaves.ToArray();
 
@@ -662,9 +894,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
                 gridPositionX = b.gridPosition.x,
                 gridPositionY = b.gridPosition.y,
                 isConstructed = b.isConstructed,
-                constructionProgress = b.constructionProgress,
                 productionProgress = b.productionProgress,
                 needsRepair = b.needsRepair,
+                level = b.level,
                 assignedWorkerIds = new string[b.assignedWorkers.Count]
             };
 
@@ -792,9 +1024,9 @@ public class SettlementManager : MonoBehaviour, ISaveable
 
                 // Restore building state
                 b.isConstructed = bs.isConstructed;
-                b.constructionProgress = bs.constructionProgress;
                 b.productionProgress = bs.productionProgress;
                 b.SetNeedsRepair(bs.needsRepair);
+                b.level = bs.level > 0 ? bs.level : 1;
 
                 // Restore assigned workers
                 b.assignedWorkers.Clear();
@@ -822,7 +1054,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
             totalDeaths = data.stats.totalDeaths;
         }
 
-        totalFishNeeded = allVillagers.Count * fishPerVillagerPerDay;
+        totalFoodNeeded = allVillagers.Count * foodPerVillagerPerDay;
 
         // Refresh shadows to pick up newly spawned villagers.
         if (ShadowMaster.Instance != null)

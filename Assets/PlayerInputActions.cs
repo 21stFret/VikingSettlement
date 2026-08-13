@@ -174,6 +174,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""TogglePlayerMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""981275ae-8f12-4527-9e04-8aea840240ef"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""ShieldWall"",
                     ""type"": ""Button"",
                     ""id"": ""1939b8f7-dd97-4fcf-b262-2186a4065399"",
@@ -222,6 +231,60 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""name"": ""ThrowShield"",
                     ""type"": ""Button"",
                     ""id"": ""d5e6f7a8-b9c0-1234-defa-567890123456"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Notifications"",
+                    ""type"": ""Button"",
+                    ""id"": ""8292f1bb-39fa-4a84-9d51-2e8e8d6fb8b3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""VillagerPanel"",
+                    ""type"": ""Button"",
+                    ""id"": ""70c325bd-f81f-4985-a99e-c91eebee1b5f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ForwardDialogue"",
+                    ""type"": ""Button"",
+                    ""id"": ""b910aecc-7f0a-47ae-8455-05279080e9f2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleCalendar"",
+                    ""type"": ""Button"",
+                    ""id"": ""a1c2e3f4-b5d6-4789-8a9b-0c1d2e3f4a5b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleCompendium"",
+                    ""type"": ""Button"",
+                    ""id"": ""b56dd836-3740-491d-8d6d-38867a0644a6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleSkillTree"",
+                    ""type"": ""Button"",
+                    ""id"": ""d0f93dec-9aa6-4dd6-8381-40436984ed0c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -518,11 +581,22 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""dd000759-6fb7-4103-a1d3-4f2c3c915441"",
-                    ""path"": ""<Keyboard>/tab"",
+                    ""path"": ""<Keyboard>/backquote"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""StrategicPause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8c3a7ec3-2178-4683-978c-83a46d960210"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TogglePlayerMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -657,6 +731,208 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""action"": ""ThrowShield"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""064ca427-fb14-4b8c-be14-7ea0c4eef0ce"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Notifications"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c19df04f-d0a0-43b7-b886-e836aa1916b8"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""VillagerPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9ec17578-fa14-4038-8f73-4e58f8e32a7d"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""615f27e8-b016-4d12-81a3-66f3c58853e3"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d691593-cbe2-4e53-9076-e5443df9bfff"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ForwardDialogue"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2d3e4f5-c6a7-4890-9bcd-1e2f3a4b5c6d"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCalendar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c3e4f5a6-d7b8-5901-acde-2f3a4b5c6d7e"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCalendar"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b500155-0db5-42f0-bac7-b8cb644683b1"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCompendium"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5805a3d8-b8ae-4a14-8191-2650e1bc0bb2"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleCompendium"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""1a260093-85e6-4e00-95fc-2819fe0a4725"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleSkillTree"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8bcb9813-e770-4c89-a496-63e0c31e0a46"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleSkillTree"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""Grind"",
+            ""id"": ""4aaaaaa9-62c2-46c9-ba4a-5ce032b9035a"",
+            ""actions"": [
+                {
+                    ""name"": ""GrindWheelSpeedUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""08df5243-b6ae-430e-a6c9-780811214845"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StartGrinding"",
+                    ""type"": ""Button"",
+                    ""id"": ""0430954e-5778-4011-86e1-4cd9380c918a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""50aec666-5361-4355-999e-a3bbaf954ca1"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GrindWheelSpeedUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8ea740e6-b766-4b27-9bb6-a0290227a85b"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""GrindWheelSpeedUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4896c47d-e08d-404a-80c5-3e83c39dbc67"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartGrinding"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""42e397e8-ca94-4f1c-a0bf-77a7de0e11f9"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartGrinding"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""629ea3fa-17e4-4aa2-907e-0943ee1cdd1f"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartGrinding"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -674,17 +950,29 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
         m_Player_StrategicPause = m_Player.FindAction("StrategicPause", throwIfNotFound: true);
+        m_Player_TogglePlayerMenu = m_Player.FindAction("TogglePlayerMenu", throwIfNotFound: true);
         m_Player_ShieldWall = m_Player.FindAction("ShieldWall", throwIfNotFound: true);
         m_Player_SwapWeapon = m_Player.FindAction("SwapWeapon", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_ClosePanel = m_Player.FindAction("ClosePanel", throwIfNotFound: true);
         m_Player_Roll = m_Player.FindAction("Roll", throwIfNotFound: true);
         m_Player_ThrowShield = m_Player.FindAction("ThrowShield", throwIfNotFound: true);
+        m_Player_Notifications = m_Player.FindAction("Notifications", throwIfNotFound: true);
+        m_Player_VillagerPanel = m_Player.FindAction("VillagerPanel", throwIfNotFound: true);
+        m_Player_ForwardDialogue = m_Player.FindAction("ForwardDialogue", throwIfNotFound: true);
+        m_Player_ToggleCalendar = m_Player.FindAction("ToggleCalendar", throwIfNotFound: true);
+        m_Player_ToggleCompendium = m_Player.FindAction("ToggleCompendium", throwIfNotFound: true);
+        m_Player_ToggleSkillTree = m_Player.FindAction("ToggleSkillTree", throwIfNotFound: true);
+        // Grind
+        m_Grind = asset.FindActionMap("Grind", throwIfNotFound: true);
+        m_Grind_GrindWheelSpeedUp = m_Grind.FindAction("GrindWheelSpeedUp", throwIfNotFound: true);
+        m_Grind_StartGrinding = m_Grind.FindAction("StartGrinding", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, PlayerInputActions.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Grind.enabled, "This will cause a leak and performance issues, PlayerInputActions.Grind.Disable() has not been called.");
     }
 
     /// <summary>
@@ -769,12 +1057,19 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_Pause;
     private readonly InputAction m_Player_StrategicPause;
+    private readonly InputAction m_Player_TogglePlayerMenu;
     private readonly InputAction m_Player_ShieldWall;
     private readonly InputAction m_Player_SwapWeapon;
     private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_ClosePanel;
     private readonly InputAction m_Player_Roll;
     private readonly InputAction m_Player_ThrowShield;
+    private readonly InputAction m_Player_Notifications;
+    private readonly InputAction m_Player_VillagerPanel;
+    private readonly InputAction m_Player_ForwardDialogue;
+    private readonly InputAction m_Player_ToggleCalendar;
+    private readonly InputAction m_Player_ToggleCompendium;
+    private readonly InputAction m_Player_ToggleSkillTree;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -823,6 +1118,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @StrategicPause => m_Wrapper.m_Player_StrategicPause;
         /// <summary>
+        /// Provides access to the underlying input action "Player/TogglePlayerMenu".
+        /// </summary>
+        public InputAction @TogglePlayerMenu => m_Wrapper.m_Player_TogglePlayerMenu;
+        /// <summary>
         /// Provides access to the underlying input action "Player/ShieldWall".
         /// </summary>
         public InputAction @ShieldWall => m_Wrapper.m_Player_ShieldWall;
@@ -846,6 +1145,30 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ThrowShield".
         /// </summary>
         public InputAction @ThrowShield => m_Wrapper.m_Player_ThrowShield;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Notifications".
+        /// </summary>
+        public InputAction @Notifications => m_Wrapper.m_Player_Notifications;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/VillagerPanel".
+        /// </summary>
+        public InputAction @VillagerPanel => m_Wrapper.m_Player_VillagerPanel;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ForwardDialogue".
+        /// </summary>
+        public InputAction @ForwardDialogue => m_Wrapper.m_Player_ForwardDialogue;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleCalendar".
+        /// </summary>
+        public InputAction @ToggleCalendar => m_Wrapper.m_Player_ToggleCalendar;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleCompendium".
+        /// </summary>
+        public InputAction @ToggleCompendium => m_Wrapper.m_Player_ToggleCompendium;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleSkillTree".
+        /// </summary>
+        public InputAction @ToggleSkillTree => m_Wrapper.m_Player_ToggleSkillTree;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -899,6 +1222,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started += instance.OnStrategicPause;
             @StrategicPause.performed += instance.OnStrategicPause;
             @StrategicPause.canceled += instance.OnStrategicPause;
+            @TogglePlayerMenu.started += instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.performed += instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.canceled += instance.OnTogglePlayerMenu;
             @ShieldWall.started += instance.OnShieldWall;
             @ShieldWall.performed += instance.OnShieldWall;
             @ShieldWall.canceled += instance.OnShieldWall;
@@ -917,6 +1243,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ThrowShield.started += instance.OnThrowShield;
             @ThrowShield.performed += instance.OnThrowShield;
             @ThrowShield.canceled += instance.OnThrowShield;
+            @Notifications.started += instance.OnNotifications;
+            @Notifications.performed += instance.OnNotifications;
+            @Notifications.canceled += instance.OnNotifications;
+            @VillagerPanel.started += instance.OnVillagerPanel;
+            @VillagerPanel.performed += instance.OnVillagerPanel;
+            @VillagerPanel.canceled += instance.OnVillagerPanel;
+            @ForwardDialogue.started += instance.OnForwardDialogue;
+            @ForwardDialogue.performed += instance.OnForwardDialogue;
+            @ForwardDialogue.canceled += instance.OnForwardDialogue;
+            @ToggleCalendar.started += instance.OnToggleCalendar;
+            @ToggleCalendar.performed += instance.OnToggleCalendar;
+            @ToggleCalendar.canceled += instance.OnToggleCalendar;
+            @ToggleCompendium.started += instance.OnToggleCompendium;
+            @ToggleCompendium.performed += instance.OnToggleCompendium;
+            @ToggleCompendium.canceled += instance.OnToggleCompendium;
+            @ToggleSkillTree.started += instance.OnToggleSkillTree;
+            @ToggleSkillTree.performed += instance.OnToggleSkillTree;
+            @ToggleSkillTree.canceled += instance.OnToggleSkillTree;
         }
 
         /// <summary>
@@ -955,6 +1299,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @StrategicPause.started -= instance.OnStrategicPause;
             @StrategicPause.performed -= instance.OnStrategicPause;
             @StrategicPause.canceled -= instance.OnStrategicPause;
+            @TogglePlayerMenu.started -= instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.performed -= instance.OnTogglePlayerMenu;
+            @TogglePlayerMenu.canceled -= instance.OnTogglePlayerMenu;
             @ShieldWall.started -= instance.OnShieldWall;
             @ShieldWall.performed -= instance.OnShieldWall;
             @ShieldWall.canceled -= instance.OnShieldWall;
@@ -973,6 +1320,24 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @ThrowShield.started -= instance.OnThrowShield;
             @ThrowShield.performed -= instance.OnThrowShield;
             @ThrowShield.canceled -= instance.OnThrowShield;
+            @Notifications.started -= instance.OnNotifications;
+            @Notifications.performed -= instance.OnNotifications;
+            @Notifications.canceled -= instance.OnNotifications;
+            @VillagerPanel.started -= instance.OnVillagerPanel;
+            @VillagerPanel.performed -= instance.OnVillagerPanel;
+            @VillagerPanel.canceled -= instance.OnVillagerPanel;
+            @ForwardDialogue.started -= instance.OnForwardDialogue;
+            @ForwardDialogue.performed -= instance.OnForwardDialogue;
+            @ForwardDialogue.canceled -= instance.OnForwardDialogue;
+            @ToggleCalendar.started -= instance.OnToggleCalendar;
+            @ToggleCalendar.performed -= instance.OnToggleCalendar;
+            @ToggleCalendar.canceled -= instance.OnToggleCalendar;
+            @ToggleCompendium.started -= instance.OnToggleCompendium;
+            @ToggleCompendium.performed -= instance.OnToggleCompendium;
+            @ToggleCompendium.canceled -= instance.OnToggleCompendium;
+            @ToggleSkillTree.started -= instance.OnToggleSkillTree;
+            @ToggleSkillTree.performed -= instance.OnToggleSkillTree;
+            @ToggleSkillTree.canceled -= instance.OnToggleSkillTree;
         }
 
         /// <summary>
@@ -1006,6 +1371,113 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
     /// </summary>
     public PlayerActions @Player => new PlayerActions(this);
+
+    // Grind
+    private readonly InputActionMap m_Grind;
+    private List<IGrindActions> m_GrindActionsCallbackInterfaces = new List<IGrindActions>();
+    private readonly InputAction m_Grind_GrindWheelSpeedUp;
+    private readonly InputAction m_Grind_StartGrinding;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Grind".
+    /// </summary>
+    public struct GrindActions
+    {
+        private @PlayerInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public GrindActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Grind/GrindWheelSpeedUp".
+        /// </summary>
+        public InputAction @GrindWheelSpeedUp => m_Wrapper.m_Grind_GrindWheelSpeedUp;
+        /// <summary>
+        /// Provides access to the underlying input action "Grind/StartGrinding".
+        /// </summary>
+        public InputAction @StartGrinding => m_Wrapper.m_Grind_StartGrinding;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Grind; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="GrindActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(GrindActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="GrindActions" />
+        public void AddCallbacks(IGrindActions instance)
+        {
+            if (instance == null || m_Wrapper.m_GrindActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GrindActionsCallbackInterfaces.Add(instance);
+            @GrindWheelSpeedUp.started += instance.OnGrindWheelSpeedUp;
+            @GrindWheelSpeedUp.performed += instance.OnGrindWheelSpeedUp;
+            @GrindWheelSpeedUp.canceled += instance.OnGrindWheelSpeedUp;
+            @StartGrinding.started += instance.OnStartGrinding;
+            @StartGrinding.performed += instance.OnStartGrinding;
+            @StartGrinding.canceled += instance.OnStartGrinding;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="GrindActions" />
+        private void UnregisterCallbacks(IGrindActions instance)
+        {
+            @GrindWheelSpeedUp.started -= instance.OnGrindWheelSpeedUp;
+            @GrindWheelSpeedUp.performed -= instance.OnGrindWheelSpeedUp;
+            @GrindWheelSpeedUp.canceled -= instance.OnGrindWheelSpeedUp;
+            @StartGrinding.started -= instance.OnStartGrinding;
+            @StartGrinding.performed -= instance.OnStartGrinding;
+            @StartGrinding.canceled -= instance.OnStartGrinding;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="GrindActions.UnregisterCallbacks(IGrindActions)" />.
+        /// </summary>
+        /// <seealso cref="GrindActions.UnregisterCallbacks(IGrindActions)" />
+        public void RemoveCallbacks(IGrindActions instance)
+        {
+            if (m_Wrapper.m_GrindActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="GrindActions.AddCallbacks(IGrindActions)" />
+        /// <seealso cref="GrindActions.RemoveCallbacks(IGrindActions)" />
+        /// <seealso cref="GrindActions.UnregisterCallbacks(IGrindActions)" />
+        public void SetCallbacks(IGrindActions instance)
+        {
+            foreach (var item in m_Wrapper.m_GrindActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_GrindActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="GrindActions" /> instance referencing this action map.
+    /// </summary>
+    public GrindActions @Grind => new GrindActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
     /// </summary>
@@ -1077,6 +1549,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnStrategicPause(InputAction.CallbackContext context);
         /// <summary>
+        /// Method invoked when associated input action "TogglePlayerMenu" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnTogglePlayerMenu(InputAction.CallbackContext context);
+        /// <summary>
         /// Method invoked when associated input action "ShieldWall" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1118,5 +1597,69 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnThrowShield(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Notifications" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnNotifications(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "VillagerPanel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnVillagerPanel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ForwardDialogue" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnForwardDialogue(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCalendar" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCalendar(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleCompendium" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleCompendium(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleSkillTree" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleSkillTree(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Grind" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="GrindActions.AddCallbacks(IGrindActions)" />
+    /// <seealso cref="GrindActions.RemoveCallbacks(IGrindActions)" />
+    public interface IGrindActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "GrindWheelSpeedUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGrindWheelSpeedUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "StartGrinding" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnStartGrinding(InputAction.CallbackContext context);
     }
 }

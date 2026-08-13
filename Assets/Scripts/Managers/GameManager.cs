@@ -32,6 +32,13 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool GameInitialized { get; private set; }
 
+    /// <summary>
+    /// The designated settlement/game scene name — used by GameSceneBootstrap to tell whether
+    /// the scene that just loaded is the real game scene (vs. the raid scene, which also has a
+    /// GameSceneBootstrap component but must never trigger save/spawn logic).
+    /// </summary>
+    public string GameSceneName => gameSceneName;
+
     public bool IsGameActive;
 
     private GameSceneBootstrap GSB;
@@ -41,6 +48,7 @@ public class GameManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null);
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -54,13 +62,14 @@ public class GameManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
+        if (Instance == this)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     /// <summary>
-    /// Start a new game in the specified slot.
+    /// Start a new game in the specified slot under the given clan name.
     /// </summary>
-    public void StartNewGame(int slotNumber)
+    public void StartNewGame(int slotNumber, string clanName)
     {
         CurrentSlot = slotNumber;
         ShouldLoadSave = false;
@@ -70,10 +79,11 @@ public class GameManager : MonoBehaviour
         {
             SaveManager.Instance.DeleteSlot(slotNumber);
             SaveManager.Instance.SetCurrentSlot(slotNumber);
+            SaveManager.Instance.SetClanName(clanName);
         }
 
-        Debug.Log($"Starting new game in slot {slotNumber}");
-        SceneManager.LoadScene(gameSceneName);
+        Debug.Log($"Starting new game in slot {slotNumber} for clan '{clanName}'");
+        LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -92,7 +102,7 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log($"Loading slot {slotNumber}");
-        SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -104,8 +114,28 @@ public class GameManager : MonoBehaviour
         ShouldLoadSave = true;
         GameInitialized = false;
 
+        // The autosave is a single shared file — it isn't per-slot. Its slot number is
+        // embedded in the save data itself, so recover it here rather than leaving
+        // CurrentSlot at its stale/default value (B2: previously left CurrentSlot at 0,
+        // silently breaking QuickSave and auto-save resumption for the rest of the session).
+        if (SaveManager.Instance != null)
+        {
+            int slot = SaveManager.Instance.GetAutosaveInfo().slotNumber;
+            CurrentSlot = slot;
+            SaveManager.Instance.SetCurrentSlot(slot);
+        }
+
         Debug.Log($"Loading autosave (slot {CurrentSlot})");
-        SceneManager.LoadScene(gameSceneName);
+        LoadScene(gameSceneName);
+    }
+
+    /// <summary>
+    /// Prepare for a raid
+    /// </summary>
+    public void PrepareRaid()
+    {
+        GameInitialized = false;
+        Debug.Log("GameManager: Prepared for raid ");
     }
 
     /// <summary>
@@ -119,6 +149,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager: Prepared for raid return — will load autosave");
     }
 
+    public void SetShouldLoad() { ShouldLoadSave = true; }
+
     /// <summary>
     /// Return to the main menu.
     /// </summary>
@@ -126,38 +158,60 @@ public class GameManager : MonoBehaviour
     {
         GameInitialized = false;
         CurrentSlot = 0;
-        SceneManager.LoadScene(mainMenuSceneName);
+        LoadScene(mainMenuSceneName);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == gameSceneName && !GameInitialized)
+        if (!GameInitialized)
         {
-            if(GSB == null)
+            GSB = FindAnyObjectByType<GameSceneBootstrap>();
+            if (GSB==null)
             {
-                GSB = FindAnyObjectByType<GameSceneBootstrap>();
+                return;
             }
-            StartCoroutine(InitializeGameAfterDelay());
+            StartCoroutine(InitializeGameAfterDelay(scene.name));
         }
     }
 
-    private System.Collections.IEnumerator InitializeGameAfterDelay()
+    private System.Collections.IEnumerator InitializeGameAfterDelay(string loadedSceneName)
     {
         yield return null;
         yield return null;
 
-        if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
+        // Only the designated game scene runs save/spawn logic. Other scenes with a Bootstrap
+        // (e.g. the raid scene) still get GSB.Init() below for their own camera/input/UI wiring,
+        // but must never touch save state or the new-game spawn path — this scene has no
+        // SettlementManager/VillagerSpawner of its own, so "isNewGame" logic in
+        // GameSceneBootstrap was reaching through a stale, destroyed VillagerSpawner.Instance
+        // left over from the settlement scene (a `?.` call doesn't catch Unity's "fake null" on
+        // a destroyed object) and throwing MissingReferenceException on old spawn-point Transforms.
+        bool isGameScene = loadedSceneName == gameSceneName;
+
+        bool didLoadSave = false;
+        if (isGameScene)
         {
-            Debug.Log($"Applying save data from: {SaveFileToLoad}");
-            SaveManager.Instance.LoadGame(SaveFileToLoad);
-            RaidManager.Instance?.ApplyPendingResults();
+            if (ShouldLoadSave && SaveManager.Instance != null && !string.IsNullOrEmpty(SaveFileToLoad))
+            {
+                Debug.Log($"Applying save data from: {SaveFileToLoad}");
+                SaveManager.Instance.LoadGame(SaveFileToLoad);
+                didLoadSave = true;
+            }
+            else if (!ShouldLoadSave && SaveManager.Instance != null)
+            {
+                // New game - create initial save after a short delay
+                yield return new WaitForSeconds(0.2f);
+                SaveManager.Instance.SaveToCurrentSlot();
+                Debug.Log("Initial save created");
+            }
         }
-        else if (!ShouldLoadSave && SaveManager.Instance != null)
+
+        if (isGameScene)
         {
-            // New game - create initial save after a short delay
-            yield return new WaitForSeconds(0.5f);
-            SaveManager.Instance.SaveToCurrentSlot();
-            Debug.Log("Initial save created");
+            // Runs after LoadGame (continuing) or the placeholder SaveToCurrentSlot (new game)
+            // above, so InfoPopupUI's history is either fully loaded or confirmed empty —
+            // its id-based dedupe relies on that ordering to avoid re-showing intro messages.
+            InfoPopupUI.Instance?.TryShowIntroSequence();
         }
 
         GameInitialized = true;
@@ -165,6 +219,40 @@ public class GameManager : MonoBehaviour
         if(GSB != null)
         {
             GSB.Init();
+        }
+
+        // Apply pending raid results AFTER Bootstrap has initialized UI and managers —
+        // Jarl-casualty succession fires events that require JarlManager, cameras, and
+        // succession UI to be ready (B37).
+        if (isGameScene && didLoadSave)
+        {
+            RaidManager.Instance?.ApplyPendingResults();
+        }
+    }
+
+    private void LoadScene(string sceneName)
+    {
+        StartCoroutine(LoadSceneDeferred(sceneName));
+    }
+
+    /// <summary>
+    /// See RaidManager.LoadSceneDeferred for why this defers a frame and uses an async fallback:
+    /// callers here are also invoked synchronously from inside a UI Button's click-processing
+    /// call stack, and LoadingScreenManager.Instance is null unless Play started from MainMenu.
+    /// </summary>
+    private System.Collections.IEnumerator LoadSceneDeferred(string sceneName)
+    {
+        yield return null;
+
+        if (LoadingScreenManager.Instance != null)
+        {
+            LoadingScreenManager.Instance.LoadScene(sceneName);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.LoadScene: LoadingScreenManager.Instance is null (it only " +
+                "exists in the MainMenu scene) — falling back to an async load with no loading screen.");
+            SceneManager.LoadSceneAsync(sceneName);
         }
     }
 

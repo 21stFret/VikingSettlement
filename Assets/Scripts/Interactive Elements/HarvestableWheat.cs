@@ -139,7 +139,7 @@ public class HarvestableWheat : TargetHealth
         isDead = !canBeHit;
     }
 
-    public override void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false)
+    public override void TakeDamage(float damage, EquipableItem weapon = null, bool trueDamage = false, Vector2 attackerPos = default)
     {
         if (currentStage != WheatStage.Harvestable) return;
 
@@ -148,7 +148,7 @@ public class HarvestableWheat : TargetHealth
             shakeTimer = 0.2f;
         }
 
-        base.TakeDamage(damage, weapon, trueDamage);
+        base.TakeDamage(damage, weapon, trueDamage, attackerPos);
     }
 
     public override void Die()

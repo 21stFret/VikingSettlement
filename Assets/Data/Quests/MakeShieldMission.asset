@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a10ed6e0abf66e9428b8794a2c078015, type: 3}
+  m_Name: MakeShieldMission
+  m_EditorClassIdentifier: Assembly-CSharp::MissionDefinitionSO
+  missionId: 2
+  title: Craft Shield
+  description: Make planks at the Saw Mill and then make a shield at the Blacksmith
+    to go raiding with.
+  objectives:
+  - type: 0
+    resourceType: 14
+    targetBuildingType: 0
+    targetAmount: 5
+  - type: 0
+    resourceType: 10
+    targetBuildingType: 3
+    targetAmount: 1
+  rewards: []
+  startDialogue: {fileID: 11400000, guid: 9cd2dc01f8d9e5143a88058646eb9720, type: 2}
+  completionDialogue: {fileID: 11400000, guid: 00609cb729e386e4b81f556d9d1bb4c2, type: 2}
