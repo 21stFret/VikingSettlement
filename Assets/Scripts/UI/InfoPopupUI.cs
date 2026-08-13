@@ -184,6 +184,7 @@ public class InfoPopupUI : MonoBehaviour, ISaveable
         popupPanel.transform.localScale = Vector3.zero;
         popupPanel.transform.DOScale(Vector3.one, popupScaleDuration).SetEase(popupEase);
         PlayerController.Instance?.SetInputEnabled(false);
+        GameTickManager.Instance.PushUIPause();
     }
 
     public void Close()
@@ -197,6 +198,7 @@ public class InfoPopupUI : MonoBehaviour, ISaveable
 
         UIFocus.Clear();
         PlayerController.Instance?.SetInputEnabled(true);
+        GameTickManager.Instance.PopUIPause();
     }
 
     private void ShowCurrentEntry()

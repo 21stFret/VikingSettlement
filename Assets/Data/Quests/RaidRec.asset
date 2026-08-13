@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c62b495ef9243d944895c3c92ecaca87, type: 3}
-  m_Name: MakeShieldRec
+  m_Name: RaidRec
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   dialogueId: 3
   lines:
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Great! Now you are ready to go raiding and earn some real loot!
+    text: How was your first time out on the whale road? Thrilling right!
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Go to your ship and select your vikings! Remember, if you take them out
-      of thier job then production will be affected.
+    text: Take your loot and upgrade your buildings to get better gear and take on
+      bigger settlements.
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: For more information check your notifcations. Now good luck and go crack
-      some skulls! For Odin!
-  offersQuest: 1
+    text: Don't forget to look after your village though! It will need protecting
+      from enemy raids and draugr attacks!
+  offersQuest: 0

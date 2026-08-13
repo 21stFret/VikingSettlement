@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0efdb1c6acef1e46a12a729f69b16fe, type: 3}
   m_Name: CD_Dragur
   m_EditorClassIdentifier: Assembly-CSharp::CompendiumEntrySO
-  id: enemy_dragur
+  id: enemy_draugr
   category: 3
-  displayName: Dragur
+  displayName: Draugr
   description: An undead warrior reanimated with dark seidr magic. Slow and stupid
     but dangerous in numbers.
   icon: {fileID: 8514700723002363272, guid: db6553b7fae2bb741b3f9da587f4bc54, type: 3}

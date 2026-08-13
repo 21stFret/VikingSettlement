@@ -86,7 +86,7 @@ public class MissionManager : MonoBehaviour, ISaveable
         OnMissionAccepted?.Invoke(mission);
         Debug.Log($"Mission accepted: {definition.title}");
 
-        InfoPopupUI.Push("New Quest!", $"You've got a new quest! Press <color={InfoPopupUI.GoldHex}>M</color> or <color={InfoPopupUI.GoldHex}>Select</color> to open the <color={InfoPopupUI.CyanHex}>Player Menu</color> and <color={InfoPopupUI.CyanHex}>Quests</color> tab to see your current quests.", IconManager.Instance.GetUIcon(UIIcons.Quest));
+        InfoPopupUI.Push("New Quest!", $"You've got a new quest! Press <color={InfoPopupUI.GoldHex}>M</color> or <color={InfoPopupUI.GoldHex}>Select</color> to open the <color={InfoPopupUI.CyanHex}>Player Menu</color> and <color={InfoPopupUI.CyanHex}>Quests</color> tab to see your current quests.", IconManager.Instance.GetUIcon(UIIcons.Quest), "quest");
 
         // Immediately check objectives in case the conditions are already met
         CheckGatherObjectives(mission);

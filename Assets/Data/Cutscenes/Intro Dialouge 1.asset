@@ -10,20 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c62b495ef9243d944895c3c92ecaca87, type: 3}
-  m_Name: Intro Dialouge
+  m_Name: Intro Dialouge 1
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSO
   dialogueId: 
   lines:
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 36207f21fa7dd604ebff80e36683bd75, type: 3}
-    text: Odins hairy ballsack, you're alive! The town has been raided by Draugr,
-      your mother and father.... I'm sorry. You are the Jarl now.
+    text: 'Well fought! Though I doubt that''s the last we will see of them. May
+      they find rest in the All Fathers hall. '
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 36207f21fa7dd604ebff80e36683bd75, type: 3}
-    text: Don't worry, I will give you help along the way. Just follow my advice
-      and the village will be back to normal in no time.
-  - speakerName: Villager
-    portrait: {fileID: 21300000, guid: 36207f21fa7dd604ebff80e36683bd75, type: 3}
-    text: But first grab yourself a weapon and finish off these Draugr! Fight like
-      Thor and make your ancestors proud!
+    text: Now, there is much to do and you need to learn how to run your village!
   offersQuest: 0

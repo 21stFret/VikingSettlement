@@ -69,8 +69,6 @@ namespace Cutscenes
         private Vector2 letterboxBottomHidden;
         private Coroutine letterboxCoroutine;
 
-        public bool autoplay;
-
         private void Awake()
         {
             if (Instance == null)
@@ -89,10 +87,6 @@ namespace Cutscenes
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
             letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
             letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
-            if(autoplay)
-            {
-                Invoke("PlayTestCutscene", 0.5f);
-            }
         }
 
         private void Update()
@@ -141,7 +135,7 @@ namespace Cutscenes
                 Debug.Log($"CutsceneManager: Skipping already-played one-shot cutscene '{cutscene.displayName}'");
                 // Fire OnCutsceneEnded (but not OnCutsceneStarted) so callers waiting on completion
                 // via that event don't hang, without touching isPlaying/currentCutscene state.
-                OnCutsceneEnded?.Invoke(cutscene);
+                //OnCutsceneEnded?.Invoke(cutscene);
                 return false;
             }
 
@@ -519,40 +513,6 @@ namespace Cutscenes
                 gameUICanvas.enabled = true;
 
             ShowLetterbox(false);
-        }
-
-        #endregion
-
-        #region Testing
-
-        private void PlayTestCutscene()
-        {
-            if (testCutscene == null)
-            {
-                Debug.LogWarning("CutsceneManager: No test cutscene assigned!");
-                return;
-            }
-
-            if (isPlaying)
-            {
-                Debug.Log("CutsceneManager: Stopping current cutscene first...");
-                StopCutscene();
-            }
-
-            Debug.Log($"CutsceneManager: Playing test cutscene '{testCutscene.displayName}'");
-            PlayCutscene(testCutscene);
-        }
-
-        private void StopCurrentCutscene()
-        {
-            if (!isPlaying)
-            {
-                Debug.Log("CutsceneManager: No cutscene is playing");
-                return;
-            }
-
-            Debug.Log("CutsceneManager: Stopping cutscene...");
-            StopCutscene();
         }
 
         #endregion

@@ -186,8 +186,9 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     {
         for (int i = 0; i < startingWeaponsAmount; i++)
         {
-            var item = GetRandomWeapon();
-            if (item != null) { AddItemToVillageArmory(item); }
+            //var item = GetRandomWeapon();
+            var item = GetWeaponByName("Iron Sword");
+            if (item != null) { AddItemToVillageArmory(item); item.SetDurability(Random.Range(6, 8));}
         }
 
         for (int i = 0; i < startingShieldsAmount; i++)

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class ItemAttachment : MonoBehaviour
@@ -24,6 +25,8 @@ public class ItemAttachment : MonoBehaviour
 
     private WeaponDatabase WD;
 
+    public Action onWeaponEquiped;
+
     public enum AttachmentPoint
     {
         LeftHand,
@@ -45,9 +48,14 @@ public class ItemAttachment : MonoBehaviour
             item.gameObject.SetActive(true);
             item.localPosition = Vector3.zero;
             item.localRotation = Quaternion.identity;
+            item.localScale = Vector3.one;
         }
         EquipableItem equipableItem = item.GetComponent<EquipableItem>();
-        WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+        if(WD != null && equipableItem != null)
+        {
+            WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+        }
+
 
         if (CompendiumManager.Instance != null)
         {
@@ -188,6 +196,7 @@ public class ItemAttachment : MonoBehaviour
             if (V.isJarl)
             {
                 AttackCooldownUI.Instance.Init();
+                onWeaponEquiped?.Invoke();
             }
         }
     }

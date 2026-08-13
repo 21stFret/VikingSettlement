@@ -10,17 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a10ed6e0abf66e9428b8794a2c078015, type: 3}
-  m_Name: MakeShieldMission
+  m_Name: RaidMission
   m_EditorClassIdentifier: Assembly-CSharp::MissionDefinitionSO
-  missionId: 2
-  title: Craft Shield
-  description: Make planks at the Saw Mill and then make a shield at the Blacksmith
-    to go raiding with.
+  missionId: 3
+  title: First Raid
+  description: Go raiding for the first time!
   objectives:
-  - type: 0
+  - type: 1
     resourceType: 10
     targetBuildingType: 3
     targetAmount: 1
-  rewards: []
-  startDialogue: {fileID: 11400000, guid: 9cd2dc01f8d9e5143a88058646eb9720, type: 2}
-  completionDialogue: {fileID: 11400000, guid: 00609cb729e386e4b81f556d9d1bb4c2, type: 2}
+  rewards:
+  - rewardType: 1
+    resourceType: 0
+    amount: 100
+    itemReward: {fileID: 0}
+  startDialogue: {fileID: 11400000, guid: 00609cb729e386e4b81f556d9d1bb4c2, type: 2}
+  completionDialogue: {fileID: 11400000, guid: 91daaa5ebcb018847a29e068b8627624, type: 2}

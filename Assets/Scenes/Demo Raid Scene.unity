@@ -74524,6 +74524,8 @@ MonoBehaviour:
   meatIcon: {fileID: 0}
   peltIcon: {fileID: 0}
   leatherIcon: {fileID: 0}
+  questIcon: {fileID: 0}
+  notificationIcon: {fileID: 0}
 --- !u!114 &755482537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107543,6 +107545,9 @@ MonoBehaviour:
   populationText: {fileID: 0}
   combatText: {fileID: 0}
   MoraleText: {fileID: 0}
+  healersSection: {fileID: 0}
+  currentHealingBonus: {fileID: 0}
+  removeWoundButton: {fileID: 0}
   progressBarColor: {r: 0.06219462, g: 0.013216423, b: 0.9339623, a: 1}
 --- !u!114 &938487558
 MonoBehaviour:
@@ -108711,6 +108716,8 @@ MonoBehaviour:
   jobText: {fileID: 1245725462}
   healthText: {fileID: 1198847760}
   moraleText: {fileID: 970362355}
+  ageText: {fileID: 0}
+  sexIcon: {fileID: 0}
   healthBar: {fileID: 749137621}
   moraleBar: {fileID: 2041580868}
   farmingBar: {fileID: 1367912596}
@@ -108735,7 +108742,10 @@ MonoBehaviour:
   combatColor: {r: 1, g: 0.38365346, b: 0, a: 1}
   healthColor: {r: 1, g: 0, b: 0.16651773, a: 1}
   moraleColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  maleSymbol: {fileID: 0}
+  femaleSymbol: {fileID: 0}
   closeButton: {fileID: 0}
+  blocker: {fileID: 0}
 --- !u!114 &953349338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133026,7 +133036,7 @@ PrefabInstance:
     - target: {fileID: 1817887011147560619, guid: 559c29d0ce7a15743865054d55396bad, type: 3}
       propertyPath: captureCamera
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1154422428}
     - target: {fileID: 3964723267312816676, guid: 559c29d0ce7a15743865054d55396bad, type: 3}
       propertyPath: m_Name
       value: Combat Recorder
@@ -148213,6 +148223,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1087196779039943848, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+      propertyPath: orthographic size
+      value: 11.25
+      objectReference: {fileID: 0}
     - target: {fileID: 5400896358629533535, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -148262,6 +148276,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+--- !u!20 &1154422428 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 1087196779039943848, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+  m_PrefabInstance: {fileID: 1154422427}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1156337210
 PrefabInstance:
   m_ObjectHideFlags: 0
