@@ -92,7 +92,11 @@ public class GameSceneBootstrap : MonoBehaviour
         }
 
         if(isNewGame)
+        {
             SaveManager.Instance?.SaveToCurrentSlot();
+            DemoSceneario.instance?.Init();
+        }
+
 
         GameManager.Instance.SetShouldLoad();
     }

@@ -148271,6 +148271,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Main Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 8908857074777943883, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+      propertyPath: orthographic size
+      value: 11.25
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -148278,7 +148282,7 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
 --- !u!20 &1154422428 stripped
 Camera:
-  m_CorrespondingSourceObject: {fileID: 1087196779039943848, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8908857074777943883, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
   m_PrefabInstance: {fileID: 1154422427}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1156337210

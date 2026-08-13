@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.InputSystem;
 
 namespace Cutscenes
 {
@@ -69,6 +70,8 @@ namespace Cutscenes
         private Vector2 letterboxBottomHidden;
         private Coroutine letterboxCoroutine;
 
+        private PlayerInputActions inputActions;
+
         private void Awake()
         {
             if (Instance == null)
@@ -79,6 +82,7 @@ namespace Cutscenes
             {
                 Destroy(gameObject);
             }
+            inputActions = new PlayerInputActions();
         }
 
         void Start()
@@ -87,6 +91,7 @@ namespace Cutscenes
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
             letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
             letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
+            inputActions.CutScene.SkipCutscene.performed += SkipCutscene;
         }
 
         private void Update()
@@ -152,6 +157,9 @@ namespace Cutscenes
             runningActions.Clear();
             isPlaying = true;
 
+            inputActions.Player.Disable();
+            inputActions.CutScene.Enable();
+
             // Setup cutscene state
             SetupCutsceneState();
 
@@ -194,15 +202,26 @@ namespace Cutscenes
             currentAction = null;
             isPlaying = false;
 
+            StartCoroutine(DelayFrameForInput());
+
             Debug.Log("CutsceneManager: Cutscene stopped");
             OnCutsceneEnded?.Invoke(endedCutscene);
+        }
+
+        private IEnumerator DelayFrameForInput()
+        {
+            yield return null;
+            yield return null;
+            yield return null;
+            inputActions.Player.Enable();
+            inputActions.CutScene.Disable();
         }
 
         /// <summary>
         /// Skip to the end of the current cutscene. Counts as having been seen, so one-shot
         /// cutscenes won't play again.
         /// </summary>
-        public void SkipCutscene()
+        public void SkipCutscene(InputAction.CallbackContext ctx)
         {
             StopCutscene(true);
         }

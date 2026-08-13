@@ -141,6 +141,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
         {
             Debug.LogWarning("DayNightManager: GameTickManager not found during Initialize!");
         }
+        UpdateLighting();
     }
 
     private void OnDestroy()

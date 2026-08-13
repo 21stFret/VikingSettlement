@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 public class DemoSceneario : MonoBehaviour
 {
+    public static DemoSceneario instance;
     public CutsceneManager CM;
     public List<CutsceneSO> Cutscenes;
     private int currentCutScene = -1;
@@ -19,12 +20,19 @@ public class DemoSceneario : MonoBehaviour
     public Enemy[] enemies;
     private int deadCount;
 
+    private void Awake()
+    {
+        instance = this;
+    }
 
-    private void Start()
+
+    public void Init()
     {
         CM = CutsceneManager.Instance;
-        // should be played from game manager
-        Invoke("TriggerNextCutScene", 0.5f);
+        if (CM != null)
+        {
+            TriggerNextCutScene();
+        }
     }
 
     public void TriggerNextCutScene()
@@ -37,6 +45,7 @@ public class DemoSceneario : MonoBehaviour
                 foreach (Enemy enemy in enemies)
                 {
                     enemy.OnDeath += () => OnEnemyDied();
+                    enemy.gameObject.SetActive(true);
                 }
                 jarl = SettlementManager.Instance.GetCurrentJarl();
                 jarl.itemAttachment.onWeaponEquiped += OnEquip;

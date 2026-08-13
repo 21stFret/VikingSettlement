@@ -849,6 +849,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "CutScene",
+            "id": "e6092bd6-c9b9-4dbf-810f-2b69e83f58d1",
+            "actions": [
+                {
+                    "name": "SkipCutscene",
+                    "type": "Button",
+                    "id": "b36fc58d-f2b6-469a-9d63-0d48ce52d86d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "535c6a8c-9ad0-4fcf-ab8e-894c58f3f64f",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SkipCutscene",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 /// <summary>
 /// Controls the raid battle scene - spawning, victory conditions, timer
@@ -246,6 +247,13 @@ public class RaidSceneController : MonoBehaviour
         {
             Victory();
         }
+
+    }
+
+    private IEnumerator StopRecording()
+    {
+        yield return new WaitForSeconds(0.5f);
+        CombatRecorder.Instance.StopRecording();
     }
 
     /// <summary>
@@ -319,6 +327,8 @@ public class RaidSceneController : MonoBehaviour
         {
             RaidManager.Instance.ResolveLeg(RaidResult.Victory, collectedLoot, casualties);
         }
+
+        StartCoroutine(StopRecording());
     }
 
     /// <summary>

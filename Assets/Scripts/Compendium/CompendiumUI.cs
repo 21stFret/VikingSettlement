@@ -47,6 +47,7 @@ public class CompendiumUI : MonoBehaviour
     private void Awake()
     {
         inputActions = new PlayerInputActions();
+        inputActions.Enable();
     }
 
     private void OnEnable()
