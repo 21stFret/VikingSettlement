@@ -81,7 +81,10 @@ public class PauseManager : MonoBehaviour
             return;
         }
 
-        inputActions = new PlayerInputActions();
+        // Shared instance — must be the same PlayerInputActions CutsceneManager swaps
+        // maps on, or Esc fires Pause here even while the cutscene's map-swap has
+        // disabled Player.Pause on its own copy.
+        inputActions = InputActionManager.Instance.InputActions;
         SetupButtons();
     }
 
@@ -104,7 +107,6 @@ public class PauseManager : MonoBehaviour
 
     private void OnEnable()
     {
-        inputActions.Enable();
         inputActions.Player.Pause.performed += OnPauseInput;
         inputActions.Player.StrategicPause.performed += OnStrategicPauseInput;
     }
@@ -113,7 +115,8 @@ public class PauseManager : MonoBehaviour
     {
         inputActions.Player.Pause.performed -= OnPauseInput;
         inputActions.Player.StrategicPause.performed -= OnStrategicPauseInput;
-        inputActions.Disable();
+        // No inputActions.Disable() — the asset is shared; InputActionManager owns its
+        // lifetime and CutsceneManager owns the Player/CutScene map swap.
         ExitMenuPause();
 
     }

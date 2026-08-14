@@ -82,7 +82,11 @@ namespace Cutscenes
             {
                 Destroy(gameObject);
             }
-            inputActions = new PlayerInputActions();
+            // Shared instance — the Player/CutScene map swap below (Player.Disable() /
+            // CutScene.Enable()) must apply to the SAME instance every other input
+            // consumer (PauseManager, PlayerController, ...) reads, or Esc still fires
+            // Pause on their own separate copy while the cutscene is playing.
+            inputActions = InputActionManager.Instance.InputActions;
         }
 
         void Start()
