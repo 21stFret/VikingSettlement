@@ -519,6 +519,15 @@ public class SettlementManager : MonoBehaviour, ISaveable
     {
         return new List<Building>(allBuildings);
     }
+
+    public Building GetBuildingById(string uniqueId)
+    {
+        foreach (var b in allBuildings)
+        {
+            if (b != null && b.uniqueId == uniqueId) return b;
+        }
+        return null;
+    }
     
     /// <summary>
     /// Get all building selectors

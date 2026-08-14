@@ -38,6 +38,10 @@ public class Building : MonoBehaviour
     public bool waitingForResources = false; // True if crafting building lacks input materials
     public bool startedCrafting = false; // True if crafting has started at least once
 
+    [Header("Equipment Crafting Queue (Blacksmith-style, optional)")]
+    public List<string> equipmentQueue = new List<string>(); // Item names, FIFO order; index 0 is current/next
+    public event System.Action OnEquipmentQueueChanged;
+
     public List<Villager> assignedWorkers = new List<Villager>();
     
     private void Start()
@@ -239,6 +243,12 @@ public class Building : MonoBehaviour
     /// </summary>
     private void UpdateCrafting(float deltaTime)
     {
+        if (HasEquipmentQueue)
+        {
+            UpdateEquipmentCrafting(deltaTime);
+            return;
+        }
+
         if (data.craftingRecipe == null) return;
 
         if(!startedCrafting)
@@ -407,6 +417,145 @@ public class Building : MonoBehaviour
         return false;
     }
 
+    #region Equipment Crafting Queue
+
+    /// <summary>
+    /// True if this building crafts from a player-chosen queue of equipable items (e.g. Blacksmith)
+    /// instead of the single fixed craftingRecipe.
+    /// </summary>
+    public bool HasEquipmentQueue => data.craftableEquipment != null && data.craftableEquipment.Count > 0;
+
+    /// <summary>
+    /// The menu of items this building can craft (name + resource cost), for UI display.
+    /// </summary>
+    public IReadOnlyList<EquipmentRecipe> GetCraftableEquipmentOptions() => data.craftableEquipment;
+
+    /// <summary>
+    /// The current queue of item names, in crafting order (index 0 is current/next).
+    /// </summary>
+    public IReadOnlyList<string> GetQueuedEquipment() => equipmentQueue;
+
+    /// <summary>
+    /// Add an item to the back of the crafting queue. Returns false if itemName isn't a valid
+    /// option for this building. Resources aren't checked/consumed until the item reaches the
+    /// front of the queue and starts crafting.
+    /// </summary>
+    public bool QueueEquipmentItem(string itemName)
+    {
+        if (!HasEquipmentQueue) return false;
+        if (!data.craftableEquipment.Exists(r => r.itemName == itemName)) return false;
+
+        equipmentQueue.Add(itemName);
+        OnEquipmentQueueChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// Remove a queued item by its position in the queue. Resources are only ever consumed once an
+    /// item reaches the front and actually starts crafting (see UpdateEquipmentCrafting), so cancelling
+    /// anything still waiting in line is free. Cancelling the item currently being crafted (index 0,
+    /// resources already spent) forfeits those materials - no refund - and resets progress.
+    /// </summary>
+    public bool CancelQueuedEquipment(int queueIndex)
+    {
+        if (queueIndex < 0 || queueIndex >= equipmentQueue.Count) return false;
+
+        if (queueIndex == 0 && startedCrafting)
+        {
+            productionProgress = 0f;
+            startedCrafting = false;
+            waitingForResources = false;
+        }
+
+        equipmentQueue.RemoveAt(queueIndex);
+        OnEquipmentQueueChanged?.Invoke();
+        return true;
+    }
+
+    private EquipmentRecipe FindEquipmentRecipe(string itemName)
+    {
+        return data.craftableEquipment?.Find(r => r.itemName == itemName);
+    }
+
+    /// <summary>
+    /// Update equipment-queue crafting buildings (Blacksmith). Mirrors UpdateCrafting's flow -
+    /// same worker/skill/runestone-adjusted speed via GetProductionSpeed - but crafts whatever
+    /// item is at the front of equipmentQueue instead of a single fixed recipe.
+    /// </summary>
+    private void UpdateEquipmentCrafting(float deltaTime)
+    {
+        if (equipmentQueue.Count == 0)
+        {
+            waitingForResources = false;
+            return;
+        }
+
+        EquipmentRecipe recipe = FindEquipmentRecipe(equipmentQueue[0]);
+        if (recipe == null)
+        {
+            // Stale entry (e.g. removed from the design data) - drop it and move on.
+            equipmentQueue.RemoveAt(0);
+            OnEquipmentQueueChanged?.Invoke();
+            return;
+        }
+
+        if (!startedCrafting)
+        {
+            if (!recipe.CanCraft())
+            {
+                waitingForResources = true;
+                return;
+            }
+
+            waitingForResources = false;
+            recipe.ConsumeResources();
+            startedCrafting = true;
+            Debug.Log($"{data.buildingName} started crafting {recipe.itemName}");
+        }
+
+        float craftingSpeed = GetProductionSpeed(data.craftingRecipe != null ? data.craftingRecipe.craftingRate : 1f);
+
+        productionProgress += craftingSpeed * deltaTime;
+        liveProgressBar.fillAmount = productionProgress / 100;
+
+        if (productionProgress >= 100f)
+        {
+            CompleteEquipmentCrafting(recipe);
+        }
+    }
+
+    /// <summary>
+    /// Called when the item at the front of the equipment queue finishes crafting.
+    /// </summary>
+    private void CompleteEquipmentCrafting(EquipmentRecipe recipe)
+    {
+        WeaponDatabase wd = WeaponDatabase.Instance;
+        EquipableItem template = wd != null ? wd.GetItemByName(recipe.itemName) : null;
+        if (template != null)
+        {
+            wd.AddItemToVillageArmory(template);
+            wd.villageArmoryManager.SpawnArmory();
+        }
+        else
+        {
+            Debug.LogWarning($"{data.buildingName} finished crafting '{recipe.itemName}' but no matching item template was found in WeaponDatabase.");
+        }
+
+        equipmentQueue.RemoveAt(0);
+        productionProgress -= 100f;
+        startedCrafting = false;
+
+        foreach (var worker in assignedWorkers)
+        {
+            worker.skills.ImproveJob(data.assignedJobType);
+        }
+
+        Debug.Log($"{data.buildingName} crafted {recipe.itemName}");
+        OnEquipmentQueueChanged?.Invoke();
+    }
+
+    #endregion
+
     /// <summary>
     /// Get production progress as a percentage (0-1 for UI)
     /// </summary>
@@ -420,13 +569,15 @@ public class Building : MonoBehaviour
     /// </summary>
     public float GetEstimatedTimeToCompletion()
     {
+        if (HasEquipmentQueue && equipmentQueue.Count == 0) return float.MaxValue;
+
         float baseRate = data.productionType == ProductionType.ResourceGathering
             ? data.productionRate
             : (data.craftingRecipe != null ? data.craftingRecipe.craftingRate : 0f);
 
         float productionSpeed = GetProductionSpeed(baseRate);
         if (productionSpeed <= 0) return float.MaxValue;
-        
+
         float remainingProgress = 100f - productionProgress;
         return remainingProgress / productionSpeed;
     }
@@ -444,15 +595,29 @@ public class Building : MonoBehaviour
     /// </summary>
     public string GetRequiredResourcesText()
     {
-        if (data.productionType != ProductionType.Crafting || data.craftingRecipe == null)
+        if (data.productionType != ProductionType.Crafting)
             return "";
-        
-        string text = "Needs: ";
-        for (int i = 0; i < data.craftingRecipe.inputResources.Count; i++)
+
+        List<ResourceCost> inputResources;
+        if (HasEquipmentQueue)
         {
-            var input = data.craftingRecipe.inputResources[i];
+            if (equipmentQueue.Count == 0) return "";
+            EquipmentRecipe recipe = FindEquipmentRecipe(equipmentQueue[0]);
+            if (recipe == null) return "";
+            inputResources = recipe.inputResources;
+        }
+        else
+        {
+            if (data.craftingRecipe == null) return "";
+            inputResources = data.craftingRecipe.inputResources;
+        }
+
+        string text = "Needs: ";
+        for (int i = 0; i < inputResources.Count; i++)
+        {
+            var input = inputResources[i];
             text += $"{input.amount} {input.resourceType}";
-            if (i < data.craftingRecipe.inputResources.Count - 1)
+            if (i < inputResources.Count - 1)
                 text += ", ";
         }
         return text;

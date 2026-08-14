@@ -32,6 +32,15 @@ MonoBehaviour:
     outputResource: 10
     outputAmount: 1
     craftingRate: 1
+  craftableEquipment:
+  - itemName: Shield
+    inputResources:
+    - resourceType: 14
+      amount: 5
+  - itemName: Iron Sword
+    inputResources:
+    - resourceType: 5
+      amount: 4
   maxLevel: 5
   levels:
   - level: 1

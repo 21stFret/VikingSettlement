@@ -35,6 +35,12 @@ public class BuildingData : ScriptableObject, ISerializationCallbackReceiver
     [Header("Crafting (if applicable)")]
     public CraftingRecipe craftingRecipe;
 
+    [Header("Equipment Crafting Menu (Blacksmith-style, optional)")]
+    // If populated, this building crafts from a player-chosen queue of these recipes instead of
+    // the single fixed craftingRecipe above (craftingRecipe.craftingRate is still used for speed).
+    // See Building.HasEquipmentQueue / QueueEquipmentItem.
+    public List<EquipmentRecipe> craftableEquipment = new List<EquipmentRecipe>();
+
     public const int GlobalMaxLevel = 5;
 
     [Header("Levels")]
@@ -106,11 +112,46 @@ public class CraftingRecipe
     /// <summary>
     /// Check if we have enough resources to craft
     /// </summary>
-    public bool CanCraft()
+    public bool CanCraft() => ResourceCostUtility.CanAfford(inputResources);
+
+    /// <summary>
+    /// Consume the input resources
+    /// </summary>
+    public void ConsumeResources() => ResourceCostUtility.Consume(inputResources);
+}
+
+/// <summary>
+/// A single item the player can queue up at an equipment-crafting building (e.g. Blacksmith).
+/// itemName must match the itemName of an EquipableItem template registered in WeaponDatabase.
+/// </summary>
+[System.Serializable]
+public class EquipmentRecipe
+{
+    public string itemName;
+    public List<ResourceCost> inputResources = new List<ResourceCost>();
+
+    public bool CanCraft() => ResourceCostUtility.CanAfford(inputResources);
+    public void ConsumeResources() => ResourceCostUtility.Consume(inputResources);
+}
+
+[System.Serializable]
+public class ResourceCost
+{
+    public ResourceType resourceType;
+    public float amount;
+}
+
+/// <summary>
+/// Shared helpers for checking/consuming a List&lt;ResourceCost&gt; against ResourceManager. Used by both
+/// CraftingRecipe (single fixed recipe) and EquipmentRecipe (player-queued items).
+/// </summary>
+public static class ResourceCostUtility
+{
+    public static bool CanAfford(List<ResourceCost> costs)
     {
         if (ResourceManager.Instance == null) return false;
-        
-        foreach (var cost in inputResources)
+
+        foreach (var cost in costs)
         {
             if (ResourceManager.Instance.GetResource(cost.resourceType) < cost.amount)
             {
@@ -119,26 +160,16 @@ public class CraftingRecipe
         }
         return true;
     }
-    
-    /// <summary>
-    /// Consume the input resources
-    /// </summary>
-    public void ConsumeResources()
+
+    public static void Consume(List<ResourceCost> costs)
     {
         if (ResourceManager.Instance == null) return;
-        
-        foreach (var cost in inputResources)
+
+        foreach (var cost in costs)
         {
             ResourceManager.Instance.SpendResource(cost.resourceType, cost.amount);
         }
     }
-}
-
-[System.Serializable]
-public class ResourceCost
-{
-    public ResourceType resourceType;
-    public float amount;
 }
 
 [System.Serializable]

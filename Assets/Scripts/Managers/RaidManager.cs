@@ -613,6 +613,31 @@ public class RaidManager : MonoBehaviour
                 ResourceManager.Instance.SpendResource(change.Key, -change.Value);
         }
 
+        // Equipment finished while away (e.g. Blacksmith queue) - add each crafted item to the armory,
+        // then overwrite each affected building's queue with what the simulation left behind (completed
+        // items already removed from the front).
+        if (WeaponDatabase.Instance != null)
+        {
+            foreach (var crafted in report.craftedEquipment)
+            {
+                EquipableItem template = WeaponDatabase.Instance.GetItemByName(crafted.itemName);
+                if (template != null)
+                    WeaponDatabase.Instance.AddItemToVillageArmory(template);
+            }
+            if (report.craftedEquipment.Count > 0 && WeaponDatabase.Instance.villageArmoryManager != null)
+                WeaponDatabase.Instance.villageArmoryManager.SpawnArmory();
+        }
+
+        if (SettlementManager.Instance != null)
+        {
+            foreach (var kvp in report.remainingEquipmentQueues)
+            {
+                Building building = SettlementManager.Instance.GetBuildingById(kvp.Key);
+                if (building != null)
+                    building.equipmentQueue = kvp.Value;
+            }
+        }
+
         if (SettlementManager.Instance == null) return;
 
         // Skill gains accrued during the simulation (deferred so the day loop never mutates live state).
@@ -798,6 +823,12 @@ public class SettlementReport
     public List<SkillGain> skillGains = new List<SkillGain>();
     public List<SettlementEvent> events = new List<SettlementEvent>();
 
+    // Equipment items (e.g. Blacksmith queue) that finished crafting while away, and each equipment-queue
+    // building's leftover queue (keyed by Building.uniqueId) after the simulated time - see
+    // SettlementSimulator's equipmentQueueSim. Both applied atomically by RaidManager.ApplySettlementReport.
+    public List<CraftedEquipmentEntry> craftedEquipment = new List<CraftedEquipmentEntry>();
+    public Dictionary<string, List<string>> remainingEquipmentQueues = new Dictionary<string, List<string>>();
+
     public string GetSummaryText()
     {
         int netPositive = 0;
@@ -839,6 +870,17 @@ public class SkillGain
     public string villagerId;
     public JobType jobType;
     public int completions;
+}
+
+/// <summary>
+/// A single equipable item that finished crafting at an equipment-queue building (e.g. Blacksmith)
+/// during a simulated settlement period.
+/// </summary>
+[System.Serializable]
+public class CraftedEquipmentEntry
+{
+    public string buildingId;
+    public string itemName;
 }
 
 public enum SettlementEventType

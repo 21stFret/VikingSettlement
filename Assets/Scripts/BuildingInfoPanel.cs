@@ -66,7 +66,13 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentHealingBonus;
     [SerializeField] private Button removeWoundButton;
 
-
+    [Header("Blacksmith Crafting Queue")]
+    [SerializeField] private GameObject craftingQueueSection;
+    [SerializeField] private Transform craftOptionsContainer; // holds pooled BlacksmithCraftOptionItem rows (the menu)
+    [SerializeField] private Transform craftQueueContainer;   // holds pooled BlacksmithQueueItem rows (the current queue)
+    [SerializeField] private TextMeshProUGUI craftSelectedNameText; // shared across all menu options - shows whichever icon is selected
+    [SerializeField] private Transform craftSelectedCostContainer; // holds pooled SingleResourceDisplay rows, same as repair/upgrade costs
+    [SerializeField] private Button craftQueueButton; // shared "Queue" button - queues the currently selected option
 
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
@@ -78,6 +84,11 @@ public class BuildingInfoPanel : MonoBehaviour
     private List<VillagerWorkerItem> availableVillagerItems = new List<VillagerWorkerItem>();
     private List<SingleResourceDisplay> repairCostItems = new List<SingleResourceDisplay>();
     private List<SingleResourceDisplay> upgradeCostItems = new List<SingleResourceDisplay>();
+    private List<BlacksmithCraftOptionItem> craftOptionItems = new List<BlacksmithCraftOptionItem>();
+    private List<BlacksmithQueueItem> craftQueueItems = new List<BlacksmithQueueItem>();
+    private List<SingleResourceDisplay> craftSelectedCostItems = new List<SingleResourceDisplay>();
+    private EquipmentRecipe selectedCraftRecipe;
+    private static readonly List<ResourceCost> EmptyCosts = new List<ResourceCost>();
 
     
     
@@ -102,6 +113,9 @@ public class BuildingInfoPanel : MonoBehaviour
 
         if (upgradeButton != null)
             upgradeButton.onClick.AddListener(OnUpgradeButtonClicked);
+
+        if (craftQueueButton != null)
+            craftQueueButton.onClick.AddListener(OnCraftQueueButtonClicked);
 
         if (closeAssignPanelButton != null)
             closeAssignPanelButton.onClick.AddListener(CloseAssignPanel);
@@ -130,6 +144,20 @@ public class BuildingInfoPanel : MonoBehaviour
         availableVillagerItems.Clear();
         availableVillagerItems.AddRange(availableVillagersContainer.GetComponentsInChildren<VillagerWorkerItem>(true));
 
+        craftOptionItems.Clear();
+        if (craftOptionsContainer != null)
+            craftOptionItems.AddRange(craftOptionsContainer.GetComponentsInChildren<BlacksmithCraftOptionItem>(true));
+
+        craftQueueItems.Clear();
+        if (craftQueueContainer != null)
+            craftQueueItems.AddRange(craftQueueContainer.GetComponentsInChildren<BlacksmithQueueItem>(true));
+
+        craftSelectedCostItems.Clear();
+        if (craftSelectedCostContainer != null)
+            craftSelectedCostItems.AddRange(craftSelectedCostContainer.GetComponentsInChildren<SingleResourceDisplay>(true));
+
+        if (craftingQueueSection != null)
+            craftingQueueSection.SetActive(false);
     }
     
     /// <summary>
@@ -141,6 +169,7 @@ public class BuildingInfoPanel : MonoBehaviour
 
         currentBuilding = building;
         buildingSelector = selector;
+        selectedCraftRecipe = null; // menu options belong to the previous building - don't carry a selection over
         mainPanel.SetActive(true);
         //GameTickManager.Instance?.PushUIPause();
         UpdateDisplay();
@@ -213,6 +242,7 @@ public class BuildingInfoPanel : MonoBehaviour
             if (upgradeSection != null) upgradeSection.SetActive(false);
             if(workersSection  != null) workersSection.SetActive(false);
             if(longhouseSection != null) longhouseSection.SetActive(false);
+            if (craftingQueueSection != null) craftingQueueSection.SetActive(false);
             return;
         }
 
@@ -230,6 +260,7 @@ public class BuildingInfoPanel : MonoBehaviour
             if (productionSection != null) productionSection.SetActive(false);
             if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(false);
             if (workersSection != null) workersSection.SetActive(false);
+            if (craftingQueueSection != null) craftingQueueSection.SetActive(false);
             UpdateLonghouseDisplay();
             return;
         }
@@ -239,12 +270,27 @@ public class BuildingInfoPanel : MonoBehaviour
             if (productionSection != null) productionSection.SetActive(false);
             if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
             if (workersSection != null) workersSection.SetActive(true);
+            if (craftingQueueSection != null) craftingQueueSection.SetActive(false);
             UpdateHealersDisplay();
             return;
         }
 
+        if (currentBuilding.data.buildingType == BuildingType.Blacksmith)
+        {
+            if (productionSection != null) productionSection.SetActive(false);
+            if (assignWorkerButton != null) assignWorkerButton.gameObject.SetActive(true);
+            if (workersSection != null) workersSection.SetActive(true);
+            // Equipment crafting queue (Blacksmith-style)
+            if (craftingQueueSection != null)
+                craftingQueueSection.SetActive(currentBuilding.HasEquipmentQueue);
+
+            if (currentBuilding.HasEquipmentQueue)
+                RefreshCraftingQueueSection();
+            return;
+        }
+
         // Production info
-        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count >0;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0 || currentBuilding.HasEquipmentQueue;
 
         if (productionSection != null)
             productionSection.SetActive(producesResources);
@@ -360,6 +406,107 @@ public class BuildingInfoPanel : MonoBehaviour
         UpdateDisplay();
     }
 
+    /// <summary>
+    /// Populate the crafting menu (from data.craftableEquipment, via BlacksmithCraftOptionItem) and the
+    /// current queue list (via BlacksmithQueueItem) for an equipment-queue building, e.g. Blacksmith.
+    /// </summary>
+    private void RefreshCraftingQueueSection()
+    {
+        if (currentBuilding == null) return;
+
+        var options = currentBuilding.GetCraftableEquipmentOptions();
+
+        // Keep the current selection if it's still a valid option for this building; otherwise default
+        // to the first option (or nothing, if the menu is empty).
+        if (selectedCraftRecipe == null || options == null || !options.Contains(selectedCraftRecipe))
+            selectedCraftRecipe = (options != null && options.Count > 0) ? options[0] : null;
+
+        for (int i = 0; i < craftOptionItems.Count; i++)
+        {
+            if (options == null || i >= options.Count)
+            {
+                craftOptionItems[i].gameObject.SetActive(false);
+                continue;
+            }
+            craftOptionItems[i].Setup(options[i], this);
+            craftOptionItems[i].SetSelected(options[i] == selectedCraftRecipe);
+            craftOptionItems[i].gameObject.SetActive(true);
+        }
+
+        UpdateSelectedCraftDisplay();
+
+        var queue = currentBuilding.GetQueuedEquipment();
+        for (int i = 0; i < craftQueueItems.Count; i++)
+        {
+            if (queue == null || i >= queue.Count)
+            {
+                craftQueueItems[i].gameObject.SetActive(false);
+                continue;
+            }
+            craftQueueItems[i].Setup(queue[i], i, this);
+            craftQueueItems[i].gameObject.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Update the shared name/cost text and Queue button to reflect selectedCraftRecipe.
+    /// </summary>
+    private void UpdateSelectedCraftDisplay()
+    {
+        if (selectedCraftRecipe == null)
+        {
+            if (craftSelectedNameText != null) craftSelectedNameText.text = "";
+            RefreshCostList(EmptyCosts, craftSelectedCostItems);
+            if (craftQueueButton != null) craftQueueButton.interactable = false;
+            return;
+        }
+
+        if (craftSelectedNameText != null)
+            craftSelectedNameText.text = selectedCraftRecipe.itemName;
+
+        // Same icon+amount row display used for repair/upgrade costs - handles the common case of an
+        // item needing two (or more, up to the pool size) different resources.
+        RefreshCostList(selectedCraftRecipe.inputResources, craftSelectedCostItems);
+
+        if (craftQueueButton != null)
+            craftQueueButton.interactable = true;
+    }
+
+    /// <summary>
+    /// Select a menu option so the shared name/cost text and Queue button reflect it.
+    /// Called by BlacksmithCraftOptionItem.
+    /// </summary>
+    public void SelectCraftOption(EquipmentRecipe recipe)
+    {
+        selectedCraftRecipe = recipe;
+        UpdateSelectedCraftDisplay();
+
+        for (int i = 0; i < craftOptionItems.Count; i++)
+            craftOptionItems[i].SetSelected(craftOptionItems[i].Recipe == recipe);
+    }
+
+    /// <summary>
+    /// Called when the shared Queue button is clicked - queues whatever's currently selected.
+    /// </summary>
+    private void OnCraftQueueButtonClicked()
+    {
+        if (currentBuilding == null || selectedCraftRecipe == null) return;
+        currentBuilding.QueueEquipmentItem(selectedCraftRecipe.itemName);
+        RefreshCraftingQueueSection();
+        UpdateProductionDisplay();
+    }
+
+    /// <summary>
+    /// Cancel a queued item at the current building. Called by BlacksmithQueueItem.
+    /// </summary>
+    public void CancelQueuedCraftItem(int queueIndex)
+    {
+        if (currentBuilding == null) return;
+        currentBuilding.CancelQueuedEquipment(queueIndex);
+        RefreshCraftingQueueSection();
+        UpdateProductionDisplay();
+    }
+
 
     /// <summary>
     /// Update production progress display
@@ -404,6 +551,26 @@ public class BuildingInfoPanel : MonoBehaviour
                         }
 
                     }
+                }
+            }
+            else if (currentBuilding.HasEquipmentQueue)
+            {
+                // Player-chosen queue (e.g. Blacksmith) - the menu/queue lists themselves are handled by
+                // RefreshCraftingQueueSection; this just summarizes what's currently crafting.
+                var queue = currentBuilding.GetQueuedEquipment();
+                productionInfoText.text = queue.Count > 0
+                    ? $"Crafting: {queue[0]}" + (queue.Count > 1 ? $" (+{queue.Count - 1} queued)" : "")
+                    : "Choose an item to craft below";
+
+                if (productionAmountText != null)
+                    productionAmountText.text = "";
+
+                if (resourceGeneratedIcon != null)
+                {
+                    EquipableItem template = queue.Count > 0 && WeaponDatabase.Instance != null
+                        ? WeaponDatabase.Instance.GetItemByName(queue[0])
+                        : null;
+                    resourceGeneratedIcon.sprite = template != null && template.itemSpriteRenderer != null ? template.itemSpriteRenderer.sprite : null;
                 }
             }
             else if (currentBuilding.data.productionType == ProductionType.Crafting &&
@@ -666,7 +833,7 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         if (currentBuilding == null) return;
 
-        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0 || currentBuilding.HasEquipmentQueue;
 
         if (producesResources && !currentBuilding.needsRepair)
         {

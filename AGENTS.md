@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Main Camera
-  - Tag: MainCamera
-  - Layer: Default
+  - Name: Shield
+  - Tag: Shield
+  - Layer: Weapons
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

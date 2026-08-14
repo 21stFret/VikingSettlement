@@ -170,6 +170,16 @@ public static class SettlementSimulator
         // precision than the old single end-of-period floor.
         var progressCarry = new Dictionary<Building, float>();
 
+        // Local mutable copy of each equipment-queue building's (e.g. Blacksmith) queue, so the day loop
+        // can drain it into report.craftedEquipment without touching the live Building.equipmentQueue -
+        // the leftover is written back atomically via report.remainingEquipmentQueues at the end.
+        var equipmentQueueSim = new Dictionary<Building, List<string>>();
+        foreach (var b in buildingRoster.Keys)
+        {
+            if (b.HasEquipmentQueue)
+                equipmentQueueSim[b] = new List<string>(b.equipmentQueue);
+        }
+
         // ================= WHOLE-DAY LOOP =================
         for (int dayIndex = 0; dayIndex < wholeDays; dayIndex++)
         {
@@ -214,9 +224,14 @@ public static class SettlementSimulator
                 carry += productionSpeed * dayLength;
                 int completions = Mathf.FloorToInt(carry / 100f);
                 carry -= completions * 100f;
-                progressCarry[building] = carry;
 
-                if (completions <= 0) continue;
+                if (completions <= 0)
+                {
+                    progressCarry[building] = carry;
+                    continue;
+                }
+
+                int achievedCompletions = completions;
 
                 if (data.productionType == ProductionType.ResourceGathering && data.resourceOutputs != null && data.resourceOutputs.Count > 0)
                 {
@@ -230,6 +245,11 @@ public static class SettlementSimulator
                         report.resourceChanges[resourceOutput.resourceType] += perCompletion * completions;
                     }
                 }
+                else if (building.HasEquipmentQueue)
+                {
+                    achievedCompletions = DrainEquipmentQueue(building, data, equipmentQueueSim[building], completions, report);
+                    if (equipmentQueueSim[building].Count == 0) carry = 0f; // nothing in progress to bank leftover progress into
+                }
                 else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
                 {
                     // Crafting inputs assumed always available — matches original simulator's explicit
@@ -240,8 +260,13 @@ public static class SettlementSimulator
                         report.resourceChanges[input.resourceType] -= input.amount * completions;
                 }
 
-                foreach (var w in workers)
-                    skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + completions;
+                progressCarry[building] = carry;
+
+                if (achievedCompletions > 0)
+                {
+                    foreach (var w in workers)
+                        skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + achievedCompletions;
+                }
             }
 
             // ---- STEP B: RANDOM EVENTS (per-villager identity) ----
@@ -421,6 +446,8 @@ public static class SettlementSimulator
 
                 if (completions <= 0) continue;
 
+                int achievedCompletions = completions;
+
                 if (data.productionType == ProductionType.ResourceGathering && data.resourceOutputs != null && data.resourceOutputs.Count > 0)
                 {
                     float seasonalMult = SeasonManager.Instance != null
@@ -433,6 +460,10 @@ public static class SettlementSimulator
                         report.resourceChanges[resourceOutput.resourceType] += perCompletion * completions;
                     }
                 }
+                else if (building.HasEquipmentQueue)
+                {
+                    achievedCompletions = DrainEquipmentQueue(building, data, equipmentQueueSim[building], completions, report);
+                }
                 else if (data.productionType == ProductionType.Crafting && data.craftingRecipe != null)
                 {
                     int output = Mathf.FloorToInt(completions * data.craftingRecipe.outputAmount);
@@ -441,8 +472,11 @@ public static class SettlementSimulator
                         report.resourceChanges[input.resourceType] -= input.amount * completions;
                 }
 
-                foreach (var w in workers)
-                    skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + completions;
+                if (achievedCompletions > 0)
+                {
+                    foreach (var w in workers)
+                        skillCompletionsAccrued[w] = skillCompletionsAccrued.GetValueOrDefault(w, 0) + achievedCompletions;
+                }
             }
 
             // Wood — deduct only, capped at what's available.
@@ -462,6 +496,11 @@ public static class SettlementSimulator
                 report.resourceChanges[ResourceType.Fish] -= Mathf.Min(totalFishNeeded, fishAvailable);
             }
         }
+
+        // Hand back each equipment-queue building's leftover queue so the caller can write it back to the
+        // live Building.equipmentQueue in one atomic pass (RaidManager.ApplySettlementReport).
+        foreach (var kvp in equipmentQueueSim)
+            report.remainingEquipmentQueues[kvp.Key.uniqueId] = kvp.Value;
 
         // ================= BUILD REPORT (still pure — no live mutation) =================
         foreach (var s in orderedStates)
@@ -590,6 +629,36 @@ public static class SettlementSimulator
     }
 
     #region Helpers
+
+    /// <summary>
+    /// Drain up to <paramref name="completions"/> items off the front of an equipment-queue building's
+    /// local queue copy (one full 0-100 cycle per item, same as live Building.UpdateEquipmentCrafting),
+    /// recording each finished item into report.craftedEquipment and deducting its input cost. Stale
+    /// entries (item no longer in data.craftableEquipment) are dropped without consuming a completion.
+    /// Returns how many items actually finished — may be less than `completions` if the queue ran dry.
+    /// </summary>
+    private static int DrainEquipmentQueue(Building building, BuildingData data, List<string> queue, int completions, SettlementReport report)
+    {
+        int used = 0;
+        while (used < completions && queue.Count > 0)
+        {
+            EquipmentRecipe recipe = data.craftableEquipment.Find(r => r.itemName == queue[0]);
+            if (recipe == null)
+            {
+                queue.RemoveAt(0); // stale entry, drop and move on without spending a completion
+                continue;
+            }
+
+            // Inputs assumed always available — same simplification as the legacy craftingRecipe path.
+            foreach (var input in recipe.inputResources)
+                report.resourceChanges[input.resourceType] -= input.amount;
+
+            report.craftedEquipment.Add(new CraftedEquipmentEntry { buildingId = building.uniqueId, itemName = recipe.itemName });
+            queue.RemoveAt(0);
+            used++;
+        }
+        return used;
+    }
 
     private static float GetAvailableResource(ResourceType type)
     {
