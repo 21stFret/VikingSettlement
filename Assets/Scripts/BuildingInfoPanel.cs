@@ -73,6 +73,10 @@ public class BuildingInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI craftSelectedNameText; // shared across all menu options - shows whichever icon is selected
     [SerializeField] private Transform craftSelectedCostContainer; // holds pooled SingleResourceDisplay rows, same as repair/upgrade costs
     [SerializeField] private Button craftQueueButton; // shared "Queue" button - queues the currently selected option
+    [SerializeField] private Image craftingProgressBar;
+    [SerializeField] private TextMeshProUGUI craftingProgressText;
+    [SerializeField] private TextMeshProUGUI craftingTimeText;
+
 
     [Header("Colors")]
     [SerializeField] private Color progressBarColor = new Color(0.3f, 0.8f, 0.3f);
@@ -252,6 +256,7 @@ public class BuildingInfoPanel : MonoBehaviour
         if (workersSection != null) workersSection.SetActive(true);
         if(longhouseSection != null) longhouseSection.SetActive(false);
         if(upgradeSection != null) upgradeSection.SetActive(true);
+        if (craftingQueueSection != null) craftingQueueSection.SetActive(false);
 
         UpdateUpgradeDisplay();
 
@@ -272,7 +277,6 @@ public class BuildingInfoPanel : MonoBehaviour
             if (workersSection != null) workersSection.SetActive(true);
             if (craftingQueueSection != null) craftingQueueSection.SetActive(false);
             UpdateHealersDisplay();
-            return;
         }
 
         if (currentBuilding.data.buildingType == BuildingType.Blacksmith)
@@ -286,11 +290,10 @@ public class BuildingInfoPanel : MonoBehaviour
 
             if (currentBuilding.HasEquipmentQueue)
                 RefreshCraftingQueueSection();
-            return;
         }
 
         // Production info
-        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0 || currentBuilding.HasEquipmentQueue;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0;
 
         if (productionSection != null)
             productionSection.SetActive(producesResources);
@@ -493,7 +496,6 @@ public class BuildingInfoPanel : MonoBehaviour
         if (currentBuilding == null || selectedCraftRecipe == null) return;
         currentBuilding.QueueEquipmentItem(selectedCraftRecipe.itemName);
         RefreshCraftingQueueSection();
-        UpdateProductionDisplay();
     }
 
     /// <summary>
@@ -504,7 +506,6 @@ public class BuildingInfoPanel : MonoBehaviour
         if (currentBuilding == null) return;
         currentBuilding.CancelQueuedEquipment(queueIndex);
         RefreshCraftingQueueSection();
-        UpdateProductionDisplay();
     }
 
 
@@ -551,26 +552,6 @@ public class BuildingInfoPanel : MonoBehaviour
                         }
 
                     }
-                }
-            }
-            else if (currentBuilding.HasEquipmentQueue)
-            {
-                // Player-chosen queue (e.g. Blacksmith) - the menu/queue lists themselves are handled by
-                // RefreshCraftingQueueSection; this just summarizes what's currently crafting.
-                var queue = currentBuilding.GetQueuedEquipment();
-                productionInfoText.text = queue.Count > 0
-                    ? $"Crafting: {queue[0]}" + (queue.Count > 1 ? $" (+{queue.Count - 1} queued)" : "")
-                    : "Choose an item to craft below";
-
-                if (productionAmountText != null)
-                    productionAmountText.text = "";
-
-                if (resourceGeneratedIcon != null)
-                {
-                    EquipableItem template = queue.Count > 0 && WeaponDatabase.Instance != null
-                        ? WeaponDatabase.Instance.GetItemByName(queue[0])
-                        : null;
-                    resourceGeneratedIcon.sprite = template != null && template.itemSpriteRenderer != null ? template.itemSpriteRenderer.sprite : null;
                 }
             }
             else if (currentBuilding.data.productionType == ProductionType.Crafting &&
@@ -674,6 +655,62 @@ public class BuildingInfoPanel : MonoBehaviour
             else
             {
                 estimatedTimeText.text = $"Time: {FormatTime(timeToComplete)}";
+            }
+        }
+    }
+
+    private void UpdateCraftingDisplay()
+    {
+        if (currentBuilding.HasEquipmentQueue)
+        {
+            // Player-chosen queue (e.g. Blacksmith) - the menu/queue lists themselves are handled by
+            // RefreshCraftingQueueSection; this just summarizes what's currently crafting.
+            var queue = currentBuilding.GetQueuedEquipment();
+            productionInfoText.text = queue.Count > 0
+                ? $"Crafting: {queue[0]}" + (queue.Count > 1 ? $" (+{queue.Count - 1} queued)" : "")
+                : "Choose an item to craft below";
+
+            if (productionAmountText != null)
+                productionAmountText.text = "";
+
+            if (resourceGeneratedIcon != null)
+            {
+                EquipableItem template = queue.Count > 0 && WeaponDatabase.Instance != null
+                    ? WeaponDatabase.Instance.GetItemByName(queue[0])
+                    : null;
+                resourceGeneratedIcon.sprite = template != null && template.itemSpriteRenderer != null ? template.itemSpriteRenderer.sprite : null;
+            }
+        }
+        // Progress bar
+        if (craftingProgressBar != null)
+        {
+            float progress = currentBuilding.GetProductionProgressPercent();
+            craftingProgressBar.fillAmount = progress;
+        }
+
+        // Progress text
+        if (craftingProgressText != null)
+        {
+            float progress = currentBuilding.productionProgress;
+            craftingProgressText.text = $"{progress:F1}%";
+        }
+
+        // Estimated time
+        if (craftingTimeText != null)
+        {
+            float timeToComplete = currentBuilding.GetEstimatedTimeToCompletion();
+
+            if (currentBuilding.assignedWorkers.Count == 0)
+            {
+                craftingTimeText.text = "No workers";
+            }
+            else if (float.IsInfinity(timeToComplete))
+            {
+                craftingTimeText.text = "Calculating...";
+            }
+            else
+            {
+                craftingTimeText.text = $"Time: {FormatTime(timeToComplete)}";
             }
         }
     }
@@ -833,12 +870,17 @@ public class BuildingInfoPanel : MonoBehaviour
     {
         if (currentBuilding == null) return;
 
-        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0 || currentBuilding.HasEquipmentQueue;
+        bool producesResources = currentBuilding.data.resourceOutputs.Count > 0 || currentBuilding.data.craftingRecipe.inputResources.Count > 0;
 
         if (producesResources && !currentBuilding.needsRepair)
         {
             UpdateProductionDisplay();
         }
 
+        if(currentBuilding.HasEquipmentQueue && currentBuilding.equipmentQueue.Count>0)
+        {
+            UpdateCraftingDisplay();
+        }
+   
     }
 }

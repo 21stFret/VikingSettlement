@@ -17,7 +17,7 @@ MonoBehaviour:
   disablePlayerControl: 1
   pauseGameClock: 1
   hideUI: 1
-  resumeAutoWeather: 1
+  resumeAutoWeather: 0
   playOnce: 1
   actions:
   - rid: 8350825183430049960
