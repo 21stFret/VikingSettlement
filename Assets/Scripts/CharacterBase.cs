@@ -158,6 +158,8 @@ public class CharacterBase : MonoBehaviour
     // Cache of valid animator parameter hashes to avoid errors
     private HashSet<int> validAnimatorParams;
 
+    public event Action<FacingDirection> onChangeFacingDirection;
+
     protected virtual void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -938,6 +940,7 @@ public class CharacterBase : MonoBehaviour
                 else if (facing.x < -0.01f)
                     FlipSprite(true);
                 facingDirection = ComputeFacingDirection(facing);
+                onChangeFacingDirection?.Invoke(facingDirection);
             }
         }
     }

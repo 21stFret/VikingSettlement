@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class ItemAttachment : MonoBehaviour
 {
@@ -42,20 +43,19 @@ public class ItemAttachment : MonoBehaviour
     private void AttachItem(Transform item, AttachmentPoint point)
     {
         Transform attachPoint = GetAttachmentPoint(point);
-        if (attachPoint != null)
-        {
-            item.SetParent(attachPoint);
-            item.gameObject.SetActive(true);
-            item.localPosition = Vector3.zero;
-            item.localRotation = Quaternion.identity;
-            item.localScale = Vector3.one;
-        }
+        SetItemAttachmentPoint(item, attachPoint);
+
         EquipableItem equipableItem = item.GetComponent<EquipableItem>();
-        if(WD != null && equipableItem != null)
+        if (WD != null && equipableItem != null)
         {
             WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+            CharacterBase CC = GetComponent<CharacterBase>();
+            if (CC != null)
+            {
+                CC.onChangeFacingDirection += equipableItem.OnCharacterFacingChange;
+                CC.onChangeFacingDirection += OnChangeFacingDirection;
+            }
         }
-
 
         if (CompendiumManager.Instance != null)
         {
@@ -64,11 +64,23 @@ public class ItemAttachment : MonoBehaviour
         }
     }
 
+    private void SetItemAttachmentPoint(Transform item, Transform attachPoint)
+    {
+        if (attachPoint != null)
+        {
+            item.SetParent(attachPoint);
+            item.gameObject.SetActive(true);
+            item.localPosition = Vector3.zero;
+            item.localRotation = Quaternion.identity;
+            item.localScale = Vector3.one;
+        }
+    }
+
     public void EquipShield(GameObject newShield)
     {
         shield = newShield;
         AttachItem(newShield.transform, shieldAttachPoint);
-        shieldItem = newShield.GetComponent<EquipableItem>();   
+        shieldItem = newShield.GetComponent<EquipableItem>();
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)
         {
@@ -78,9 +90,9 @@ public class ItemAttachment : MonoBehaviour
             (CC.AI as CombatAIBase)?.HandleShieldChanged(CC.shield);
         }
         Villager V = GetComponent<Villager>();
-        if(V != null)
+        if (V != null)
         {
-            if(V.isJarl)
+            if (V.isJarl)
             {
                 AttackCooldownUI.Instance.shieldUi.Init();
             }
@@ -99,16 +111,18 @@ public class ItemAttachment : MonoBehaviour
         var item = shield.GetComponent<EquipableItem>();
         if (item != null && item.IsBroken) return;
 
-        CharacterBase cc = GetComponent<CharacterBase>();
-        if (cc != null && cc.shield != null)
+        CharacterBase CC = GetComponent<CharacterBase>();
+        if (CC != null && CC.shield != null)
         {
-            cc.shield.OnBroken -= ShieldDestroyed;
-            cc.isBlocking = false;
-            cc.isParrying = false;
-            cc.shield.isEquipped = false;
-            cc.shield = null;
+            CC.shield.OnBroken -= ShieldDestroyed;
+            CC.onChangeFacingDirection -= CC.shield.OnCharacterFacingChange;
+            CC.onChangeFacingDirection -= OnChangeFacingDirection;
+            CC.isBlocking = false;
+            CC.isParrying = false;
+            CC.shield.isEquipped = false;
+            CC.shield = null;
         }
-        (cc?.AI as CombatAIBase)?.HandleShieldChanged(null);
+        (CC?.AI as CombatAIBase)?.HandleShieldChanged(null);
 
         shield.transform.SetParent(null);
         shield.tag = "Shield";
@@ -161,6 +175,7 @@ public class ItemAttachment : MonoBehaviour
                 PlayDetachedEffect(CC.shield.shatterEffect);
             }
 
+            CC.onChangeFacingDirection -= CC.shield.OnCharacterFacingChange;
             CC.isBlocking = false;
             CC.isParrying = false;
             CC.shield = null;
@@ -216,6 +231,7 @@ public class ItemAttachment : MonoBehaviour
         if (CC != null)
         {
             CC.weapon.OnBroken -= WeaponDestroyed;
+            CC.onChangeFacingDirection -= CC.weapon.OnCharacterFacingChange;
             CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
             CC.weapon = null;
         }
@@ -242,6 +258,7 @@ public class ItemAttachment : MonoBehaviour
         if (CC != null)
         {
             CC.attackTargetLayer &= ~LayerMask.GetMask("Grass");
+            CC.onChangeFacingDirection -= CC.weapon.OnCharacterFacingChange;
             CC.weapon.OnBroken -= WeaponDestroyed;
             CC.weapon = null;
         }
@@ -385,7 +402,7 @@ public class ItemAttachment : MonoBehaviour
             EquipTorch(torchInstance);
         }
     }
-    
+
     private static void PlayDetachedEffect(ParticleSystem fx)
     {
         if (fx == null) return;
@@ -404,7 +421,7 @@ public class ItemAttachment : MonoBehaviour
             default: return null;
         }
     }
-    
+
     /// <summary>
     /// Show or hide an item
     /// </summary>
@@ -416,13 +433,40 @@ public class ItemAttachment : MonoBehaviour
 
     public void SetDurability(Vector2 values)
     {
-        if(weapon != null)
+        if (weapon != null)
         {
             weaponItem.SetDurability(values.x);
         }
-        if(shield != null)
+        if (shield != null)
         {
             shieldItem.SetDurability(values.y);
+        }
+    }
+
+    private void OnChangeFacingDirection(FacingDirection dir)
+    {
+        if (shield != null)
+        {
+            switch (dir)
+            {
+                
+                case FacingDirection.East: SetItemAttachmentPoint(shield.transform, leftHandAttachment); break;
+                case FacingDirection.West: SetItemAttachmentPoint(shield.transform, rightHandAttachment); break;
+                case FacingDirection.North: SetItemAttachmentPoint(shield.transform, leftHandAttachment); break;
+                case FacingDirection.South: SetItemAttachmentPoint(shield.transform, rightHandAttachment); break;
+                
+            }
+        }
+        if (weapon != null)
+        {
+            switch (dir)
+            {
+                case FacingDirection.East: SetItemAttachmentPoint(weapon.transform, rightHandAttachment); break;
+                case FacingDirection.West: SetItemAttachmentPoint(weapon.transform, leftHandAttachment); break;
+                case FacingDirection.North: SetItemAttachmentPoint(weapon.transform, rightHandAttachment); break;
+                case FacingDirection.South: SetItemAttachmentPoint(weapon.transform, leftHandAttachment); break;
+
+            }
         }
     }
 }

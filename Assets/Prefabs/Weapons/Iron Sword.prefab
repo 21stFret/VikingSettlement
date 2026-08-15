@@ -92,9 +92,12 @@ MonoBehaviour:
   shakeDuration: 0.18
   shakeOscillations: 3
   maxDurability: 50
-  currentDurability: 0
+  currentDurability: 7
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
+  rightSortingOffset: 69
+  leftSortingOffset: 90
+  shieldBack: {fileID: 0}
 --- !u!58 &8370207056962768172
 CircleCollider2D:
   m_ObjectHideFlags: 0

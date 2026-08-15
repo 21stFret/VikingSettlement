@@ -44,6 +44,9 @@ public class EquipableItem : MonoBehaviour
 
     public Sprite[] itemDamageSprites;
     public SpriteRenderer itemSpriteRenderer;
+    private SpriteSorting spriteSorting;
+    public int rightSortingOffset;
+    public int leftSortingOffset;
 
     public bool IsShield => itemType == ItemType.Shield;
     public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer || itemType == ItemType.Bow;
@@ -57,21 +60,35 @@ public class EquipableItem : MonoBehaviour
 
     public void NotifyUnequipped() => OnUnequipped?.Invoke();
 
+    public Sprite shieldBack;
+    private Sprite shieldFront;
+
+    private bool initilazied;
+
+    private void Start()
+    {
+        Init();
+    }
+
     public void Init(bool fromLoad = false)
     {
-
+        if (initilazied) return;
+        initilazied = true;
         if (maxDurability > 0 && !fromLoad)
             currentDurability = maxDurability;
         if(!fromLoad)
             itemID = System.Guid.NewGuid().ToString();
         if (itemSpriteRenderer == null)
         {
-            itemSpriteRenderer = GetComponent<SpriteRenderer>();
+            itemSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
             if (itemSpriteRenderer == null)
             {
                 Debug.LogWarning("EquipableItem: No SpriteRenderer found on the item or assigned in the inspector.");
+                return;
             }
         }
+        shieldFront = itemSpriteRenderer.sprite;
+        spriteSorting = itemSpriteRenderer.gameObject.GetComponent<SpriteSorting>();
     }
 
     /// <summary>
@@ -86,6 +103,7 @@ public class EquipableItem : MonoBehaviour
             int damageLevel = Mathf.FloorToInt(((float)(maxDurability - currentDurability) / maxDurability) * itemDamageSprites.Length);
             damageLevel = Mathf.Clamp(damageLevel, 0, itemDamageSprites.Length - 1);
             itemSpriteRenderer.sprite = itemDamageSprites[damageLevel];
+            shieldFront = itemSpriteRenderer.sprite;
         }
         OnDurabilityChanged?.Invoke();
         var villager = GetComponentInParent<Villager>();
@@ -162,5 +180,32 @@ public class EquipableItem : MonoBehaviour
             damageLevel = Mathf.Clamp(damageLevel, 0, itemDamageSprites.Length - 1);
             itemSpriteRenderer.sprite = itemDamageSprites[damageLevel];
         }
+    }
+
+    public void OnCharacterFacingChange(FacingDirection dir)
+    {
+        if(IsShield)
+        {
+            switch (dir)
+            {
+                case FacingDirection.East: itemSpriteRenderer.sprite = shieldBack; spriteSorting.offset = rightSortingOffset; break;
+                case FacingDirection.West: itemSpriteRenderer.sprite = shieldFront; spriteSorting.offset =  leftSortingOffset; break;
+                case FacingDirection.North: itemSpriteRenderer.sprite = shieldBack; spriteSorting.offset = rightSortingOffset; break;
+                case FacingDirection.South: itemSpriteRenderer.sprite = shieldFront; spriteSorting.offset = leftSortingOffset; break;
+
+            }
+        }
+        else
+        {
+            switch (dir)
+            {
+                case FacingDirection.East: spriteSorting.offset = leftSortingOffset; break;
+                case FacingDirection.West: spriteSorting.offset = rightSortingOffset; break;
+                case FacingDirection.North: spriteSorting.offset = leftSortingOffset; break;
+                case FacingDirection.South: spriteSorting.offset = rightSortingOffset; break;
+
+            }
+        }
+
     }
 }

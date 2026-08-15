@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Version Cnavas
-  - Tag: Untagged
-  - Layer: UI
+  - Name: Shield
+  - Tag: Shield
+  - Layer: Weapons
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

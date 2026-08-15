@@ -5,7 +5,7 @@ public class SpriteSorting : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private int sortingOrderBase = 5000; // Base value for calculations
-    [SerializeField] private int offset = 0; // Manual adjustment if needed
+    [SerializeField] public int offset = 0; // Manual adjustment if needed
     
     private void Awake()
     {
