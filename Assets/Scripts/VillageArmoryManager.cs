@@ -9,7 +9,7 @@ public class VillageArmoryManager : MonoBehaviour
     public void SpawnArmory()
     {
         currentCount = 0;
-        print($"{WeaponDatabase.Instance.villageArmory.Count} items in armory");
+        //print($"{WeaponDatabase.Instance.villageArmory.Count} items in armory");
         foreach(EquipableItem item in WeaponDatabase.Instance.villageArmory)
         {
             GameObject existing = spawnedItems.Find(i => i != null && i.GetComponent<EquipableItem>().itemID == item.itemID);
@@ -29,7 +29,7 @@ public class VillageArmoryManager : MonoBehaviour
             currentCount++;
             spawnedItems.Add(itemInstance);
         }
-        print($"spawned {currentCount} weapons from armory");
+        //print($"spawned {currentCount} weapons from armory");
     }
 
     public GameObject GetSpawnedItem(string ID, bool remove = false)

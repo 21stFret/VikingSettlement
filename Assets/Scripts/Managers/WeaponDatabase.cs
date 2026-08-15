@@ -197,7 +197,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
             if (item != null) { AddItemToVillageArmory(item); }
         }
 
-        print("Created new village armory as none existed.");
         if(villageArmoryManager != null)
         {
             villageArmoryManager.SpawnArmory();

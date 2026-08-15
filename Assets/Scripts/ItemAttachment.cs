@@ -1,7 +1,5 @@
 using System;
 using UnityEngine;
-using static UnityEditor.Progress;
-
 public class ItemAttachment : MonoBehaviour
 {
     [Header("Attachment Points")]
@@ -48,12 +46,15 @@ public class ItemAttachment : MonoBehaviour
         EquipableItem equipableItem = item.GetComponent<EquipableItem>();
         if (WD != null && equipableItem != null)
         {
-            WD.RemoveItemFromVillageArmory(equipableItem.itemID);
             CharacterBase CC = GetComponent<CharacterBase>();
             if (CC != null)
             {
                 CC.onChangeFacingDirection += equipableItem.OnCharacterFacingChange;
                 CC.onChangeFacingDirection += OnChangeFacingDirection;
+                if (CC.GetComponent<Villager>() != null)
+                {
+                    WD.RemoveItemFromVillageArmory(equipableItem.itemID);
+                }
             }
         }
 

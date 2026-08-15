@@ -82,11 +82,6 @@ namespace Cutscenes
             {
                 Destroy(gameObject);
             }
-            // Shared instance — the Player/CutScene map swap below (Player.Disable() /
-            // CutScene.Enable()) must apply to the SAME instance every other input
-            // consumer (PauseManager, PlayerController, ...) reads, or Esc still fires
-            // Pause on their own separate copy while the cutscene is playing.
-            inputActions = InputActionManager.Instance.InputActions;
         }
 
         void Start()
@@ -95,6 +90,8 @@ namespace Cutscenes
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
             letterboxTopHidden = new Vector2(letterboxTopTarget.x, letterboxTop.rect.height + letterboxOffscreenOffset);
             letterboxBottomHidden = new Vector2(letterboxBottomTarget.x, -letterboxBottom.rect.height - letterboxOffscreenOffset);
+
+            inputActions = InputActionManager.Instance.InputActions;
             inputActions.CutScene.SkipCutscene.performed += SkipCutscene;
         }
 

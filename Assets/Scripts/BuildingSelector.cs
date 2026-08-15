@@ -78,7 +78,7 @@ public class BuildingSelector : WorldInteractable, IClickable
 
         if (isSelected) return; // Already selected
         
-        Debug.Log("Building selected: " + building.data.buildingName);
+        //Debug.Log("Building selected: " + building.data.buildingName);
         
         // Deselect all other buildings
         List<BuildingSelector> allSelectors = SettlementManager.Instance.GetAllBuildingSelectors();

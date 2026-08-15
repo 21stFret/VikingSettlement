@@ -95,15 +95,26 @@ public class MeshShadow2D : MonoBehaviour
 
     // -------------------------------------------------------------------------
 
+    void Awake()
+    {
+        // Must happen in Awake (not OnEnable/Start): Unity guarantees all Awake calls
+        // finish before any Start call, but Start order between objects is undefined.
+        // ShadowCastingLight.Start() can call into RegisterAutoLight() -> CreateAutoShadowMesh()
+        // before this object's own Start()/OnEnable() would otherwise have run.
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     void OnEnable()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
         SetupShadowObject();
     }
 
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
         SetupShadowObject();
     }
 
@@ -167,6 +178,11 @@ public class MeshShadow2D : MonoBehaviour
 
     void CreateAutoShadowMesh(int index)
     {
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            return;
+
         var go = new GameObject(name + "_MeshAutoShadow_" + index);
         go.hideFlags = HideFlags.DontSave;
 
