@@ -95,9 +95,12 @@ public class InfoPopupUI : MonoBehaviour, ISaveable
     public void TryShowIntroSequence()
     {
         Push("Welcome to Jarlborn!", "Repair your settlement, keep your vikings alive and happy, gather resources to improve and get stronger! Prepare for the harsh winters ahead. All Father be with you Jarl!", null, "intro_welcome");
-        Push("Meal Time", $"At <color={PurpleHex}>Noon</color> every day you must  <color={CyanHex}>feed your villagers</color>. You can see the food cost in the top right. Food is taken from <color={GoldHex}>Fish, Meat & Bread.</color>", null, "intro_mealtime");
+        Push("Basic Controls", $"Use <color={GoldHex}>WSAD</color> or <color={GoldHex}>Left Stick</color> to move. <color={GoldHex}>E</color> or <color={GoldHex}>'Y'</color> to interact and<color={GoldHex}>F</color> or <color={GoldHex}>'B'</color> to stop interacting.", null, "intro_basic");
+        Push("Basic Combat", $"Use <color={GoldHex}>Left Mouse</color> or <color={GoldHex}>'X'</color> to attack, <color={GoldHex}>Right Mouse</color> or <color={GoldHex}>'RT'</color> to block. You can Dodge with <color={GoldHex}>Space</color> or <color={GoldHex}>'A'</color>.", null, "intro_basic2");
+        Push("Basic Systems", $"You can open the <color={CyanHex}>Player Menu</color> with <color={GoldHex}>'M'</color> or <color={GoldHex}>'Select'</color> to see the overview and other menus. Press <color={GoldHex}>Esc</color> or <color={GoldHex}>'Start'</color> to open the  <color={CyanHex}>Pause Menu</color>", null, "intro_basic3");
+        Push("Meal Time", $"At <color={PurpleHex}>Noon</color> every day you must <color={CyanHex}>feed your villagers</color>. You can see the food cost in the top right. Food is taken from <color={GoldHex}>Fish, Meat & Bread.</color>", null, "intro_mealtime");
         Push("Fire Time", $"At <color={PurpleHex}>Midnight</color> every night the  <color={CyanHex}>Fire</color> must be restocked with <color={GoldHex}>Wood</color> for the coming day. The <color={CyanHex}>Weather & Population</color> change the amount needed. ", null, "intro_firetime");
-        Push("Raiding", $"Once you are better equipped and know your village you should go <color={CyanHex}>Raiding</color>. Here you can earn <color={GoldHex}>Gold</color> to upgrade your village further.", null, "intro_raiding");
+        Push("Raiding", $"Once you are better equipped and know your village you should go <color={CyanHex}>Raiding</color>. Here you can earn <color={GoldHex}>Gold</color> and other resources to upgrade your village further.", null, "intro_raiding");
     }
 
     private void OnEnable()

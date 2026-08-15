@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaidDestinationData
   destinationName: Abandoned Mine
   sceneName: Demo Raid Scene
-  description: A dangerous place to raid.
+  description: An old mine, full of Iron and Draugr
   travelTimeHours: 72
   realTimeLimit: 300
   recommendedPartySize: 3
@@ -25,8 +25,16 @@ MonoBehaviour:
   - {fileID: 7555521055352246155, guid: 9caff1a25afa72849a53dbc823e16878, type: 3}
   spawnAll: 0
   lootTable:
+  - resourceType: 5
+    dropChance: 1
+    minAmount: 5
+    maxAmount: 15
+  - resourceType: 4
+    dropChance: 1
+    minAmount: 5
+    maxAmount: 15
   - resourceType: 15
     dropChance: 1
-    minAmount: 40
-    maxAmount: 50
+    minAmount: 5
+    maxAmount: 15
   locationType: 1

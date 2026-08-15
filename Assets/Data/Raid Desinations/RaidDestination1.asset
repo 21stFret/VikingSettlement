@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03aa4764f79f74c42aa7e8bc213f9d2c, type: 3}
   m_Name: RaidDestination1
   m_EditorClassIdentifier: Assembly-CSharp::RaidDestinationData
-  destinationName: Abandoned Outpost
+  destinationName: Raider Outpost
   sceneName: Demo Raid Scene
   description: A dangerous place to raid.
   travelTimeHours: 16
   realTimeLimit: 300
   recommendedPartySize: 3
-  enemyCount: 2
+  enemyCount: 3
   enemyPrefabs:
-  - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
-  - {fileID: 7555521055352246155, guid: 33afecf654bf63d47a7fe68c430a33bd, type: 3}
+  - {fileID: 7555521055352246155, guid: 3587cad2be57f324d9872d36fd284e4c, type: 3}
+  - {fileID: 7555521055352246155, guid: 30f4056cb6664e04a93117aa22408a18, type: 3}
   spawnAll: 0
   lootTable:
   - resourceType: 15
     dropChance: 1
-    minAmount: 5
-    maxAmount: 10
+    minAmount: 20
+    maxAmount: 50
   locationType: 1

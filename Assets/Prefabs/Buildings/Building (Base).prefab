@@ -664,6 +664,7 @@ MonoBehaviour:
   level: 1
   waitingForResources: 0
   startedCrafting: 0
+  equipmentQueue: []
   assignedWorkers: []
 --- !u!50 &5401463362213027023
 Rigidbody2D:
@@ -754,8 +755,8 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: -2.7178364, y: 3.5395498}
-      - {x: -2.7503595, y: 0.51157236}
-      - {x: 3.1240559, y: 0.511724}
+      - {x: -2.7118344, y: 0.80693126}
+      - {x: 3.1754227, y: 0.7942412}
       - {x: 3.1675816, y: 3.4609356}
       - {x: 0.21422672, y: 7.1735153}
   m_UseDelaunayMesh: 0
