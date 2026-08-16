@@ -15,5 +15,6 @@ MonoBehaviour:
   id: resource_iron
   category: 0
   displayName: Iron
-  description: Raw ore mined from the earth. Smelted at the Blacksmith into tools, weapons, and armor.
+  description: Raw ore mined from the earth. Smelted at the Blacksmith into weapons
+    and armor.
   icon: {fileID: 21300000, guid: 9ba53a2c96c27b44198cb0b80888ee14, type: 2}

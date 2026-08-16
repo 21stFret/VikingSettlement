@@ -136,11 +136,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoTweenMove
   moveDuration: 0.8
   ease: 10
-  endPos: {x: 0, y: -20, z: 0}
+  movementAmount3D: {x: 0, y: 0, z: 0}
   loopType: 1
   loopCount: -1
   isLocal: 0
   isAnchored: 1
+--- !u!1 &1892822855065838788
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5100684977455503503}
+  - component: {fileID: 38974370561041258}
+  m_Layer: 0
+  m_Name: DialougeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5100684977455503503
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892822855065838788}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5047636060599207466}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &38974370561041258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892822855065838788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2de6cbfbdf5d3af40a7ce160b6fb9aff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
+  dialogueUI: {fileID: 181182607744514890}
 --- !u!1 &1986094586917936906
 GameObject:
   m_ObjectHideFlags: 0
@@ -1125,7 +1170,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5047636060599207466}
   - component: {fileID: 7291835769139017490}
-  - component: {fileID: 6318192370845500984}
   m_Layer: 0
   m_Name: Cutscene Manager
   m_TagString: Untagged
@@ -1147,6 +1191,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1332124068226870962}
+  - {fileID: 5100684977455503503}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7291835769139017490
@@ -1171,20 +1216,6 @@ MonoBehaviour:
   testCutscene: {fileID: 11400000, guid: b83135c00fece6d4580a037b3a398f2f, type: 2}
   playTestButton: 0
   stopButton: 0
-  autoplay: 0
---- !u!114 &6318192370845500984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8502645347767530097}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2de6cbfbdf5d3af40a7ce160b6fb9aff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueManager
-  dialogueUI: {fileID: 181182607744514890}
 --- !u!1 &8746431520650138406
 GameObject:
   m_ObjectHideFlags: 0

@@ -453,8 +453,8 @@ public class ItemAttachment : MonoBehaviour
                 
                 case FacingDirection.East: SetItemAttachmentPoint(shield.transform, leftHandAttachment); break;
                 case FacingDirection.West: SetItemAttachmentPoint(shield.transform, rightHandAttachment); break;
-                case FacingDirection.North: SetItemAttachmentPoint(shield.transform, leftHandAttachment); break;
-                case FacingDirection.South: SetItemAttachmentPoint(shield.transform, rightHandAttachment); break;
+                //case FacingDirection.North: SetItemAttachmentPoint(shield.transform, leftHandAttachment); break;
+                //case FacingDirection.South: SetItemAttachmentPoint(shield.transform, rightHandAttachment); break;
                 
             }
         }
@@ -464,8 +464,8 @@ public class ItemAttachment : MonoBehaviour
             {
                 case FacingDirection.East: SetItemAttachmentPoint(weapon.transform, rightHandAttachment); break;
                 case FacingDirection.West: SetItemAttachmentPoint(weapon.transform, leftHandAttachment); break;
-                case FacingDirection.North: SetItemAttachmentPoint(weapon.transform, rightHandAttachment); break;
-                case FacingDirection.South: SetItemAttachmentPoint(weapon.transform, leftHandAttachment); break;
+                //case FacingDirection.North: SetItemAttachmentPoint(weapon.transform, rightHandAttachment); break;
+                //case FacingDirection.South: SetItemAttachmentPoint(weapon.transform, leftHandAttachment); break;
 
             }
         }

@@ -26,10 +26,9 @@ public class TreeResource : HarvestableResource
         if (fallingObject != null)
         {
             fallingSR = fallingObject.GetComponent<SpriteRenderer>();
-            fallingObject.SetActive(false);
         }
         treeSR = GetComponent<SpriteRenderer>();
-        if (stumpObject != null) stumpObject.SetActive(false);
+        originalPosition = fallingObject.transform.localPosition;
     }
 
     protected override void Deplete()
@@ -40,9 +39,16 @@ public class TreeResource : HarvestableResource
         var anim = GetComponentInParent<Animator>();
         if (anim != null) anim.SetBool("TreeFalling", true);
 
+        SpriteRenderer[] oldShadows = GetComponentsInChildren<SpriteRenderer>();
+        SpriteRenderer myShadow = GetComponent<SpriteRenderer>();
+        foreach (SpriteRenderer shadow in oldShadows)
+        {
+            if (myShadow != null && myShadow == shadow) continue;
+            shadow.gameObject.SetActive(false);
+        }
+
         if (fallingObject != null)
         {
-            fallingObject.SetActive(true);
             if (fallingSR != null)
             {
                 fallingSR.DOKill();
@@ -71,11 +77,30 @@ public class TreeResource : HarvestableResource
             treeSR.DOKill();
             treeSR.color = new Color(treeSR.color.r, treeSR.color.g, treeSR.color.b, 0f);
             treeSR.DOFade(1f, respawnFadeDuration)
-                .OnComplete(() => { if (stumpObject != null) stumpObject.SetActive(false); });
+                .OnComplete(() => { });
         }
-        else
+        SpriteRenderer[] oldShadows = GetComponentsInChildren<SpriteRenderer>();
+        SpriteRenderer myShadow = GetComponent<SpriteRenderer>();
+        foreach (SpriteRenderer shadow in oldShadows)
         {
-            if (stumpObject != null) stumpObject.SetActive(false);
+            if (myShadow != null && myShadow == shadow) continue;
+            shadow.gameObject.SetActive(true);
+        }
+    }
+
+    public override void ShakeObject()
+    {
+        // Handle shake animation
+        if (shakeTimer > 0)
+        {
+            shakeTimer -= Time.deltaTime;
+            float shake = Mathf.Sin(shakeTimer * 50f) * shakeIntensity * (shakeTimer / 0.2f);
+            fallingObject.transform.localPosition = originalPosition + new Vector3(shake, 0, 0);
+
+            if (shakeTimer <= 0)
+            {
+                fallingObject.transform.localPosition = originalPosition;
+            }
         }
     }
 

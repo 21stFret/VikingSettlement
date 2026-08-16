@@ -190,8 +190,8 @@ public class EquipableItem : MonoBehaviour
             {
                 case FacingDirection.East: itemSpriteRenderer.sprite = shieldBack; spriteSorting.offset = rightSortingOffset; break;
                 case FacingDirection.West: itemSpriteRenderer.sprite = shieldFront; spriteSorting.offset =  leftSortingOffset; break;
-                case FacingDirection.North: itemSpriteRenderer.sprite = shieldBack; spriteSorting.offset = rightSortingOffset; break;
-                case FacingDirection.South: itemSpriteRenderer.sprite = shieldFront; spriteSorting.offset = leftSortingOffset; break;
+                //case FacingDirection.North: itemSpriteRenderer.sprite = shieldBack; spriteSorting.offset = rightSortingOffset; break;
+                //case FacingDirection.South: itemSpriteRenderer.sprite = shieldFront; spriteSorting.offset = leftSortingOffset; break;
 
             }
         }
@@ -201,8 +201,8 @@ public class EquipableItem : MonoBehaviour
             {
                 case FacingDirection.East: spriteSorting.offset = leftSortingOffset; break;
                 case FacingDirection.West: spriteSorting.offset = rightSortingOffset; break;
-                case FacingDirection.North: spriteSorting.offset = leftSortingOffset; break;
-                case FacingDirection.South: spriteSorting.offset = rightSortingOffset; break;
+                //case FacingDirection.North: spriteSorting.offset = leftSortingOffset; break;
+                //case FacingDirection.South: spriteSorting.offset = rightSortingOffset; break;
 
             }
         }

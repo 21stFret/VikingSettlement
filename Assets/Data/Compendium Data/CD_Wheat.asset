@@ -15,5 +15,6 @@ MonoBehaviour:
   id: resource_wheat
   category: 0
   displayName: Wheat
-  description: Golden grain harvested from the fields. Ground into flour or stored to feed the settlement through winter.
+  description: Golden grain harvested from the fields. Made into Bread to survive
+    the long winters.
   icon: {fileID: 21300000, guid: eb0252f81e533994cae52e09f286d467, type: 2}

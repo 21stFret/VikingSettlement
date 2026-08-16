@@ -9972,6 +9972,7 @@ GameObject:
   - component: {fileID: 2895941971283957897}
   - component: {fileID: 5885499859672603991}
   - component: {fileID: 6444534556949095902}
+  - component: {fileID: 5052749463561235849}
   m_Layer: 0
   m_Name: Sprite Light 2D
   m_TagString: Untagged
@@ -10086,3 +10087,17 @@ MonoBehaviour:
   shadowCasterLayerMask:
     serializedVersion: 2
     m_Bits: 2047
+--- !u!114 &5052749463561235849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5487801056219183206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a00a661288a51d84a8ed245d22fe0fbc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightCuller
+  activeDistance: 30
+  checkInterval: 0.25

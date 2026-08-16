@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompendiumEntrySO
   id: enemy_dragur_shielded
   category: 3
-  displayName: Shielded Dragur
-  description: An undead warrior bound to its shield, advancing in eerie silence
-    behind a wall of iron-rimmed wood.
+  displayName: Shielded Draugr
+  description: An undead warrior still clinging to its shield, stronger than other
+    Draugr.
   icon: {fileID: 21300000, guid: 5c6817f3b22c30145a81a07c4118e609, type: 3}

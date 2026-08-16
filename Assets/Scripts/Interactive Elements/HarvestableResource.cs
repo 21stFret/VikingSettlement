@@ -48,8 +48,8 @@ public class HarvestableResource : TargetHealth
     public float shakeIntensity = 0.1f;
 
     private SpriteRenderer spriteRenderer;
-    private Vector3 originalPosition;
-    private float shakeTimer = 0f;
+    protected Vector3 originalPosition;
+    protected float shakeTimer = 0f;
     private bool isRespawning = false;
     public UnityEvent OnHit;
     public bool removeOnDeplete = false;
@@ -64,6 +64,18 @@ public class HarvestableResource : TargetHealth
 
     private void Update()
     {
+        ShakeObject();
+
+        // Schedule respawn if enabled
+        if (canRespawn && !isRespawning)
+        {
+            isRespawning = true;
+            Invoke(nameof(Respawn), respawnTime);
+        }
+    }
+
+    public virtual void ShakeObject()
+    {
         // Handle shake animation
         if (shakeTimer > 0)
         {
@@ -75,13 +87,6 @@ public class HarvestableResource : TargetHealth
             {
                 transform.localPosition = originalPosition;
             }
-        }
-
-        // Schedule respawn if enabled
-        if (canRespawn && !isRespawning)
-        {
-            isRespawning = true;
-            Invoke(nameof(Respawn), respawnTime);
         }
     }
 
