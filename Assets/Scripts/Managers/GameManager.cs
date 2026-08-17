@@ -179,13 +179,6 @@ public class GameManager : MonoBehaviour
         yield return null;
         yield return null;
 
-        // Only the designated game scene runs save/spawn logic. Other scenes with a Bootstrap
-        // (e.g. the raid scene) still get GSB.Init() below for their own camera/input/UI wiring,
-        // but must never touch save state or the new-game spawn path — this scene has no
-        // SettlementManager/VillagerSpawner of its own, so "isNewGame" logic in
-        // GameSceneBootstrap was reaching through a stale, destroyed VillagerSpawner.Instance
-        // left over from the settlement scene (a `?.` call doesn't catch Unity's "fake null" on
-        // a destroyed object) and throwing MissingReferenceException on old spawn-point Transforms.
         bool isGameScene = loadedSceneName == gameSceneName;
 
         bool didLoadSave = false;

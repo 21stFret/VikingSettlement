@@ -10099,5 +10099,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a00a661288a51d84a8ed245d22fe0fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightCuller
-  activeDistance: 30
+  activeDistance: 25
   checkInterval: 0.25

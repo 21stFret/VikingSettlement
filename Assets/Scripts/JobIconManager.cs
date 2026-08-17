@@ -84,7 +84,7 @@ public class IconManager : MonoBehaviour
             case ResourceType.Gold: return goldIcon;
             case ResourceType.Weapons: return weaponsIcon;
             case ResourceType.Planks: return planksIcon;
-            case ResourceType.Shield: return shieldIcon;
+            case ResourceType.Shields: return shieldIcon;
             case ResourceType.Honey: return honeyIcon;
             case ResourceType.Meat: return meatIcon;
             case ResourceType.Pelts: return peltIcon;

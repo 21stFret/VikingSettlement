@@ -173,6 +173,10 @@ public class Building : MonoBehaviour
             villager.AssignJob(data.assignedJobType, this);
             OnAnyWorkerAssigned?.Invoke(this);
             worldUI.SetActive(true); // Show UI when a worker is assigned
+            if(equipmentQueue.Count<=0 && data.buildingType == BuildingType.Blacksmith)
+            {
+                worldUI.SetActive(false);
+            }
         }
     }
     
@@ -374,7 +378,6 @@ public class Building : MonoBehaviour
         {
             WeaponDatabase wd = WeaponDatabase.Instance;
             wd.AddItemToVillageArmory(wd.GetItemByName(outputItem.ToString()));
-            wd.villageArmoryManager.SpawnArmory();
         }
         else
         {
@@ -410,7 +413,7 @@ public class Building : MonoBehaviour
 
     private bool isForArmory(ResourceType type)
     {
-        if(type == ResourceType.Weapons || type == ResourceType.Armor || type == ResourceType.Shield)
+        if(type == ResourceType.Weapons || type == ResourceType.Armor || type == ResourceType.Shields)
         {
             return true;
         }
@@ -447,6 +450,7 @@ public class Building : MonoBehaviour
 
         equipmentQueue.Add(itemName);
         OnEquipmentQueueChanged?.Invoke();
+        worldUI.SetActive(true);
         return true;
     }
 
@@ -465,6 +469,7 @@ public class Building : MonoBehaviour
             productionProgress = 0f;
             startedCrafting = false;
             waitingForResources = false;
+            worldUI.SetActive(false);
         }
 
         equipmentQueue.RemoveAt(queueIndex);
@@ -534,7 +539,6 @@ public class Building : MonoBehaviour
         if (template != null)
         {
             wd.AddItemToVillageArmory(template);
-            wd.villageArmoryManager.SpawnArmory();
         }
         else
         {
@@ -542,14 +546,15 @@ public class Building : MonoBehaviour
         }
 
         equipmentQueue.RemoveAt(0);
-        productionProgress -= 100f;
+        productionProgress = 0;
         startedCrafting = false;
+        liveProgressBar.fillAmount = productionProgress / 100;
 
         foreach (var worker in assignedWorkers)
         {
             worker.skills.ImproveJob(data.assignedJobType);
         }
-
+        worldUI.SetActive(false);
         Debug.Log($"{data.buildingName} crafted {recipe.itemName}");
         OnEquipmentQueueChanged?.Invoke();
     }

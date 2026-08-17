@@ -4851,8 +4851,8 @@ GameObject:
   - component: {fileID: 8714854136500575988}
   - component: {fileID: 6420023729991170696}
   - component: {fileID: 2358871900926741987}
-  - component: {fileID: 5643680494879672925}
-  m_Layer: 9
+  - component: {fileID: 5305073661254075876}
+  m_Layer: 0
   m_Name: BeeHive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5077,7 +5077,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.90446234, y: 0.98662853}
   m_EdgeRadius: 0
---- !u!114 &5643680494879672925
+--- !u!114 &5305073661254075876
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5086,18 +5086,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 7300092175822469697}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 920923ac3a86c2a4985a48a7a99f32b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 65f94ac4dd4fb6b4ab751effdce9304b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HarvestableResource
+  m_EditorClassIdentifier: Assembly-CSharp::HiveResource
   maxHealth: 1
   currentHealth: 0
   resourceType: 6
-  baseYield: 1
+  baseYield: 2
   preferredTool: 0
   preferredToolMultiplier: 2
   wrongToolMultiplier: 1
-  canRespawn: 1
-  respawnTime: 60
+  canRespawn: 0
+  respawnTime: 120
   xpPerHarvest: 5
   harvestEffect: {fileID: 0}
   shakeOnHit: 1
@@ -5106,3 +5106,4 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   removeOnDeplete: 0
+  beeEmitter: {fileID: 4060750634970403037}

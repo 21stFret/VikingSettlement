@@ -624,8 +624,6 @@ public class RaidManager : MonoBehaviour
                 if (template != null)
                     WeaponDatabase.Instance.AddItemToVillageArmory(template);
             }
-            if (report.craftedEquipment.Count > 0 && WeaponDatabase.Instance.villageArmoryManager != null)
-                WeaponDatabase.Instance.villageArmoryManager.SpawnArmory();
         }
 
         if (SettlementManager.Instance != null)

@@ -218,7 +218,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 0.7
+  m_PixelsPerUnitMultiplier: 1.4
 --- !u!114 &4658621710176419068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,6 +284,7 @@ MonoBehaviour:
   availableColor: {r: 0.2, g: 0.3, b: 0.2, a: 1}
   inPartyColor: {r: 0.3, g: 0.2, b: 0.1, a: 1}
   unavailableColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.5}
+  partyUI: {fileID: 0}
 --- !u!1 &2140250486893524899
 GameObject:
   m_ObjectHideFlags: 0

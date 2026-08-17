@@ -75,7 +75,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 0.7
+  m_PixelsPerUnitMultiplier: 1.4
 --- !u!114 &8763573134918096060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,7 +154,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -177.4}
+  m_AnchoredPosition: {x: 0, y: -145.79997}
   m_SizeDelta: {x: 100, y: 31.315}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2584085567253784861
@@ -451,7 +451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   RaidNameText: {fileID: 1948110633541683968}
   RaidDifficultyText: {fileID: 4660575152847208799}
-  RaidDilationText: {fileID: 9157002927684701798}
+  RaidTravelText: {fileID: 9157002927684701798}
   RaidTimeLimitText: {fileID: 1345703771194455511}
   RaidRewardText: {fileID: 1101426633867064999}
   m_SelectButton: {fileID: 8763573134918096060}
@@ -489,7 +489,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -243.6}
+  m_AnchoredPosition: {x: 0, y: -212}
   m_SizeDelta: {x: 100, y: 96.9599}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4325816800267692468
@@ -823,7 +823,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &400999538671921930
 RectTransform:
   m_ObjectHideFlags: 0

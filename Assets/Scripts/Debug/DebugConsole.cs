@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static EquipableItem;
 
 /// <summary>
 /// Quick in-game cheat console. Press Tab to open, type a command, press Enter.
@@ -113,7 +114,7 @@ public class DebugConsole : MonoBehaviour
         {
             case "help":
                 AppendLog("Resources: " + string.Join(", ", Enum.GetNames(typeof(ResourceType))));
-                AppendLog("Usage: <resource> <amount>  e.g. wood 50");
+                AppendLog("Usage: <resource|weapon> <amount>  e.g. wood 50");
                 return;
 
             case "list":
@@ -121,16 +122,10 @@ public class DebugConsole : MonoBehaviour
                 return;
         }
 
-        // <resource> <amount>
+        // <resource|weapon> <amount>
         if (parts.Length != 2)
         {
             AppendLog("Unknown command. Type 'help' for usage.");
-            return;
-        }
-
-        if (!Enum.TryParse(parts[0], true, out ResourceType type) || type == ResourceType.None)
-        {
-            AppendLog($"Unknown resource '{parts[0]}'. Type 'help' for the list.");
             return;
         }
 
@@ -140,14 +135,38 @@ public class DebugConsole : MonoBehaviour
             return;
         }
 
-        if (ResourceManager.Instance == null)
+        // Try resource first
+        if (Enum.TryParse(parts[0], true, out ResourceType type) && type != ResourceType.None)
         {
-            AppendLog("No ResourceManager in this scene.");
+            if (ResourceManager.Instance == null)
+            {
+                AppendLog("No ResourceManager in this scene.");
+                return;
+            }
+
+            ResourceManager.Instance.AddResource(type, amount);
+            AppendLog($"+{amount} {type}");
             return;
         }
 
-        ResourceManager.Instance.AddResource(type, amount);
-        AppendLog($"+{amount} {type}");
+        // Fall back to weapon lookup by name
+        string itemName = parts[0];
+
+        if (WeaponDatabase.Instance == null)
+        {
+            AppendLog("No Weapon DB in this scene.");
+            return;
+        }
+
+        var item = WeaponDatabase.Instance.GetItemByName(itemName);
+        if (item == null)
+        {
+            AppendLog($"Unknown resource or weapon '{parts[0]}'. Type 'help' for the list.");
+            return;
+        }
+
+        WeaponDatabase.Instance.AddItemsToVillageArmory(item, amount);
+        AppendLog($"+{amount} {itemName}");
     }
 
     private void PrintResourceList()

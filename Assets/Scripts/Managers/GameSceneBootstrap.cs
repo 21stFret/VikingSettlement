@@ -55,7 +55,6 @@ public class GameSceneBootstrap : MonoBehaviour
         WeatherManager.Instance?.Initialize();
 
         // Layer 3: needs DayNightManager
-        FindAnyObjectByType<BeehiveManager>()?.Initialize();
 
         // Layer 3: spawn villagers for a new game only (save-loaded villagers are already
         // instantiated and registered by SettlementManager.LoadSaveData before Bootstrap runs).

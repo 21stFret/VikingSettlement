@@ -226,7 +226,6 @@ public class ItemAttachment : MonoBehaviour
         }
 
         WD.AddItemToVillageArmory(item);
-        WD.villageArmoryManager.SpawnArmory();
 
         CharacterBase CC = GetComponent<CharacterBase>();
         if (CC != null)

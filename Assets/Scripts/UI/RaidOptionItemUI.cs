@@ -30,7 +30,7 @@ public class RaidOptionItemUI : MonoBehaviour
         RaidNameText.text = raidName;
         RaidDifficultyText.text = difficulty;
         RaidTravelText.text = travelInfo;
-        RaidTimeLimitText.text = timeLimit;
+        //RaidTimeLimitText.text = timeLimit;
         RaidRewardText.text = reward;
         raidIndex = index;
 

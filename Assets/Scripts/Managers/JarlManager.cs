@@ -110,6 +110,13 @@ public class JarlManager : MonoBehaviour, ISaveable
             CameraController.Instance.SetPlayerTarget(villager.transform);
         }
 
+        WorldInteractionZone interactionZone = GetComponentInChildren<WorldInteractionZone>();
+        if (interactionZone != null) 
+        {
+            interactionZone.gameObject.SetActive(true);
+        }
+
+
         Debug.Log($"{villager.villagerName} is now the Jarl!");
 
         AttackCooldownUI.Instance?.Init(); // Ensure UI is initialized for new Jarl

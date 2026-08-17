@@ -660,27 +660,7 @@ public class BuildingInfoPanel : MonoBehaviour
     }
 
     private void UpdateCraftingDisplay()
-    {
-        if (currentBuilding.HasEquipmentQueue)
-        {
-            // Player-chosen queue (e.g. Blacksmith) - the menu/queue lists themselves are handled by
-            // RefreshCraftingQueueSection; this just summarizes what's currently crafting.
-            var queue = currentBuilding.GetQueuedEquipment();
-            productionInfoText.text = queue.Count > 0
-                ? $"Crafting: {queue[0]}" + (queue.Count > 1 ? $" (+{queue.Count - 1} queued)" : "")
-                : "Choose an item to craft below";
-
-            if (productionAmountText != null)
-                productionAmountText.text = "";
-
-            if (resourceGeneratedIcon != null)
-            {
-                EquipableItem template = queue.Count > 0 && WeaponDatabase.Instance != null
-                    ? WeaponDatabase.Instance.GetItemByName(queue[0])
-                    : null;
-                resourceGeneratedIcon.sprite = template != null && template.itemSpriteRenderer != null ? template.itemSpriteRenderer.sprite : null;
-            }
-        }
+    { 
         // Progress bar
         if (craftingProgressBar != null)
         {
@@ -704,14 +684,15 @@ public class BuildingInfoPanel : MonoBehaviour
             {
                 craftingTimeText.text = "No workers";
             }
-            else if (float.IsInfinity(timeToComplete))
-            {
-                craftingTimeText.text = "Calculating...";
-            }
             else
             {
                 craftingTimeText.text = $"Time: {FormatTime(timeToComplete)}";
             }
+        }
+
+        if(craftingProgressBar.fillAmount ==0)
+        {
+            RefreshCraftingQueueSection();
         }
     }
     

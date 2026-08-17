@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
+using Unity.ProjectAuditor.Editor;
+using UnityEngine;
 
 public class WeaponDatabase : MonoBehaviour, ISaveable
 {
@@ -187,7 +188,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         for (int i = 0; i < startingWeaponsAmount; i++)
         {
             //var item = GetRandomWeapon();
-            var item = GetWeaponByName("Iron Sword");
+            var item = GetWeaponByName("Iron_Sword");
             if (item != null) { AddItemToVillageArmory(item); item.SetDurability(Random.Range(6, 8));}
         }
 
@@ -195,11 +196,6 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         {
             var item = GetRandomShield(i);
             if (item != null) { AddItemToVillageArmory(item); }
-        }
-
-        if(villageArmoryManager != null)
-        {
-            villageArmoryManager.SpawnArmory();
         }
     }
 
@@ -211,11 +207,21 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         print($"Added {newItem.itemName} to the village armory.");
         if(item.IsShield)
         {
-           ResourceManager.Instance.AddResource(ResourceType.Shield, 1f);
+           ResourceManager.Instance.AddResource(ResourceType.Shields, 1f);
         }
         if (item.IsWeapon)
         {
             ResourceManager.Instance.AddResource(ResourceType.Weapons, 1f);
+        }
+        if (villageArmoryManager != null)
+            villageArmoryManager.SpawnArmory();
+    }
+
+    public void AddItemsToVillageArmory(EquipableItem item, float amount)
+    {
+        for(int i = 0; i < amount; i++)
+        {
+            AddItemToVillageArmory(item);
         }
     }
 

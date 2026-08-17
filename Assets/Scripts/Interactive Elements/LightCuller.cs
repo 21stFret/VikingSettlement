@@ -38,6 +38,7 @@ public class LightCuller : MonoBehaviour
     private void Update()
     {
         if (Time.time < nextCheckTime) return;
+        sqrActiveDistance = activeDistance * activeDistance;
         nextCheckTime = Time.time + checkInterval;
 
         if (cameraTransform == null)
@@ -47,7 +48,7 @@ public class LightCuller : MonoBehaviour
             cameraTransform = cam.transform;
         }
 
-        float sqrDistance = (transform.position - cameraTransform.position).sqrMagnitude;
+        float sqrDistance = ((Vector2)transform.position - (Vector2)cameraTransform.position).sqrMagnitude;
         bool shouldBeActive = sqrDistance <= sqrActiveDistance;
         if (light2D.enabled != shouldBeActive)
         {

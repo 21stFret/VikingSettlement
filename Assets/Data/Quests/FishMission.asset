@@ -33,5 +33,13 @@ MonoBehaviour:
     resourceType: 2
     amount: 10
     itemReward: {fileID: 0}
+  - rewardType: 2
+    resourceType: 2
+    amount: 10
+    itemReward: {fileID: 8754541858049918560, guid: 07944d25be7f9b541aa938d6e5f8cce2, type: 3}
+  - rewardType: 2
+    resourceType: 2
+    amount: 10
+    itemReward: {fileID: 8754541858049918560, guid: b427ddc44987285429d86f857e43f0d3, type: 3}
   startDialogue: {fileID: 11400000, guid: 4e08b01f54d32464a9966bb55a6a12ce, type: 2}
   completionDialogue: {fileID: 11400000, guid: 96ee1cc2a73349143b43cb0cee4e37d9, type: 2}

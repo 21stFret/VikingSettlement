@@ -677,7 +677,7 @@ public static class SettlementSimulator
             ResourceType.Tools,
             ResourceType.Weapons,
             ResourceType.Leather,
-            ResourceType.Shield
+            ResourceType.Shields
         };
 
         return tradeResources[Random.Range(0, tradeResources.Length)];

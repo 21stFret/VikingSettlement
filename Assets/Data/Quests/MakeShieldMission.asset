@@ -21,6 +21,10 @@ MonoBehaviour:
     resourceType: 10
     targetBuildingType: 3
     targetAmount: 1
-  rewards: []
+  rewards:
+  - rewardType: 2
+    resourceType: 2
+    amount: 10
+    itemReward: {fileID: 1866138473353848901, guid: 2ff7f22574361e7478e29166dc91e1fd, type: 3}
   startDialogue: {fileID: 11400000, guid: 9cd2dc01f8d9e5143a88058646eb9720, type: 2}
   completionDialogue: {fileID: 11400000, guid: 00609cb729e386e4b81f556d9d1bb4c2, type: 2}

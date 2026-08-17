@@ -326,6 +326,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: fd26566d75f806e4189339b5f6fd5cdc, type: 2}
+    - target: {fileID: 3479786163068312888, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
+      propertyPath: m_FillAmount
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3543989196774581828, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_Layer
       value: 11
@@ -404,7 +408,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5801767262920139994, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.y
-      value: 0.0000076293945
+      value: -0.0000076293945
       objectReference: {fileID: 0}
     - target: {fileID: 5801767262920139994, guid: f727ea6486a09904eb3b068c1940798c, type: 3}
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Extent.x

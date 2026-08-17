@@ -9,6 +9,7 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
     public List<RaidOptionItemUI> raidOptionItems;
     public GameObject raidUIPanel;
     public TMP_Text raidAmountText;
+    public TMP_Text raidBriefText;
     public Button closeButton;
 
     [Header("Party Selection")]
@@ -40,6 +41,7 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
         GameTickManager.Instance?.PushUIPause();
         PopulateRaidOptions();
         raidAmountText.text = "Available Raids: " + raidManager.GetAvailableRaids().Count.ToString();
+        raidBriefText.text = "";
     }
 
     private void PopulateRaidOptions()
@@ -97,6 +99,7 @@ public class RaidUI : MonoBehaviour, IRaidOptionSelector
 
         selectedRaidIndex = raidIndex;
         RaidDestinationData selectedRaid = availableRaids[raidIndex];
+        raidBriefText.text = selectedRaid.description;
 
         Debug.Log($"Selected raid: {selectedRaid.destinationName}");
 
