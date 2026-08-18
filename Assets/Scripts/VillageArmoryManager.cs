@@ -10,9 +10,9 @@ public class VillageArmoryManager : MonoBehaviour
     {
         currentCount = 0;
         //print($"{WeaponDatabase.Instance.villageArmory.Count} items in armory");
-        foreach(EquipableItem item in WeaponDatabase.Instance.villageArmory)
+        foreach (ArmoryItemRecord record in WeaponDatabase.Instance.villageArmory)
         {
-            GameObject existing = spawnedItems.Find(i => i != null && i.GetComponent<EquipableItem>().itemID == item.itemID);
+            GameObject existing = spawnedItems.Find(i => i != null && i.GetComponent<EquipableItem>().itemID == record.itemID);
             if(existing != null)
             {
                 existing.transform.position = transform.position + new Vector3(currentCount * 1.0f, 0, 0);
@@ -20,11 +20,23 @@ public class VillageArmoryManager : MonoBehaviour
                 continue;
             }
 
-            // Instantiate the item in the scene. The armory's data-record clone (item.gameObject)
-            // is kept inactive, so the spawned prop must be explicitly reactivated.
-            GameObject itemInstance = Instantiate(item.gameObject);
+            EquipableItem template = WeaponDatabase.Instance.GetItemByName(record.itemName);
+            if (template == null)
+            {
+                Debug.LogWarning($"VillageArmoryManager: no template found for armory item '{record.itemName}' (id {record.itemID}).");
+                continue;
+            }
+
+            // Instantiate the physical prop from the template, parented here so it shows up
+            // under the armory in the hierarchy. The template asset itself is kept inactive, so
+            // the spawned prop must be explicitly reactivated. Init(fromLoad: true) skips the
+            // auto-generated itemID/full-durability reset so our explicit values below stick.
+            GameObject itemInstance = Instantiate(template.gameObject, transform);
             itemInstance.SetActive(true);
-            itemInstance.GetComponent<EquipableItem>().Init(true);
+            EquipableItem itemComponent = itemInstance.GetComponent<EquipableItem>();
+            itemComponent.Init(true);
+            itemComponent.itemID = record.itemID;
+            itemComponent.SetDurability(record.durability);
             itemInstance.transform.position = transform.position + new Vector3(currentCount * 1.0f, 0, 0);
             currentCount++;
             spawnedItems.Add(itemInstance);

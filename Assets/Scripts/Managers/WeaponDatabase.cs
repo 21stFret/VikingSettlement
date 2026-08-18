@@ -16,7 +16,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     [SerializeField] private EquipableItem[] availableTorches;
 
     [Header("Village Armory")]
-    [SerializeField] public List<EquipableItem> villageArmory;
+    public List<ArmoryItemRecord> villageArmory = new List<ArmoryItemRecord>();
 
     public VillageArmoryManager villageArmoryManager;
 
@@ -168,19 +168,21 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     #region Village Armory Management
 
     /// <summary>
-    /// Village armory entries must be independent instances, never the shared references
-    /// stored in availableWeapons/availableShields/availableTorches — otherwise two armory
-    /// items of the same type would alias the same object and stomp each other's
-    /// itemID/durability. Clones are kept inactive and parented here since they're pure data
-    /// records; VillageArmoryManager instantiates the actual visible floor props separately.
+    /// Village armory entries must be independent records, never the shared references stored
+    /// in availableWeapons/availableShields/availableTorches — otherwise two armory items of
+    /// the same type would alias the same template and stomp each other's itemID/durability.
+    /// This only builds the data record; VillageArmoryManager instantiates the actual visible
+    /// floor prop from the template separately (see SpawnArmory).
     /// </summary>
-    private EquipableItem CloneItem(EquipableItem template, bool fromLoad = false)
+    private ArmoryItemRecord CreateArmoryRecord(EquipableItem template)
     {
-        GameObject clone = Instantiate(template.gameObject, transform);
-        clone.SetActive(false);
-        EquipableItem item = clone.GetComponent<EquipableItem>();
-        item.Init(fromLoad);
-        return item;
+        return new ArmoryItemRecord
+        {
+            itemID = System.Guid.NewGuid().ToString(),
+            itemName = template.itemName,
+            itemType = template.itemType,
+            durability = template.maxDurability
+        };
     }
 
     public void GenerateInitalArmory()
@@ -189,7 +191,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         {
             //var item = GetRandomWeapon();
             var item = GetWeaponByName("Iron_Sword");
-            if (item != null) { AddItemToVillageArmory(item); item.SetDurability(Random.Range(6, 8));}
+            if (item != null) { AddItemToVillageArmory(item, Random.Range(6, 8)); }
         }
 
         for (int i = 0; i < startingShieldsAmount; i++)
@@ -199,10 +201,18 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         }
     }
 
-    public void AddItemToVillageArmory(EquipableItem item)
+    /// <summary>
+    /// Adds a new item to the armory. Pass durabilityOverride to seed a starting durability
+    /// other than the template's max (e.g. a worn starting weapon) — it must be applied before
+    /// SpawnArmory() runs below, since SpawnArmory only sets durability on props it's creating
+    /// for the first time and won't revisit this record once it's already spawned.
+    /// </summary>
+    public ArmoryItemRecord AddItemToVillageArmory(EquipableItem item, float? durabilityOverride = null)
     {
-        if (item == null) return;
-        EquipableItem newItem = CloneItem(item);
+        if (item == null) return null;
+        ArmoryItemRecord newItem = CreateArmoryRecord(item);
+        if (durabilityOverride.HasValue)
+            newItem.durability = durabilityOverride.Value;
         villageArmory.Add(newItem);
         print($"Added {newItem.itemName} to the village armory.");
         if(item.IsShield)
@@ -215,6 +225,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         }
         if (villageArmoryManager != null)
             villageArmoryManager.SpawnArmory();
+        return newItem;
     }
 
     public void AddItemsToVillageArmory(EquipableItem item, float amount)
@@ -246,7 +257,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         }
     }
 
-    public EquipableItem GetItemFromVillageArmory(string itemName)
+    public ArmoryItemRecord GetItemFromVillageArmory(string itemName)
     {
         if (string.IsNullOrEmpty(itemName)) return null;
         foreach (var item in villageArmory)
@@ -259,7 +270,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetFirstShieldFromVillageArmory()
+    public ArmoryItemRecord GetFirstShieldFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {
@@ -271,7 +282,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetFirstWeaponFromVillageArmory()
+    public ArmoryItemRecord GetFirstWeaponFromVillageArmory()
     {
         foreach (var item in villageArmory)
         {
@@ -283,7 +294,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         return null;
     }
 
-    public EquipableItem GetItemByID(string itemID)
+    public ArmoryItemRecord GetItemByID(string itemID)
     {
         if (string.IsNullOrEmpty(itemID)) return null;
         foreach (var item in villageArmory)
@@ -312,7 +323,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         {
             var item = villageArmory[i];
             armorySave.itemNames[i] = item.itemName;
-            armorySave.itemDurabilites[i] = item.CurrentDurability;
+            armorySave.itemDurabilites[i] = item.durability;
             armorySave.itemIDs[i] = item.itemID;
         }
 
@@ -356,13 +367,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
 
         var armorySave = data.armory[0];
 
-        // villageArmory entries are owned clones (see CloneItem) — destroy the previous
-        // batch rather than just dropping the list references, or they'd leak as inactive
-        // orphans under WeaponDatabase's transform.
-        foreach (var old in villageArmory)
-        {
-            if (old != null) Destroy(old.gameObject);
-        }
+        // villageArmory entries are plain records (see ArmoryItemRecord) — just replace the list.
         villageArmory.Clear();
 
         if (armorySave.itemNames != null)
@@ -373,10 +378,13 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
                 var template = GetItemByName(itemName);
                 if (template != null)
                 {
-                    EquipableItem item = CloneItem(template, fromLoad: true);
-                    item.SetDurability(armorySave.itemDurabilites[i]);
-                    item.itemID = armorySave.itemIDs[i];
-                    villageArmory.Add(item);
+                    villageArmory.Add(new ArmoryItemRecord
+                    {
+                        itemID = armorySave.itemIDs[i],
+                        itemName = template.itemName,
+                        itemType = template.itemType,
+                        durability = armorySave.itemDurabilites[i]
+                    });
                 }
             }
             print($"Loaded {villageArmory.Count} items to the armory");

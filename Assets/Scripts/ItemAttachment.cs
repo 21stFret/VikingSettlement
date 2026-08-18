@@ -319,7 +319,7 @@ public class ItemAttachment : MonoBehaviour
 
     public void TakeWeaponFromArmory()
     {
-        EquipableItem armoryWeapon = WD.GetFirstWeaponFromVillageArmory();
+        ArmoryItemRecord armoryWeapon = WD.GetFirstWeaponFromVillageArmory();
         if (armoryWeapon != null)
         {
             string armoryItemID = armoryWeapon.itemID;
@@ -355,7 +355,7 @@ public class ItemAttachment : MonoBehaviour
 
     public void TakeShieldFromArmory()
     {
-        EquipableItem armoryShield = WD.GetFirstShieldFromVillageArmory();
+        ArmoryItemRecord armoryShield = WD.GetFirstShieldFromVillageArmory();
         if (armoryShield != null)
         {
             string armoryItemID = armoryShield.itemID;
