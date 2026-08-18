@@ -6,6 +6,7 @@ using UnityEngine;
 /// Singleton that tracks active missions, checks objective completion each tick,
 /// and grants rewards when missions are done.
 /// </summary>
+[DefaultExecutionOrder(-1000)]
 public class MissionManager : MonoBehaviour, ISaveable
 {
     public static MissionManager Instance { get; private set; }
@@ -37,10 +38,12 @@ public class MissionManager : MonoBehaviour, ISaveable
 
     public void Initialize()
     {
+        /*
         if (GameTickManager.Instance != null)
             GameTickManager.Instance.OnGameTick += OnTick;
         else
             Debug.LogWarning("MissionManager: GameTickManager not found during Initialize!");
+                */ 
 
         if (RaidManager.Instance != null)
             RaidManager.Instance.OnRaidEnded += OnRaidEnded;
@@ -52,14 +55,21 @@ public class MissionManager : MonoBehaviour, ISaveable
 
         Building.OnAnyBuildingRepaired += OnBuildingRepaired;
         Building.OnAnyWorkerAssigned  += OnWorkerAssigned;
+
+        if(ResourceManager.Instance != null)
+        {
+            ResourceManager.OnResourceAdded += OnResourcesAdded;
+        }
     }
 
     private void OnDestroy()
     {
+        /*
         if (GameTickManager.Instance != null)
         {
             GameTickManager.Instance.OnGameTick -= OnTick;
         }
+        */
         if (RaidManager.Instance != null)
         {
             RaidManager.Instance.OnRaidEnded -= OnRaidEnded;
@@ -145,7 +155,7 @@ public class MissionManager : MonoBehaviour, ISaveable
         return mission != null && mission.status == MissionStatus.Active && mission.AreAllObjectivesComplete();
     }
 
-    private void OnTick(float deltaTime)
+    private void OnResourcesAdded(ResourceType type, float value)
     {
         for (int i = activeMissions.Count - 1; i >= 0; i--)
         {
@@ -324,13 +334,7 @@ public class MissionManager : MonoBehaviour, ISaveable
                 case MissionRewardType.Shield:
                     if (reward.itemReward != null)
                     {
-                        // Instantiate the weapon/shield near the player
-                        if (JarlManager.Instance != null && JarlManager.Instance.CurrentJarl != null)
-                        {
-                            Vector3 spawnPos = JarlManager.Instance.CurrentJarl.transform.position + Vector3.right;
-                            Instantiate(reward.itemReward.gameObject, spawnPos, Quaternion.identity);
-                            Debug.Log($"Reward: {reward.itemReward.itemName} spawned near Jarl");
-                        }
+                        WeaponDatabase.Instance.AddItemsToVillageArmory(reward.itemReward, reward.amount);
                     }
                     break;
             }
