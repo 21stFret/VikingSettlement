@@ -123,9 +123,8 @@ public class DynamicShadow2D : MonoBehaviour
         shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
 
         var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
-        sunShadowMaterial = new Material(stencilShader != null ? stencilShader : Shader.Find("Sprites/Default"));
-        if (spriteRenderer.sprite != null)
-            sunShadowMaterial.mainTexture = spriteRenderer.sprite.texture;
+        Shader shader = stencilShader != null ? stencilShader : Shader.Find("Sprites/Default");
+        sunShadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
         shadowRenderer.sharedMaterial = sunShadowMaterial;
     }
 
@@ -289,10 +288,15 @@ public class DynamicShadow2D : MonoBehaviour
         {
             shadowRend.sprite = spriteRenderer.sprite;
 
-            // Custom shader doesn't auto-follow the sprite's texture like a built-in
-            // sprite shader would, so the main sun shadow's material needs an explicit sync.
-            if (sunShadowMaterial != null && shadowRend == shadowRenderer && spriteRenderer.sprite != null)
-                sunShadowMaterial.mainTexture = spriteRenderer.sprite.texture;
+            // Custom shader doesn't auto-follow the sprite's texture like a built-in sprite
+            // shader would, so the main sun shadow needs to be repointed at the shared material
+            // for the new texture (sunShadowMaterial is cached/shared — never mutate it in place).
+            if (shadowRend == shadowRenderer && spriteRenderer.sprite != null)
+            {
+                Shader shader = sunShadowMaterial != null ? sunShadowMaterial.shader : Shader.Find("Custom/Shadow2DStencilOnce");
+                sunShadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite.texture);
+                shadowRenderer.sharedMaterial = sunShadowMaterial;
+            }
         }
 
         shadowObj.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
@@ -335,13 +339,8 @@ public class DynamicShadow2D : MonoBehaviour
             }
         }
 
-        if (sunShadowMaterial != null)
-        {
-            if (Application.isPlaying)
-                Destroy(sunShadowMaterial);
-            else
-                DestroyImmediate(sunShadowMaterial);
-        }
+        // sunShadowMaterial comes from ShadowMaterialCache and is shared with other shadow
+        // casters using the same texture — do not destroy it here.
 
         foreach (var shadow in autoShadowObjects)
         {

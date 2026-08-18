@@ -93,6 +93,12 @@ public class ShadowMaster : MonoBehaviour
 
     void Update()
     {
+        // [ExecuteInEditMode] means this otherwise ticks every frame in the Scene view even
+        // outside Play mode. Skip there — OnValidate's delayed one-shot refresh already keeps
+        // the edit-time preview in sync when you tweak values in the inspector.
+        if (!Application.isPlaying)
+            return;
+
         if (autoUpdate)
         {
             CalculateShadowProperties();

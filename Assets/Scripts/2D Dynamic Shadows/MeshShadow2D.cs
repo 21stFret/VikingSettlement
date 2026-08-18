@@ -142,7 +142,8 @@ public class MeshShadow2D : MonoBehaviour
         shadowMeshFilter.mesh = shadowMesh;
 
         var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
-        shadowMaterial = new Material(stencilShader != null ? stencilShader : Shader.Find("Sprites/Default"));
+        Shader shader = stencilShader != null ? stencilShader : Shader.Find("Sprites/Default");
+        shadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
         shadowMeshRenderer.sharedMaterial = shadowMaterial;
         shadowMeshRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         shadowMeshRenderer.sortingOrder   = spriteRenderer.sortingOrder - 1;
@@ -196,8 +197,8 @@ public class MeshShadow2D : MonoBehaviour
         m.uv = shadowMesh != null ? shadowMesh.uv : new Vector2[4];
         mf.mesh = m;
 
-        var mat = new Material(Shader.Find("Sprites/Default"));
-        if (shadowMaterial != null) mat.mainTexture = shadowMaterial.mainTexture;
+        Texture tex = shadowMaterial != null ? shadowMaterial.mainTexture : null;
+        var mat = ShadowMaterialCache.Get(Shader.Find("Sprites/Default"), tex);
         mr.sharedMaterial = mat;
         mr.sortingLayerID = spriteRenderer.sortingLayerID;
         mr.sortingOrder   = spriteRenderer.sortingOrder - 2 - index;
@@ -229,11 +230,24 @@ public class MeshShadow2D : MonoBehaviour
         };
 
         shadowMesh.uv = uvs;
-        shadowMaterial.mainTexture = s.texture;
+
+        // shadowMaterial/autoMaterials are shared (ShadowMaterialCache) with other shadow
+        // casters using the same texture — re-fetch the cache entry for the new texture and
+        // repoint the renderers, rather than mutating the shared material in place.
+        shadowMaterial = ShadowMaterialCache.Get(shadowMaterial.shader, s.texture);
+        shadowMeshRenderer.sharedMaterial = shadowMaterial;
 
         // Sync UVs and texture to all auto light shadow meshes
-        foreach (var m   in autoMeshes)    m.uv = uvs;
-        foreach (var mat in autoMaterials) mat.mainTexture = s.texture;
+        foreach (var m in autoMeshes) m.uv = uvs;
+        for (int i = 0; i < autoMaterials.Count; i++)
+        {
+            autoMaterials[i] = ShadowMaterialCache.Get(autoMaterials[i].shader, s.texture);
+            if (i < autoShadowObjects.Count && autoShadowObjects[i] != null)
+            {
+                var mr = autoShadowObjects[i].GetComponent<MeshRenderer>();
+                if (mr != null) mr.sharedMaterial = autoMaterials[i];
+            }
+        }
 
         // Tight visual bounds from sprite.vertices
         Vector2[] sv = s.vertices;
@@ -254,6 +268,11 @@ public class MeshShadow2D : MonoBehaviour
 
     void LateUpdate()
     {
+        // [ExecuteInEditMode] means this otherwise ticks every frame in the Scene view even
+        // outside Play mode; nothing here needs to animate while the editor is idle.
+        if (!Application.isPlaying)
+            return;
+
         var master = ShadowMaster.Instance;
         if (master == null)
             return;
