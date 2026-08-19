@@ -24,11 +24,19 @@ public class ShipRaidClickable : WorldInteractable
     }
     public void CloseRaidUI()
     {
-        if (raidUIPanel != null)
+        if (raidUIPanel == null) return;
+
+        // Reachable both from the Leave/Continue buttons (popup already hidden by
+        // ToggleLeavePopup) and from ClosePanel/walking away while the popup is still up —
+        // in the latter case make sure the popup and its pause state get torn down too.
+        if (raidUIPanel.shipLeavePopup != null && raidUIPanel.shipLeavePopup.activeSelf)
         {
-            PlayerController.Instance?.SetInputEnabled(true);
-            base.Deselect();
+            raidUIPanel.ToggleLeavePopup(false);
+            return;
         }
+
+        PlayerController.Instance?.SetInputEnabled(true);
+        base.Deselect();
     }
 
     public override void FocusPanel()

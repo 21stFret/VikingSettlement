@@ -298,11 +298,7 @@ public class RaidSceneController : MonoBehaviour
 
     public void LeaveRaid()
     {
-        float raidSuccess = 0;
-        if (enemiesRemaining == 0) raidSuccess = 1;
-        else raidSuccess = 1 - (startingEnemyCount / enemiesRemaining);
-
-        if (raidSuccess == 1)
+        if (enemiesRemaining <= 0)
         {
             Victory();
         }
@@ -310,6 +306,16 @@ public class RaidSceneController : MonoBehaviour
         {
             ForceRetreat();
         }
+    }
+
+    /// <summary>
+    /// Fraction of the starting enemy count that has been cleared, used to scale destination
+    /// loot on both Victory and ForceRetreat. 1 = full clear, 0 = nothing killed yet.
+    /// </summary>
+    private float GetClearPercentage()
+    {
+        if (startingEnemyCount <= 0) return 1f;
+        return 1f - (float)enemiesRemaining / startingEnemyCount;
     }
 
     /// <summary>
@@ -321,7 +327,7 @@ public class RaidSceneController : MonoBehaviour
         raidActive = false;
         GameManager.Instance.IsGameActive = false;
 
-        RollDestinationLoot(1 - startingEnemyCount / enemiesRemaining);
+        RollDestinationLoot(GetClearPercentage());
 
         Debug.Log($"VICTORY! Collected {collectedLoot.Count} loot items. Casualties: {casualties.Count}");
 
@@ -364,7 +370,7 @@ public class RaidSceneController : MonoBehaviour
         if (!raidActive) return;
         raidActive = false;
 
-        RollDestinationLoot(1 - startingEnemyCount / enemiesRemaining);
+        RollDestinationLoot(GetClearPercentage());
 
         Debug.Log($"RETREAT! Collected {collectedLoot.Count} loot. Casualties: {casualties.Count}");
         CleanupLegRemnants();
