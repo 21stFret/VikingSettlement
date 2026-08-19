@@ -10,6 +10,7 @@ public class VillagerIdleState : AIStateBase
         _timer = 0f;
         _nextTime = Random.Range(ai.IdleTimeMin, ai.IdleTimeMax);
         ai.Controller?.Stop();
+        ai.Controller.FacingOverride = Vector2.zero;
     }
 
     public override void OnUpdate(CharacterAI ai)

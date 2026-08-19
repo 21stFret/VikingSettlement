@@ -20,6 +20,8 @@ public class RaidSceneController : MonoBehaviour
 
     [Header("Raid Templates")]
     public GameObject fishingVillagePrefab;
+    public GameObject fishingSpawnParent;
+
 
     [Header("Raid State")]
     [SerializeField] private bool raidActive = false;
@@ -121,6 +123,8 @@ public class RaidSceneController : MonoBehaviour
                 if (fishingVillagePrefab != null)
                 {
                     fishingVillagePrefab.SetActive(true);
+                    enemySpawnPoints.Clear();
+                    enemySpawnPoints = fishingSpawnParent.GetComponentsInChildren<Transform>().ToList();
                 }
                 else
                 {

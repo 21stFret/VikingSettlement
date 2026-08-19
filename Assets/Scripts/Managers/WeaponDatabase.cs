@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.ProjectAuditor.Editor;
 using UnityEngine;
 
 public class WeaponDatabase : MonoBehaviour, ISaveable
@@ -187,7 +186,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
         {
             //var item = GetRandomWeapon();
             var item = GetWeaponByName("Iron_Sword");
-            if (item != null) { AddItemToVillageArmory(item, Random.Range(6, 8)); }
+            if (item != null) { AddItemToVillageArmory(item, Random.Range(15, 20)); }
         }
 
         for (int i = 0; i < startingShieldsAmount; i++)

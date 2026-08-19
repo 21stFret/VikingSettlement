@@ -20,7 +20,7 @@ TagManager:
   - Grass
   - Static
   - Building
-  - 
+  - Debug
   - 
   - 
   - 
@@ -49,6 +49,9 @@ TagManager:
     locked: 0
   - name: UI
     uniqueID: 3535974279
+    locked: 0
+  - name: Debug
+    uniqueID: 3491710403
     locked: 0
   m_RenderingLayers:
   - Default
