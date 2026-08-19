@@ -23,6 +23,7 @@ public class GameTickManager : MonoBehaviour
     [SerializeField] private float tickTimer = 0f;
     [SerializeField] private int totalTicks = 0;
     [SerializeField] private float timeSinceLastTick = 0f;
+    private float baseTimeScale;
 
     // Counts how many UI panels are currently open and want the clock stopped.
     // Independent of isPaused so PauseManager and UI panels don't fight each other.
@@ -46,6 +47,7 @@ public class GameTickManager : MonoBehaviour
             Destroy(Instance.gameObject);
         }
         Instance = this;
+        baseTimeScale = Time.timeScale;
     }
 
     public void Initialize()
@@ -135,6 +137,19 @@ public class GameTickManager : MonoBehaviour
     public void SetPaused(bool paused)
     {
         isPaused = paused;
+    }
+
+    public void ToggleRealPause(bool paused)
+    {
+        if(paused)
+        {
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = baseTimeScale;
+        }
+
     }
 
     /// <summary>

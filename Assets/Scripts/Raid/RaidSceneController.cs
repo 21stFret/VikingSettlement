@@ -24,6 +24,7 @@ public class RaidSceneController : MonoBehaviour
     [Header("Raid State")]
     [SerializeField] private bool raidActive = false;
     [SerializeField] private int enemiesRemaining = 0;
+    private int startingEnemyCount;
     [SerializeField] private int partyMembersAlive = 0;
 
     [Header("Player Control")]
@@ -214,6 +215,7 @@ public class RaidSceneController : MonoBehaviour
             }
         }
 
+        startingEnemyCount = enemiesRemaining;
         OnEnemyCountChanged?.Invoke(enemiesRemaining);
     }
 
@@ -236,18 +238,6 @@ public class RaidSceneController : MonoBehaviour
     {
         enemiesRemaining--;
         OnEnemyCountChanged?.Invoke(enemiesRemaining);
-
-        // Enemy "pocket" loot (Enemy.lootTable) drops as a physical pickup via
-        // LootDropManager and feeds into collectedLoot on pickup — see LootDrop.OnTriggerEnter2D.
-
-        Debug.Log($"Enemy killed! {enemiesRemaining} remaining.");
-
-        // Check victory
-        if (enemiesRemaining <= 0)
-        {
-            Victory();
-        }
-
     }
 
     private IEnumerator StopRecording()
@@ -280,11 +270,11 @@ public class RaidSceneController : MonoBehaviour
     }
 
     /// <summary>
-    /// Loot the camp's chests — rolled once when the camp is cleared. Represents what you
+    /// Loot rolled once when the camp is cleared. Represents what you
     /// could already see waiting at the camp (RaidDestinationData.lootTable / GetPotentialLoot),
     /// as opposed to enemy "pocket" loot which is hidden until you kill them.
     /// </summary>
-    private void RollDestinationLoot()
+    private void RollDestinationLoot(float percentage)
     {
         var destination = RaidManager.Instance?.CurrentRaid;
         if (destination == null) return;
@@ -294,6 +284,7 @@ public class RaidSceneController : MonoBehaviour
             if (Random.value <= entry.dropChance)
             {
                 float amount = Random.Range(entry.minAmount, entry.maxAmount + 1);
+                amount *= percentage;
                 AddLoot(entry.resourceType, amount);
 
                 Debug.Log($"Camp loot: +{amount} {entry.resourceType}");
@@ -305,6 +296,22 @@ public class RaidSceneController : MonoBehaviour
 
     #region Battle End
 
+    public void LeaveRaid()
+    {
+        float raidSuccess = 0;
+        if (enemiesRemaining == 0) raidSuccess = 1;
+        else raidSuccess = 1 - (startingEnemyCount / enemiesRemaining);
+
+        if (raidSuccess == 1)
+        {
+            Victory();
+        }
+        else
+        {
+            ForceRetreat();
+        }
+    }
+
     /// <summary>
     /// Victory - all enemies defeated
     /// </summary>
@@ -314,8 +321,7 @@ public class RaidSceneController : MonoBehaviour
         raidActive = false;
         GameManager.Instance.IsGameActive = false;
 
-        // Camp cleared — loot the chests on top of whatever enemy pocket loot was collected.
-        RollDestinationLoot();
+        RollDestinationLoot(1 - startingEnemyCount / enemiesRemaining);
 
         Debug.Log($"VICTORY! Collected {collectedLoot.Count} loot items. Casualties: {casualties.Count}");
 
@@ -357,6 +363,8 @@ public class RaidSceneController : MonoBehaviour
     {
         if (!raidActive) return;
         raidActive = false;
+
+        RollDestinationLoot(1 - startingEnemyCount / enemiesRemaining);
 
         Debug.Log($"RETREAT! Collected {collectedLoot.Count} loot. Casualties: {casualties.Count}");
         CleanupLegRemnants();
@@ -447,6 +455,8 @@ public class RaidSceneController : MonoBehaviour
         {
             amount *= RunestoneManager.Instance.GetRaidLootMultiplier();
         }
+
+        amount = Mathf.CeilToInt(amount);
 
         collectedLoot.Add(new ResourceLoot { resourceType = type, amount = amount });
     }

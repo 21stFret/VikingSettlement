@@ -6,10 +6,10 @@ using UnityEngine;
 /// Attach this to your ship GameObject along with a Collider2D.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
-public class ShipClickable : WorldInteractable
+public class ShipRaidClickable : WorldInteractable
 {
     [Header("UI Reference")]
-    [SerializeField] private RaidUI raidUIPanel; // Assign your raid UI panel here
+    [SerializeField] private RaidResultsUI raidUIPanel; // Assign your raid UI panel here
 
     public override void Interact(WorldInteractionZone zone = null)
     {
@@ -26,7 +26,6 @@ public class ShipClickable : WorldInteractable
     {
         if (raidUIPanel != null)
         {
-            raidUIPanel.CloseRaidUI();
             PlayerController.Instance?.SetInputEnabled(true);
             base.Deselect();
         }
@@ -34,14 +33,15 @@ public class ShipClickable : WorldInteractable
 
     public override void FocusPanel()
     {
-        UIFocus.Set(raidUIPanel.raidPartyUI?.startRaidButton.gameObject);
+        UIFocus.Set(raidUIPanel.continueRaidButton.gameObject);
     }
 
     public void OpenRaidUI()
     {
         if (raidUIPanel != null)
         {
-            raidUIPanel.OpenRaidUI();
+            raidUIPanel.ToggleLeavePopup(true);
+            raidUIPanel.shipRaidClickable = this;
         }
     }
 

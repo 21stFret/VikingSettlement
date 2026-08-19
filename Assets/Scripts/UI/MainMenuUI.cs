@@ -24,6 +24,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button loadButton;
     [SerializeField] private Button deleteButton;
     [SerializeField] private TextMeshProUGUI panelTitleText;
+    [SerializeField] private TextMeshProUGUI loadButtonText;
 
     [Header("Delete Confirmation")]
     [SerializeField] private GameObject deleteConfirmPanel;
@@ -164,6 +165,7 @@ public class MainMenuUI : MonoBehaviour
     private void OnNewGameClicked()
     {
         isNewGameMode = true;
+        loadButtonText.text = "Start";
         ShowSlotSelection("New Game - Select Slot");
         UIFocus.Set(backButton?.gameObject);
     }
@@ -171,6 +173,7 @@ public class MainMenuUI : MonoBehaviour
     private void OnLoadGameClicked()
     {
         isNewGameMode = false;
+        loadButtonText.text = "Load";
         ShowSlotSelection("Load Game");
     }
 

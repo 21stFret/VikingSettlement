@@ -33,6 +33,11 @@ public class RaidResultsUI : MonoBehaviour
     public Button goHomeButton;
     public RaidChainPickerUI chainPickerUI;
 
+    public GameObject shipLeavePopup;
+    public Button leaveButton;
+    public Button continueRaidButton;
+    public ShipRaidClickable shipRaidClickable;
+
     private void Start()
     {
         if (resultsPanel != null)
@@ -43,6 +48,15 @@ public class RaidResultsUI : MonoBehaviour
 
         if (goHomeButton != null)
             goHomeButton.onClick.AddListener(OnGoHomeClicked);
+
+        if(shipLeavePopup != null)
+            shipLeavePopup.SetActive(false);
+
+        if (leaveButton != null)
+            leaveButton.onClick.AddListener(OnLeaveClicked);
+
+        if (continueRaidButton != null)
+            continueRaidButton.onClick.AddListener(OnContinueClicked);
 
         if (RaidManager.Instance != null)
         {
@@ -62,6 +76,29 @@ public class RaidResultsUI : MonoBehaviour
             RaidManager.Instance.OnRaidEnded -= ShowResults;
             RaidManager.Instance.OnLegResolved -= ShowLegChoice;
         }
+    }
+
+    public void ToggleLeavePopup(bool value)
+    {
+        shipLeavePopup.SetActive(value);
+        if (value) { GameTickManager.Instance?.PushUIPause();  } 
+        else 
+        {
+            shipRaidClickable.CloseRaidUI();
+            GameTickManager.Instance?.PopUIPause();
+        }
+        GameTickManager.Instance?.ToggleRealPause(value);
+    }
+
+    private void OnLeaveClicked()
+    {
+        ToggleLeavePopup(false);
+        RaidSceneController.Instance.LeaveRaid();
+    }
+    private void OnContinueClicked()
+    {
+        ToggleLeavePopup(false);
+
     }
 
     private void ShowResults(RaidReport report)

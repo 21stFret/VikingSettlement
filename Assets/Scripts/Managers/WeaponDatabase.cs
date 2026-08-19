@@ -61,16 +61,12 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
     /// Get a random shield from the database
     /// </summary>
     /// <returns>A random EquipableItem shield</returns>
-    public EquipableItem GetRandomShield(int i  = -1)
+    public EquipableItem GetRandomShield()
     {
         if (availableShields.Length == 0)
             return null;
 
         int index = Random.Range(0, availableShields.Length);
-        if (i != -1)
-        {
-            return availableShields[i];
-        }
         return availableShields[index];
     }
 
@@ -196,7 +192,7 @@ public class WeaponDatabase : MonoBehaviour, ISaveable
 
         for (int i = 0; i < startingShieldsAmount; i++)
         {
-            var item = GetRandomShield(i);
+            var item = GetRandomShield();
             if (item != null) { AddItemToVillageArmory(item); }
         }
     }
