@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance { get; private set; }
 
     [Header("Input Settings")]
-    [SerializeField] private bool useMouseMovement = false; // Toggle between WASD and click-to-move
     public float playerMoveSpeed = 3f;
 
     [Header("Control Target")]
@@ -54,6 +53,11 @@ public class PlayerController : MonoBehaviour
 
         // Setup Input System
         inputActions = new PlayerInputActions();
+    }
+
+    private void Start()
+    {
+        SetInputEnabled(true);
     }
 
     private void OnEnable()
@@ -107,7 +111,6 @@ public class PlayerController : MonoBehaviour
     private void OnClick(InputAction.CallbackContext context)
     {
         if (!inputEnabled || characterBase == null) return;
-        if (!useMouseMovement) return;
 
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(inputActions.Player.MousePosition.ReadValue<Vector2>());
         characterBase.MoveTo(mousePos);
@@ -116,10 +119,7 @@ public class PlayerController : MonoBehaviour
     private void OnStopMove(InputAction.CallbackContext context)
     {
         if (!inputEnabled || characterBase == null) return;
-        if (useMouseMovement)
-        {
-            characterBase.Stop();
-        }
+        characterBase.Stop();
     }
 
     private void OnSprint(InputAction.CallbackContext context)
@@ -235,34 +235,20 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // Movement (50% speed while blocking is handled inside GetEffectiveMoveSpeed)
-        if (!useMouseMovement && inputEnabled)
-        {
-            bool movementLocked = characterBase.IsAttacking() || characterBase.isRolling;
-            characterBase.SetMovement(movementLocked ? Vector2.zero : moveInput * playerMoveSpeed);
-        }
-        else if (!inputEnabled)
+        if (!inputEnabled)
         {
             // Stop movement when input is disabled
             characterBase.SetMovement(Vector2.zero);
+        }
+        else
+        {
+            characterBase.SetMovement(moveInput * playerMoveSpeed);
         }
 
         // Handle held attack - continue attacking while button is held
         if (isAttackHeld && inputEnabled && characterBase.CanAttack())
         {
             characterBase.Attack();
-        }
-    }
-    
-    /// <summary>
-    /// Toggle between keyboard and mouse movement
-    /// </summary>
-    public void SetMouseMovement(bool enabled)
-    {
-        useMouseMovement = enabled;
-        if (!enabled && characterBase != null)
-        {
-            characterBase.Stop();
         }
     }
     

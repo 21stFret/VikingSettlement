@@ -19,7 +19,6 @@ public class CombatPressureState : AIStateBase
 
     public override void OnEnter(CharacterAI ai)
     {
-        _timer    = 0f;
         _listener = ai.AnimListener;
 
         var target = ai.CurrentTarget?.GetComponent<CharacterBase>();
@@ -66,16 +65,20 @@ public class CombatPressureState : AIStateBase
         {
             Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
             float distToSlot = Vector2.Distance((Vector2)ai.transform.position, slotPos);
-            if (distToSlot > ai.AttackRange || !ai.NoNearbyFights || !ai.CurrentSlotHost.AI.NoNearbyFights)
+            if (distToSlot > ai.AttackRange + 0.2f || !ai.NoNearbyFights || !ai.CurrentSlotHost.AI.NoNearbyFights)
             {
                 ai.ChangeState(new CombatApproachState());
                 return;
             }
+            // handle maintining distance
+            ai.MoveWithSeparation(slotPos);
         }
 
         float pressureTime = ai.CombatStats != null ? ai.CombatStats.PressureTime : 1.5f;
         float aggression   = ai.CombatStats != null ? ai.CombatStats.AggressionLevel : 0.5f;
         _timer += Time.deltaTime;
+
+        //Debug.Log("pressure timer is " + _timer.ToString());
 
         bool aiDecisionReady = _timer >= pressureTime && UnityEngine.Random.value < aggression;
         bool weaponReady     = ai.Controller.CanAttack();

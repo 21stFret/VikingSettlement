@@ -95,6 +95,9 @@ MonoBehaviour:
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
+  rightSortingOffset: 69
+  leftSortingOffset: 90
+  shieldBack: {fileID: 0}
 --- !u!58 &1690522263247962539
 CircleCollider2D:
   m_ObjectHideFlags: 0

@@ -24,7 +24,11 @@ public class CombatAttackState : AIStateBase
         ai.Controller.Attack();
     }
 
-    public override void OnUpdate(CharacterAI ai) { }
+    public override void OnUpdate(CharacterAI ai) 
+    {
+        Vector2 slotPos = ai.CurrentSlotHost.GetSlotWorldPos(ai.Controller);
+        ai.MoveWithSeparation(slotPos, avoidOtherFights: true); 
+    }
 
     public override void OnExit(CharacterAI ai)
     {

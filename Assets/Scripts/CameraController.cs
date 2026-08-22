@@ -29,6 +29,7 @@ public class CameraController : MonoBehaviour
 
     [Header("Look Through (Optional)")]
     [SerializeField] private bool allowLookThrough = false;
+    [SerializeField] private LayerMask seeThroughLayerMask;
     [SerializeField] private float alphaLookThrough = 0.3f;
     private List<Collider2D> lookThroughColliders = new List<Collider2D>();
 
@@ -124,13 +125,13 @@ public class CameraController : MonoBehaviour
         float distance = Vector2.Distance(cam.transform.position, target.position);
         
         // Cast ray from camera to player
-        RaycastHit2D[] hits = Physics2D.RaycastAll(cam.transform.position, direction, distance);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(cam.transform.position, direction, distance, seeThroughLayerMask);
         
         if (hits.Length > 0)
         {
             foreach (var hit in hits)
             {
-                if (hit.collider != null && hit.collider.gameObject != target.gameObject && hit.collider.gameObject.layer != LayerMask.NameToLayer("Grass"))
+                if (hit.collider != null && hit.collider.gameObject != target.gameObject)
                 {
                     lookThroughColliders.Add(hit.collider);
                 }

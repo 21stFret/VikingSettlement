@@ -85,7 +85,7 @@ public class CombatTestManager : MonoBehaviour
         var ia = go.GetComponent<ItemAttachment>();
         if (ia != null)
         {
-            ia.GiveWeaponByName("Iron Sword");
+            ia.GiveWeaponByName("Iron_Sword");
             ia.GiveShieldByName("Shield");
         }
 

@@ -5478,7 +5478,7 @@ MonoBehaviour:
   xpPerHarvest: 5
   harvestEffect: {fileID: 8166259917799051448}
   shakeOnHit: 1
-  shakeIntensity: 0.1
+  shakeIntensity: 0.5
   OnHit:
     m_PersistentCalls:
       m_Calls: []
@@ -5487,5 +5487,5 @@ MonoBehaviour:
   fallingObject: {fileID: 1759224031506603414}
   bonusWoodOnFall: 5
   fallFadeDelay: 2
-  fallFadeDuration: 0.5
+  fallFadeDuration: 0.1
   respawnFadeDuration: 1

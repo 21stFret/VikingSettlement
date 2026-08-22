@@ -109,6 +109,13 @@ public class TargetHealth : MonoBehaviour
         // clear via OnDestroy, which can be long-delayed (corpse/removal effects) or never fire.
         GetComponent<CharacterAI>()?.ReleaseEngagementSlot();
 
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero; 
+            rb.simulated = false;
+        }
+
         // Fire death event
         OnDeath?.Invoke();
     }

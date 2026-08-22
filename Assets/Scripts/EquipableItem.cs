@@ -28,6 +28,12 @@ public class EquipableItem : MonoBehaviour
     [Header("Combat")]
     [Tooltip("Time between attacks in seconds. Lower = faster attacks.")]
     public float attackSpeed = 0.5f;
+    [Tooltip("Attack hitbox size, facing East. Rotated to match the character's current facing direction at attack time.")]
+    public Vector2 attackSize = new Vector2(1f, 1f);
+    [Tooltip("Attack hitbox offset from the character, facing East. Rotated to match the character's current facing direction at attack time.")]
+    public Vector2 attackOffset = new Vector2(1f, 0f);
+    [Tooltip("Extra vertical bias applied only when facing North/South. The sprite is anchored at the character's feet, so the lift needed to line up an up/down swing isn't the same amount as the offset.y lift used for East/West — this is a separately tunable value rather than reusing offset.x/y.")]
+    public float verticalAttackOffset = 0f;
     public ParticleSystem sheildSparkEffect;
     [Tooltip("Played once when the shield shatters and is destroyed.")]
     public ParticleSystem shatterEffect;

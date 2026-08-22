@@ -10498,7 +10498,7 @@ MonoBehaviour:
   maxHealth: 20
   currentHealth: 0
   enemyName: Fisherman
-  weaponName: Iron Sword
+  weaponName: Iron_Sword
   shieldName: 
   goldReward: 10
   lootChance: 0.3
@@ -10539,15 +10539,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
   use4DirectionalSprites: 0
-  swordAttackSize: {x: 1, y: 1}
-  spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1, y: 0}
-  spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 0}
-  swordVerticalAttackOffset: 0
-  spearVerticalAttackOffset: 0
-  axeVerticalAttackOffset: 0
+  unarmedAttackSize: {x: 1, y: 1}
+  unarmedAttackOffset: {x: 1, y: 0}
+  unarmedVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577

@@ -223,6 +223,7 @@ public abstract class CombatAIBase : CharacterAI
     /// </summary>
     public void ForceReciprocalEngagement(CharacterBase attacker)
     {
+        if (!IsAIEnabled) return;
         if (ShouldAbortSearchTick()) return;
         ReleaseEngagementSlot();
         CurrentTarget = attacker.transform;
@@ -348,6 +349,7 @@ public abstract class CombatAIBase : CharacterAI
 
     private void HandleHitBy(CharacterBase attacker)
     {
+        if (!IsAIEnabled) return;
         if (!retargetOnHit || attacker == null) return;
         if (Controller != null && attacker.characterFaction == Controller.characterFaction) return;
         if (attacker.transform == CurrentTarget) return; // already fighting them, no-op

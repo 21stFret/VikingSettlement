@@ -95083,6 +95083,8 @@ MonoBehaviour:
   meatIcon: {fileID: 0}
   peltIcon: {fileID: 0}
   leatherIcon: {fileID: 0}
+  questIcon: {fileID: 0}
+  notificationIcon: {fileID: 0}
 --- !u!114 &755482535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109748,15 +109750,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
   use4DirectionalSprites: 0
-  swordAttackSize: {x: 1, y: 1}
-  spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1, y: 0}
-  spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 0}
-  swordVerticalAttackOffset: 0
-  spearVerticalAttackOffset: 0
-  axeVerticalAttackOffset: 0
+  unarmedAttackSize: {x: 1, y: 1}
+  unarmedAttackOffset: {x: 1, y: 0}
+  unarmedVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
@@ -115635,6 +115631,8 @@ MonoBehaviour:
   jobText: {fileID: 1245725462}
   healthText: {fileID: 1198847760}
   moraleText: {fileID: 970362355}
+  ageText: {fileID: 0}
+  sexIcon: {fileID: 0}
   healthBar: {fileID: 749137621}
   moraleBar: {fileID: 2041580868}
   farmingBar: {fileID: 1367912596}
@@ -115659,7 +115657,10 @@ MonoBehaviour:
   combatColor: {r: 1, g: 0.38365346, b: 0, a: 1}
   healthColor: {r: 1, g: 0, b: 0.16651773, a: 1}
   moraleColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  maleSymbol: {fileID: 0}
+  femaleSymbol: {fileID: 0}
   closeButton: {fileID: 0}
+  blocker: {fileID: 0}
 --- !u!114 &953349338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122309,6 +122310,10 @@ PrefabInstance:
     - target: {fileID: 5400896358629533535, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7437783093783806699, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7648012472301396796, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: m_Name
@@ -229865,8 +229870,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60abe9c265dd8654281dd979217df774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  useMouseMovement: 0
-  playerMoveSpeed: 3
+  playerMoveSpeed: 6
   controlTarget: {fileID: 0}
   parryWindowDuration: 0.3
   throwSpeed: 12
@@ -265643,15 +265647,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
   use4DirectionalSprites: 0
-  swordAttackSize: {x: 1, y: 1}
-  spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1, y: 0}
-  spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 0}
-  swordVerticalAttackOffset: 0
-  spearVerticalAttackOffset: 0
-  axeVerticalAttackOffset: 0
+  unarmedAttackSize: {x: 1, y: 1}
+  unarmedAttackOffset: {x: 1, y: 0}
+  unarmedVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577

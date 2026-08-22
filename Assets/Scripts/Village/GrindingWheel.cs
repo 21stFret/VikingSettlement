@@ -4,16 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider2D))]
-public class GrindingWheel : WorldInteractable, IClickable
+public class GrindingWheel : WorldInteractable
 {
     [Header("Settings")]
-    [SerializeField] private int clickPriority = 10; // Higher than buildings
-    // IClickable implementation
-    public Collider2D Collider => shipCollider;
-    public int ClickPriority => clickPriority;
-    public bool IsClickable => CanBeClicked();
-    private Collider2D shipCollider;
-
+    [SerializeField] private int clickPriority = 10;
     public Animator animator;
     public bool isGrinding = false;
     public ParticleSystem grindEffect;
@@ -176,20 +170,7 @@ public class GrindingWheel : WorldInteractable, IClickable
 
     public override void FocusPanel()
     {
-        //UIFocus.Set(raidUIPanel.raidPartyUI?.startRaidButton.gameObject);
+        
     }
 
-
-    private bool CanBeClicked()
-    {
-        return true;
-    }
-
-    /// <summary>
-    /// Called by MouseInputController when ship is clicked
-    /// </summary>
-    public void OnClicked()
-    {
-        SetupInputs();
-    }
 }

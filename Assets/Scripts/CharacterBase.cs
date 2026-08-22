@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,16 +49,10 @@ public class CharacterBase : MonoBehaviour
     private bool _isDead;
 
     [Header("Attack Settings")]
-    [SerializeField] protected Vector2 swordAttackSize = new Vector2(1f, 1f);
-    [SerializeField] protected Vector2 spearAttackSize = new Vector2(1f, 1f);
-    [SerializeField] protected Vector2 axeAttackSize = new Vector2(1f, 1f);
-    [SerializeField] protected Vector2 swordAttackOffset = new Vector2(1f, 0f);
-    [SerializeField] protected Vector2 spearAttackOffset = new Vector2(1f, 0f);
-    [SerializeField] protected Vector2 axeAttackOffset = new Vector2(1f, 0f);
-    [Tooltip("Extra vertical bias applied only when facing North/South. The sprite is anchored at the character's feet, so the lift needed to line up an up/down swing isn't the same amount as the offset.y lift used for East/West — this is a separately tunable value rather than reusing offset.x/y.")]
-    [SerializeField] protected float swordVerticalAttackOffset = 0f;
-    [SerializeField] protected float spearVerticalAttackOffset = 0f;
-    [SerializeField] protected float axeVerticalAttackOffset = 0f;
+    [Tooltip("Hitbox used for unarmed attacks (no weapon equipped). Equipped weapons carry their own attackSize/attackOffset/verticalAttackOffset instead.")]
+    [SerializeField] protected Vector2 unarmedAttackSize = new Vector2(1f, 1f);
+    [SerializeField] protected Vector2 unarmedAttackOffset = new Vector2(1f, 0f);
+    [SerializeField] protected float unarmedVerticalAttackOffset = 0f;
     [SerializeField] public LayerMask attackTargetLayer;
     public bool friendlyFire = false;
     public GameObject arrowPrefab;
@@ -603,6 +598,8 @@ public class CharacterBase : MonoBehaviour
         lastAttackTime = Time.time;
         isAttacking = true;
 
+        SetMovement(Vector2.zero);
+       
         if (itemAttachment != null)
         {
             currentHitboxSize = new Vector2(1f, 1f);
@@ -610,44 +607,37 @@ public class CharacterBase : MonoBehaviour
             if (weapon == null)
             {
                 SafeSetTrigger(AttackTrigger);
-                currentHitboxSize = RotateSizeToFacing(swordAttackSize);
-                currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
+                currentHitboxSize = RotateSizeToFacing(unarmedAttackSize);
+                currentHitboxOffset = RotateOffsetToFacing(unarmedAttackOffset, unarmedVerticalAttackOffset);
             }
             else
             {
-                // Trigger appropriate attack animation based on weapon type
-                // Hitbox size and offset are rotated to match current facing direction
-                if (weapon.itemType == EquipableItem.ItemType.Sword)
+                // Trigger appropriate attack animation based on weapon type.
+                // Hitbox size/offset come from the weapon itself, rotated to current facing direction.
+                switch (weapon.itemType)
                 {
-                    SafeSetTrigger(SwordAttackTrigger);
-                    currentHitboxSize   = RotateSizeToFacing(swordAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
-                }
-                else if (weapon.itemType == EquipableItem.ItemType.Spear)
-                {
-                    SafeSetTrigger(SpearAttackTrigger);
-                    currentHitboxSize   = RotateSizeToFacing(spearAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(spearAttackOffset, spearVerticalAttackOffset);
-                }
-                else if (weapon.itemType == EquipableItem.ItemType.Axe)
-                {
-                    SafeSetTrigger(AxeAttackTrigger);
-                    currentHitboxSize   = RotateSizeToFacing(axeAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(axeAttackOffset, axeVerticalAttackOffset);
-                }
-                else if (weapon.itemType == EquipableItem.ItemType.Hammer)
-                {
-                    SafeSetTrigger(SwordAttackTrigger);
-                    currentHitboxSize = RotateSizeToFacing(swordAttackSize);
-                    currentHitboxOffset = RotateOffsetToFacing(swordAttackOffset, swordVerticalAttackOffset);
-                }
-                else if (weapon.itemType == EquipableItem.ItemType.Bow)
-                {
-                    SafeSetTrigger(ShootTrigger);
-                }
-                else
-                {
-                    SafeSetTrigger(AttackTrigger);
+                    case EquipableItem.ItemType.Sword:
+                    case EquipableItem.ItemType.Hammer:
+                        SafeSetTrigger(SwordAttackTrigger);
+                        currentHitboxSize   = RotateSizeToFacing(weapon.attackSize);
+                        currentHitboxOffset = RotateOffsetToFacing(weapon.attackOffset, weapon.verticalAttackOffset);
+                        break;
+                    case EquipableItem.ItemType.Spear:
+                        SafeSetTrigger(SpearAttackTrigger);
+                        currentHitboxSize   = RotateSizeToFacing(weapon.attackSize);
+                        currentHitboxOffset = RotateOffsetToFacing(weapon.attackOffset, weapon.verticalAttackOffset);
+                        break;
+                    case EquipableItem.ItemType.Axe:
+                        SafeSetTrigger(AxeAttackTrigger);
+                        currentHitboxSize   = RotateSizeToFacing(weapon.attackSize);
+                        currentHitboxOffset = RotateOffsetToFacing(weapon.attackOffset, weapon.verticalAttackOffset);
+                        break;
+                    case EquipableItem.ItemType.Bow:
+                        SafeSetTrigger(ShootTrigger);
+                        break;
+                    default:
+                        SafeSetTrigger(AttackTrigger);
+                        break;
                 }
             }
         }
@@ -660,17 +650,22 @@ public class CharacterBase : MonoBehaviour
     {
         OnAttackWindowEvent?.Invoke();
 
+        canMove = false;
+
         // Offset is already rotated to facing direction — set when the swing was committed in Attack()
         currentHitboxPos = (Vector2)transform.position + currentHitboxOffset;
         Collider2D[] hitObjects = Physics2D.OverlapBoxAll(currentHitboxPos, currentHitboxSize, 0f, attackTargetLayer);
 
         // Check if any have the same gameobject to avoid multiple hits
         HashSet<GameObject> hitGameObjects = new HashSet<GameObject>();
-
+        if (hitObjects.Length == 0) return;
 
         foreach (var hit in hitObjects)
         {
             if (hit.gameObject == this.gameObject) continue;
+
+            TargetHealth TH = hit.GetComponent<TargetHealth>();
+            if (TH == null) continue;
 
             if (!friendlyFire)
             {
@@ -700,6 +695,10 @@ public class CharacterBase : MonoBehaviour
         if (villager != null)
         {
             villager.skills.ImproveJob(JobType.Warrior);
+            if (villager.isJarl)
+            {
+                Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
+            }
         }
     }
 
@@ -834,6 +833,7 @@ public class CharacterBase : MonoBehaviour
     {
         isAttacking = false;
         OnAttackRecoveryEvent?.Invoke();
+        canMove = true;
     }
 
     /// <summary>

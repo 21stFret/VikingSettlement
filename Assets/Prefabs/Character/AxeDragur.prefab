@@ -10459,7 +10459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
-  awarenessRadius: 8
+  awarenessRadius: 4
   enterSeparationRange: 3
   exitSeparationRange: 4
   commitRange: 0.4
@@ -10538,15 +10538,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
   use4DirectionalSprites: 0
-  swordAttackSize: {x: 1, y: 1}
-  spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 2, y: 2}
-  swordAttackOffset: {x: 1, y: 0}
-  spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 1}
-  swordVerticalAttackOffset: 0
-  spearVerticalAttackOffset: 0
-  axeVerticalAttackOffset: 0
+  unarmedAttackSize: {x: 1, y: 1}
+  unarmedAttackOffset: {x: 1, y: 0}
+  unarmedVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 577
@@ -10589,6 +10583,9 @@ MonoBehaviour:
   shield: {fileID: 0}
   weapon: {fileID: 0}
   torch: {fileID: 0}
+  shieldItem: {fileID: 0}
+  weaponItem: {fileID: 0}
+  torchItem: {fileID: 0}
   shieldAttachPoint: 0
   weaponAttachPoint: 1
   torchAttachPoint: 2

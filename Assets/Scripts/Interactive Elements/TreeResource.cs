@@ -66,17 +66,17 @@ public class TreeResource : HarvestableResource
     {
         base.Respawn(); // re-enables collider + shows this SpriteRenderer
 
-        if (fallingObject != null) { fallingObject.SetActive(false); fallingSR?.DOKill(); }
+        if (fallingObject != null) { fallingObject.SetActive(true); fallingSR?.DOKill(); }
 
         var anim = GetComponentInParent<Animator>();
         if (anim != null) anim.SetBool("TreeFalling", false);
 
         // Fade tree in over the stump, then hide stump once fully visible
-        if (treeSR != null)
+        if (fallingSR != null)
         {
-            treeSR.DOKill();
-            treeSR.color = new Color(treeSR.color.r, treeSR.color.g, treeSR.color.b, 0f);
-            treeSR.DOFade(1f, respawnFadeDuration)
+            fallingSR.DOKill();
+            fallingSR.color = new Color(fallingSR.color.r, fallingSR.color.g, fallingSR.color.b, 0f);
+            fallingSR.DOFade(1f, respawnFadeDuration)
                 .OnComplete(() => { });
         }
         SpriteRenderer[] oldShadows = GetComponentsInChildren<SpriteRenderer>();
@@ -86,6 +86,7 @@ public class TreeResource : HarvestableResource
             if (myShadow != null && myShadow == shadow) continue;
             shadow.gameObject.SetActive(true);
         }
+        treeSR.enabled = false;
     }
 
     public override void ShakeObject()

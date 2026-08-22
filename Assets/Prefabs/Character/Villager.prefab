@@ -480,8 +480,8 @@ MonoBehaviour:
   awarenessRadius: 8
   enterSeparationRange: 1
   exitSeparationRange: 1.5
-  commitRange: 0.5
-  slotSlowRadius: 1.2
+  commitRange: 0.8
+  slotSlowRadius: 1
   holdTimeout: 4
   separationForceStrength: 5
   separationSmoothingRate: 10
@@ -593,15 +593,9 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   flipSpriteOnDirection: 1
   use4DirectionalSprites: 0
-  swordAttackSize: {x: 1.6, y: 1.4}
-  spearAttackSize: {x: 1, y: 1}
-  axeAttackSize: {x: 1, y: 1}
-  swordAttackOffset: {x: 1.2, y: 0.9}
-  spearAttackOffset: {x: 1, y: 0}
-  axeAttackOffset: {x: 1, y: 0}
-  swordVerticalAttackOffset: 0
-  spearVerticalAttackOffset: 0
-  axeVerticalAttackOffset: 0
+  unarmedAttackSize: {x: 1.6, y: 1.4}
+  unarmedAttackOffset: {x: 1.2, y: 0.9}
+  unarmedVerticalAttackOffset: 0
   attackTargetLayer:
     serializedVersion: 2
     m_Bits: 129
@@ -613,7 +607,7 @@ MonoBehaviour:
   stunEffect: {fileID: 4112550802723451918}
   rollSpeed: 4
   rollDuration: 0.2
-  rollCooldown: 5
+  rollCooldown: 3
   AI: {fileID: 0}
   weapon: {fileID: 0}
   shield: {fileID: 0}
@@ -627,7 +621,7 @@ MonoBehaviour:
   knockbackForce: 3
   knockbackDuration: 0.1
   combatMoveSpeed: 3
-  walkMoveSpeed: 2
+  walkMoveSpeed: 3
 --- !u!114 &5493561719251364476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -753,8 +747,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.051638484, y: 0.7142855}
-  m_Size: {x: 1.0209699, y: 1.7640889}
+  m_Offset: {x: -0.051638484, y: 0.7810354}
+  m_Size: {x: 0.6034944, y: 1.2389898}
   m_Direction: 0
 --- !u!1 &1148867561775107672
 GameObject:

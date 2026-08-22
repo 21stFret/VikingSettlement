@@ -86,6 +86,9 @@ MonoBehaviour:
   attachPoint: 1
   isEquipped: 0
   attackSpeed: 0.7
+  attackSize: {x: 1.6, y: 1.4}
+  attackOffset: {x: 1.2, y: 0.9}
+  verticalAttackOffset: 0
   sheildSparkEffect: {fileID: 0}
   shatterEffect: {fileID: 0}
   shakeMagnitude: 0.06
@@ -95,6 +98,9 @@ MonoBehaviour:
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
+  rightSortingOffset: 69
+  leftSortingOffset: 90
+  shieldBack: {fileID: 0}
 --- !u!58 &8837492049433106976
 CircleCollider2D:
   m_ObjectHideFlags: 0
