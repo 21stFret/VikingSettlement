@@ -63,27 +63,25 @@ public class EnemyController : CharacterBase
     }
 
     /// <summary>
-    /// Override to add enemy-specific hit behavior (e.g., enemy damage)
+    /// Enemy-specific bits only — shared hit resolution (damage via CalculateAttackDamage below,
+    /// TakeDamage, OnHitBy notify, knockback) all happens once in base. See B52 in
+    /// manager_bugs.md — this previously skipped base entirely and duplicated that logic here,
+    /// which happened to be correct for enemies (no Player-only bonuses apply) but meant the
+    /// shared game-active guard and knockback-on-hit lived in two separate implementations.
     /// </summary>
     public override void OnHitTarget(Collider2D hit)
     {
-        var target = hit.GetComponent<TargetHealth>();
-        if (target != null && enemyData != null)
-        {
-            if (target.IsDead()) return;
+        if (enemyData == null) return;
 
-            float damage = enemyAI != null ? enemyAI.Damage : 0f;
-            float weaponDamage = 0f;
-            if (weapon != null)
-            {
-                weaponDamage = weapon.strength;
-            }
-            float totalDamage = damage + weaponDamage;
-            Debug.Log($"{enemyData.enemyName} attacked {hit.name} for {totalDamage} damage!");
-            target.TakeDamage(totalDamage, weapon, attackerPos: (Vector2)transform.position);
-            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
-            CheckParryAndStun(hit);
-        }
+        base.OnHitTarget(hit);
+        CheckParryAndStun(hit);
+    }
+
+    protected override float CalculateAttackDamage(EquipableItem attackWeapon)
+    {
+        float damage = enemyAI != null ? enemyAI.Damage : 0f;
+        float weaponDamage = attackWeapon != null ? attackWeapon.strength : 0f;
+        return damage + weaponDamage;
     }
 
 

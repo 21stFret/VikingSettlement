@@ -82,22 +82,39 @@ public class VillagerController : CharacterBase
         base.Attack();
     }
 
+    /// <summary>
+    /// Villager-specific bits only — shared hit resolution (damage via CalculateAttackDamage
+    /// below, TakeDamage, OnHitBy notify, knockback) all happens once in base. See B52 in
+    /// manager_bugs.md: this used to call base AND redo the whole thing itself, which meant
+    /// TakeDamage/OnHitBy fired twice per villager swing (the second TakeDamage silently
+    /// swallowed by TargetHealth's invincibility window, so this class's own damage formula
+    /// never actually applied) and OnHitBy's reactive listeners ran twice.
+    /// </summary>
     public override void OnHitTarget(Collider2D hit)
     {
-        var target = hit.GetComponent<TargetHealth>();
-        if (target != null && villagerData != null)
+        if (villagerData == null || isRolling) return;
+
+        base.OnHitTarget(hit);
+        CheckParryAndStun(hit);
+    }
+
+    /// <summary>
+    /// Weapon strength + the villager's own strength stat, scaled by combat skill (+ morale)
+    /// via Villager.GetSkillMultiplier — the canonical combat-skill multiplier per team decision
+    /// (2026-08-23); GetCombatSkillMultiplier() above stays reserved for attack-speed scaling only.
+    /// Reduced by any active wound penalty.
+    /// </summary>
+    protected override float CalculateAttackDamage(EquipableItem attackWeapon)
+    {
+        float weaponDamage = attackWeapon?.strength ?? 0f;
+        float damage = (weaponDamage + villagerData.combatStats.strength) * villagerData.GetSkillMultiplier(JobType.Warrior);
+
+        if (villagerData.activeWounds.Count > 0)
         {
-            if (target.IsDead()) return;
-            if (isRolling) return;
-
-            float weaponDamage = weapon?.strength ?? 0f;
-            float villagerDamage = villagerData.combatStats.strength;
-            float damage = (weaponDamage + villagerDamage) * GetCombatSkillMultiplier();
-            print($"Villager {villagerData.villagerName} attacked {hit.name} for {damage} damage!");
-
-            target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);
-            hit.GetComponent<CharacterBase>()?.OnHitBy(this);
-            CheckParryAndStun(hit);
+            float woundDmgPenaltyPct = WoundDatabase.TotalAttackDamagePenaltyPct(villagerData.activeWounds);
+            damage *= (1f - woundDmgPenaltyPct / 100f);
         }
+
+        return damage;
     }
 }

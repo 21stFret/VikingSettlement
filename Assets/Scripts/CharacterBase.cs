@@ -699,13 +699,6 @@ public class CharacterBase : MonoBehaviour
                     ApplyKnockback(this, hit.transform.position);
 
                 OnHitTarget(hit);
-                if (villager != null)
-                {
-                    if (villager.isJarl && hit.gameObject.layer != 9)
-                    {
-                        Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
-                    }
-                }
             }
 
         }
@@ -773,7 +766,14 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Override this to handle what happens when hitting a target
+    /// Shared hit-resolution — game-active guard, damage calc (via the overridable
+    /// CalculateAttackDamage), Player-faction bonus multipliers, the TakeDamage call itself,
+    /// notifying the target's OnHitBy + knockback, and life steal. Called once via
+    /// base.OnHitTarget(hit) from each subclass's own OnHitTarget override — subclasses should
+    /// override CalculateAttackDamage for their own damage formula and add only genuinely
+    /// class-specific post-processing (e.g. CheckParryAndStun) after the base call, rather than
+    /// re-deriving damage/TakeDamage/OnHitBy themselves. See manager_bugs.md B52 for why this
+    /// split exists — VillagerController used to call base AND redo the whole thing itself.
     /// </summary>
     public virtual void OnHitTarget(Collider2D hit)
     {
@@ -786,8 +786,7 @@ public class CharacterBase : MonoBehaviour
         if (target == null) return;
         if (target.IsDead()) return;
 
-        float damage = weapon != null ? weapon.strength : 1f;
-        var villager = GetComponent<Villager>();
+        float damage = CalculateAttackDamage(weapon);
 
         if (characterFaction == Faction.Player)
         {
@@ -814,19 +813,36 @@ public class CharacterBase : MonoBehaviour
             }
         }
 
-        // Wound damage penalties apply regardless of faction
-        if (villager != null && villager.activeWounds.Count > 0)
-        {
-            float woundDmgPenaltyPct = WoundDatabase.TotalAttackDamagePenaltyPct(villager.activeWounds);
-            damage *= (1f - woundDmgPenaltyPct / 100f);
-
-            damage *= villager.GetSkillMultiplier(JobType.Warrior);
-        }
-
         target.TakeDamage(damage, weapon, attackerPos: (Vector2)transform.position);
 
+        // Check if Jarl threw the hit
+        var jarl = GetComponent<Villager>();
+
+        if (jarl !=null && jarl.isJarl)
+        {
+            if (hit.gameObject.layer != 9)
+            {
+                damage = Mathf.Min(damage, 1);
+                HitFeedback.Instance?.OnHit(transform.position, damage);
+            }
+        }
+
+        //check if jarl was hit
+        var jarlHit = target.GetComponent<Villager>();
+
+        if (jarlHit != null && jarlHit.isJarl)
+        {
+            damage = Mathf.Min(damage, 1);
+            HitFeedback.Instance?.OnHit(transform.position, damage);
+        }
+
         // Notify the target who hit them (used by EnemyAI retargetOnHit, etc.)
-        hit.GetComponent<CharacterBase>()?.OnHitBy(this);
+        var CB = hit.GetComponent<CharacterBase>();
+        if (CB != null)
+        {
+            CB.OnHitBy(this);
+            ApplyKnockback(CB,transform.position, 0.75f);
+        }
 
         // Life steal (Player only)
         if (characterFaction == Faction.Player && SkillTreeManager.Instance != null)
@@ -838,6 +854,16 @@ public class CharacterBase : MonoBehaviour
                 selfHealth?.Heal(damage * (lifeSteal / 100f));
             }
         }
+    }
+
+    /// <summary>
+    /// Raw attack damage before the Player-faction bonus multipliers above (skill tree,
+    /// runestone, death-type buff) are applied. Base fallback is weapon strength only — override
+    /// per character type (VillagerController, EnemyController) for their own formula.
+    /// </summary>
+    protected virtual float CalculateAttackDamage(EquipableItem attackWeapon)
+    {
+        return attackWeapon != null ? attackWeapon.strength : 1f;
     }
 
     /// <summary>
@@ -1266,7 +1292,7 @@ public class CharacterBase : MonoBehaviour
             canMove = true;
     }
 
-    private void ApplyKnockback(CharacterBase target, Vector2 sourcePosition)
+    private void ApplyKnockback(CharacterBase target, Vector2 sourcePosition, float forceMultiplier = 1)
     {
         var targetRb = target.GetComponent<Rigidbody2D>();
         if (targetRb == null) return;
@@ -1274,8 +1300,9 @@ public class CharacterBase : MonoBehaviour
         Vector2 dir = ((Vector2)target.transform.position - sourcePosition).normalized;
         if (dir.sqrMagnitude < 0.001f) dir = FacingDirectionToVector(facingDirection);
 
+        float force = forceMultiplier * knockbackForce;
         // Run on target so the coroutine survives if the attacker is destroyed mid-flight
-        target.StartCoroutine(target.KnockbackCoroutine(targetRb, knockbackForce, knockbackDuration, dir));
+        target.StartCoroutine(target.KnockbackCoroutine(targetRb, force, knockbackDuration, dir));
     }
 
     internal System.Collections.IEnumerator KnockbackCoroutine(Rigidbody2D rb, float force, float duration, Vector2 direction)

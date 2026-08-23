@@ -10203,7 +10203,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2924508640703339208, guid: 8b7dd40313d9ef14bb3eaddeb9a2952b, type: 3}
-  m_Color: {r: 0.5943396, g: 0.09251513, b: 0.09251513, a: 1}
+  m_Color: {r: 0.19657795, g: 0.43867922, b: 0.23480442, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -10273,6 +10273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a24a18086d083794d9083f40e0f1b411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  moveSpeed: 2
+  chaseSpeed: 4
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
   awarenessRadius: 2
@@ -10287,8 +10289,6 @@ MonoBehaviour:
   showDebug: 0
   damage: 1
   attackCooldown: 1
-  moveSpeed: 2
-  chaseSpeed: 4
   wanderRadius: 3.5
   idleTimeMin: 1
   idleTimeMax: 3

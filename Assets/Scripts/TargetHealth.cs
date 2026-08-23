@@ -76,7 +76,13 @@ public class TargetHealth : MonoBehaviour
     /// </summary>
     protected virtual void OnDamageTaken(float finalDamage, EquipableItem weapon)
     {
-        // Base implementation does nothing - override in subclasses
+        // Base implementation does nothing - override in subclasses.
+        // Deliberately NOT calling HitFeedback.Instance?.OnHit() here: this base class is also
+        // the parent of BreakableBarrel/CuttableGrass/HarvestableResource/HarvestableWheat/
+        // LootChest, none of which override this method, so a call here would fire camera
+        // shake/rumble/hit-stop on every chop/harvest swing too, not just combat. Wired into
+        // Villager.OnDamageTaken and Enemy.OnDamageTaken instead, which covers all actual
+        // character-vs-character combat. Revisit if "juice" on destructibles is wanted too.
     }
 
     protected virtual void OnBlocked(EquipableItem weapon)

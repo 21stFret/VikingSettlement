@@ -36,6 +36,11 @@ public class Enemy : TargetHealth
         base.Awake();
         _controller = GetComponent<EnemyController>();
 
+        if(spriteRenderer==null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
         // Create material instance for visual effects
         if (spriteRenderer != null)
         {
