@@ -10275,7 +10275,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
-  awarenessRadius: 4
+  awarenessRadius: 2
   enterSeparationRange: 1
   exitSeparationRange: 1.5
   commitRange: 0.8
@@ -10285,17 +10285,16 @@ MonoBehaviour:
   separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 0
-  attackRange: 1
   damage: 1
   attackCooldown: 1
-  moveSpeed: 3.5
+  moveSpeed: 2
   chaseSpeed: 4
-  wanderRadius: 5
+  wanderRadius: 3.5
   idleTimeMin: 1
   idleTimeMax: 3
   obstacleLayerMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 3073
   pursuitRange: 5
   loseTargetTime: 0.5
 --- !u!114 &1171899017266227412

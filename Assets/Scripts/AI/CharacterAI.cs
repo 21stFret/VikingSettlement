@@ -20,15 +20,31 @@ public abstract class CharacterAI : MonoBehaviour
 {
     // ── Config — virtual so concrete subclasses can back them with [SerializeField] ──
 
-    public virtual float      AttackRange    => 1.5f;
-    public virtual float      MoveSpeed      => 2f;
-    public virtual float      ChaseSpeed     => 3f;
+    // Not a per-subclass field like the others below — engagement range is a property of
+    // whatever weapon this character is currently wielding (melee reach, or a bow's
+    // hold-and-fire distance), not of its AI class. EnemyAIBase/VillagerAIBase used to each
+    // hand-tune their own fixed copy of this per prefab, which drifted out of sync with the
+    // weapon's actual reach and never updated on a mid-fight re-equip. See
+    // CharacterBase.GetAttackRange().
+    public virtual float      AttackRange    => Controller != null ? Controller.GetAttackRange() : 1.5f;
     public virtual float      WanderRadius   => 5f;
     public virtual float      IdleTimeMin    => 1f;
     public virtual float      IdleTimeMax    => 3f;
     public virtual float      PursuitRange   => 15f;
     public virtual float      LoseTargetTime => 3f;
     public virtual LayerMask  ObstacleLayer  => default;
+
+    // Walk/chase speed used to be redeclared per-subclass under different names (Enemy's
+    // moveSpeed/chaseSpeed, Villager's walkMoveSpeed/combatMoveSpeed on VillagerController) even
+    // though every caller means the same two things: idle/wander pace and the pace used once
+    // engaged. Owned directly here so both hierarchies (and CharacterAI's own push/separation
+    // math below, which previously always read the Enemy-only ChaseSpeed override and silently
+    // fell back to this 3f default for villagers) share one definition.
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed  = 2f;
+    [SerializeField] private float chaseSpeed = 3f;
+    public virtual float      MoveSpeed      => moveSpeed;
+    public virtual float      ChaseSpeed     => chaseSpeed;
 
     [Header("AI Core")]
     [SerializeField] private float searchInterval = 0.5f;
@@ -380,7 +396,7 @@ public abstract class CharacterAI : MonoBehaviour
             // fight) until the crowd genuinely clears; NoNearbyFights/the caller's own state gate
             // is what resumes normal movement once it does. No arrival taper here either — a
             // fleeing vector has no destination to decelerate toward.
-            Controller.MoveTo(currentPos + fightPush.normalized * MoveSpeed * Time.deltaTime * 10f);
+            Controller.MoveTo(currentPos + fightPush.normalized * ChaseSpeed * Time.deltaTime * 10f);
             return;
         }
 
@@ -414,7 +430,7 @@ public abstract class CharacterAI : MonoBehaviour
         }
 
         Vector2 dir = push.normalized;
-        float speed = MoveSpeed * (holding ? 0.1f : 1f);
+        float speed = ChaseSpeed * (holding ? 0.1f : 1f);
         Controller.MoveTo((Vector2)transform.position + dir * speed * Time.deltaTime * 10f);
     }
 

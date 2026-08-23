@@ -10460,7 +10460,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
-  awarenessRadius: 4
+  awarenessRadius: 2
   enterSeparationRange: 1
   exitSeparationRange: 1.5
   commitRange: 0.8
@@ -10470,7 +10470,6 @@ MonoBehaviour:
   separationSmoothingRate: 10
   retargetOnHit: 1
   showDebug: 1
-  attackRange: 1
   damage: 2
   attackCooldown: 1
   moveSpeed: 4

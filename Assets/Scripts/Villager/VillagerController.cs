@@ -5,15 +5,14 @@ public class VillagerController : CharacterBase
 {
     private Villager villagerData;
 
-    public float combatMoveSpeed;
-    public float walkMoveSpeed;
-
     protected override void Awake()
     {
         base.Awake();
         villagerData = GetComponent<Villager>();
         characterFaction = Faction.Player;
-        moveSpeed = walkMoveSpeed;
+        // Walk/chase speed live on the AI component (CharacterAI.MoveSpeed/ChaseSpeed) — shared
+        // with EnemyAIBase instead of this class keeping its own separately-named pair.
+        moveSpeed = AI != null ? AI.MoveSpeed : moveSpeed;
     }
 
     /// <summary>
@@ -83,7 +82,7 @@ public class VillagerController : CharacterBase
         base.Attack();
     }
 
-    protected override void OnHitTarget(Collider2D hit)
+    public override void OnHitTarget(Collider2D hit)
     {
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && villagerData != null)

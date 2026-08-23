@@ -138,19 +138,32 @@ public abstract class CombatAIBase : CharacterAI
     protected virtual AIStateBase GetDefaultIdleState() => new IdleState();
 
     /// <summary>
-    /// State to enter when closing on / holding at a freshly (re)acquired target. Melee default is
-    /// CombatApproachState (claims a slot, walks to it). Overridden by ArcherAI (and anything else
-    /// ranged) to return a slot-less positioning state instead — see RangedCombatState.
+    /// Whether whatever this fighter currently has equipped is fought at range — drives state
+    /// routing below. Weapon-derived (EquipableItem.IsRanged) rather than AI-class-derived, so a
+    /// villager who picks up a bow mid-game gets ranged behaviour for free, same as a dedicated
+    /// ArcherAI enemy; picking up a melee weapon afterward switches it straight back. ArcherAI
+    /// still hardcodes RangedCombatState on top of this (belt-and-suspenders for the case it's
+    /// ever unarmed) but no longer needs to for the normal bow-equipped case.
     /// </summary>
-    internal virtual AIStateBase GetApproachState() => new CombatApproachState();
+    internal bool HasRangedWeaponEquipped =>
+        Controller != null && Controller.weapon != null && Controller.weapon.IsRanged;
+
+    /// <summary>
+    /// State to enter when closing on / holding at a freshly (re)acquired target. Melee default is
+    /// CombatApproachState (claims a slot, walks to it); a ranged weapon routes to
+    /// RangedCombatState instead (slot-less positioning) — see RangedCombatState.
+    /// </summary>
+    internal virtual AIStateBase GetApproachState() =>
+        HasRangedWeaponEquipped ? new RangedCombatState() : new CombatApproachState();
 
     /// <summary>
     /// State to resume once a discrete action (attack, block/dodge) finishes and the fighter should
-    /// go back to holding at range. Melee default is CombatPressureState. Overridden alongside
-    /// GetApproachState() for ranged fighters — see RangedCombatState and ArcherAI's comment on why
-    /// both hooks map to the same state there.
+    /// go back to holding at range. Melee default is CombatPressureState; mirrors GetApproachState()
+    /// for a ranged weapon — see RangedCombatState and ArcherAI's comment on why both hooks map to
+    /// the same state there.
     /// </summary>
-    internal virtual AIStateBase GetPressureState() => new CombatPressureState();
+    internal virtual AIStateBase GetPressureState() =>
+        HasRangedWeaponEquipped ? new RangedCombatState() : new CombatPressureState();
 
     // ── Pack assist fallback ───────────────────────────────────────────────────
 
@@ -199,11 +212,25 @@ public abstract class CombatAIBase : CharacterAI
     /// case where CurrentSlotHost can still lag CurrentTarget is the target being genuinely at
     /// MaxAttackers capacity — CombatApproachState.OnUpdate's orbit-and-retry loop is still the
     /// correct fallback for that, and is left unchanged.
+    ///
+    /// A ranged weapon skips slot-claiming entirely — locking onto a target is purely a
+    /// targeting/facing concern for a ranged fighter, not a physical "occupy one of the target's
+    /// MaxAttackers slots" concern the way it is for melee (RangedCombatState never reads
+    /// CurrentSlotHost, and claiming one anyway would just take a melee attacker's spot for
+    /// nothing). Still force the target to commit back, mirroring the base behaviour's reciprocal
+    /// half, so melee targets actually turn and fight a ranged attacker instead of ignoring it.
     /// </summary>
     protected override void OnCurrentTargetChanged(CharacterBase newTarget)
     {
         if (Controller == null || newTarget == CurrentSlotHost) return;
         ReleaseEngagementSlot();
+
+        if (HasRangedWeaponEquipped)
+        {
+            TryForceReciprocalLock(Controller, newTarget);
+            return;
+        }
+
         if (newTarget.TryClaimSlot(Controller, out _))
         {
             CurrentSlotHost = newTarget;

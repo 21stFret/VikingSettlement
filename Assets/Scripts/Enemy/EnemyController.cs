@@ -65,7 +65,7 @@ public class EnemyController : CharacterBase
     /// <summary>
     /// Override to add enemy-specific hit behavior (e.g., enemy damage)
     /// </summary>
-    protected override void OnHitTarget(Collider2D hit)
+    public override void OnHitTarget(Collider2D hit)
     {
         var target = hit.GetComponent<TargetHealth>();
         if (target != null && enemyData != null)

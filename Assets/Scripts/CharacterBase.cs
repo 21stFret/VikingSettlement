@@ -381,6 +381,16 @@ public class CharacterBase : MonoBehaviour
     }
 
     /// <summary>
+    /// Effective engagement range for AI decisions (CharacterAI.AttackRange) — the equipped
+    /// weapon's own attackRange, or derived from the unarmed hitbox geometry when no weapon is
+    /// equipped. Lives here rather than being separately tuned per AI subclass/prefab so it
+    /// tracks whatever weapon this character is actually holding right now, including mid-fight
+    /// re-equips (a villager picking up a dropped weapon, etc.).
+    /// </summary>
+    public float GetAttackRange() =>
+        weapon != null ? weapon.attackRange : unarmedAttackOffset.x + unarmedAttackSize.x / 2f;
+
+    /// <summary>
     /// Check if character is currently moving
     /// </summary>
     public bool ReturnIsMoving()
@@ -660,6 +670,8 @@ public class CharacterBase : MonoBehaviour
         HashSet<GameObject> hitGameObjects = new HashSet<GameObject>();
         if (hitObjects.Length == 0) return;
 
+        var villager = GetComponent<Villager>();
+
         foreach (var hit in hitObjects)
         {
             if (hit.gameObject == this.gameObject) continue;
@@ -687,19 +699,21 @@ public class CharacterBase : MonoBehaviour
                     ApplyKnockback(this, hit.transform.position);
 
                 OnHitTarget(hit);
+                if (villager != null)
+                {
+                    if (villager.isJarl && hit.gameObject.layer != 9)
+                    {
+                        Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
+                    }
+                }
             }
+
         }
 
         // Improve combat skill on every swing, for all factions
-        var villager = GetComponent<Villager>();
-        if (villager != null)
-        {
+        if(villager != null)
             villager.skills.ImproveJob(JobType.Warrior);
-            if (villager.isJarl)
-            {
-                Camera.main.DOShakePosition(0.2f, 0.1f, 10, 90, false);
-            }
-        }
+
     }
 
     public void PerformArrowShot()
@@ -761,7 +775,7 @@ public class CharacterBase : MonoBehaviour
     /// <summary>
     /// Override this to handle what happens when hitting a target
     /// </summary>
-    protected virtual void OnHitTarget(Collider2D hit)
+    public virtual void OnHitTarget(Collider2D hit)
     {
         if (!GameManager.Instance.IsGameActive)
         {

@@ -34,9 +34,6 @@ public abstract class VillagerAIBase : CombatAIBase
     [SerializeField] private Transform workLocation;
     [SerializeField] private float workRadius = 2f;
 
-    [Header("Combat Behavior")]
-    [SerializeField] private float combatEngageRange = 6f;
-
     [Header("Raid Behavior")]
     [SerializeField] private bool isInRaidMode = false;
     [SerializeField] private Transform followTarget;
@@ -54,7 +51,8 @@ public abstract class VillagerAIBase : CombatAIBase
     public override float     WanderRadius   => wanderRadius;
     public override float     IdleTimeMin    => idleTimeMin;
     public override float     IdleTimeMax    => idleTimeMax;
-    public override float     AttackRange    => combatEngageRange;
+    // AttackRange is inherited from CharacterAI (weapon-derived) — no override here, see
+    // EnemyAIBase's class doc for why.
     public override LayerMask ObstacleLayer  => VillagerController != null ? VillagerController.obstacleLayer : default;
 
     /// <summary>Block cooldown reduced by combat skill — higher skill = charges refill faster.</summary>
@@ -78,7 +76,6 @@ public abstract class VillagerAIBase : CombatAIBase
     public float        MaxDistanceFromCentre => maxDistanceFromCentre;
     public float        SeparationRadius      => separationRadius;
     public float        SeparationStrength    => separationStrength;
-    public float        CombatEngageRange     => combatEngageRange;
     public RaidBehavior CurrentRaidBehavior   => raidBehavior;
     public bool         IsInCutscene          { get; private set; }
     public Vector3      CutsceneTargetPos     { get; private set; }
@@ -124,8 +121,8 @@ public abstract class VillagerAIBase : CombatAIBase
 
     protected override void OnTargetAcquired(CharacterBase target, bool targetChanged)
     {
-        if (VillagerController.combatMoveSpeed > 0f)
-            VillagerController.SetMoveSpeed(VillagerController.combatMoveSpeed);
+        if (ChaseSpeed > 0f)
+            VillagerController.SetMoveSpeed(ChaseSpeed);
 
         if (VillagerController.shield == null && CanFindShield())
             ChangeState(new VillagerPrepareCombatState());
@@ -135,8 +132,8 @@ public abstract class VillagerAIBase : CombatAIBase
 
     protected override void OnNoTargetFound()
     {
-        if (VillagerController.walkMoveSpeed > 0f)
-            VillagerController.SetMoveSpeed(VillagerController.walkMoveSpeed);
+        if (MoveSpeed > 0f)
+            VillagerController.SetMoveSpeed(MoveSpeed);
 
         if (isInRaidMode && IsInActiveCombatState())
             ChangeState(new VillagerFollowState());
@@ -269,7 +266,7 @@ public abstract class VillagerAIBase : CombatAIBase
         }
 
         Gizmos.color = Color.orange;
-        Gizmos.DrawWireSphere(transform.position, combatEngageRange);
+        Gizmos.DrawWireSphere(transform.position, AttackRange);
 
         if (CurrentTarget != null)
         {

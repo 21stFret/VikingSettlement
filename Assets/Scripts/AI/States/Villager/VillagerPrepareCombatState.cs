@@ -12,9 +12,11 @@ public class VillagerPrepareCombatState : AIStateBase
             return;
         }
 
-        if (v.VillagerController.shield != null)
+        // A ranged weapon has no use for a shield — skip straight to combat instead of sending
+        // an archer off hunting for one first.
+        if (v.VillagerController.shield != null || v.HasRangedWeaponEquipped)
         {
-            ai.ChangeState(new CombatApproachState());
+            ai.ChangeState(v.GetApproachState());
             return;
         }
 
@@ -40,7 +42,7 @@ public class VillagerPrepareCombatState : AIStateBase
         }
         else
         {
-            ai.ChangeState(new CombatApproachState());
+            ai.ChangeState(v.GetApproachState());
         }
     }
 }

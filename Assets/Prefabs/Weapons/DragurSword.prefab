@@ -86,6 +86,7 @@ MonoBehaviour:
   attachPoint: 1
   isEquipped: 0
   attackSpeed: 1
+  attackRange: 1.7
   attackSize: {x: 1, y: 1}
   attackOffset: {x: 1.2, y: 0.9}
   verticalAttackOffset: 0
@@ -98,6 +99,9 @@ MonoBehaviour:
   currentDurability: 0
   itemDamageSprites: []
   itemSpriteRenderer: {fileID: 2808145276735054269}
+  rightSortingOffset: 69
+  leftSortingOffset: 90
+  shieldBack: {fileID: 0}
 --- !u!58 &-1345084297997243073
 CircleCollider2D:
   m_ObjectHideFlags: 0

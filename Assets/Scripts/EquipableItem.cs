@@ -28,6 +28,8 @@ public class EquipableItem : MonoBehaviour
     [Header("Combat")]
     [Tooltip("Time between attacks in seconds. Lower = faster attacks.")]
     public float attackSpeed = 0.5f;
+    [Tooltip("How close an AI wielding this weapon needs to be to its target before it commits to attacking — melee reach for melee weapons, hold-and-fire distance for a bow. Read via CharacterBase.GetAttackRange()/CharacterAI.AttackRange instead of being separately tuned per character prefab, so every wielder of this weapon (and a re-equip mid-fight) gets consistent engagement range for free.")]
+    public float attackRange = 1.5f;
     [Tooltip("Attack hitbox size, facing East. Rotated to match the character's current facing direction at attack time.")]
     public Vector2 attackSize = new Vector2(1f, 1f);
     [Tooltip("Attack hitbox offset from the character, facing East. Rotated to match the character's current facing direction at attack time.")]
@@ -56,6 +58,10 @@ public class EquipableItem : MonoBehaviour
 
     public bool IsShield => itemType == ItemType.Shield;
     public bool IsWeapon => itemType == ItemType.Sword || itemType == ItemType.Spear || itemType == ItemType.Axe || itemType == ItemType.Hammer || itemType == ItemType.Bow;
+    /// <summary>Whether this weapon is fought at range rather than melee — drives AI state
+    /// routing (CombatAIBase picks RangedCombatState over the melee approach/pressure states for
+    /// whoever currently has a ranged weapon equipped, regardless of villager/enemy class).</summary>
+    public bool IsRanged => itemType == ItemType.Bow;
 
     public bool IsBroken => maxDurability > 0 && currentDurability <= 0;
     public int CurrentDurability => currentDurability;

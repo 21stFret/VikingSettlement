@@ -86,6 +86,7 @@ MonoBehaviour:
   attachPoint: 1
   isEquipped: 0
   attackSpeed: 0.7
+  attackRange: 2
   attackSize: {x: 1.6, y: 1.4}
   attackOffset: {x: 1.2, y: 0.9}
   verticalAttackOffset: 0

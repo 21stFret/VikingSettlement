@@ -19,6 +19,7 @@ public class Arrow : MonoBehaviour
     public SpriteMask stuckMask;
     private GameObject owner;
     public Vector2 rbVelocity => rb.linearVelocity;
+    private CharacterBase characterBase;
 
     public void Initialize(float damage, Vector2 dir, Vector2 archer, GameObject own)
     {
@@ -35,6 +36,7 @@ public class Arrow : MonoBehaviour
         Fire();
         stuckMask = GetComponentInChildren<SpriteMask>();
         stuckMask.enabled = false;
+        characterBase = own.GetComponent<CharacterBase>();
 
         col.enabled = false;
     }
@@ -82,10 +84,8 @@ public class Arrow : MonoBehaviour
         if (collision.contacts.Length == 0)
             return;
 
-        // Deal damage if the thing we hit can take it
-        var damageable = collision.gameObject.GetComponent<TargetHealth>();
-        damageable?.TakeDamage(damage, arrowRef,attackerPos: archerPos);
         inFlight = false;
+        characterBase.OnHitTarget(collision.collider);
         ArrowStuck(collision.transform, collision.contacts[0].point);
     }
 

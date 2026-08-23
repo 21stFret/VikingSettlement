@@ -2,9 +2,10 @@ using UnityEngine;
 
 /// <summary>
 /// Enemy-specific AI base. Extends CharacterAI with:
-/// - Its own combat/movement stat block (attack range, damage, cooldown, speeds) — this is the
-///   single owner of per-instance enemy combat tuning, mirroring how VillagerAIBase holds its own
-///   combatEngageRange directly rather than delegating to a separate data component.
+/// - Its own combat stat block (damage, cooldown) — this is the single owner of per-instance
+///   enemy combat tuning. Attack range and walk/chase speed are NOT here — attack range comes
+///   from the equipped weapon (CharacterAI.AttackRange → CharacterBase.GetAttackRange()) and
+///   move/chase speed live on CharacterAI itself, both shared with VillagerAIBase.
 /// - Retargeting on hit (shared CombatAIBase.HandleHitBy — off by default via inspector)
 ///
 /// Concrete subclasses (EnemyAI, ArcherAI, etc.) extend this and call GetInitialState() to define
@@ -19,11 +20,8 @@ public abstract class EnemyAIBase : CombatAIBase
     public EnemyController EnemyController { get; private set; }
 
     [Header("Combat Stats")]
-    [SerializeField] private float attackRange    = 1.5f;
     [SerializeField] private float damage         = 10f;
     [SerializeField] private float attackCooldown = 1.5f;
-
-    public override float AttackRange => attackRange;
 
     /// <summary>Flat damage this enemy deals on top of its weapon's own strength — the
     /// "monsters hit harder than their gear alone implies" layer, kept deliberately asymmetric
@@ -35,8 +33,8 @@ public abstract class EnemyAIBase : CombatAIBase
     public float AttackCooldown => attackCooldown;
 
     [Header("Movement")]
-    [SerializeField] private float      moveSpeed         = 1.5f;
-    [SerializeField] private float      chaseSpeed        = 2.5f;
+    // moveSpeed/chaseSpeed live on CharacterAI base now — shared with VillagerAIBase instead of
+    // each redeclaring its own differently-named pair.
     [SerializeField] private float      wanderRadius      = 5f;
     [SerializeField] private float      idleTimeMin       = 1f;
     [SerializeField] private float      idleTimeMax       = 3f;
@@ -47,8 +45,6 @@ public abstract class EnemyAIBase : CombatAIBase
     [SerializeField] private float loseTargetTime = 3f;
     // retargetOnHit lives on CharacterAI base — defaults false for enemies via inspector
 
-    public override float     MoveSpeed       => moveSpeed;
-    public override float     ChaseSpeed      => chaseSpeed;
     public override float     WanderRadius    => wanderRadius;
     public override float     IdleTimeMin     => idleTimeMin;
     public override float     IdleTimeMax     => idleTimeMax;

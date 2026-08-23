@@ -8,6 +8,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 144721006929438463, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5241171
+      objectReference: {fileID: 0}
+    - target: {fileID: 144721006929438463, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.13996555
+      objectReference: {fileID: 0}
+    - target: {fileID: 144721006929438463, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 144721006929438463, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 4254970493097016578, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
       propertyPath: m_Name
       value: Tree (4) Variant
@@ -56,6 +72,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: cf1cd17cbb78fd049817ff5500260b54, type: 3}
+    - target: {fileID: 8504642794080518580, guid: 2cb1c7b99dd0fa24bad6ab1f7f3bce4c, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ff3b432e4a468fa4c812dd1b87dfddd2, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

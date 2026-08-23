@@ -10311,7 +10311,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 6.68, y: 5.67, z: 0}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1.2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1205629305760749157}
@@ -10459,7 +10459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
   searchInterval: 0.5
   CombatStats: {fileID: 11400000, guid: f580980ba821664489c872ac2d64603a, type: 2}
-  awarenessRadius: 4
+  awarenessRadius: 2
   enterSeparationRange: 3
   exitSeparationRange: 4
   commitRange: 0.4
@@ -10469,7 +10469,6 @@ MonoBehaviour:
   separationSmoothingRate: 8
   retargetOnHit: 1
   showDebug: 0
-  attackRange: 2
   damage: 4
   attackCooldown: 1.5
   moveSpeed: 3
