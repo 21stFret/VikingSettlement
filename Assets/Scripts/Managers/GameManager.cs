@@ -214,6 +214,8 @@ public class GameManager : MonoBehaviour
             GSB.Init();
         }
 
+        IsGameActive = true;
+
         // Apply pending raid results AFTER Bootstrap has initialized UI and managers —
         // Jarl-casualty succession fires events that require JarlManager, cameras, and
         // succession UI to be ready (B37).

@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1148873076696195002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3567838342603770879}
+  - component: {fileID: 4753505489734471365}
+  m_Layer: 0
+  m_Name: HitEffect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3567838342603770879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148873076696195002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4753505489734471365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148873076696195002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 798b075dd3bf852488ccddb85d9c7466, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitFeedback
+  targetCamera: {fileID: 0}
+  shakeMagnitude: 0.12
+  shakeDuration: 0.12
+  bigHitShakeMagnitude: 0.18
+  bigHitShakeDuration: 0.22
+  rumbleLowFrequency: 0.25
+  rumbleHighFrequency: 0.35
+  rumbleDuration: 0.12
+  bigHitRumbleLowFrequency: 0.6
+  bigHitRumbleHighFrequency: 0.7
+  bigHitRumbleDuration: 0.25
+  enableHitStop: 1
+  hitStopDuration: 0.5
+  bigHitStopDuration: 1
+  hitParticlePrefab: {fileID: 0}
+  bigHitParticlePrefab: {fileID: 0}
+  particleLifetime: 2
+  playSfx: 1
+  meleeHitSfx: 6
+  rangedHitSfx: 9
+  bigHitDamageThreshold: 25
