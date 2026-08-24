@@ -283,6 +283,11 @@ namespace Cutscenes
             currentAction = null;
             isPlaying = false;
 
+            // Restore input maps same as a skip does (StopCutscene) — without this, Player
+            // (where Pause lives) stays disabled and CutScene stays enabled forever once a
+            // cutscene finishes on its own instead of being skipped.
+            StartCoroutine(DelayFrameForInput());
+
             Debug.Log($"CutsceneManager: Cutscene '{completedCutscene.displayName}' completed");
             OnCutsceneEnded?.Invoke(completedCutscene);
         }

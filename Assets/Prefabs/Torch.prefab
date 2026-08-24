@@ -10081,7 +10081,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76d5fedb241b530499ca396a3efb9819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowCastingLight
-  lightHeight: 0.85
+  lightHeight: 0.49
   shadowIntensity: 0.602
   daytimeIntensity: 0.1
   shadowCasterLayerMask:

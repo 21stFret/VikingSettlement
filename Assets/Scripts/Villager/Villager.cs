@@ -23,6 +23,14 @@ public class Villager : TargetHealth
     public bool isCold = false;
     public bool isOnRaid = false;
     public DeathCause deathCause = DeathCause.Other;
+
+    // Set by an external caller replaying this villager's death against a state that didn't itself
+    // witness the cause (e.g. RaidManager killing the autosave-restored, pre-raid instance to apply a
+    // raid casualty — that instance's own lastDamageWasCombat/isHungry/isCold flags reflect its
+    // pre-raid state, not what actually killed it). When set, Die() uses this instead of guessing from
+    // live flags. Consumed (cleared) the moment Die() reads it.
+    private DeathCause? deathCauseOverride;
+    public void SetDeathCauseOverride(DeathCause cause) => deathCauseOverride = cause;
     public float healthRegenFromFood = 1; // Health regained when fed
     public float moraleRegenFromFood = 5; // Morale regained when fed
 
@@ -643,22 +651,43 @@ public class Villager : TargetHealth
     public override void Die()
     {
         if(isDead) return;
+
+        // Captured before base.Die() — for a raid party member, base.Die()'s OnDeath event
+        // synchronously cascades into RaidSceneController.Defeat() -> RaidManager.EndRaid(), which
+        // flips RaidManager.IsOnRaid to false before this method resumes below. Reading IsOnRaid
+        // after that point would always see "not on a raid", even for a death that just ended one.
+        bool wasOnRaid = RaidManager.Instance != null && RaidManager.Instance.IsOnRaid;
+
         base.Die();
         Debug.Log($"{villagerName} has died at age {age:F1}");
 
         // Determine cause of death for all villagers
-        deathCause = DeathCause.Other;
-        if (lastDamageWasCombat)
-            deathCause = DeathCause.Combat;
-        else if (age >= lifeExpectancy)
-            deathCause = DeathCause.OldAge;
-        else if (isHungry)
-            deathCause = DeathCause.Starvation;
-        else if (isCold)
-            deathCause = DeathCause.Cold;
+        if (deathCauseOverride.HasValue)
+        {
+            deathCause = deathCauseOverride.Value;
+            deathCauseOverride = null;
+        }
+        else
+        {
+            deathCause = DeathCause.Other;
+            if (lastDamageWasCombat)
+                deathCause = DeathCause.Combat;
+            else if (age >= lifeExpectancy)
+                deathCause = DeathCause.OldAge;
+            else if (isHungry)
+                deathCause = DeathCause.Starvation;
+            else if (isCold)
+                deathCause = DeathCause.Cold;
+        }
 
-        // If the Jarl is dying, trigger succession
-        if (isJarl && JarlManager.Instance != null)
+        // If the Jarl is dying, trigger succession — but not while on a raid. SettlementManager (and
+        // every settlement-scene succession subscriber: SuccessionUI, SkillTreeManager, etc.) doesn't
+        // exist in a raid scene, so succession can't run correctly there. Instead RaidSceneController
+        // sees isJarl and ends the raid as a Defeat via RaidManager.EndRaid() (no "Keep Sailing"
+        // option), and the Jarl is carried home as a normal casualty: RaidManager.ApplyPendingResults
+        // replays this death against the autosave-restored settlement villager once back home, where
+        // this same code path fires succession for real, against the full settlement roster.
+        if (isJarl && JarlManager.Instance != null && !wasOnRaid)
         {
             JarlManager.Instance.OnCurrentJarlDied(deathCause);
         }

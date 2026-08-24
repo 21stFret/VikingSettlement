@@ -534,12 +534,20 @@ public class RaidManager : MonoBehaviour
 
         if (SettlementManager.Instance != null)
         {
-            // 2. Kill casualties by uniqueId (autosave restored them as living)
+            // 2. Kill casualties by uniqueId (autosave restored them as living). Every casualty here
+            // died in raid combat — GameTickManager is paused for the whole raid (see PauseSettlement),
+            // so hunger/cold/old-age can't be the real cause, and the restored autosave instance never
+            // actually took the damage that killed it. If this is the Jarl, Die() fires succession for
+            // real here (SettlementManager exists again) — see Villager.Die() for why it didn't fire
+            // back in the raid scene.
             foreach (var id in pending.casualtyIds)
             {
                 Villager v = SettlementManager.Instance.GetVillagerById(id);
                 if (v != null && !v.IsDead())
+                {
+                    v.SetDeathCauseOverride(DeathCause.Combat);
                     v.Die();
+                }
             }
 
             // 3. Set survivor health to post-raid values (autosave had pre-raid health)
@@ -660,10 +668,11 @@ public class RaidManager : MonoBehaviour
                 if (!v.IsDead())
                 {
                     v.currentHealth = 0f;
+                    // Simulator-computed cause, set before Die() so JarlManager sees the right cause if
+                    // this is the Jarl — live isHungry/isCold/lastDamageWasCombat reflect pre-raid state,
+                    // not what happened during the sim.
+                    v.SetDeathCauseOverride(outcome.deathCause);
                     v.Die(); // fires JarlManager succession, RemoveWorker, UnregisterVillager, etc.
-                    v.deathCause = outcome.deathCause; // simulator-computed cause overrides Die()'s own guess,
-                                                        // since live isHungry/isCold/lastDamageWasCombat
-                                                        // reflect pre-raid state, not what happened during the sim
                     deaths++;
                 }
                 continue;
