@@ -1,21 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Full-view overlay: wind-scrolled cloud coverage darkening the scene, with pixel-art-quantized
-/// edges baked into the texture itself (see CloudShadowTextureGenerator). Builds one
-/// camera-covering quad and drives Custom/CloudShadowOverlay.shader.
+/// Full-view overlay: wind-scrolled cloud coverage darkening the scene, warped by a baked world
+/// height map, with pixel-art-quantized edges baked into the texture itself (see
+/// CloudShadowTextureGenerator). Builds one camera-covering quad and drives
+/// Custom/CloudShadowOverlay.shader.
 ///
-/// Cloud appearance (position AND shape) is driven ONLY by wind — never by the sun. Sun
-/// elevation only ever affects overall intensity fading at night. Don't reintroduce sun-coupling
-/// of the cloud pattern itself — see the 2026-08-24 project doc for why that read as "clouds
-/// moving strangely" the first time it was tried.
+/// Cloud POSITION is driven ONLY by wind — never by the sun. Sun elevation only ever affects
+/// overall intensity fading at night. The WARP (this file) is a separate effect: it reads local
+/// height from WorldHeightCamera and offsets the SAMPLED cloud UV straight along Y (the height
+/// map's own vertical axis) — not along wind, not along sun. Sign is controlled by
+/// cloudWarpStrength's own sign; flip it negative in the Inspector if the warp reads backwards.
 ///
-/// Rolled back (2026-08-24) from a baked whole-level height map system (cloud warp near tall
-/// objects + building-cast shadows) — WorldHeightCamera/WorldHeightContributor/
-/// WorldHeightStamp.shader/WorldHeightDebugView. That system hit five separate real bugs across
-/// as many rounds and still wasn't fully working; this flat version is the only state in that
-/// whole thread ever actually confirmed bug-free. Don't rebuild that system without a concrete
-/// reason it's worth the ongoing complexity — see the project doc before trying again.
+/// Building-cast shadows (a separate use of the same height bake, walked toward the sun) were
+/// tried twice and dropped both times (2026-08-24, see project doc) — once for a real
+/// self-shadowing bug, once because only 6 discrete march steps produced a sparse "outline"
+/// artifact instead of a filled shadow (the reference technique used ~150 steps, a real GPU cost
+/// this pass isn't taking on). Explicitly out of scope right now, not a bug to fix here — don't
+/// reintroduce it without a plan for the step-count/performance tradeoff.
 ///
 /// Not [ExecuteInEditMode] — nothing here is worth per-placement edit-time preview, and it
 /// avoids edit-mode Camera.main edge cases.
@@ -27,7 +29,7 @@ public class CloudShadowOverlay : MonoBehaviour
     public Texture2D cloudNoiseTexture;
 
     [Header("Wind")]
-    [Tooltip("Direction the cloud pattern drifts. Only the direction matters, magnitude is normalized.")]
+    [Tooltip("Direction the cloud pattern drifts. Only the direction matters, magnitude is normalized. Does NOT affect the height warp below — that's a separate, fixed-axis effect.")]
     public Vector2 windDirection = new Vector2(1f, 0.35f);
     [Tooltip("World units per second the cloud pattern drifts.")]
     public float windSpeed = 1.5f;
@@ -35,6 +37,8 @@ public class CloudShadowOverlay : MonoBehaviour
     [Header("Scale")]
     [Tooltip("World-space size, in units, of one tile of the cloud texture. Bigger = larger cloud patches.")]
     public float noiseTileWorldSize = 40f;
+    [Tooltip("How far (world units) the sampled cloud pixel shifts along Y where the baked height map reads at its maximum (1.0). Scales down linearly with height — flat ground (height 0) never warps the cloud at all. Negative flips the direction. Requires a WorldHeightCamera in the scene; with none, warp is simply 0 (a console warning fires once).")]
+    public float cloudWarpStrength = 4f;
 
     [Header("Shadow")]
     [Tooltip("Color multiplied onto the scene at full cloud coverage.")]
@@ -59,12 +63,17 @@ public class CloudShadowOverlay : MonoBehaviour
     public string sortingLayerName = "Default";
     public int sortingOrder = 5000;
 
+    [Header("Debug")]
+    [Tooltip("Bypass cloud coverage entirely and paint the shader's own heightHere reading directly onto the screen (white = 0, blue = max). Use to confirm height sampling lines up with what's on screen.")]
+    public bool debugVisualizeHeight = false;
+
     private GameObject quadObject;
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh quadMesh;
     private Material material;
     private Vector2 windOffset;
+    private bool warnedAboutMissingHeightCamera;
 
     void OnEnable()
     {
@@ -153,6 +162,7 @@ public class CloudShadowOverlay : MonoBehaviour
 
         quadMesh.vertices = new Vector3[] { bl, br, tr, tl };
 
+        // --- Cloud: wind ONLY. No sun coupling of any kind here. ---
         float tileSize = Mathf.Max(noiseTileWorldSize, 0.01f);
         float deltaTime = Application.isPlaying ? Time.deltaTime : 0f;
         Vector2 windDirNormalized = windDirection.normalized;
@@ -161,6 +171,30 @@ public class CloudShadowOverlay : MonoBehaviour
         material.SetVector("_Offset", new Vector4(windOffset.x, windOffset.y, 0f, 0f));
         material.SetFloat("_InvTileSize", 1f / tileSize);
         material.SetFloat("_Intensity", CalculateIntensity());
+        material.SetFloat("_DebugVisualizeHeight", debugVisualizeHeight ? 1f : 0f);
+
+        var heightCam = WorldHeightCamera.Instance;
+        if (heightCam == null || heightCam.HeightTexture == null)
+        {
+            // Without this, _WorldHeightTex silently stays at the shader's compiled-in default
+            // ("black" — height 0 everywhere), so warp just does nothing, with no error at all.
+            if (!warnedAboutMissingHeightCamera)
+            {
+                Debug.LogWarning(heightCam == null
+                    ? "CloudShadowOverlay: no WorldHeightCamera in the scene — cloud warp is disabled until one is added."
+                    : "CloudShadowOverlay: WorldHeightCamera found but hasn't baked a texture yet.");
+                warnedAboutMissingHeightCamera = true;
+            }
+            material.SetFloat("_CloudWarpUV", 0f);
+        }
+        else
+        {
+            float heightMapWorldSize = Mathf.Max(heightCam.worldSize.x, 0.01f); // worldSize should be square — see WorldHeightCamera
+            material.SetTexture("_WorldHeightTex", heightCam.HeightTexture);
+            material.SetVector("_WorldHeightOrigin", new Vector4(heightCam.worldOrigin.x, heightCam.worldOrigin.y, 0f, 0f));
+            material.SetVector("_WorldHeightInvSize", new Vector4(1f / heightMapWorldSize, 1f / heightMapWorldSize, 0f, 0f));
+            material.SetFloat("_CloudWarpUV", cloudWarpStrength / tileSize);
+        }
     }
 
     float CalculateIntensity()

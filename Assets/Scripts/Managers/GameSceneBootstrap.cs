@@ -8,6 +8,7 @@ using UnityEngine;
 [DefaultExecutionOrder(-1000)]
 public class GameSceneBootstrap : MonoBehaviour
 {
+    public bool testing = false;
     public void Init()
     {
         InitializeManagers();
@@ -90,7 +91,7 @@ public class GameSceneBootstrap : MonoBehaviour
             HeatUI.Instance?.UpdateWoodUI();
         }
 
-        if(isNewGame)
+        if(isNewGame && !testing)
         {
             SaveManager.Instance?.SaveToCurrentSlot();
             DemoSceneario.instance?.Init();
