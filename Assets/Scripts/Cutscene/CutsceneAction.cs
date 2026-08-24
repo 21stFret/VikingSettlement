@@ -245,6 +245,17 @@ namespace Cutscenes
             if (villagerAI != null && useNavigation)
             {
                 villagerAI.SetCutsceneTarget(targetPosition);
+
+                // Self-register so CutsceneManager.RestoreCutsceneState() always calls
+                // ClearCutsceneTarget() on cutscene end (skip or natural completion), even if the
+                // scene that triggered this cutscene never calls RegisterOverriddenVillager itself.
+                // Without this, VillagerMovingToPositionState waits forever for an external
+                // ClearCutsceneTarget() that never comes — leaving IsInCutscene/AI-enabled stuck
+                // (see [[combat_architecture]] player-facing-freeze fix for why a stuck AI-enabled
+                // flag matters for a possessed character).
+                var actorVillager = actorObject.GetComponent<Villager>();
+                if (actorVillager != null)
+                    manager.RegisterOverriddenVillager(actorVillager);
             }
 
             return false;

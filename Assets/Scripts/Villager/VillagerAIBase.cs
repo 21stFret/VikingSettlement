@@ -188,8 +188,20 @@ public abstract class VillagerAIBase : CombatAIBase
         }
     }
 
+    // Snapshot of AI-enabled state from before SetCutsceneTarget forced it on — restored in
+    // ClearCutsceneTarget. Needed because a player-possessed villager (PlayerController.
+    // SetControlTarget calls SetAIEnabled(false)) can be walked by an authored cutscene's
+    // ActorMoveAction (e.g. Holmgang walk-in): without this, ClearCutsceneTarget left AI
+    // permanently enabled on the possessed character, which both fights PlayerController for
+    // control via the FSM and defeats CharacterBase.FaceTowards's !IsAIEnabled guard, letting an
+    // enemy's reciprocal engagement lock freeze the player's facing again.
+    private bool _wasAIEnabledBeforeCutscene;
+
     public void SetCutsceneTarget(Vector3 position)
     {
+        if (!IsInCutscene)
+            _wasAIEnabledBeforeCutscene = IsAIEnabled;
+
         IsInCutscene    = true;
         CutsceneTargetPos = position;
         SetAIEnabled(true);
@@ -200,7 +212,18 @@ public abstract class VillagerAIBase : CombatAIBase
     public void ClearCutsceneTarget()
     {
         IsInCutscene = false;
-        ChangeState(new VillagerIdleState());
+
+        if (_wasAIEnabledBeforeCutscene)
+        {
+            // Stayed enabled the whole time (normal villager) — just return to idle.
+            ChangeState(new VillagerIdleState());
+        }
+        else
+        {
+            // Was disabled before the cutscene grabbed it (player-possessed) — SetAIEnabled(false)
+            // already stops movement, clears the target, and transitions to VillagerIdleState.
+            SetAIEnabled(false);
+        }
     }
 
     public void SetWorkLocation(Transform location)
