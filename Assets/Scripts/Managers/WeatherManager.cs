@@ -81,7 +81,7 @@ public class WeatherManager : MonoBehaviour
     public WeatherType testWeatherType = WeatherType.Clear;
     [Tooltip("Intensity for rain/snow (emission rate)")]
     public float testIntensity = 50f;
-    [InspectorButton("ApplyTestWeather", ButtonWidth = 150)]
+    [InspectorButton("SetTestWeather", ButtonWidth = 150)]
     public bool applyWeatherButton;
     [InspectorButton("StopAllWeather", ButtonWidth = 150)]
     public bool stopWeatherButton;
@@ -146,7 +146,7 @@ public class WeatherManager : MonoBehaviour
             if (DayNightManager.Instance != null)
             {
                 DayNightManager.Instance.OnDayNightChanged -= OnDayNightChanged;
-                DayNightManager.Instance.OnNewDay          -= OnWeatherNewDay;
+                DayNightManager.Instance.OnNewDay -= OnWeatherNewDay;
             }
         }
     }
@@ -189,8 +189,8 @@ public class WeatherManager : MonoBehaviour
         // }
 
         // Apply correct weather immediately so it's right on scene load, not after the first day tick
-        bool initIsStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
-        bool initIsWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        bool initIsStorm = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool initIsWinter = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
         int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
         ApplyWeatherForDay(initIsStorm, initIsWinter, coldLevel);
     }
@@ -240,32 +240,6 @@ public class WeatherManager : MonoBehaviour
         weatherContainer.localRotation = Quaternion.identity;
     }
 
-    private void SetRandomWeather()
-    {
-        // Pick a random weather type
-        WeatherType[] weatherOptions = (WeatherType[])System.Enum.GetValues(typeof(WeatherType));
-        WeatherType randomWeather = weatherOptions[Random.Range(0, weatherOptions.Length)];
-
-        // Set random intensity for rain/snow
-        float randomIntensity = Random.Range(30f, 120f);
-
-        SetWeather(randomWeather);
-
-        if (randomWeather == WeatherType.Rain || randomWeather == WeatherType.Storm)
-        {
-            SetRainIntensity(randomIntensity);
-        }
-        else if (randomWeather == WeatherType.Snow)
-        {
-            SetSnowIntensity(randomIntensity);
-        }
-
-        // Set random duration and reset timer
-        currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
-
-        Debug.Log($"WeatherManager: Weather set to {randomWeather} for {currentWeatherDuration:F2} days");
-    }
-
     private void SpawnWeatherEffects()
     {
         // Clean up old instances
@@ -296,7 +270,7 @@ public class WeatherManager : MonoBehaviour
         {
             sunDustInstance = Instantiate(sunDustPrefab, weatherContainer);
             sunDustInstance.name = "SunDust";
-            sunDustInstance.transform.localPosition = new Vector3(0, 0, 10); 
+            sunDustInstance.transform.localPosition = new Vector3(0, 0, 10);
             sunDustParticles = sunDustInstance.GetComponent<ParticleSystem>();
             sunDustInstance.SetActive(false);
         }
@@ -358,7 +332,6 @@ public class WeatherManager : MonoBehaviour
 
         UpdateSunBeamTiming();
         UpdateSunBeams();
-        UpdateWeatherDuration();
         UpdateSunDimming();
     }
 
@@ -378,31 +351,6 @@ public class WeatherManager : MonoBehaviour
             EnableSunBeams(shouldBeActive);
             EnableSunDust(shouldBeActive);
         }
-    }
-
-    private void UpdateWeatherDuration()
-    {
-        // Disabled — weather now driven by CalendarManager via ApplyWeatherForDay()
-        /*
-        // Skip auto weather changes when in manual mode
-        if (!autoWeather) return;
-        if (DayNightManager.Instance == null) return;
-
-        float currentTimeOfDay = DayNightManager.Instance.GetTimeOfDay();
-
-        // Calculate time passed (handles day rollover)
-        float timeDelta = currentTimeOfDay - lastTimeOfDay;
-        if (timeDelta < 0) timeDelta += 1f; // Day rolled over
-
-        weatherTimeElapsed += timeDelta;
-        lastTimeOfDay = currentTimeOfDay;
-
-        // Check if weather duration has passed
-        if (weatherTimeElapsed >= currentWeatherDuration)
-        {
-            SetRandomWeather();
-        }
-        */
     }
 
     private void UpdateSunDimming()
@@ -481,7 +429,7 @@ public class WeatherManager : MonoBehaviour
         {
             case WeatherType.Clear:
                 // Fireflies only at night during clear weather
-                if(SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
+                if (SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Summer)
                 {
                     EnableFireflies(!isDaytime);
                 }
@@ -547,8 +495,8 @@ public class WeatherManager : MonoBehaviour
 
     private void OnWeatherNewDay()
     {
-        bool isStorm  = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
-        bool isWinter = SeasonManager.Instance  != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        bool isStorm = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        bool isWinter = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
         int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
         ApplyWeatherForDay(isStorm, isWinter, coldLevel);
     }
@@ -568,16 +516,16 @@ public class WeatherManager : MonoBehaviour
 
         if (isWinter)
         {
-            if(coldLevel>0)
+            if (coldLevel > 0)
             {
-                SetSnowIntensity(coldLevel >1 ? stormSnowRate : ambientWinterSnowRate);
+                SetSnowIntensity(coldLevel > 1 ? stormSnowRate : ambientWinterSnowRate);
                 SetWeather(WeatherType.Snow);
                 return;
             }
         }
         else
         {
-            if(coldLevel<0)
+            if (coldLevel < 0)
             {
                 SetWeather(WeatherType.Sunny);  // sun beams + fireflies
                 return;
@@ -604,6 +552,16 @@ public class WeatherManager : MonoBehaviour
         }
     }
 
+    public void SetTestWeather()
+    {
+        currentWeather = testWeatherType;
+        weatherIntensity = Mathf.Clamp01(testIntensity);
+
+        if (isInitialized)
+        {
+            ApplyWeatherState();
+        }
+    }
     /// <summary>
     /// Get the current weather type
     /// </summary>
