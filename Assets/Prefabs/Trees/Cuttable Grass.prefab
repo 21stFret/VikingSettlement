@@ -194,11 +194,12 @@ MonoBehaviour:
   bendOutSpeed: 8
   stayBent: 1
   minBendSpeed: 1
-  hyperPerformanceMode: 0
+  hyperPerformanceMode: 1
   randomOffsetZ: 0
-  customMaterial: 0
-  inactiveShader: Sprites/Default
-  inactiveMaterial: {fileID: 0}
+  customMaterial: 1
+  inactiveShader: Assets/Sprite Shaders Ultimate/Demo/Materials/Example/Demo_Leaf
+    1
+  inactiveMaterial: {fileID: 2100000, guid: 3abecec95d5da8b45a5a931282e6700c, type: 2}
   randomizeWiggle: 0
   allowCustomLayer: 1
 --- !u!114 &5427812207840834225
@@ -208,7 +209,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 916887797271299619}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 594702ce4c72e224aa6034175f17a57a, type: 3}
   m_Name: 
