@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a52dedb20e5b2364191fcce6dea8ee54, type: 3}
+  m_Name: Cuttable Grass
+  m_EditorClassIdentifier: Assembly-CSharp::PrefabPainterTemplate
+  prefabs:
+  - {fileID: 916887797271299619, guid: 9885f45d31777c3478463082f11f1391, type: 3}
+  minScale: 1
+  maxScale: 1
+  minRotation: 0
+  maxRotation: 0
+  paintLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  randomizeRotationY: 0
+  alignToNormal: 0
+  surfaceOffset: 0
+  minSpacing: 1
+  checkOverlap: 0
+  overlapCheckLayers:
+    serializedVersion: 2
+    m_Bits: 0

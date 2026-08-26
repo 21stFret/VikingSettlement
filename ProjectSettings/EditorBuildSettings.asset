@@ -20,5 +20,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Holmgang Scene.unity
     guid: ad7fe83485f0d7f42bab209abb127a22
+  - enabled: 1
+    path: Assets/Scenes/Plains Scene.unity
+    guid: 178c2f35e784f2b45951983810ebf8ea
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 49adb4e1a7e46f14497904d6bfd54fc2, type: 3}

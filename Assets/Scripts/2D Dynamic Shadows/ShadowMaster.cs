@@ -162,7 +162,11 @@ public class ShadowMaster : MonoBehaviour
         shadows.Clear();
         DynamicShadow2D[] foundShadows = FindObjectsByType<DynamicShadow2D>();
         foreach (DynamicShadow2D shadow in foundShadows)
+        {
+            if (!shadow.enabled) continue;
             RegisterShadow(shadow);
+        }
+
     }
 
     public void RegisterShadow(DynamicShadow2D shadow)

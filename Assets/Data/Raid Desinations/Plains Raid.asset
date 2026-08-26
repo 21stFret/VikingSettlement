@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03aa4764f79f74c42aa7e8bc213f9d2c, type: 3}
+  m_Name: Plains Raid
+  m_EditorClassIdentifier: Assembly-CSharp::RaidDestinationData
+  destinationName: The Plains
+  sceneName: Plains Scene
+  description: A wide open area to explore and fight! Rich in many resources!
+  travelTimeHours: 36
+  realTimeLimit: 300
+  recommendedPartySize: 2
+  enemyCount: 5
+  enemyPrefabs:
+  - {fileID: 7555521055352246155, guid: 39aad6d48e8cd2348893cef765625605, type: 3}
+  spawnAll: 0
+  lootTable:
+  - resourceType: 15
+    dropChance: 1
+    minAmount: 10
+    maxAmount: 15
+  - resourceType: 2
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  - resourceType: 3
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  - resourceType: 6
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  - resourceType: 4
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  - resourceType: 16
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  - resourceType: 17
+    dropChance: 0.5
+    minAmount: 5
+    maxAmount: 5
+  locationType: 0
