@@ -34,10 +34,29 @@ public class DynamicShadow2D : MonoBehaviour
 
     private float nightBlendFactor = 0f;
 
-    // One material per instance — the custom shader doesn't get Unity's automatic
-    // per-SpriteRenderer texture override (that only applies to built-in sprite
-    // shaders), so a shared material would show whichever texture last got bound to it.
-    private Material sunShadowMaterial;
+    // All shadow casters (sun + auto) share ONE material — ShadowMaster.shadowMaterial — a real
+    // URP sprite shader gets Unity's automatic per-SpriteRenderer texture override, so one
+    // material correctly renders every different sprite/texture; no per-texture cache needed.
+    //
+    // Shadow tint/alpha is set via SpriteRenderer.color, same as any normal sprite. The shader
+    // reads this back through unity_SpriteColor — a built-in Unity feeds per-renderer that's
+    // specifically designed to survive both SRP Batcher and GPU Instancing correctly, so this
+    // needs no MaterialPropertyBlock or shader-global workaround.
+
+    // All sun shadows share this ONE fixed sortingOrder rather than trailing their own object by
+    // -1. Per-object placement interleaves shadow draws between individual grass blades in draw
+    // order (shadow_A, grass_A, shadow_B, grass_B, ...) — even though each draw is individually
+    // fine, that interleaving breaks up what would otherwise be one long contiguous run of
+    // identical-material grass blades that GPU Instancing could merge into large batches,
+    // collapsing it into isolated singletons instead (confirmed via Frame Debugger: every
+    // Non-SRP-Compatible entry in a grass-only scene is the wind shader, not this shadow shader —
+    // shadows were never the incompatible draws, they were just breaking up the grass's own runs).
+    // Pinning every sun shadow to one shared low order removes the interleaving: all shadows
+    // become one contiguous block, and grass becomes an uninterrupted, freely-instanceable block
+    // of its own. Safe for flat ground shadows that only need to sit behind everything on their
+    // layer — NOT yet verified for a mixed scene where a shadow might need to sit behind one
+    // specific nearby object but in front of another (e.g. once trees/buildings share this).
+    public const int SunShadowSortingOrder = -32000;
 
     void OnEnable()
     {
@@ -51,7 +70,18 @@ public class DynamicShadow2D : MonoBehaviour
     {
         shadowMaster = ShadowMaster.Instance;
         if (shadowObject == null)
+        {
             CreateShadow();
+        }
+        else if (shadowRenderer != null && shadowMaster != null)
+        {
+            // CleanupDuplicateShadows() may have just adopted a shadow object that already
+            // existed in the scene (survives domain reload since it's HideFlags.DontSave, not
+            // destroyed) rather than creating a fresh one — CreateShadow() never ran for it, so
+            // it could still be carrying whatever material it had before shadowMaterial last
+            // changed. Re-sync unconditionally so an adopted shadow can never silently go stale.
+            shadowRenderer.sharedMaterial = shadowMaster.shadowMaterial;
+        }
     }
 
     void CleanupDuplicateShadows()
@@ -119,13 +149,12 @@ public class DynamicShadow2D : MonoBehaviour
             print($"No sprite renderer found on {shadowObject.name}");
         }
         shadowRenderer.sprite = spriteRenderer.sprite;
-        shadowRenderer.sortingOrder = spriteRenderer.sortingOrder;
+        shadowRenderer.sortingOrder = SunShadowSortingOrder;
         shadowRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
 
-        var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
-        Shader shader = stencilShader != null ? stencilShader : Shader.Find("Sprites/Default");
-        sunShadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
-        shadowRenderer.sharedMaterial = sunShadowMaterial;
+        shadowRenderer.sharedMaterial = shadowMaster.shadowMaterial;
+        if (shadowRenderer.sharedMaterial == null)
+            Debug.LogWarning("DynamicShadow2D: ShadowMaster.shadowMaterial is not assigned — shadow will use the shadow prefab's default material.", this);
     }
 
     /// <summary>
@@ -176,6 +205,7 @@ public class DynamicShadow2D : MonoBehaviour
         autoRenderer.sprite = spriteRenderer.sprite;
         autoRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
         autoRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+        autoRenderer.sharedMaterial = shadowMaster.shadowMaterial;
 
 
         autoShadowObjects.Add(autoShadow);
@@ -198,9 +228,21 @@ public class DynamicShadow2D : MonoBehaviour
             CreateShadow();
         }
 
-        if(autoShadowRenderers.Count > 0)
-            autoShadowRenderers[0].sortingOrder = spriteRenderer.sortingOrder - 1;
-        shadowRenderer.sortingOrder = spriteRenderer.sortingOrder - 1;
+        // Dirty-checked rather than assigned unconditionally: sortingOrder determines literal
+        // draw sequence, not just per-object shader data, so rewriting it every frame (even to
+        // an unchanged value, which is the common case for static objects like grass that never
+        // move) risks forcing Unity's 2D renderer to re-evaluate draw order every frame — far
+        // more disruptive to batching than an ordinary transform/color update.
+        //
+        // The sun shadow uses the fixed shared SunShadowSortingOrder (see its declaration above)
+        // rather than this object's own -1 offset. Fire/torch shadows stay per-object: only a
+        // handful are ever active at once, so they were never the batching bottleneck, and their
+        // placement relative to their own object still matters for correctness.
+        int fireShadowTargetOrder = spriteRenderer.sortingOrder - 1;
+        if (autoShadowRenderers.Count > 0 && autoShadowRenderers[0].sortingOrder != fireShadowTargetOrder)
+            autoShadowRenderers[0].sortingOrder = fireShadowTargetOrder;
+        if (shadowRenderer.sortingOrder != SunShadowSortingOrder)
+            shadowRenderer.sortingOrder = SunShadowSortingOrder;
 
         // Calculate night blend factor (0 = day, 1 = night)
         if (sunElevation >= dayThreshold)
@@ -286,17 +328,9 @@ public class DynamicShadow2D : MonoBehaviour
 
         if (shadowRend.sprite != spriteRenderer.sprite)
         {
+            // One shared material handles every texture automatically (see field comment above)
+            // — no repointing needed when the sprite/texture changes.
             shadowRend.sprite = spriteRenderer.sprite;
-
-            // Custom shader doesn't auto-follow the sprite's texture like a built-in sprite
-            // shader would, so the main sun shadow needs to be repointed at the shared material
-            // for the new texture (sunShadowMaterial is cached/shared — never mutate it in place).
-            if (shadowRend == shadowRenderer && spriteRenderer.sprite != null)
-            {
-                Shader shader = sunShadowMaterial != null ? sunShadowMaterial.shader : Shader.Find("Custom/Shadow2DStencilOnce");
-                sunShadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite.texture);
-                shadowRenderer.sharedMaterial = sunShadowMaterial;
-            }
         }
 
         shadowObj.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0f);
@@ -339,8 +373,8 @@ public class DynamicShadow2D : MonoBehaviour
             }
         }
 
-        // sunShadowMaterial comes from ShadowMaterialCache and is shared with other shadow
-        // casters using the same texture — do not destroy it here.
+        // shadowMaster.shadowMaterial is shared with every other shadow caster in the scene —
+        // do not destroy it here.
 
         foreach (var shadow in autoShadowObjects)
         {

@@ -24,7 +24,7 @@ public static class ShadowMaterialCache
         if (cache.TryGetValue(cacheKey, out Material mat) && mat != null)
             return mat;
 
-        mat = new Material(shader) { mainTexture = key };
+        mat = new Material(shader) { mainTexture = key, enableInstancing = true };
         cache[cacheKey] = mat;
         return mat;
     }

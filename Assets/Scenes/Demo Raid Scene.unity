@@ -149072,7 +149072,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1087196779039943848, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: orthographic size
-      value: 8.4375
+      value: 11.25
       objectReference: {fileID: 0}
     - target: {fileID: 1087196779039943848, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: m_CullingMask.m_Bits
@@ -149124,7 +149124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8908857074777943883, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: orthographic size
-      value: 8.4375
+      value: 11.25
       objectReference: {fileID: 0}
     - target: {fileID: 8908857074777943883, guid: 75b26928b965f8e45b5461618112c1a4, type: 3}
       propertyPath: m_CullingMask.m_Bits
@@ -251054,6 +251054,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59ba21983c155f946b52777b9a72fd5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneBootstrap
+  testing: 0
 --- !u!4 &1953332009
 Transform:
   m_ObjectHideFlags: 0
@@ -282929,6 +282930,7 @@ MonoBehaviour:
   autoUpdate: 1
   shadowPrefab: {fileID: 84905747932348909, guid: 06ad8ce59ada8754988d927924b57917, type: 3}
   shadowFadeSpeed: 1
+  shadowMaterial: {fileID: 2100000, guid: 8affb0d27664fca43912b87ba2aaef90, type: 2}
 --- !u!1001 &2110674891
 PrefabInstance:
   m_ObjectHideFlags: 0

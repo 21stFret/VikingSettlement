@@ -251,6 +251,12 @@ public class HarvestableResource : TargetHealth
             col.enabled = true;
         }
 
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.simulated = true;
+        }
+
         Debug.Log($"{gameObject.name} respawned!");
     }
 

@@ -52,6 +52,44 @@ public class MeshShadow2D : MonoBehaviour
     private Vector3[] cachedVerts = new Vector3[4];
     private Color[] cachedColors = new Color[4];
 
+    // Uses the same single ShadowMaster.shadowMaterial as DynamicShadow2D (see that file). This
+    // system bakes its own full sun/fire color per-vertex (see LateUpdate below) via raw
+    // mesh.colors, read by the shader as vertex color — independent of DynamicShadow2D's
+    // SpriteRenderer.color/unity_SpriteColor path (this uses MeshRenderer, not SpriteRenderer,
+    // so unity_SpriteColor is never populated for it). As long as the shared material's own
+    // Color stays at its default (1,1,1,1) — i.e. nothing ever calls material.SetColor on it —
+    // this needs no extra guarding, even though the material is shared with DynamicShadow2D.
+    //
+    // Unlike SpriteRenderer, MeshRenderer gets NO automatic per-instance texture override — the
+    // shared material's own texture would otherwise apply identically to every mesh shadow
+    // regardless of that object's actual sprite. Texture genuinely varies here, but only across
+    // a SMALL number of distinct tree/building textures — not per instance the way color would.
+    // A MaterialPropertyBlock (the first version of this fix) delivers per-instance data
+    // correctly, but unconditionally excludes the renderer from SRP Batcher, which turned out to
+    // be the dominant cost once grass shadows' own batching got fixed. A small material cache
+    // keyed by texture — one real shared Material per distinct sprite, same shader/instancing as
+    // ShadowMaster.shadowMaterial — lets every mesh shadow using the same texture batch normally.
+    private static readonly Dictionary<Texture, Material> textureMaterialCache = new Dictionary<Texture, Material>();
+
+    static Material GetMaterialForTexture(Texture tex)
+    {
+        Material baseMaterial = ShadowMaster.Instance != null ? ShadowMaster.Instance.shadowMaterial : null;
+        if (baseMaterial == null) return null;
+
+        Texture key = tex != null ? tex : Texture2D.whiteTexture;
+        if (textureMaterialCache.TryGetValue(key, out Material mat) && mat != null)
+            return mat;
+
+        // No enableInstancing here on purpose: GPU Instancing only pays off when multiple
+        // renderers share the exact same mesh, and every shadow mesh here is unique (built
+        // per-object from that object's own bounds/sprite each frame). It can never actually
+        // be picked up by the instancing path, so leaving it on just risks Unity evaluating
+        // (and failing) that path instead of taking the plain SRP Batcher fast path.
+        mat = new Material(baseMaterial) { mainTexture = key };
+        textureMaterialCache[key] = mat;
+        return mat;
+    }
+
     // -------------------------------------------------------------------------
 
 #if UNITY_EDITOR
@@ -141,10 +179,10 @@ public class MeshShadow2D : MonoBehaviour
         shadowMesh.uv        = new Vector2[4];
         shadowMeshFilter.mesh = shadowMesh;
 
-        var stencilShader = Shader.Find("Custom/Shadow2DStencilOnce");
-        Shader shader = stencilShader != null ? stencilShader : Shader.Find("Sprites/Default");
-        shadowMaterial = ShadowMaterialCache.Get(shader, spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
+        shadowMaterial = GetMaterialForTexture(spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
         shadowMeshRenderer.sharedMaterial = shadowMaterial;
+        if (shadowMaterial == null)
+            Debug.LogWarning("MeshShadow2D: ShadowMaster.shadowMaterial is not assigned — shadow will render with no material.", this);
         shadowMeshRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
         shadowMeshRenderer.sortingOrder   = spriteRenderer.sortingOrder - 1;
     }
@@ -197,8 +235,7 @@ public class MeshShadow2D : MonoBehaviour
         m.uv = shadowMesh != null ? shadowMesh.uv : new Vector2[4];
         mf.mesh = m;
 
-        Texture tex = shadowMaterial != null ? shadowMaterial.mainTexture : null;
-        var mat = ShadowMaterialCache.Get(Shader.Find("Sprites/Default"), tex);
+        var mat = GetMaterialForTexture(spriteRenderer.sprite != null ? spriteRenderer.sprite.texture : null);
         mr.sharedMaterial = mat;
         mr.sortingLayerID = spriteRenderer.sortingLayerID;
         mr.sortingOrder   = spriteRenderer.sortingOrder - 2 - index;
@@ -231,22 +268,20 @@ public class MeshShadow2D : MonoBehaviour
 
         shadowMesh.uv = uvs;
 
-        // shadowMaterial/autoMaterials are shared (ShadowMaterialCache) with other shadow
-        // casters using the same texture — re-fetch the cache entry for the new texture and
-        // repoint the renderers, rather than mutating the shared material in place.
-        shadowMaterial = ShadowMaterialCache.Get(shadowMaterial.shader, s.texture);
+        // Texture changed — repoint at the (cached, shared) material for the new texture rather
+        // than mutating a shared material in place. Sync UVs + material to every auto light
+        // shadow mesh too.
+        shadowMaterial = GetMaterialForTexture(s.texture);
         shadowMeshRenderer.sharedMaterial = shadowMaterial;
-
-        // Sync UVs and texture to all auto light shadow meshes
         foreach (var m in autoMeshes) m.uv = uvs;
-        for (int i = 0; i < autoMaterials.Count; i++)
+        for (int i = 0; i < autoShadowObjects.Count; i++)
         {
-            autoMaterials[i] = ShadowMaterialCache.Get(autoMaterials[i].shader, s.texture);
-            if (i < autoShadowObjects.Count && autoShadowObjects[i] != null)
-            {
-                var mr = autoShadowObjects[i].GetComponent<MeshRenderer>();
-                if (mr != null) mr.sharedMaterial = autoMaterials[i];
-            }
+            if (autoShadowObjects[i] == null) continue;
+            var mr = autoShadowObjects[i].GetComponent<MeshRenderer>();
+            if (mr == null) continue;
+            Material autoMat = GetMaterialForTexture(s.texture);
+            if (i < autoMaterials.Count) autoMaterials[i] = autoMat;
+            mr.sharedMaterial = autoMat;
         }
 
         // Tight visual bounds from sprite.vertices

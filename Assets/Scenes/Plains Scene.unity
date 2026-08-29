@@ -490207,6 +490207,7 @@ MonoBehaviour:
   autoUpdate: 1
   shadowPrefab: {fileID: 84905747932348909, guid: 06ad8ce59ada8754988d927924b57917, type: 3}
   shadowFadeSpeed: 1
+  shadowMaterial: {fileID: 2100000, guid: 8affb0d27664fca43912b87ba2aaef90, type: 2}
 --- !u!1001 &2110674891
 PrefabInstance:
   m_ObjectHideFlags: 0

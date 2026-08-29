@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3130764509960910418}
   - component: {fileID: 5311272170801574648}
+  - component: {fileID: 5198348969987523313}
   m_Layer: 2
   m_Name: TreeChop
   m_TagString: Untagged
@@ -356,6 +357,52 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!61 &5198348969987523313
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2230844883737280303}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.0028147697, y: -1.3032475}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 0.19497013, y: 2.3679886}
+  m_EdgeRadius: 0
 --- !u!1 &4213851469616448048
 GameObject:
   m_ObjectHideFlags: 0
@@ -5259,7 +5306,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1381342874218915013}
-  - component: {fileID: 6991595476205727859}
   - component: {fileID: 3151626171320559920}
   - component: {fileID: 6820004021185121738}
   - component: {fileID: 6328528752757285811}
@@ -5288,21 +5334,6 @@ Transform:
   - {fileID: 6371166287839421557}
   m_Father: {fileID: 3130764509960910418}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6991595476205727859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6072821469599061356}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteSorting
-  spriteRenderer: {fileID: 0}
-  sortingOrderBase: 5000
-  offset: 0
 --- !u!212 &3151626171320559920
 SpriteRenderer:
   serializedVersion: 2
@@ -5442,7 +5473,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.009488821, y: 1.8427882}
+  m_Offset: {x: -0.0151183605, y: 0.46072674}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.48708016, y: 0.11929371}
@@ -5452,7 +5483,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.38224936, y: 2.6874857}
+  m_Size: {x: 0.21336222, y: 0.46380043}
   m_EdgeRadius: 0
 --- !u!114 &7866514270918845216
 MonoBehaviour:
@@ -5473,16 +5504,16 @@ MonoBehaviour:
   preferredTool: 2
   preferredToolMultiplier: 2
   wrongToolMultiplier: 1
-  canRespawn: 0
+  canRespawn: 1
   respawnTime: 120
   xpPerHarvest: 5
   harvestEffect: {fileID: 8166259917799051448}
   shakeOnHit: 1
-  shakeIntensity: 0.5
+  shakeIntensity: 0.15
   OnHit:
     m_PersistentCalls:
       m_Calls: []
-  removeOnDeplete: 1
+  removeOnDeplete: 0
   stumpObject: {fileID: 18292493673652020}
   fallingObject: {fileID: 1759224031506603414}
   bonusWoodOnFall: 5

@@ -50,6 +50,10 @@ public class ShadowMaster : MonoBehaviour
     public GameObject shadowPrefab;
     public float shadowFadeSpeed = 1f;
 
+    [Header("Shadow Material")]
+    [Tooltip("Single material shared by every shadow caster (sun + auto fire/torch, DynamicShadow2D + MeshShadow2D). Use a real URP sprite shader (e.g. Sprite-Unlit-Default) with its Color left at default white — DynamicShadow2D/MeshShadow2D drive the actual per-instance tint via SpriteRenderer.color / vertex color, not the material.")]
+    public Material shadowMaterial;
+
     void Awake()
     {
         if (Instance == null)

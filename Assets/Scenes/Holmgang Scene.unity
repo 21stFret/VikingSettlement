@@ -132887,6 +132887,10 @@ MonoBehaviour:
   keepSailingButtonLabel: {fileID: 0}
   goHomeButton: {fileID: 0}
   chainPickerUI: {fileID: 0}
+  shipLeavePopup: {fileID: 0}
+  leaveButton: {fileID: 0}
+  continueRaidButton: {fileID: 0}
+  shipRaidClickable: {fileID: 0}
 --- !u!4 &1230314654 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5315717443649500222, guid: dd08966190b79814dbd2e23b8f95a5ca, type: 3}
@@ -224716,7 +224720,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60abe9c265dd8654281dd979217df774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  useMouseMovement: 0
   playerMoveSpeed: 3
   controlTarget: {fileID: 0}
   parryWindowDuration: 0.3
@@ -238616,6 +238619,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59ba21983c155f946b52777b9a72fd5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneBootstrap
+  testing: 0
 --- !u!4 &1953332009
 Transform:
   m_ObjectHideFlags: 0
@@ -251683,6 +251687,7 @@ MonoBehaviour:
   autoUpdate: 1
   shadowPrefab: {fileID: 84905747932348909, guid: 06ad8ce59ada8754988d927924b57917, type: 3}
   shadowFadeSpeed: 1
+  shadowMaterial: {fileID: 2100000, guid: 8affb0d27664fca43912b87ba2aaef90, type: 2}
 --- !u!1001 &2111437202
 PrefabInstance:
   m_ObjectHideFlags: 0
