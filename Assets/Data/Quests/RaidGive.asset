@@ -16,13 +16,10 @@ MonoBehaviour:
   lines:
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: How was your first time out on the whale road? Thrilling right!
+    text: Go to your ship and select your vikings! Remember, if you take them out
+      of thier job then production will be affected.
   - speakerName: Villager
     portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Take your loot and upgrade your buildings to get better gear and take on
-      bigger settlements.
-  - speakerName: Villager
-    portrait: {fileID: 21300000, guid: 9df89f95df21769408e089e157cc5b2e, type: 3}
-    text: Don't forget to look after your village though! It will need protecting
-      from enemy raids and draugr attacks!
-  offersQuest: 0
+    text: For more information check your notifcations. Now good luck and go crack
+      some skulls! For Odin!
+  offersQuest: 1

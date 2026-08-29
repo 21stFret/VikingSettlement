@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Villager Elder
+  - Name: Cuttable Grass (5)
   - Tag: Untagged
-  - Layer: Player
+  - Layer: Grass
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

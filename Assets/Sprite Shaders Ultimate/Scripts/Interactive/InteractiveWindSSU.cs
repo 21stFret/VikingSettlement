@@ -51,7 +51,16 @@ namespace SpriteShadersUltimate
         bool bentInLastFrame;
 
         SpriteRenderer sr;
-        static Material defaultMaterial;
+        // Cache is keyed per distinct inactive-material config (customMaterial + inactiveMaterial,
+        // or inactiveShader), so instances that share a config still share one Material instance
+        // (keeps GPU-instancing/batching behavior), but different configs no longer clobber each
+        // other. Previously this was a single bare `static Material defaultMaterial` field: whichever
+        // InteractiveWindSSU instance's Start() ran first, scene-wide, permanently decided the
+        // inactive material for every other instance regardless of its own settings. That's what was
+        // causing Cuttable Grass's Demo_Leaf override to silently lose to Bush/Cuttable Wheat's plain
+        // Sprites/Default whenever those happened to initialize first (deterministically so in builds).
+        static Dictionary<string, Material> defaultMaterialCache = new Dictionary<string, Material>();
+        Material defaultMaterial;
 
         int rotationId;
 
@@ -63,16 +72,14 @@ namespace SpriteShadersUltimate
             sr = GetComponent<SpriteRenderer>();
             runtimeMaterial = sr.material;
 
-            if(defaultMaterial == null)
+            string cacheKey = customMaterial
+                ? "custom:" + (inactiveMaterial != null ? inactiveMaterial.GetInstanceID().ToString() : "null")
+                : "shader:" + inactiveShader;
+
+            if (!defaultMaterialCache.TryGetValue(cacheKey, out defaultMaterial))
             {
-                if (customMaterial)
-                {
-                    defaultMaterial = inactiveMaterial;
-                }
-                else
-                {
-                    defaultMaterial = new Material(Shader.Find(inactiveShader));
-                }
+                defaultMaterial = customMaterial ? inactiveMaterial : new Material(Shader.Find(inactiveShader));
+                defaultMaterialCache[cacheKey] = defaultMaterial;
             }
 
             if(hyperPerformanceMode)
