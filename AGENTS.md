@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Sprite Light 2D (1)
+  - Name: Torch (4)
   - Tag: Untagged
-  - Layer: Default
+  - Layer: Static
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
