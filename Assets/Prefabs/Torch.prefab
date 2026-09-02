@@ -10021,8 +10021,8 @@ MonoBehaviour:
   m_LightOrder: 0
   m_AlphaBlendOnOverlap: 0
   m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
+  m_NormalMapDistance: 1
+  m_NormalMapQuality: 0
   m_UseNormalMap: 0
   m_ShadowsEnabled: 1
   m_ShadowIntensity: 0.3
@@ -10069,6 +10069,7 @@ MonoBehaviour:
   positionAmount: 0.05
   positionSpeed: 3
   smoothness: 0.1
+  flameParticels: {fileID: 7441926304051546973}
 --- !u!114 &6444534556949095902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10099,5 +10100,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a00a661288a51d84a8ed245d22fe0fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightCuller
-  activeDistance: 25
+  activeDistance: 30
   checkInterval: 0.25

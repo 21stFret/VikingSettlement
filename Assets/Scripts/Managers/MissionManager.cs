@@ -22,6 +22,8 @@ public class MissionManager : MonoBehaviour, ISaveable
 
     public MissionTrackerUI missionTrackerUI;
 
+    public List<QuestGiver> questGivers = new List<QuestGiver>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -33,18 +35,10 @@ public class MissionManager : MonoBehaviour, ISaveable
             Destroy(gameObject);
             return;
         }
-        missionTrackerUI?.Init();
     }
 
     public void Initialize()
     {
-        /*
-        if (GameTickManager.Instance != null)
-            GameTickManager.Instance.OnGameTick += OnTick;
-        else
-            Debug.LogWarning("MissionManager: GameTickManager not found during Initialize!");
-                */ 
-
         if (RaidManager.Instance != null)
             RaidManager.Instance.OnRaidEnded += OnRaidEnded;
 
@@ -60,16 +54,12 @@ public class MissionManager : MonoBehaviour, ISaveable
         {
             ResourceManager.OnResourceAdded += OnResourcesAdded;
         }
+
+        missionTrackerUI?.Init();
     }
 
     private void OnDestroy()
     {
-        /*
-        if (GameTickManager.Instance != null)
-        {
-            GameTickManager.Instance.OnGameTick -= OnTick;
-        }
-        */
         if (RaidManager.Instance != null)
         {
             RaidManager.Instance.OnRaidEnded -= OnRaidEnded;
@@ -381,7 +371,7 @@ public class MissionManager : MonoBehaviour, ISaveable
         activeMissions.Clear();
         if (data.missions.activeMissions != null)
         {
-            MissionDefinitionSO[] allDefinitions = Resources.LoadAll<MissionDefinitionSO>("");
+            MissionDefinitionSO[] allDefinitions = Resources.LoadAll<MissionDefinitionSO>("Quests");
             foreach (var saved in data.missions.activeMissions)
             {
                 MissionDefinitionSO def = System.Array.Find(allDefinitions, d => d.missionId == saved.missionDefinitionId);
@@ -400,6 +390,13 @@ public class MissionManager : MonoBehaviour, ISaveable
                 }
                 activeMissions.Add(am);
             }
+        }
+
+        if (activeMissions.Count <= 0) return;
+
+        foreach (QuestGiver giver in questGivers)
+        {
+            giver.RestoreState(activeMissions);
         }
     }
 

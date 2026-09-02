@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -36,7 +37,9 @@ public class TorchFlicker : MonoBehaviour
     private float targetRadius;
     private Vector2 targetPositionOffset;
     private float noiseOffset;
-    
+    private bool isEnabled = true;
+    public ParticleSystem flameParticels;
+
     private void Awake()
     {
         torchLight = GetComponent<Light2D>();
@@ -47,10 +50,54 @@ public class TorchFlicker : MonoBehaviour
         // Random offset so multiple torches don't flicker in sync
         noiseOffset = Random.Range(0f, 100f);
     }
-    
+
+    private void Start()
+    {
+        if (flameParticels != null)
+        {
+            DayNightManager.Instance.OnDayNightChanged += ToggleLights;
+            ToggleLights(DayNightManager.Instance.IsDaytime());
+        }
+    }
+
     private void Update()
     {
+        if (!isEnabled) return;
         FlickerLight();
+    }
+
+    private void ToggleLights(bool IsDay)
+    {
+        StartCoroutine(FadeLights(!IsDay));
+    }
+
+    private IEnumerator FadeLights(bool on)
+    {
+        float noiseFracation = noiseOffset / 100f;
+        yield return new WaitForSeconds(noiseFracation); // Small delay to ensure the light is initialized
+        if (flameParticels != null)
+        {
+            if (on)
+            {
+                flameParticels.Play();
+            }
+            else
+            {
+                flameParticels.Stop();
+            }
+        }
+        isEnabled = on;
+        float duration = 1f + (1f * noiseFracation); // Duration of the fade
+        float elapsed = 0f;
+        float startIntensity = torchLight.intensity;
+        float targetIntensity = on ? baseIntensity : 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            torchLight.intensity = Mathf.Lerp(startIntensity, targetIntensity, elapsed / duration);
+            yield return null;
+        }
+        torchLight.intensity = targetIntensity;
     }
     
     private void FlickerLight()

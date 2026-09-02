@@ -73,6 +73,16 @@ public class DayNightManager : MonoBehaviour, ISaveable
     [Tooltip("Time of day when the sun sets (0-1, where 0 is midnight and 1 is the next midnight)")]
     public float sunsetTime = 0.75f;  // Sunset at 6 PM
 
+#if UNITY_EDITOR
+    [Header("Editor Preview")]
+    [Tooltip("When enabled, scrubbing 'Editor Time Of Day' below moves the sun and updates the lighting live in the Scene view (edit mode only)")]
+    public bool autoUpdateSunInEditor = true;
+
+    [Tooltip("Scrub to preview the sun position / lighting at a given time of day (0 = midnight, 0.5 = noon)")]
+    [Range(0f, 1f)]
+    public float editorTimeOfDay = 0.5f;
+#endif
+
     [Header("Status (Read-only)")]
     [SerializeField] private float currentTimeOfDay = 0f; // 0 to 1
     [SerializeField] private int currentDay = 1;
@@ -211,7 +221,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
         // Check for dawn/dusk transitions — fire once on the edge, not every frame
         bool isDawnEvening = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f ||
-                             Mathf.Abs(currentTimeOfDay - sunsetTime)  < 0.05f;
+                             Mathf.Abs(currentTimeOfDay - sunsetTime) < 0.05f;
         bool isDawn = Mathf.Abs(currentTimeOfDay - sunriseTime) < 0.05f;
 
         if (isDawnEvening != wasDawnEvening)
@@ -246,7 +256,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void RiseSetSun(bool rise)
     {
-        if(rise)
+        if (rise)
         {
             sunLight.intensity += 0.1f;
             if (sunLight.intensity > sunIntensity)
@@ -285,7 +295,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
             sunArcCenterY + yValue,
             zValue
         );
-        
+
         sunLight.transform.position = sunPosition;
 
         // Calculate sun intensity (brightest at noon, dimmer at dawn/dusk)
@@ -313,7 +323,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
         // Apply evening multiplier as an offset (clamped)
         dayBlend = Mathf.Clamp01(dayBlend);
 
-        if(dayBlend < 0.2f)
+        if (dayBlend < 0.2f)
         {
             dayBlend = 0.2f;
         }
@@ -322,6 +332,71 @@ public class DayNightManager : MonoBehaviour, ISaveable
         ambientLight.intensity = Mathf.Lerp(ambientNightIntensity, ambientDayIntensity, dayBlend) * eveningMultiplier;
         ambientLight.color = Color.Lerp(ambientNightColor, ambientDayColor, dayBlend);
     }
+
+    /// <summary>
+    /// Snaps the sun + ambient lights to match currentTimeOfDay right now, with no
+    /// intensity ramping and without firing any day/night events. Safe in edit mode.
+    /// </summary>
+    public void ApplyTimeOfDayImmediate()
+    {
+        bool isSunUp = currentTimeOfDay >= sunriseTime && currentTimeOfDay <= sunsetTime;
+
+        if (sunLight != null)
+        {
+            if (isSunUp)
+            {
+                UpdateSunLight();
+            }
+            else
+            {
+                sunLight.intensity = 0f;
+            }
+        }
+
+        if (ambientLight != null)
+        {
+            UpdateAmbientLight(currentTimeOfDay);
+        }
+
+        if (dayNightDial != null)
+        {
+            float dialRotation = currentTimeOfDay * 360f;
+            dayNightDial.transform.rotation = Quaternion.Euler(0f, 0f, -dialRotation);
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (!autoUpdateSunInEditor || Application.isPlaying)
+            return;
+
+        // Resolve light refs if they weren't wired in the inspector.
+        if (sunLight == null)
+        {
+            GameObject sunObj = GameObject.Find("Sun Light");
+            if (sunObj != null) sunLight = sunObj.GetComponent<Light2D>();
+        }
+        if (ambientLight == null)
+        {
+            GameObject ambientObj = GameObject.Find("Ambient Light") ?? GameObject.Find("Global Light 2D");
+            if (ambientObj != null) ambientLight = ambientObj.GetComponent<Light2D>();
+        }
+
+        // OnValidate can't touch other objects directly — defer a frame.
+        UnityEditor.EditorApplication.delayCall -= ApplyEditorTimePreview;
+        UnityEditor.EditorApplication.delayCall += ApplyEditorTimePreview;
+    }
+
+    private void ApplyEditorTimePreview()
+    {
+        if (this == null || Application.isPlaying)
+            return;
+
+        currentTimeOfDay = Mathf.Clamp01(editorTimeOfDay);
+        ApplyTimeOfDayImmediate();
+    }
+#endif
 
     private void TriggerMealTime()
     {
@@ -444,6 +519,6 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
         UpdateLighting();
     }
-
     #endregion
+
 }

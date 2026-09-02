@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -5,7 +8,7 @@ using UnityEngine;
 /// Shows icons above the NPC to indicate quest availability or completion.
 /// Implements IClickable so the player can interact with it.
 /// </summary>
-public class QuestGiver : WorldInteractable, IClickable
+public class QuestGiver : WorldInteractable
 {
     [Header("Missions")]
     [SerializeField] private MissionDefinitionSO[] availableMissions;
@@ -22,11 +25,6 @@ public class QuestGiver : WorldInteractable, IClickable
     private int currentMissionIndex = 0;
     private ActiveMission activeMission;
 
-    // IClickable implementation
-    public Collider2D Collider => interactionCollider;
-    public int ClickPriority => clickPriority;
-    public bool IsClickable => CanInteract();
-
     public override bool IsInteractable => CanInteract();
 
     /// <summary>
@@ -40,7 +38,6 @@ public class QuestGiver : WorldInteractable, IClickable
         {
             interactionCollider = GetComponent<Collider2D>();
         }
-        MouseInputController.RegisterClickable(this);
 
         if (string.IsNullOrEmpty(questGiverId))
         {
@@ -244,10 +241,17 @@ public class QuestGiver : WorldInteractable, IClickable
         return activeMission?.definition.missionId ?? "";
     }
 
-    public void RestoreState(int missionIndex, ActiveMission restored)
+    public void RestoreState(List<ActiveMission> missions)
     {
-        currentMissionIndex = missionIndex;
-        activeMission = restored;
+        foreach (var mission in missions)
+        {
+            int index = Array.FindIndex(availableMissions, u => u.missionId == mission.definition.missionId);
+            if (index != -1)
+            {
+                currentMissionIndex = index;
+                activeMission = mission;
+            }
+        }
         UpdateIcons();
     }
 

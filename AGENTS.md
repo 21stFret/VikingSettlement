@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Cuttable Grass (5)
+  - Name: Sprite Light 2D (1)
   - Tag: Untagged
-  - Layer: Grass
+  - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
