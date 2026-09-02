@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Torch (4)
+  - Name: Crafting Item UI (3)
   - Tag: Untagged
-  - Layer: Static
+  - Layer: UI
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

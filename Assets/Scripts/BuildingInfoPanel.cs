@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 /// <summary>
 /// Displays detailed information about a selected building
@@ -465,7 +466,7 @@ public class BuildingInfoPanel : MonoBehaviour
         }
 
         if (craftSelectedNameText != null)
-            craftSelectedNameText.text = selectedCraftRecipe.itemName;
+            craftSelectedNameText.text =  selectedCraftRecipe.itemName.Replace("_", " ");
 
         // Same icon+amount row display used for repair/upgrade costs - handles the common case of an
         // item needing two (or more, up to the pool size) different resources.
