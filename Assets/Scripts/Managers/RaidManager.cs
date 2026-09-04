@@ -45,6 +45,24 @@ public class RaidManager : MonoBehaviour
     private readonly List<ResourceLoot> tripLoot = new List<ResourceLoot>();
     private readonly List<Villager> tripCasualties = new List<Villager>();
 
+    // Casualty names captured the instant each death is folded into the trip totals — NOT read
+    // lazily off the Villager object later. A casualty's GameObject can be destroyed well before
+    // the trip-spanning report is built: either the death-animation Valkyrie VFX (ValkyrieEffect.
+    // OnReachBody) removes the corpse a few seconds after death, or — on a multi-leg "Keep Sailing"
+    // chain — the very next leg's scene load tears down the whole previous scene, corpse included.
+    // Either way, by the time a later leg/the final report reads tripCasualties, `!= null` checks
+    // on those Villager references correctly (and silently) treat them as gone, dropping anyone but
+    // the villager whose death ended the leg on the spot (the Jarl, via the same-frame Defeat()
+    // call) from the display. Snapshotting the name here, right where casualties are still
+    // guaranteed live, sidesteps that entirely.
+    private readonly List<string> tripCasualtyNames = new List<string>();
+    private readonly List<string> tripCasualtyIds = new List<string>();
+
+    // Wounds each party member had before departing, keyed by uniqueId — diffed against
+    // activeWounds at report time so battle reports can show what was gained on this trip
+    // rather than the villager's full lifetime wound list.
+    private readonly Dictionary<string, List<WoundType>> woundsAtRaidStart = new Dictionary<string, List<WoundType>>();
+
     [Header("Scene Names")]
     [Tooltip("Name of the main settlement scene")]
     public string settlementSceneName = "Demo Scene";
@@ -145,7 +163,14 @@ public class RaidManager : MonoBehaviour
         visitedThisTrip.Add(destination);
         tripLoot.Clear();
         tripCasualties.Clear();
+        tripCasualtyNames.Clear();
+        tripCasualtyIds.Clear();
         lastLegResult = default;
+
+        woundsAtRaidStart.Clear();
+        foreach (var villager in raidParty)
+            if (villager != null && !string.IsNullOrEmpty(villager.uniqueId))
+                woundsAtRaidStart[villager.uniqueId] = new List<WoundType>(villager.activeWounds);
 
         // Pause ticks so no production runs during the autosave write
         PauseSettlement();
@@ -287,6 +312,45 @@ public class RaidManager : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Wounds a survivor holds now that weren't present when they left the settlement.
+    /// </summary>
+    private List<WoundType> GetNewWounds(Villager villager)
+    {
+        var current = new List<WoundType>(villager.activeWounds);
+        if (!string.IsNullOrEmpty(villager.uniqueId) && woundsAtRaidStart.TryGetValue(villager.uniqueId, out var before))
+            foreach (var wound in before)
+                current.Remove(wound); // remove one matching instance per pre-existing wound
+
+        return current;
+    }
+
+    /// <summary>
+    /// Builds the per-survivor injury list for a battle report: anyone who took HP damage or
+    /// picked up a new wound this trip. Unharmed survivors are omitted.
+    /// </summary>
+    private List<VillagerInjuryReport> BuildInjuryReport(IEnumerable<Villager> survivors)
+    {
+        var list = new List<VillagerInjuryReport>();
+        foreach (var villager in survivors)
+        {
+            if (villager == null) continue;
+
+            var newWounds = GetNewWounds(villager);
+            bool tookDamage = villager.currentHealth < villager.maxHealth - 0.01f;
+            if (newWounds.Count == 0 && !tookDamage) continue;
+
+            list.Add(new VillagerInjuryReport
+            {
+                villagerName  = villager.villagerName,
+                newWounds     = newWounds,
+                currentHealth = villager.currentHealth,
+                maxHealth     = villager.maxHealth
+            });
+        }
+        return list;
+    }
+
     #region Ending a Raid
 
     public void EndRaid(RaidResult result, List<ResourceLoot> loot = null, List<Villager> casualties = null)
@@ -300,8 +364,14 @@ public class RaidManager : MonoBehaviour
         loot = loot ?? new List<ResourceLoot>();
         casualties = casualties ?? new List<Villager>();
 
+        // casualties here are freshly dead this frame (RaidSceneController.OnPartyMemberDied adds
+        // them synchronously off TargetHealth.Die() -> OnDeath) — nothing has had a chance to
+        // destroy them yet (Valkyrie removal takes seconds; a scene load hasn't happened). No null
+        // check needed at this specific capture point, unlike anywhere these lists get read later.
         tripLoot.AddRange(loot);
         tripCasualties.AddRange(casualties);
+        tripCasualtyNames.AddRange(casualties.Select(v => v.villagerName));
+        tripCasualtyIds.AddRange(casualties.Select(v => v.uniqueId));
         foreach (var casualty in casualties)
             raidParty.Remove(casualty);
 
@@ -319,7 +389,9 @@ public class RaidManager : MonoBehaviour
             gameDaysPassed   = gameDaysPassed,
             loot             = new List<ResourceLoot>(tripLoot),
             casualties       = new List<Villager>(tripCasualties),
-            survivors        = new List<Villager>(raidParty)
+            casualtyNames    = new List<string>(tripCasualtyNames),
+            survivors        = new List<Villager>(raidParty),
+            injuries         = BuildInjuryReport(raidParty)
         };
 
         Debug.Log($"Raid chain ended: {result}. Total settlement days: {gameDaysPassed:F2}. Legs visited: {visitedThisTrip.Count}. Loot: {raidReport.loot.Count}, Casualties: {raidReport.casualties.Count}");
@@ -344,8 +416,13 @@ public class RaidManager : MonoBehaviour
         loot = loot ?? new List<ResourceLoot>();
         casualties = casualties ?? new List<Villager>();
 
+        // Same as EndRaid above: casualties are freshly dead this frame, guaranteed live here.
+        var legCasualtyNames = casualties.Select(v => v.villagerName).ToList();
+
         tripLoot.AddRange(loot);
         tripCasualties.AddRange(casualties);
+        tripCasualtyNames.AddRange(legCasualtyNames);
+        tripCasualtyIds.AddRange(casualties.Select(v => v.uniqueId));
         foreach (var casualty in casualties)
             raidParty.Remove(casualty);
 
@@ -353,14 +430,17 @@ public class RaidManager : MonoBehaviour
 
         var legReport = new LegReport
         {
-            destination         = currentRaid,
-            result               = result,
-            legLoot              = loot,
-            legCasualties        = casualties,
-            tripLootSoFar        = new List<ResourceLoot>(tripLoot),
-            tripCasualtiesSoFar  = new List<Villager>(tripCasualties),
-            totalTimeAwaySoFar   = totalTimeAway,
-            canContinue          = GetAvailableChainDestinations().Count > 0
+            destination           = currentRaid,
+            result                 = result,
+            legLoot                = loot,
+            legCasualties          = casualties,
+            legCasualtyNames       = legCasualtyNames,
+            tripLootSoFar          = new List<ResourceLoot>(tripLoot),
+            tripCasualtiesSoFar    = new List<Villager>(tripCasualties),
+            tripCasualtyNamesSoFar = new List<string>(tripCasualtyNames),
+            totalTimeAwaySoFar     = totalTimeAway,
+            canContinue            = GetAvailableChainDestinations().Count > 0,
+            injuries               = BuildInjuryReport(raidParty)
         };
 
         Debug.Log($"Leg resolved at {currentRaid.destinationName}: {result}. Time away so far: {totalTimeAway:F2} days. Can continue: {legReport.canContinue}");
@@ -420,9 +500,14 @@ public class RaidManager : MonoBehaviour
             hasPendingResults    = true,
             gameDaysPassed       = raidReport.gameDaysPassed,
             loot                 = raidReport.loot ?? new List<ResourceLoot>(),
-            casualtyIds          = raidReport.casualties?
-                .Select(v => v.uniqueId)
-                .ToList() ?? new List<string>(),
+            // Deliberately NOT re-read off raidReport.casualties here — those Villager references
+            // can already be destroyed corpses by the time a later leg's EndRaid runs (see
+            // tripCasualtyNames). uniqueId happens to still be readable off a destroyed reference
+            // today (a plain managed field, not a native Unity call), which is why this worked, but
+            // that's relying on Unity implementation behavior rather than a guarantee — safer to
+            // capture the same way tripCasualtyNames does. tripCasualtyIds mirrors tripCasualtyNames,
+            // captured at the same fold-in point in EndRaid/ResolveLeg.
+            casualtyIds          = new List<string>(tripCasualtyIds),
             survivorHealth       = new Dictionary<string, float>(),
             survivorEquipment    = new Dictionary<string, Vector2>(),
             raidPartyIds         = raidParty
@@ -777,6 +862,19 @@ public enum RaidResult
     Retreat
 }
 
+/// <summary>
+/// A survivor who took HP damage and/or picked up a new wound this trip. newWounds holds only
+/// wounds gained since departure — not the villager's full lifetime wound list.
+/// </summary>
+[System.Serializable]
+public struct VillagerInjuryReport
+{
+    public string villagerName;
+    public List<WoundType> newWounds;
+    public float currentHealth;
+    public float maxHealth;
+}
+
 [System.Serializable]
 public class RaidReport
 {
@@ -790,7 +888,12 @@ public class RaidReport
     [Header("Results")]
     public List<ResourceLoot> loot = new List<ResourceLoot>();
     public List<Villager> casualties = new List<Villager>();
+    // Names captured at the moment of death — unlike `casualties` above, safe to read even after
+    // a casualty's GameObject has since been destroyed (Valkyrie removal / a later leg's scene
+    // load). Display code should use this, not `casualties`. See tripCasualtyNames for why.
+    public List<string> casualtyNames = new List<string>();
     public List<Villager> survivors = new List<Villager>();
+    public List<VillagerInjuryReport> injuries = new List<VillagerInjuryReport>();
 
     public string GetTimeEfficiencyText()
     {
@@ -812,12 +915,18 @@ public class LegReport
     [Header("This Leg")]
     public List<ResourceLoot> legLoot = new List<ResourceLoot>();
     public List<Villager> legCasualties = new List<Villager>();
+    public List<string> legCasualtyNames = new List<string>();
 
     [Header("Trip So Far")]
     public List<ResourceLoot> tripLootSoFar = new List<ResourceLoot>();
     public List<Villager> tripCasualtiesSoFar = new List<Villager>();
+    // Names captured at the moment of death, safe across scene loads — see RaidReport.casualtyNames.
+    public List<string> tripCasualtyNamesSoFar = new List<string>();
     public float totalTimeAwaySoFar;
     public bool canContinue;
+
+    // Cumulative condition of the surviving party as of this leg (not just this leg's damage).
+    public List<VillagerInjuryReport> injuries = new List<VillagerInjuryReport>();
 }
 
 [System.Serializable]

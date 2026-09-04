@@ -6,13 +6,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class DemoSceneario : MonoBehaviour
+public class DemoSceneario : Sceneario
 {
-    public static DemoSceneario instance;
-    public CutsceneManager CM;
-    public List<CutsceneSO> Cutscenes;
-    private int currentCutScene = -1;
-
     // unique to each class, no way around it for the unique things that may need to happen after a cutscene.
     public UnityEvent unityEvent;
     private Villager jarl;
@@ -25,34 +20,62 @@ public class DemoSceneario : MonoBehaviour
         instance = this;
     }
 
-
-    public void Init()
+    public override void Init()
     {
-        CM = CutsceneManager.Instance;
-        if (CM != null)
-        {
-            TriggerNextCutScene();
-        }
+        base.Init();
+        LoadWatchers();
+    }
+
+    public void StartNewGame()
+    {
+        currentCutScene = -1;
+        TriggerNextCutScene();
     }
 
     public void TriggerNextCutScene()
     {
-        currentCutScene++;
-        if(Cutscenes.Count > currentCutScene)
+        int nextCutScene = currentCutScene + 1;
+        if(Cutscenes.Count > nextCutScene)
         {
-            if (currentCutScene == 0)
+            SetWatchers();
+            CM.PlayCutscene(Cutscenes[nextCutScene]);
+        }
+        currentCutScene = nextCutScene;
+    }
+
+    public override void SetWatchers()
+    {
+        if (currentCutScene == -1)
+        {
+            foreach (Enemy enemy in enemies)
             {
-                foreach (Enemy enemy in enemies)
-                {
-                    enemy.OnDeath += () => OnEnemyDied();
-                    enemy.gameObject.SetActive(true);
-                }
-                jarl = SettlementManager.Instance.GetCurrentJarl();
-                jarl.itemAttachment.onWeaponEquiped += OnEquip;
-                CM.OnCutsceneStarted += OnStart0;
-                CM.OnCutsceneEnded += OnEnd0;
+                enemy.OnDeath += () => OnEnemyDied();
+                enemy.gameObject.SetActive(true);
             }
-            CM.PlayCutscene(Cutscenes[currentCutScene]);
+            jarl = SettlementManager.Instance.GetCurrentJarl();
+            jarl.itemAttachment.onWeaponEquiped += OnEquip;
+            CM.OnCutsceneStarted += OnStart0;
+            CM.OnCutsceneEnded += OnEnd0;
+        }
+    }
+
+    public override void LoadWatchers()
+    {
+        if (currentCutScene == 0)
+        {
+            foreach (Enemy enemy in enemies)
+            {
+                enemy.OnDeath += () => OnEnemyDied();
+                enemy.gameObject.SetActive(true);
+            }
+            jarl = SettlementManager.Instance.GetCurrentJarl();
+            if (jarl.itemAttachment.weapon != null) 
+            {
+                weaponIndicator.SetActive(false);
+                return;
+            }
+            jarl.itemAttachment.onWeaponEquiped += OnEquip;
+            OnEnd0(null);
         }
     }
 

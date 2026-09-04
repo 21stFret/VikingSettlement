@@ -1,3 +1,4 @@
+using Cutscenes;
 using UnityEngine;
 
 /// <summary>
@@ -91,10 +92,16 @@ public class GameSceneBootstrap : MonoBehaviour
             HeatUI.Instance?.UpdateWoodUI();
         }
 
-        if(isNewGame && !testing)
+        CutsceneManager.Instance?.Init();
+
+        if (isNewGame && !testing)
         {
             SaveManager.Instance?.SaveToCurrentSlot();
-            DemoSceneario.instance?.Init();
+            CutsceneManager.Instance?.StartNewGameCutscene();
+        }
+        else
+        {
+            CutsceneManager.Instance?.InitSavedCustSceneData();
         }
 
 

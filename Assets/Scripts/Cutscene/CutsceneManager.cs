@@ -72,6 +72,9 @@ namespace Cutscenes
 
         private PlayerInputActions inputActions;
 
+        public List<Sceneario> scenearios;
+        private int secenarioIndex = 0;
+
         private void Awake()
         {
             if (Instance == null)
@@ -84,7 +87,7 @@ namespace Cutscenes
             }
         }
 
-        void Start()
+        public void Init()
         {
             letterboxTopTarget = letterboxTop.anchoredPosition;
             letterboxBottomTarget = letterboxBottom.anchoredPosition;
@@ -93,6 +96,25 @@ namespace Cutscenes
 
             inputActions = InputActionManager.Instance.InputActions;
             inputActions.CutScene.SkipCutscene.performed += SkipCutscene;
+        }
+
+        public void StartNewGameCutscene()
+        {
+            secenarioIndex = 0;
+            if (scenearios.Count > secenarioIndex)
+            {
+                DemoSceneario demoSceneario = scenearios[secenarioIndex] as DemoSceneario;
+                if (demoSceneario != null)
+                {
+                    demoSceneario.StartNewGame();
+                }
+            }
+        }
+
+        public void InitSavedCustSceneData()
+        {
+            //TODO create and grab all the active senarios and their current cutscene index
+            scenearios[0].Init();
         }
 
         private void Update()
@@ -480,10 +502,16 @@ namespace Cutscenes
 
         public void PopulateSaveData(SaveData data)
         {
+            List<Vector2> scenesANDcuts = new List<Vector2>();
+            //TODO create and grab all the active senarios and their current cutscene index
+            scenesANDcuts.Add(new Vector2(secenarioIndex, scenearios[secenarioIndex].currentCutScene));
             data.cutsceneData = new CutsceneSaveData
             {
-                playedOneShotCutsceneIds = playedCutsceneIds.ToList()
+                playedOneShotCutsceneIds = playedCutsceneIds.ToList(),
+                currentScenarioIndexANDCutsceneIndex = scenesANDcuts
             };
+
+            
         }
 
         public void LoadSaveData(SaveData data)
@@ -495,6 +523,9 @@ namespace Cutscenes
                 {
                     playedCutsceneIds.Add(id);
                 }
+                //TODO create and grab all the active senarios and their current cutscene index
+                var activeScenario = scenearios.FirstOrDefault();
+                activeScenario.currentCutScene = (int)data.cutsceneData.currentScenarioIndexANDCutsceneIndex[0].y;
             }
         }
 

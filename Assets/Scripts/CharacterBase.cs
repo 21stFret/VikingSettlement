@@ -675,6 +675,7 @@ public class CharacterBase : MonoBehaviour
         foreach (var hit in hitObjects)
         {
             if (hit.gameObject == this.gameObject) continue;
+            if(hit == null) continue;
 
             TargetHealth TH = hit.GetComponent<TargetHealth>();
             if (TH == null) continue;

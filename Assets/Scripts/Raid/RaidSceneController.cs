@@ -13,9 +13,11 @@ public class RaidSceneController : MonoBehaviour
 
     [Header("Spawn Points")]
     [Tooltip("Where raid party members spawn")]
+    public GameObject partySpawnParent;
     public List<Transform> partySpawnPoints = new List<Transform>();
 
     [Tooltip("Where enemies spawn")]
+    public GameObject enemySpawnParent;
     public List<Transform> enemySpawnPoints = new List<Transform>();
 
     [Header("Raid Templates")]
@@ -52,6 +54,13 @@ public class RaidSceneController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        if(partySpawnParent != null && enemySpawnParent != null) 
+        {
+            partySpawnPoints.Clear();
+            enemySpawnPoints.Clear();
+            partySpawnPoints = partySpawnParent.GetComponentsInChildren<Transform>().ToList();
+            enemySpawnPoints = enemySpawnParent.GetComponentsInChildren<Transform>().ToList();
+        }
     }
 
     private void OnDestroy()
