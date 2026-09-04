@@ -18,7 +18,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1895987943155858490
 Transform:
@@ -298,12 +298,13 @@ GameObject:
   - component: {fileID: 220928229114814556}
   - component: {fileID: 7441926304051546973}
   - component: {fileID: 6997593720033645142}
+  - component: {fileID: 3174275780594374582}
   m_Layer: 0
   m_Name: Particle System (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &220928229114814556
 Transform:
@@ -5124,6 +5125,21 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &3174275780594374582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3486866479179467284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteSorting
+  spriteRenderer: {fileID: 0}
+  sortingOrderBase: 5000
+  offset: 100
 --- !u!1 &5403011327312004922
 GameObject:
   m_ObjectHideFlags: 0
@@ -5135,12 +5151,13 @@ GameObject:
   - component: {fileID: 7872219330026981442}
   - component: {fileID: 577238494798341303}
   - component: {fileID: 6441178549323239541}
+  - component: {fileID: 1094142294473232917}
   m_Layer: 0
   m_Name: Particle System (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7872219330026981442
 Transform:
@@ -9960,6 +9977,21 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &1094142294473232917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5403011327312004922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7e6e044c50e66446955e82684cc727f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteSorting
+  spriteRenderer: {fileID: 0}
+  sortingOrderBase: 5000
+  offset: 100
 --- !u!1 &5487801056219183206
 GameObject:
   m_ObjectHideFlags: 0
@@ -9978,7 +10010,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3232090399770117487
 Transform:

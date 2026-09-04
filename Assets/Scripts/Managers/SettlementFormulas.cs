@@ -135,4 +135,42 @@ public static class SettlementFormulas
             health *= (1f + gefjonHealSpeedPercent / 100f);
         return (health, moraleRegenFromFood);
     }
+
+    /// <summary>
+    /// Mirrors SettlementManager.EqualyReduceFoodSupplies in aggregate. Live round-robins single-unit
+    /// draws across Fish→Meat→Bread each mealtime, which nets out to an even fair-share split across
+    /// whichever types still have stock (whatever type runs dry first keeps getting skipped, remaining
+    /// types absorb the rest). This "water-filling" computes that same split directly instead of looping
+    /// unit-by-unit, so it works for the simulator's fractional multi-day amounts too. Caller must ensure
+    /// fishAvailable + meatAvailable + breadAvailable >= totalNeeded (or a partial-day capped amount) —
+    /// this only distributes, it doesn't check sufficiency.
+    /// </summary>
+    public static (float fish, float meat, float bread) GetFoodConsumptionSplit(
+        float fishAvailable, float meatAvailable, float breadAvailable, float totalNeeded)
+    {
+        float fishLeft = fishAvailable, meatLeft = meatAvailable, breadLeft = breadAvailable;
+        float fishConsumed = 0f, meatConsumed = 0f, breadConsumed = 0f;
+        float remaining = totalNeeded;
+
+        // At most 3 rounds needed: each round either satisfies `remaining` entirely or fully drains at
+        // least one more of the three types.
+        for (int round = 0; round < 3 && remaining > 0.0001f; round++)
+        {
+            int activeCount = (fishLeft > 0f ? 1 : 0) + (meatLeft > 0f ? 1 : 0) + (breadLeft > 0f ? 1 : 0);
+            if (activeCount == 0) break;
+            float share = remaining / activeCount;
+
+            float fishTake = Mathf.Min(share, fishLeft);
+            float meatTake = Mathf.Min(share, meatLeft);
+            float breadTake = Mathf.Min(share, breadLeft);
+
+            fishConsumed += fishTake; fishLeft -= fishTake;
+            meatConsumed += meatTake; meatLeft -= meatTake;
+            breadConsumed += breadTake; breadLeft -= breadTake;
+
+            remaining -= (fishTake + meatTake + breadTake);
+        }
+
+        return (fishConsumed, meatConsumed, breadConsumed);
+    }
 }

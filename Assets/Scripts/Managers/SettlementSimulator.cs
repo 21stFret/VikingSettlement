@@ -310,14 +310,24 @@ public static class SettlementSimulator
             }
 
             // ---- STEP D: FOOD / HUNGER ----
-            float effectiveFish = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
-            float totalFishNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFish);
-            if (totalFishNeeded > 0f)
+            // Mirrors SettlementManager.HandleMealTime: Fish, Meat and Bread are all "food" and are drawn
+            // down together, not Fish alone — a settlement with fish stock at 0 but meat/bread in storage
+            // must not starve here when it wouldn't have live.
+            float effectiveFood = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFoodNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFood);
+            if (totalFoodNeeded > 0f)
             {
-                float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
-                if (fishAvailable >= totalFishNeeded)
+                float fishStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
+                float meatStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Meat) + report.resourceChanges[ResourceType.Meat]);
+                float breadStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Bread) + report.resourceChanges[ResourceType.Bread]);
+                float foodAvailable = fishStock + meatStock + breadStock;
+
+                if (foodAvailable >= totalFoodNeeded)
                 {
-                    report.resourceChanges[ResourceType.Fish] -= totalFishNeeded;
+                    var (fishUsed, meatUsed, breadUsed) = SettlementFormulas.GetFoodConsumptionSplit(fishStock, meatStock, breadStock, totalFoodNeeded);
+                    report.resourceChanges[ResourceType.Fish] -= fishUsed;
+                    report.resourceChanges[ResourceType.Meat] -= meatUsed;
+                    report.resourceChanges[ResourceType.Bread] -= breadUsed;
                     foreach (var s in aliveStates)
                     {
                         ApplyFedHeal(s, gefjonActive, gefjonHealPct);
@@ -326,11 +336,15 @@ public static class SettlementSimulator
                 }
                 else
                 {
-                    report.resourceChanges[ResourceType.Fish] -= fishAvailable;
+                    // Not enough food of any kind — all three stocks are exhausted, matching live's
+                    // shortage branch which spends availableFish/Meat/Bread down to zero.
+                    report.resourceChanges[ResourceType.Fish] -= fishStock;
+                    report.resourceChanges[ResourceType.Meat] -= meatStock;
+                    report.resourceChanges[ResourceType.Bread] -= breadStock;
 
                     if (hungerMode == HungerDistributionMode.Shared)
                     {
-                        float fraction = SettlementFormulas.GetSharedHungerFraction(fishAvailable, effectiveFish, population);
+                        float fraction = SettlementFormulas.GetSharedHungerFraction(foodAvailable, effectiveFood, population);
                         foreach (var s in aliveStates)
                         {
                             if (fraction <= 0f)
@@ -350,7 +364,7 @@ public static class SettlementSimulator
                     }
                     else // Prioritized
                     {
-                        int fedCount = SettlementFormulas.GetFedCount(fishAvailable, effectiveFish, population);
+                        int fedCount = SettlementFormulas.GetFedCount(foodAvailable, effectiveFood, population);
                         var shuffled = aliveStates.OrderBy(_ => Random.value).ToList(); // fresh shuffle each simulated day, matches live's per-mealtime shuffle
                         for (int i = 0; i < shuffled.Count; i++)
                         {
@@ -487,13 +501,18 @@ public static class SettlementSimulator
                 report.resourceChanges[ResourceType.Wood] -= Mathf.Min(woodNeeded, woodAvailable);
             }
 
-            // Food — deduct only, capped at what's available.
-            float effectiveFish = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
-            float totalFishNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFish) * partialDay;
-            if (totalFishNeeded > 0f)
+            // Food — deduct only, capped at what's available (Fish + Meat + Bread combined, same as STEP D).
+            float effectiveFood = SettlementFormulas.GetEffectiveFoodPerVillager(fishPerVillagerBase, rationingModifier);
+            float totalFoodNeeded = SettlementFormulas.GetTotalFoodNeeded(population, effectiveFood) * partialDay;
+            if (totalFoodNeeded > 0f)
             {
-                float fishAvailable = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
-                report.resourceChanges[ResourceType.Fish] -= Mathf.Min(totalFishNeeded, fishAvailable);
+                float fishStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Fish) + report.resourceChanges[ResourceType.Fish]);
+                float meatStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Meat) + report.resourceChanges[ResourceType.Meat]);
+                float breadStock = Mathf.Max(0f, GetAvailableResource(ResourceType.Bread) + report.resourceChanges[ResourceType.Bread]);
+                var (fishUsed, meatUsed, breadUsed) = SettlementFormulas.GetFoodConsumptionSplit(fishStock, meatStock, breadStock, totalFoodNeeded);
+                report.resourceChanges[ResourceType.Fish] -= fishUsed;
+                report.resourceChanges[ResourceType.Meat] -= meatUsed;
+                report.resourceChanges[ResourceType.Bread] -= breadUsed;
             }
         }
 
