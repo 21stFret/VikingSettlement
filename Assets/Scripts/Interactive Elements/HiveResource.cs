@@ -31,7 +31,7 @@ public class HiveResource : HarvestableResource
     {
         if (beeEmitter == null) return;
 
-        if (isDay && !canRespawn)
+        if (isDay && !pendingRespawn)
             beeEmitter.Play();
         else
             beeEmitter.Stop();
@@ -41,5 +41,11 @@ public class HiveResource : HarvestableResource
     {
         base.Deplete();
         SetEmitters(false);
+    }
+
+    protected override void Respawn()
+    {
+        base.Respawn();
+        SetEmitters(DayNightManager.Instance != null && DayNightManager.Instance.IsDaytime());
     }
 }

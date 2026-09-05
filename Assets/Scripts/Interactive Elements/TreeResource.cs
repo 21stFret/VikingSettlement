@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 
 public class TreeResource : HarvestableResource
@@ -26,9 +27,9 @@ public class TreeResource : HarvestableResource
         if (fallingObject != null)
         {
             fallingSR = fallingObject.GetComponent<SpriteRenderer>();
+            originalPosition = fallingObject.transform.localPosition;
         }
         treeSR = GetComponent<SpriteRenderer>();
-        originalPosition = fallingObject.transform.localPosition;
     }
 
     protected override void Deplete()
@@ -89,20 +90,10 @@ public class TreeResource : HarvestableResource
         treeSR.enabled = false;
     }
 
-    public override void ShakeObject()
+    public override void ShakeOnHit(Transform _transform)
     {
-        // Handle shake animation
-        if (shakeTimer > 0)
-        {
-            shakeTimer -= Time.deltaTime;
-            float shake = Mathf.Sin(shakeTimer * 50f) * shakeIntensity * (shakeTimer / 0.2f);
-            fallingObject.transform.localPosition = originalPosition + new Vector3(shake, 0, 0);
-
-            if (shakeTimer <= 0)
-            {
-                fallingObject.transform.localPosition = originalPosition;
-            }
-        }
+        if(fallingObject != null)
+            base.ShakeOnHit(fallingObject.transform);
     }
 
 }

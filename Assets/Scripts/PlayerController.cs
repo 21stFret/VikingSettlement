@@ -242,7 +242,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            characterBase.SetMovement(moveInput * playerMoveSpeed);
+            characterBase.SetMovement(moveInput);
         }
 
         // Handle held attack - continue attacking while button is held
@@ -291,6 +291,10 @@ public class PlayerController : MonoBehaviour
             Debug.LogError($"Control target {target.villagerName} has no CharacterBase!");
             return;
         }
+
+        // SetMovement normalizes its direction argument, so player move speed has to be
+        // applied to the character's base speed here, not baked into the input vector.
+        characterBase.SetMoveSpeed(playerMoveSpeed);
 
         // Disable AI on new target (player controls this villager)
         if (targetAI != null)

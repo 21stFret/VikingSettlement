@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -30,6 +31,9 @@ public class HarvestableResource : TargetHealth
     [Tooltip("Should this resource respawn after depletion?")]
     public bool canRespawn = false;
 
+    [HideInInspector] 
+    public bool pendingRespawn = false;
+
     [Tooltip("Time in seconds before respawning")]
     public float respawnTime = 60f;
 
@@ -46,13 +50,10 @@ public class HarvestableResource : TargetHealth
 
     [Tooltip("Shake intensity")]
     public float shakeIntensity = 0.1f;
-
     private SpriteRenderer spriteRenderer;
     protected Vector3 originalPosition;
-    protected float shakeTimer = 0f;
-    private bool isRespawning = false;
     public UnityEvent OnHit;
-    public bool removeOnDeplete = false;
+    public bool hideOnDeplete = false;
 
     public override void Awake()
     {
@@ -62,43 +63,35 @@ public class HarvestableResource : TargetHealth
         actualYield = 0f;
     }
 
-    private void Update()
+    public virtual void ShakeOnHit(Transform _transform)
     {
-        ShakeObject();
-
-        // Schedule respawn if enabled
-        if (canRespawn && !isRespawning)
-        {
-            isRespawning = true;
-            Invoke(nameof(Respawn), respawnTime);
-        }
+        StartCoroutine(ShakeObject(_transform));
     }
 
-    public virtual void ShakeObject()
+    private IEnumerator ShakeObject(Transform _transform)
     {
+        float shakeTimer = 0.2f;
         // Handle shake animation
-        if (shakeTimer > 0)
+        while (shakeTimer > 0)
         {
             shakeTimer -= Time.deltaTime;
             float shake = Mathf.Sin(shakeTimer * 50f) * shakeIntensity * (shakeTimer / 0.2f);
-            transform.localPosition = originalPosition + new Vector3(shake, 0, 0);
-
-            if (shakeTimer <= 0)
-            {
-                transform.localPosition = originalPosition;
-            }
+            _transform.localPosition = originalPosition + new Vector3(shake, 0, 0);
+            yield return null;
         }
+        _transform.localPosition = originalPosition;
     }
 
     public override void TakeDamage(float damage, EquipableItem weapon, bool trueDamage = false, Vector2 attackerPos = default)
     {
+        if (isDead) return;
         base.TakeDamage(damage, weapon, trueDamage, attackerPos);
 
         Villager attacker = weapon != null ? weapon.GetComponentInParent<Villager>() : null;
         int yield = CalculateYield(weapon, attacker);
 
         // Add resources to pool
-        if (ResourceManager.Instance != null && yield > 0)
+        if (ResourceManager.Instance != null && yield > 0 && !isDead)
         {
             ResourceManager.Instance.AddResource(resourceType, yield);
             Debug.Log($"Harvested {yield} {resourceType} from {gameObject.name}");
@@ -122,7 +115,7 @@ public class HarvestableResource : TargetHealth
 
         if (shakeOnHit)
         {
-            shakeTimer = 0.2f;
+            ShakeOnHit(transform);
         }
     }
 
@@ -207,16 +200,18 @@ public class HarvestableResource : TargetHealth
     {
         Debug.Log($"{gameObject.name} depleted!");
 
-        canRespawn = true;
+        pendingRespawn = true;
+        if (canRespawn) 
+        {
+            Invoke(nameof(Respawn), respawnTime);
+        }       
 
-        if (!removeOnDeplete)
+        if (hideOnDeplete)
         {
-            return;
-        }
-        // Hide the object
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = false;
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.enabled = false;
+            }
         }
 
         // Disable collider
@@ -233,11 +228,9 @@ public class HarvestableResource : TargetHealth
     /// </summary>
     protected virtual void Respawn()
     {
-        isRespawning = false;
-        canRespawn = false;
         isDead = false;
         currentHealth = maxHealth;
-
+        pendingRespawn = false;
         // Show the object
         if (spriteRenderer != null)
         {
@@ -258,14 +251,5 @@ public class HarvestableResource : TargetHealth
         }
 
         Debug.Log($"{gameObject.name} respawned!");
-    }
-
-    /// <summary>
-    /// Force respawn (for debugging)
-    /// </summary>
-    public void ForceRespawn()
-    {
-        CancelInvoke(nameof(Respawn));
-        Respawn();
     }
 }

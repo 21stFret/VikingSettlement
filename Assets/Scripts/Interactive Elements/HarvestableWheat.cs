@@ -32,8 +32,6 @@ public class HarvestableWheat : TargetHealth
 
     private SpriteRenderer spriteRenderer;
     private Collider2D col;
-    private Vector3 originalPosition;
-    private float shakeTimer = 0f;
 
     private WheatStage currentStage = WheatStage.Harvestable;
     private float growthTimer = 0f;
@@ -53,7 +51,6 @@ public class HarvestableWheat : TargetHealth
         base.Awake();
         spriteRenderer = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
-        originalPosition = transform.localPosition;
     }
 
     private void Start()
@@ -64,26 +61,17 @@ public class HarvestableWheat : TargetHealth
 
         UpdateStageInterval();
         SetStage(WheatStage.Harvestable);
+
+        if (GameTickManager.Instance != null)
+            GameTickManager.Instance.OnGameTick += UpdateFromTickManager;
     }
 
-    private void Update()
+    private void UpdateFromTickManager(float deltaTime)
     {
-        // Shake animation
-        if (shakeTimer > 0)
-        {
-            shakeTimer -= Time.deltaTime;
-            float shake = Mathf.Sin(shakeTimer * 50f) * shakeIntensity * (shakeTimer / 0.2f);
-            transform.localPosition = originalPosition + new Vector3(shake, 0, 0);
-            if (shakeTimer <= 0)
-            {
-                transform.localPosition = originalPosition;
-            }
-        }
-
         // Grow through stages (not in winter)
         if (currentStage != WheatStage.Harvestable && !IsWinter())
         {
-            growthTimer += Time.deltaTime;
+            growthTimer += deltaTime;
             if (growthTimer >= stageInterval)
             {
                 growthTimer -= stageInterval;
@@ -143,11 +131,6 @@ public class HarvestableWheat : TargetHealth
     {
         if (currentStage != WheatStage.Harvestable) return;
 
-        if (shakeOnHit)
-        {
-            shakeTimer = 0.2f;
-        }
-
         base.TakeDamage(damage, weapon, trueDamage, attackerPos);
     }
 
@@ -173,5 +156,11 @@ public class HarvestableWheat : TargetHealth
         growthTimer = 0f;
         UpdateStageInterval();
         SetStage(WheatStage.Cut);
+    }
+
+    private void OnDestroy()
+    {
+        if (GameTickManager.Instance != null)
+            GameTickManager.Instance.OnGameTick -= UpdateFromTickManager;
     }
 }

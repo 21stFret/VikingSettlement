@@ -6,6 +6,8 @@ public class SpriteSorting : MonoBehaviour
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private int sortingOrderBase = 5000; // Base value for calculations
     [SerializeField] public int offset = 0; // Manual adjustment if needed
+
+    private ParticleSystemRenderer _particleSystem;
     
     private void Awake()
     {
@@ -16,6 +18,14 @@ public class SpriteSorting : MonoBehaviour
         if (spriteRenderer != null)
         {
             spriteRenderer.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
+        }
+        else
+        {
+            _particleSystem = GetComponent<ParticleSystemRenderer>();
+        }
+        if(_particleSystem != null)
+        {
+            _particleSystem.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
         }
     }
 

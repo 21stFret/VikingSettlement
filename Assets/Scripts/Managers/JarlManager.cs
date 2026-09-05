@@ -110,7 +110,7 @@ public class JarlManager : MonoBehaviour, ISaveable
             CameraController.Instance.SetPlayerTarget(villager.transform);
         }
 
-        WorldInteractionZone interactionZone = GetComponentInChildren<WorldInteractionZone>();
+        WorldInteractionZone interactionZone = villager.GetComponentInChildren<WorldInteractionZone>(true);
         if (interactionZone != null) 
         {
             interactionZone.gameObject.SetActive(true);

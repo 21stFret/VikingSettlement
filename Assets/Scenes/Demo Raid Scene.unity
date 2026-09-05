@@ -16410,8 +16410,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 358.1937, y: -73}
-  m_SizeDelta: {x: 662.378, y: 36.278}
+  m_AnchoredPosition: {x: 375.00665, y: 61.442}
+  m_SizeDelta: {x: 345.0313, y: 36.278}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &121363404
 MonoBehaviour:
@@ -16468,7 +16468,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 1024
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -27296,7 +27296,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 219497620}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -1, w: -0.00000004371139}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -30388,8 +30388,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 358.1937, y: 2}
-  m_SizeDelta: {x: 662.378, y: 100.838}
+  m_AnchoredPosition: {x: 114.74838, y: -118.032}
+  m_SizeDelta: {x: 175.4874, y: 340.9022}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &258985906
 MonoBehaviour:
@@ -30449,12 +30449,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45
+  m_fontSize: 42
   m_fontSizeBase: 45
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 42
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -56654,8 +56654,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 358.1937, y: -135}
-  m_SizeDelta: {x: 662.378, y: 100.838}
+  m_AnchoredPosition: {x: 420.33722, y: -122.59}
+  m_SizeDelta: {x: 435.6845, y: 331.79}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &562303303
 MonoBehaviour:
@@ -56677,7 +56677,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Raid Results
+  m_text: Raid ResultsRaid ResultsRaid ResultsRaid ResultsRaid ResultsRaid ResultsRaid
+    ResultsRaid ResultsRaid ResultsRaid ResultsRaid ResultsRaid ResultsRaid ResultsRaid
+    ResultsRaid ResultsRaid ResultsRaid ResultsRaid Results
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 97f7714304d6f9d41808a351b968dd42, type: 2}
   m_sharedMaterial: {fileID: 4165414027775526135, guid: 97f7714304d6f9d41808a351b968dd42, type: 2}
@@ -56704,12 +56706,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 45
+  m_fontSize: 42
   m_fontSizeBase: 45
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 42
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
@@ -63670,8 +63672,8 @@ MonoBehaviour:
   m_LightType: 3
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 1
-  m_Color: {r: 1, g: 0.9490196, b: 0.9019608, a: 1}
-  m_Intensity: 1.29
+  m_Color: {r: 1, g: 0.95, b: 0.9, a: 1}
+  m_Intensity: 1.5
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000002b77758687afc2d2c3451fd0
@@ -63715,7 +63717,7 @@ Transform:
   m_GameObject: {fileID: 619394800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -35.2, y: -23.31, z: 1.3}
+  m_LocalPosition: {x: -0.0000017484556, y: 40, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -105136,12 +105138,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a6f88a36ef7dda419f10f1799775a96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RaidSceneController
+  partySpawnParent: {fileID: 0}
   partySpawnPoints:
   - {fileID: 353968860}
   - {fileID: 739032043}
   - {fileID: 1234629424}
   - {fileID: 2013634506}
   - {fileID: 1479286801}
+  enemySpawnParent: {fileID: 0}
   enemySpawnPoints:
   - {fileID: 2048079080}
   - {fileID: 316585706}
@@ -159772,7 +159776,9 @@ MonoBehaviour:
   sunHeightTarget: 10
   sunriseTime: 0.25
   sunsetTime: 0.75
-  currentTimeOfDay: 0.2
+  autoUpdateSunInEditor: 1
+  editorTimeOfDay: 0.5
+  currentTimeOfDay: 0.5
   currentDay: 1
   hasConsumedMealToday: 0
   eveningMultiplier: 0.2
@@ -215706,8 +215712,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 358.1937, y: 130}
-  m_SizeDelta: {x: 662.378, y: 100.838}
+  m_AnchoredPosition: {x: 287.26, y: 130}
+  m_SizeDelta: {x: 520.52, y: 100.84}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1540235800
 MonoBehaviour:
@@ -244961,8 +244967,8 @@ MonoBehaviour:
   m_LightType: 4
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.58
-  m_Color: {r: 0.29803923, g: 0.4, b: 0.6, a: 1}
-  m_Intensity: 0.1
+  m_Color: {r: 0.9386792, g: 0.96994084, b: 1, a: 1}
+  m_Intensity: 0.080000006
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 000000002b77758687afc2d2c3451fd0
@@ -282920,8 +282926,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f48f417291a641640b6eee2ab6e32b02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShadowMaster
-  sunPosition: {x: -35.2, y: -23.31}
-  sunHeight: 0.13
+  sunPosition: {x: -0.0000017484556, y: 40}
+  sunHeight: 1
   minSunHeightForShadows: 0.1
   sunTransform: {fileID: 619394802}
   shadowDistanceMultiplier: 2.47

@@ -124,7 +124,7 @@ public class RaidResultsUI : MonoBehaviour
             lootText.text = FormatLoot(report.loot);
 
         if (casualtiesText != null)
-            casualtiesText.text = FormatCasualties(report.casualties);
+            casualtiesText.text = FormatBattleReport(report.casualtyNames, report.injuries);
 
         if (keepSailingButton != null) keepSailingButton.gameObject.SetActive(false);
         if (goHomeButton != null) goHomeButton.gameObject.SetActive(true);
@@ -144,7 +144,7 @@ public class RaidResultsUI : MonoBehaviour
             lootText.text = FormatLoot(report.legLoot);
 
         if (casualtiesText != null)
-            casualtiesText.text = FormatCasualties(report.legCasualties);
+            casualtiesText.text = FormatBattleReport(report.legCasualtyNames, report.injuries);
 
         if (goHomeButton != null) goHomeButton.gameObject.SetActive(true);
 
@@ -203,14 +203,46 @@ public class RaidResultsUI : MonoBehaviour
         return lines.ToString().TrimEnd();
     }
 
-    private string FormatCasualties(List<Villager> casualties)
+    /// <summary>
+    /// Combines the dead and the wounded into one report so a raid isn't reported as "clean"
+    /// just because nobody died. Format:
+    ///   Fallen:
+    ///     Ragnar
+    ///
+    ///   Wounded:
+    ///     Bjorn - Torn Shoulder (18/40 HP)
+    ///     Erik - 22/35 HP
+    /// </summary>
+    private string FormatBattleReport(List<string> casualtyNames, List<VillagerInjuryReport> injuries)
     {
-        if (casualties == null || casualties.Count == 0)
-            return "No casualties.";
+        bool hasCasualties = casualtyNames != null && casualtyNames.Count > 0;
+        bool hasInjuries = injuries != null && injuries.Count > 0;
+
+        if (!hasCasualties && !hasInjuries)
+            return "No casualties. Everyone returned unharmed.";
 
         var lines = new StringBuilder();
-        foreach (var v in casualties)
-            if (v != null) lines.AppendLine(v.villagerName);
+
+        if (hasCasualties)
+        {
+            lines.AppendLine("Fallen:");
+            foreach (var name in casualtyNames)
+                lines.AppendLine($"  {name}");
+        }
+
+        if (hasInjuries)
+        {
+            if (hasCasualties) lines.AppendLine();
+            lines.AppendLine("Wounded:");
+            foreach (var injury in injuries)
+            {
+                string woundNames = injury.newWounds != null && injury.newWounds.Count > 0
+                    ? string.Join(", ", injury.newWounds.ConvertAll(w => WoundDatabase.Get(w).displayName)) + " "
+                    : "";
+                lines.AppendLine($"  {injury.villagerName} - {woundNames}({injury.currentHealth:F0}/{injury.maxHealth:F0} HP)");
+            }
+        }
+
         return lines.ToString().TrimEnd();
     }
 }

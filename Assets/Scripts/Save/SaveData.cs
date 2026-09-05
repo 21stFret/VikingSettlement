@@ -230,4 +230,5 @@ public class DeathTypeBuffSaveData
 public class CutsceneSaveData
 {
     public List<string> playedOneShotCutsceneIds;
+    public List<Vector2> currentScenarioIndexANDCutsceneIndex; // List of Vector2 where x = scenario index, y = cutscene index
 }
