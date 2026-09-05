@@ -2,7 +2,6 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public enum Faction
@@ -132,7 +131,11 @@ public class CharacterBase : MonoBehaviour
     [SerializeField] public int MaxAttackers = 4;
     [SerializeField] private float knockbackForce = 5f;
     [SerializeField] private float knockbackDuration = 0.1f;
-    private List<(CharacterBase claimer, float angle)> _occupiedSlots = new List<(CharacterBase, float)>();
+    // Field initializer (not Awake) so this is never null for OnDrawGizmos, which the editor
+    // calls in edit mode before Awake ever runs - matches the old _occupiedSlots field's
+    // always-non-null behavior.
+    private CharacterSlotManager _slotManager;
+    private CharacterSlotManager SlotManager => _slotManager ??= new CharacterSlotManager(this);
 
     // Combat events fired by animation event callbacks — subscribe to observe attack phases
     public event Action OnAttackWindupEvent;
@@ -1081,14 +1084,14 @@ public class CharacterBase : MonoBehaviour
 
     #region Facing Direction
 
-    protected FacingDirection ComputeFacingDirection(Vector2 dir)
+    public static FacingDirection ComputeFacingDirection(Vector2 dir)
     {
         if (Mathf.Abs(dir.x) >= Mathf.Abs(dir.y))
             return dir.x >= 0f ? FacingDirection.East : FacingDirection.West;
         return dir.y >= 0f ? FacingDirection.North : FacingDirection.South;
     }
 
-    public Vector2 FacingDirectionToVector(FacingDirection dir) => dir switch
+    public static Vector2 FacingDirectionToVector(FacingDirection dir) => dir switch
     {
         FacingDirection.East  => Vector2.right,
         FacingDirection.West  => Vector2.left,
@@ -1121,149 +1124,21 @@ public class CharacterBase : MonoBehaviour
     #endregion
 
     #region Combat Slots
+    // Engagement-slot state/math lives in CharacterSlotManager (see CharacterSlotManager.cs) -
+    // this region is just the public facade so existing callers (FightManager, Combat*State,
+    // CombatAIBase, CharacterAI, TargetHealth) keep compiling unchanged.
 
-    public int OccupiedCount => _occupiedSlots.Count;
+    public int OccupiedCount => SlotManager.OccupiedCount;
 
-    public bool TryClaimSlot(CharacterBase claimer, out Vector2 slotWorldPos)
-    {
-        ReleaseSlot(claimer);
+    public bool TryClaimSlot(CharacterBase claimer, out Vector2 slotWorldPos) => SlotManager.TryClaimSlot(claimer, out slotWorldPos);
 
-        if (_occupiedSlots.Count >= MaxAttackers)
-        {
-            slotWorldPos = Vector2.zero;
-            return false;
-        }
+    public void UpdateSlotAngle(CharacterBase claimer) => SlotManager.UpdateSlotAngle(claimer);
 
-        float newAngle = CalculateBisectAngle(claimer);
-        _occupiedSlots.Add((claimer, newAngle));
-        FightManager.Instance.NotifyOccupancyChanged(this);
+    public Vector2 GetSlotWorldPos(CharacterBase claimer) => SlotManager.GetSlotWorldPos(claimer);
 
-        if (claimer.AI?.showDebug == true)
-        {
-            Debug.Log($"[{name}] Slot claimed by {claimer.name} " +
-                $"at angle:{newAngle:F1}° " +
-                $"existing slots:{_occupiedSlots.Count - 1} " +
-                $"existing angles:{string.Join(", ", _occupiedSlots.Where(s => s.claimer != claimer).Select(s => s.angle.ToString("F1")))}");
-        }
+    public void ReleaseSlot(CharacterBase claimer) => SlotManager.ReleaseSlot(claimer);
 
-        slotWorldPos = GetSlotWorldPos(claimer);
-        return true;
-    }
-
-    private float CalculateBisectAngle(CharacterBase claimer)
-    {
-        if (_occupiedSlots.Count == 0)
-            return ComputeSlotAngleTo(claimer);
-
-
-        var angles = _occupiedSlots.Select(s => s.angle).OrderBy(a => a).ToList();
-        float largestGap = 0f;
-        float gapStart = 0f;
-
-        for (int i = 0; i < angles.Count; i++)
-        {
-            float next = angles[(i + 1) % angles.Count];
-            // With a single occupant, (i+1)%count wraps back to the same element, so the
-            // generic formula collapses to a 0° gap. The whole circle is actually free
-            // (the lone occupant has zero angular width), so treat it as a full 360° gap —
-            // this places the second claimant directly opposite the first.
-            float gap = angles.Count == 1 ? 360f : (next - angles[i] + 360f) % 360f;
-            if (gap > largestGap)
-            {
-                largestGap = gap;
-                gapStart = angles[i];
-            }
-        }
-        var value = (gapStart + largestGap / 2f) % 360f;
-        return value;
-    }
-
-    /// <summary>
-    /// Compass angle (unit-circle degrees, matching GetSlotWorldPos) from this character
-    /// towards claimer's live position, snapped to one of the 4 facing directions.
-    /// </summary>
-    private float ComputeSlotAngleTo(CharacterBase claimer)
-    {
-        Vector2 dir = (Vector2)claimer.transform.position - (Vector2)transform.position;
-        if (dir.sqrMagnitude < 0.0001f) dir = Vector2.right;
-
-        var facing = ComputeFacingDirection(dir.normalized);
-        var facingVector = FacingDirectionToVector(facing);
-        return Mathf.Atan2(facingVector.y, facingVector.x) * Mathf.Rad2Deg;
-    }
-
-    /// <summary>
-    /// Re-snaps every occupied slot's angle to the current live layout. The "main" occupant —
-    /// whichever claimer this host is itself reciprocally engaged with (CurrentTarget) — always
-    /// tracks its own live bearing from this host, same as the old single-occupant case. Every
-    /// other ("extra") occupant is then defined purely as a fixed angular offset from that live
-    /// main angle, evenly spread around the remaining arc, so extras follow along for free as
-    /// the engaged pair circles each other, instead of each one independently re-bisecting
-    /// against the others' shifting positions (which is what made live-tracking multi-occupant
-    /// angles unstable before — see bug-history "second attacker's bisect angle" fix).
-    /// </summary>
-    public void UpdateSlotAngle(CharacterBase claimer)
-    {
-        if (_occupiedSlots.Count == 0) return;
-        if (!_occupiedSlots.Any(s => s.claimer == claimer)) return;
-
-        int mainIndex = _occupiedSlots.FindIndex(s => s.claimer == CurrentTarget);
-
-        if (mainIndex < 0)
-        {
-            // No reciprocally-engaged occupant to anchor extras to yet. A lone occupant still
-            // tracks its own live bearing regardless (matches the old single-occupant case);
-            // with 2+ occupants and no main yet, leave claim-time angles alone until one of them
-            // becomes genuinely engaged.
-            if (_occupiedSlots.Count == 1)
-                _occupiedSlots[0] = (_occupiedSlots[0].claimer, ComputeSlotAngleTo(_occupiedSlots[0].claimer));
-            return;
-        }
-
-        float mainAngle = ComputeSlotAngleTo(_occupiedSlots[mainIndex].claimer);
-        _occupiedSlots[mainIndex] = (_occupiedSlots[mainIndex].claimer, mainAngle);
-
-        int extraCount = _occupiedSlots.Count - 1;
-        if (extraCount <= 0) return;
-
-        float step = 360f / (extraCount + 1);
-        int slot = 0;
-        for (int i = 0; i < _occupiedSlots.Count; i++)
-        {
-            if (i == mainIndex) continue;
-            slot++;
-            float angle = (mainAngle + step * slot) % 360f;
-            _occupiedSlots[i] = (_occupiedSlots[i].claimer, angle);
-        }
-    }
-
-    public Vector2 GetSlotWorldPos(CharacterBase claimer)
-    {
-        foreach (var slot in _occupiedSlots)
-        {
-            if (slot.claimer == claimer)
-            {
-                float rad = slot.angle * Mathf.Deg2Rad;
-                return (Vector2)transform.position + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * slotDistance;
-            }
-        }
-        return transform.position;
-    }
-
-    public void ReleaseSlot(CharacterBase claimer)
-    {
-        _occupiedSlots.RemoveAll(s => s.claimer == claimer);
-        // Guarded (unlike TryClaimSlot's call above): reachable from CharacterAI.OnDestroy() via
-        // ReleaseEngagementSlot(), which can fire during scene teardown after FightManager's own
-        // OnDestroy already ran — Instance would otherwise spin up a fresh one mid-unload.
-        if (FightManager.Exists) FightManager.Instance.NotifyOccupancyChanged(this);
-    }
-
-    public void ReleaseAllSlots()
-    {
-        _occupiedSlots.Clear();
-        if (FightManager.Exists) FightManager.Instance.NotifyOccupancyChanged(this);
-    }
+    public void ReleaseAllSlots() => SlotManager.ReleaseAllSlots();
 
     #endregion
 
@@ -1319,11 +1194,12 @@ public class CharacterBase : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (_occupiedSlots == null || _occupiedSlots.Count == 0) return;
+        var occupiedSlots = SlotManager.OccupiedSlots;
+        if (occupiedSlots.Count == 0) return;
 
-        for (int i = 0; i < _occupiedSlots.Count; i++)
+        for (int i = 0; i < occupiedSlots.Count; i++)
         {
-            var (claimer, angle) = _occupiedSlots[i];
+            var (claimer, angle) = occupiedSlots[i];
             float rad      = angle * Mathf.Deg2Rad;
             Vector2 slotWP = (Vector2)transform.position + new Vector2(Mathf.Cos(rad), Mathf.Sin(rad)) * slotDistance;
 
