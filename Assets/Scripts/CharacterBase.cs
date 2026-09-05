@@ -5,10 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// Numeric values pinned explicitly: Player/Neutral keep their original values so any already-
-// serialized prefab/scene data referencing them doesn't silently shift meaning. Enemy (1) is
-// retired — no code depends on that generic bucket anymore, each hostile clan gets its own
-// value instead, so e.g. Raider and Draugr are no longer forced into the same faction.
 public enum Faction
 {
     Player  = 0,
@@ -88,8 +84,6 @@ public class CharacterBase : MonoBehaviour
 
     private float _colliderRadius = 0.3f;
 
-    // Path planning — a waypoint chain computed by RaySweepPathfinder and followed by
-    // MoveToTarget(). See RaySweepPathfinder.cs for the algorithm.
     private List<Vector2> _currentPath = new List<Vector2>();
     private int _currentPathIndex = 0;
     private bool _pathReachedTarget = true;
@@ -115,8 +109,6 @@ public class CharacterBase : MonoBehaviour
     protected static readonly int RollTrigger = Animator.StringToHash("Roll");
     protected static readonly int ShootTrigger = Animator.StringToHash("Shoot");
 
-    // Cached once in Awake — CharacterBase and CharacterAI always live on the same GameObject,
-    // so this replaces scattered GetComponent<CharacterAI>() calls in hot per-frame combat code.
     [HideInInspector]
     public CharacterAI AI;
     [HideInInspector]
@@ -128,9 +120,7 @@ public class CharacterBase : MonoBehaviour
     [HideInInspector]
     public ItemAttachment itemAttachment;
     [HideInInspector]
-    // No longer hidden: previously always force-overwritten in code (VillagerController →
-    // Player, EnemyController → Enemy) so exposing it was pointless — now that enemies keep
-    // whatever faction is set here, it needs to be an actual Inspector-editable choice.
+
     public Faction characterFaction = Faction.Neutral;
     [HideInInspector]
     public FacingDirection facingDirection = FacingDirection.South;
