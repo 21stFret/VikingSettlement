@@ -2,7 +2,7 @@
 - Project name: VikingSettlement
 - Unity version: Unity 6000.4.11f1
 - Active game object:
-  - Name: Enemy (1)
+  - Name: WaterEdges
   - Tag: Untagged
-  - Layer: Enemy
+  - Layer: Static
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

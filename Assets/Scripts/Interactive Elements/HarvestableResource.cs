@@ -91,7 +91,7 @@ public class HarvestableResource : TargetHealth
         int yield = CalculateYield(weapon, attacker);
 
         // Add resources to pool
-        if (ResourceManager.Instance != null && yield > 0)
+        if (ResourceManager.Instance != null && yield > 0 && !isDead)
         {
             ResourceManager.Instance.AddResource(resourceType, yield);
             Debug.Log($"Harvested {yield} {resourceType} from {gameObject.name}");
