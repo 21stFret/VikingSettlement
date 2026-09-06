@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0efdb1c6acef1e46a12a729f69b16fe, type: 3}
+  m_Name: CD_Fisherman
+  m_EditorClassIdentifier: Assembly-CSharp::CompendiumEntrySO
+  id: enemy_fisherman
+  category: 3
+  displayName: Fisherman
+  description: A simple villager that likes to fish. Doesn't like his fish being
+    taken!
+  icon: {fileID: 21300000, guid: 9030297768fd1c1458e59f844bf32795, type: 2}

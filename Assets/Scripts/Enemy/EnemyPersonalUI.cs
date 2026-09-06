@@ -156,4 +156,9 @@ public class EnemyPersonalUI : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(HideAfterDelay(1f));
     }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
 }

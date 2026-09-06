@@ -116,7 +116,7 @@ public class TargetHealth : MonoBehaviour
         GetComponent<CharacterAI>()?.ReleaseEngagementSlot();
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb != null)
+        if (rb != null && !gameObject.isStatic)
         {
             rb.linearVelocity = Vector2.zero; 
             rb.simulated = false;

@@ -14,9 +14,10 @@ public enum LocationType
 }
 /// <summary>
 /// ScriptableObject defining a raid destination.
-/// Settlement time lost = travelTimeHours * 2 (there and back), converted to game days.
-/// The fight scene runs in real time against realTimeLimit; that duration does NOT affect
-/// how many settlement days pass — only travelTimeHours does.
+/// Settlement time lost = travelTimeHours * 2 (there and back), converted to game days, PLUS
+/// however long the fight actually takes — the raid scene's own clock ticks live while you play
+/// it (see RaidManager.ApplyArrivalTime). realTimeLimit only forces a retreat if you overstay it,
+/// it isn't a time-cost cap.
 /// </summary>
 [CreateAssetMenu(fileName = "RaidDestination", menuName = "Viking Settlement/Raid Destination")]
 public class RaidDestinationData : ScriptableObject

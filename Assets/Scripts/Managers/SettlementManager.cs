@@ -123,7 +123,7 @@ public class SettlementManager : MonoBehaviour, ISaveable
     private void OnDestroy()
     {
         // Unsubscribe from events
-        if (GameTickManager.Instance != null)
+        if (GameTickManager.Exists)
         {
             GameTickManager.Instance.OnGameTick -= OnTick;
             GameTickManager.Instance.OnFastUpdate -= FastUpdate;

@@ -55,6 +55,10 @@ public class ResourceManager : MonoBehaviour, ISaveable
 
     public void AddResource(ResourceType type, float amount)
     {
+        if(amount <= 0f)
+        {
+            return;
+        }
         resources[type] += amount;
         OnResourceAdded?.Invoke(type, amount);
 

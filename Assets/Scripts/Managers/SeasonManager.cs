@@ -93,7 +93,7 @@ public class SeasonManager : MonoBehaviour, ISaveable
         if (DayNightManager.Instance != null)
             DayNightManager.Instance.OnNewDay -= OnNewDay;
 
-        if (GameTickManager.Instance != null)
+        if (GameTickManager.Exists)
             GameTickManager.Instance.OnFastUpdate -= FastUpdate;
     }
 
