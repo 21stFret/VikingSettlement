@@ -90,7 +90,7 @@ public class MissionTrackerUI : MonoBehaviour
             var activemission = MM.activeMissions[i];
             string objectivesList = "";
             item.missionTitleText.text = activemission.definition.title;
-            item.missionInfoText.text = activemission.definition.description;
+            if (item.missionInfoText != null) item.missionInfoText.text = activemission.definition.description;
             for(int j = 0; j< activemission.definition.objectives.Length; j++)
             {
                 string objective = activemission.GetObjectiveDescription(j);

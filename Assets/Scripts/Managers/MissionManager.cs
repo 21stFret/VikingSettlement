@@ -20,7 +20,8 @@ public class MissionManager : MonoBehaviour, ISaveable
     public event Action<ActiveMission> OnMissionCompleted;
     public event Action<ActiveMission, int> OnObjectiveUpdated; // mission + objective index
 
-    public MissionTrackerUI missionTrackerUI;
+    [Tooltip("Every MissionTrackerUI instance that should reflect mission state (on-screen HUD tracker, player menu Quests panel, etc.)")]
+    public MissionTrackerUI[] missionTrackerUIs;
 
     public List<QuestGiver> questGivers = new List<QuestGiver>();
 
@@ -55,7 +56,10 @@ public class MissionManager : MonoBehaviour, ISaveable
             ResourceManager.OnResourceAdded += OnResourcesAdded;
         }
 
-        missionTrackerUI?.Init();
+        foreach (var tracker in missionTrackerUIs)
+        {
+            tracker?.Init();
+        }
     }
 
     private void OnDestroy()
