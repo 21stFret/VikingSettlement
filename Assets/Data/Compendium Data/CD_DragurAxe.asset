@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0efdb1c6acef1e46a12a729f69b16fe, type: 3}
   m_Name: CD_DragurAxe
   m_EditorClassIdentifier: Assembly-CSharp::CompendiumEntrySO
-  id: weapon_daxe
+  id: enemy_axe_draugr
   category: 1
   displayName: Corrupted Axe
   description: An axe wielded by dragur raiders, stained dark with age and grave-dirt.

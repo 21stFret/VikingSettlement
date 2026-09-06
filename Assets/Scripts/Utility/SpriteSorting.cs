@@ -31,8 +31,15 @@ public class SpriteSorting : MonoBehaviour
 
     private void LateUpdate()
     {
-        if(gameObject.isStatic) return; // No need to update static objects
+        if (gameObject.isStatic) return; // No need to update static objects
         // Lower Y position = higher sorting order (rendered on top)
-        spriteRenderer.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
+        }
+        else if (_particleSystem != null)
+        {
+            _particleSystem.sortingOrder = (int)(sortingOrderBase - transform.position.y * 100) + offset;
+        }
     }
 }

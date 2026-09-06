@@ -5,9 +5,7 @@ using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Collider2D))]
 public class GrindingWheel : WorldInteractable
-{
-    [Header("Settings")]
-    [SerializeField] private int clickPriority = 10;
+{    
     public Animator animator;
     public bool isGrinding = false;
     public ParticleSystem grindEffect;

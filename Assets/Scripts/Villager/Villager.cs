@@ -62,6 +62,7 @@ public class Villager : TargetHealth
 
     [Header("Wounds")]
     public List<WoundType> activeWounds = new List<WoundType>();
+    [SerializeField] private ParticleSystem bloodEffect;
 
     [Header("Save/Load")]
     [HideInInspector] public bool loadedFromSave = false; // Set by SettlementManager when loading
@@ -71,7 +72,7 @@ public class Villager : TargetHealth
 
     [Header("Visuals")]
     private Material _material;
-    public ParticleSystem bloodEffect;
+
 
     [Header("Speech Settings")]
     private float _timeSinceLastSpoke = 0f;
@@ -566,7 +567,7 @@ public class Villager : TargetHealth
     /// <summary>
     /// Visual feedback when taking damage.
     /// </summary>
-    protected override void OnDamageTaken(float finalDamage, EquipableItem weapon)
+    protected override void OnDamageTaken(float finalDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         if (personalUI != null)
         {
@@ -577,6 +578,12 @@ public class Villager : TargetHealth
 
         if (bloodEffect != null)
         {
+            Vector2 awayFromHit = (Vector2)transform.position - attackerPos;
+            float angle = awayFromHit.sqrMagnitude > 0.0001f
+                ? Mathf.Atan2(awayFromHit.y, awayFromHit.x) * Mathf.Rad2Deg + UnityEngine.Random.Range(-60f, 60f)
+                : UnityEngine.Random.Range(0f, 360f); // no attacker position (e.g. non-combat damage) - fall back to random
+            var shape = bloodEffect.shape;
+            shape.rotation = new Vector3(0, 0, angle);
             bloodEffect.Play();
         }
 
