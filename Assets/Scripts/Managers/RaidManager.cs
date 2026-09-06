@@ -10,8 +10,10 @@ using System.Linq;
 /// On return, stores a PendingRaidResults snapshot; GameManager loads the pre-raid
 /// autosave then calls ApplyPendingResults() to patch loot/casualties/time on top.
 ///
-/// Settlement time lost is determined solely by RaidDestinationData.travelTimeHours
-/// (there and back), not by how long the player spends fighting.
+/// Settlement time lost = RaidDestinationData.travelTimeHours (there, back, and any hops between
+/// legs) PLUS however long was actually spent fighting — each raid scene's own DayNightManager
+/// ticks live while you play it (see ApplyArrivalTime/AdvanceLastTimestamp), instead of the whole
+/// trip being a single fixed formula computed after the fact.
 /// </summary>
 public class RaidManager : MonoBehaviour
 {
@@ -35,6 +37,22 @@ public class RaidManager : MonoBehaviour
     private List<VillagerSave> partySnapshot = new List<VillagerSave>();
     private int _raidStartAbsoluteDay;
     private float _raidStartTimeOfDay;
+
+    // Live checkpoint of "where the clock is right now" — seeded from the settlement at StartRaid,
+    // then re-captured off the raid scene's own (now-ticking) DayNightManager every time a leg ends
+    // (ContinueRaid/EndRaid), before that scene unloads. Advanced by travel time on top of whatever
+    // the checkpoint is when a new scene is about to load. This is what makes settlement time lost
+    // equal travel time + however long was actually spent fighting, instead of a fixed formula.
+    private int _lastAbsoluteDay;
+    private float _lastTimeOfDay;
+    private float _pendingArrivalTravelDays;
+
+    // Weather snapshot taken the moment the party leaves the settlement. Raid scenes have no
+    // CalendarManager/SeasonManager/StormScheduler of their own, so WeatherManager falls back to
+    // this frozen-at-departure reading instead (see WeatherManager.GetDailyWeatherInputs).
+    private bool _weatherIsStorm;
+    private bool _weatherIsWinter;
+    private int _weatherColdLevel;
 
     [Header("Raid Chain")]
     [Tooltip("Placeholder flat cost (in game-days) added to totalTimeAway for every hop after the first. Will be replaced by real per-location distances.")]
@@ -178,6 +196,14 @@ public class RaidManager : MonoBehaviour
         // Capture time anchor immediately before the autosave snapshot
         _raidStartAbsoluteDay = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentAbsoluteDay : 0;
         _raidStartTimeOfDay   = DayNightManager.Instance != null ? DayNightManager.Instance.CurrentTimeOfDay   : 0f;
+        _lastAbsoluteDay = _raidStartAbsoluteDay;
+        _lastTimeOfDay   = _raidStartTimeOfDay;
+        _pendingArrivalTravelDays = destination.GetOneWayGameDays();
+
+        // Freeze today's weather for the raid scene to use — see WeatherManager.GetDailyWeatherInputs
+        _weatherIsStorm    = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+        _weatherIsWinter   = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+        _weatherColdLevel  = CalendarManager.Instance != null ? (int)CalendarManager.Instance.GetCurrentDayData().coldDayType : 0;
 
         // Snapshot full pre-raid settlement state — this is what we restore on return
         SaveManager.Instance?.SaveAuto();
@@ -310,6 +336,36 @@ public class RaidManager : MonoBehaviour
             GameTickManager.Instance.SetPaused(true);
     }
 
+    /// <summary>
+    /// Called by RaidSceneController.Start() once the raid scene's own DayNightManager exists.
+    /// Advances the live checkpoint by the travel time owed for arriving here (set by StartRaid/
+    /// ContinueRaid) and seeds the scene's clock to it, so the sun/day are correct from frame one
+    /// instead of sitting at whatever Day 1/noon default the scene was authored with.
+    /// </summary>
+    public void ApplyArrivalTime()
+    {
+        AdvanceLastTimestamp(_pendingArrivalTravelDays);
+        _pendingArrivalTravelDays = 0f;
+        DayNightManager.Instance?.SetDateTime(_lastAbsoluteDay, _lastTimeOfDay);
+    }
+
+    /// <summary>Frozen-at-departure weather reading for WeatherManager to use in a scene with no
+    /// CalendarManager of its own (i.e. a raid scene). See WeatherManager.GetDailyWeatherInputs.</summary>
+    public (bool isStorm, bool isWinter, int coldLevel) GetWeatherSnapshot()
+        => (_weatherIsStorm, _weatherIsWinter, _weatherColdLevel);
+
+    private void AdvanceLastTimestamp(float days)
+    {
+        int wholeDays = Mathf.FloorToInt(days);
+        _lastTimeOfDay += days - wholeDays;
+        if (_lastTimeOfDay >= 1f)
+        {
+            _lastTimeOfDay -= 1f;
+            wholeDays++;
+        }
+        _lastAbsoluteDay += wholeDays;
+    }
+
     #endregion
 
     /// <summary>
@@ -376,10 +432,21 @@ public class RaidManager : MonoBehaviour
             raidParty.Remove(casualty);
 
         float raidRealTime   = Time.time - raidStartTime;
-        // Core formula: D1 + hopCost x hops-after-first (already folded into totalTimeAway
-        // by ContinueRaid) + D_current (one-way trip home from wherever we are now).
-        // Zero-hop case: totalTimeAway == D1, currentRaid == first destination -> D1 + D1 == 2xD1 (matches old GetGameDaysPassed()).
-        float gameDaysPassed = totalTimeAway + currentRaid.GetOneWayGameDays();
+
+        // Capture the live clock as it stands at the end of the final leg's fight — before this
+        // scene unloads and takes its ticking DayNightManager with it — then add the trip-home
+        // travel time on top of it.
+        if (DayNightManager.Instance != null)
+        {
+            _lastAbsoluteDay = DayNightManager.Instance.CurrentAbsoluteDay;
+            _lastTimeOfDay   = DayNightManager.Instance.CurrentTimeOfDay;
+        }
+        AdvanceLastTimestamp(currentRaid.GetOneWayGameDays());
+
+        // Total settlement days lost = every travel-time jump plus however long was actually spent
+        // fighting each leg, read straight off the two absolute-day/time-of-day checkpoints —
+        // replaces the old fixed totalTimeAway + one-way-home formula (which ignored fight duration).
+        float gameDaysPassed = (_lastAbsoluteDay + _lastTimeOfDay) - (_raidStartAbsoluteDay + _raidStartTimeOfDay);
 
         RaidReport raidReport = new RaidReport
         {
@@ -456,6 +523,15 @@ public class RaidManager : MonoBehaviour
         if (!isOnRaid || currentRaid == null) return false;
         if (nextDestination == null || visitedThisTrip.Contains(nextDestination)) return false;
 
+        // Capture the live clock as it stands at the end of this leg's fight — before this scene
+        // unloads and takes its ticking DayNightManager with it.
+        if (DayNightManager.Instance != null)
+        {
+            _lastAbsoluteDay = DayNightManager.Instance.CurrentAbsoluteDay;
+            _lastTimeOfDay   = DayNightManager.Instance.CurrentTimeOfDay;
+        }
+        _pendingArrivalTravelDays = hopCost;
+
         totalTimeAway += hopCost;
         currentRaid = nextDestination;
         visitedThisTrip.Add(nextDestination);
@@ -515,7 +591,9 @@ public class RaidManager : MonoBehaviour
                 .Select(v => v.uniqueId)
                 .ToList(),
             raidStartAbsoluteDay = _raidStartAbsoluteDay,
-            raidStartTimeOfDay   = _raidStartTimeOfDay
+            raidStartTimeOfDay   = _raidStartTimeOfDay,
+            endAbsoluteDay       = _lastAbsoluteDay,
+            endTimeOfDay         = _lastTimeOfDay
         };
 
         foreach (var survivor in raidReport.survivors)
@@ -671,11 +749,10 @@ public class RaidManager : MonoBehaviour
         SeasonManager.Instance?.AdvanceDays(days);
 
 
-        // 7. Restore time of day and date to post-raid position
-        int   endAbsoluteDay = pending.raidStartAbsoluteDay + Mathf.FloorToInt(pending.gameDaysPassed);
-        float endTimeOfDay   = pending.raidStartTimeOfDay + (pending.gameDaysPassed % 1f);
-        if (endTimeOfDay >= 1f) { endAbsoluteDay++; endTimeOfDay -= 1f; }
-        DayNightManager.Instance?.SetDateTime(endAbsoluteDay, endTimeOfDay);
+        // 7. Restore time of day and date to post-raid position — the exact checkpoint captured
+        // live off the raid scene's own clock (travel time + actual time spent fighting), not
+        // re-derived from gameDaysPassed.
+        DayNightManager.Instance?.SetDateTime(pending.endAbsoluteDay, pending.endTimeOfDay);
 
         // Rebuild calendar window from the new time position. DayNightManager.AdvanceDays and
         // SeasonManager.AdvanceDays are intentionally silent (no OnNewDay fired), so
@@ -1021,6 +1098,8 @@ public class PendingRaidResults
     public List<string> raidPartyIds;
     public int raidStartAbsoluteDay;
     public float raidStartTimeOfDay;
+    public int endAbsoluteDay;
+    public float endTimeOfDay;
 }
 
 #endregion

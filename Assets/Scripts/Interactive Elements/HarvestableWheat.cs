@@ -160,7 +160,7 @@ public class HarvestableWheat : TargetHealth
 
     private void OnDestroy()
     {
-        if (GameTickManager.Instance != null)
+        if (GameTickManager.Exists)
             GameTickManager.Instance.OnGameTick -= UpdateFromTickManager;
     }
 }

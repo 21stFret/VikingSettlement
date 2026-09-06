@@ -47,7 +47,7 @@ public class TargetHealth : MonoBehaviour
         if (finalDamage > 0f)
         {
             OnSignificantHPDamage(finalDamage);
-            OnDamageTaken(finalDamage, weapon);
+            OnDamageTaken(finalDamage, weapon, attackerPos);
         }
         if (gameObject.layer != 9 && weapon != null)
         {
@@ -74,7 +74,7 @@ public class TargetHealth : MonoBehaviour
     /// <summary>
     /// Called after damage is applied. Override for visual feedback, UI updates, etc.
     /// </summary>
-    protected virtual void OnDamageTaken(float finalDamage, EquipableItem weapon)
+    protected virtual void OnDamageTaken(float finalDamage, EquipableItem weapon, Vector2 attackerPos)
     {
         // Base implementation does nothing - override in subclasses.
         // Deliberately NOT calling HitFeedback.Instance?.OnHit() here: this base class is also
@@ -116,7 +116,7 @@ public class TargetHealth : MonoBehaviour
         GetComponent<CharacterAI>()?.ReleaseEngagementSlot();
 
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        if (rb != null)
+        if (rb != null && !gameObject.isStatic)
         {
             rb.linearVelocity = Vector2.zero; 
             rb.simulated = false;

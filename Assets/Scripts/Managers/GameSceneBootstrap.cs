@@ -25,14 +25,15 @@ public class GameSceneBootstrap : MonoBehaviour
         bool isGameScene = GameManager.Instance != null
             && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameManager.Instance.GameSceneName;
 
+        // Layer 0/1: GameTickManager + DayNightManager run in every scene, not just the settlement —
+        // the raid scene has its own DayNightManager (different day length/lighting) and needs it
+        // ticking so time/weather progress live during a raid instead of sitting frozen. GameTickManager
+        // has no scene GameObject of its own there; its lazy Instance getter creates one on demand.
+        GameTickManager.Instance?.Initialize();
+        DayNightManager.Instance?.Initialize();
+
         if (isGameScene)
         {
-            // Layer 0: no dependencies
-            GameTickManager.Instance?.Initialize();
-
-            // Layer 1: needs GameTickManager
-            DayNightManager.Instance?.Initialize();
-
             // Layer 2: needs GameTickManager + DayNightManager
             SeasonManager.Instance?.Initialize();
 
@@ -96,7 +97,6 @@ public class GameSceneBootstrap : MonoBehaviour
 
         if (isNewGame && !testing)
         {
-            SaveManager.Instance?.SaveToCurrentSlot();
             CutsceneManager.Instance?.StartNewGameCutscene();
         }
         else
@@ -104,7 +104,7 @@ public class GameSceneBootstrap : MonoBehaviour
             CutsceneManager.Instance?.InitSavedCustSceneData();
         }
 
-
         GameManager.Instance.SetShouldLoad();
+        SaveManager.Instance?.SaveToCurrentSlot();
     }
 }

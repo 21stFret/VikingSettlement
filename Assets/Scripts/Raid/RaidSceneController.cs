@@ -85,6 +85,9 @@ public class RaidSceneController : MonoBehaviour
         // Auto-start raid when scene loads
         if (RaidManager.Instance != null && RaidManager.Instance.IsOnRaid)
         {
+            // Seed this scene's clock to the correct arrival time (last checkpoint + travel time)
+            // before anything else runs, so lighting/weather are right from frame one.
+            RaidManager.Instance.ApplyArrivalTime();
             StartBattle();
         }
         else

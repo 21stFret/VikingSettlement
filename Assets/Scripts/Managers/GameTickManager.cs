@@ -7,7 +7,27 @@ using System;
 /// </summary>
 public class GameTickManager : MonoBehaviour
 {
-    public static GameTickManager Instance { get; private set; }
+    // Self-instantiating like FightManager — raid scenes carry no GameTickManager GameObject of
+    // their own (only the settlement scene does), so the lazy getter spins one up there with
+    // default tuning instead of requiring every raid scene to be hand-edited to include one.
+    private static GameTickManager _instance;
+    public static GameTickManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                var go = new GameObject(nameof(GameTickManager));
+                _instance = go.AddComponent<GameTickManager>();
+            }
+            return _instance;
+        }
+    }
+
+    /// <summary>True if an instance already exists, without triggering lazy creation — use this
+    /// (not Instance) from teardown paths like OnDestroy, so unsubscribing after GameTickManager's
+    /// own OnDestroy has already run doesn't spin up a fresh one mid-teardown.</summary>
+    public static bool Exists => _instance != null;
 
     [Header("Tick Settings")]
     [Tooltip("Tick rate for game simulation (ticks per second)")]
@@ -42,11 +62,11 @@ public class GameTickManager : MonoBehaviour
     {
         // Scene-local singleton - don't persist across scenes
         // This allows UI buttons wired in the scene to work properly on reload
-        if (Instance != null && Instance != this)
+        if (_instance != null && _instance != this)
         {
-            Destroy(Instance.gameObject);
+            Destroy(_instance.gameObject);
         }
-        Instance = this;
+        _instance = this;
         baseTimeScale = Time.timeScale;
     }
 
@@ -58,12 +78,12 @@ public class GameTickManager : MonoBehaviour
     private void OnDestroy()
     {
         // Clear instance when destroyed to prevent stale references
-        if (Instance == this)
+        if (_instance == this)
         {
             // Clear event subscribers to prevent memory leaks
             OnGameTick = null;
             OnFastUpdate = null;
-            Instance = null;
+            _instance = null;
         }
     }
 

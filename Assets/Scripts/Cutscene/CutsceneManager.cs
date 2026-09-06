@@ -87,6 +87,14 @@ namespace Cutscenes
             }
         }
 
+        private void OnDestroy()
+        {
+            // Not DontDestroyOnLoad — clear the stale reference on scene unload so callers using
+            // Instance?.Init() (which doesn't respect Unity's fake-null) see a real null instead of
+            // touching this destroyed instance's already-destroyed letterbox RectTransforms.
+            if (Instance == this) Instance = null;
+        }
+
         public void Init()
         {
             letterboxTopTarget = letterboxTop.anchoredPosition;

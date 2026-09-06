@@ -156,7 +156,7 @@ public class DayNightManager : MonoBehaviour, ISaveable
 
     private void OnDestroy()
     {
-        if (GameTickManager.Instance != null)
+        if (GameTickManager.Exists)
         {
             GameTickManager.Instance.OnGameTick -= OnTick;
             GameTickManager.Instance.OnFastUpdate -= FastUpdate;

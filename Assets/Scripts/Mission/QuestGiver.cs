@@ -19,7 +19,6 @@ public class QuestGiver : WorldInteractable
 
     [Header("Interaction")]
     [SerializeField] private Collider2D interactionCollider;
-    [SerializeField] private int clickPriority = 5;
 
     // State
     private int currentMissionIndex = 0;

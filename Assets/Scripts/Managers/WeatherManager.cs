@@ -56,13 +56,6 @@ public class WeatherManager : MonoBehaviour
     [SerializeField] private bool isStormActive = false;
     [SerializeField] private float weatherIntensity = 1f;
 
-    [Header("Weather Duration (Auto Mode)")]
-    [Tooltip("Minimum weather duration in days (0.5 = half day)")]
-    public float minWeatherDuration = 0.5f;
-    [Tooltip("Maximum weather duration in days (1.0 = full day)")]
-    public float maxWeatherDuration = 1f;
-    [SerializeField] private float currentWeatherDuration = 0f;
-
     [Header("Rain/Storm Effects")]
     [Tooltip("Sun intensity multiplier during rain/storm (0.5 = 50% darker)")]
     [Range(0f, 1f)]
@@ -189,10 +182,33 @@ public class WeatherManager : MonoBehaviour
         // }
 
         // Apply correct weather immediately so it's right on scene load, not after the first day tick
-        bool initIsStorm = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
-        bool initIsWinter = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        var (initIsStorm, initIsWinter, coldLevel) = GetDailyWeatherInputs();
         ApplyWeatherForDay(initIsStorm, initIsWinter, coldLevel);
+    }
+
+    /// <summary>
+    /// Storm/winter/cold-day inputs for ApplyWeatherForDay. CalendarManager/SeasonManager/
+    /// StormScheduler are settlement-only (no GameObject in a raid scene), so casting
+    /// CalendarManager.Instance?.GetCurrentDayData().coldDayType straight to int there would throw
+    /// (null Nullable&lt;ColdDayType&gt;) — this branches to RaidManager's departure-time weather
+    /// snapshot instead. ponytail: frozen-at-departure weather during raids, not a live projection;
+    /// the real fix is a persistent, pre-generated calendar raid scenes can read directly — deferred,
+    /// separate task.
+    /// </summary>
+    private (bool isStorm, bool isWinter, int coldLevel) GetDailyWeatherInputs()
+    {
+        if (CalendarManager.Instance != null)
+        {
+            bool isStorm = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
+            bool isWinter = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
+            int coldLevel = (int)CalendarManager.Instance.GetCurrentDayData().coldDayType;
+            return (isStorm, isWinter, coldLevel);
+        }
+
+        if (RaidManager.Instance != null)
+            return RaidManager.Instance.GetWeatherSnapshot();
+
+        return (false, false, 0);
     }
 
     private void OnDayNightChanged(bool isDaytime)
@@ -495,9 +511,7 @@ public class WeatherManager : MonoBehaviour
 
     private void OnWeatherNewDay()
     {
-        bool isStorm = StormScheduler.Instance != null && StormScheduler.Instance.GetCurrentDayWoodMultiplier() > 1f;
-        bool isWinter = SeasonManager.Instance != null && SeasonManager.Instance.GetCurrentSeason() == SeasonManager.Season.Winter;
-        int coldLevel = (int)CalendarManager.Instance?.GetCurrentDayData().coldDayType;
+        var (isStorm, isWinter, coldLevel) = GetDailyWeatherInputs();
         ApplyWeatherForDay(isStorm, isWinter, coldLevel);
     }
 

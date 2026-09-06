@@ -1600,14 +1600,6 @@ PrefabInstance:
       propertyPath: m_ShadowMesh.m_LocalBounds.m_Center.y
       value: -0.0000076293945
       objectReference: {fileID: 0}
-    - target: {fileID: 1117938454853228133, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.99
-      objectReference: {fileID: 0}
-    - target: {fileID: 1117938454853228133, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.97
-      objectReference: {fileID: 0}
     - target: {fileID: 2749099188509307502, guid: fdec79d441afde148a4ecca60bd06e65, type: 3}
       propertyPath: m_Name
       value: Building (Lumber Camp) Variant
